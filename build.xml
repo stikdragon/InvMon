@@ -1,0 +1,33 @@
+<project default="compile" xmlns:ivy="antlib:org.apache.ivy.ant">
+
+	<property name="version" value="1.0" />
+
+	<target name="clean">
+		<delete dir="build" />
+	</target>
+
+	<path id="cp">
+		<fileset dir="lib/ivy">
+			<include name="json-*.jar" />
+			<include name="junit-*.jar" />
+		</fileset>
+	</path>
+
+	<target name="showPaths">
+		<pathconvert property="classpath.path" refid="cp" />
+		<echo message="classpath = ${classpath.path}" />
+	</target>
+
+
+	<target name="compile" depends="clean">
+		<mkdir dir="build/classes" />
+		<javac srcdir="src" destdir="build/classes" includeantruntime="false" modulepathref="cp">
+		</javac>
+	</target>
+
+	<target name="resolve" description="retrieve dependencies with ivy">
+		<ivy:retrieve pattern="lib/ivy/[artifact](-[classifier])-[revision].[ext]" />
+	</target>
+
+
+</project>

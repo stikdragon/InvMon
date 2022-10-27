@@ -1,0 +1,14 @@
+<ivy-module version="2.0">
+	<info organisation="uk.co.stikman" module="invmon" />
+
+	<dependencies>
+		<dependency org="org.json" name="json" rev="20200518"/>
+		<dependency org="commons-io" name="commons-io" rev="2.7" />
+		<dependency org="com.fazecast" name="jSerialComm" rev="[2.0.0,3.0.0)"/>
+	</dependencies>
+
+
+
+
+
+</ivy-module>
