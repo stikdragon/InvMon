@@ -3,11 +3,10 @@ package uk.co.stikman.invmon;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
+
+import uk.co.stikman.invmon.inverter.InverterUtils;
 
 public class ConsoleOutput {
 	public static final String		RESET			= "\u001B[0m";
@@ -59,18 +58,47 @@ public class ConsoleOutput {
 		return this;
 	}
 
-	public ConsoleOutput printFloat(float f, int dp) {
-		return printFloat(f, dp, null);
+	public ConsoleOutput printFloat(float f, int digits, int dp) {
+		return printFloat(f, digits, dp, null);
 	}
 
-	public ConsoleOutput printFloat(float f, int dp, String suffix) {
+	public ConsoleOutput printFloat(float f, int digits, int dp, String suffix) {
 		DecimalFormat df = new DecimalFormat();
 		df.setMaximumFractionDigits(dp);
 		df.setMinimumFractionDigits(dp);
 		df.setGroupingUsed(false);
+		String s = df.format(f);
+
+		String pad = InverterUtils.stringOfChar(digits - s.length(), ' ');
+
+		if (pad.length() > 0) {
+			output.print(BRIGHT_BLACK);
+			output.print(pad);
+		}
 
 		output.print(BRIGHT_YELLOW);
-		output.print(df.format(f));
+		output.print(s);
+		output.print(RESET);
+		if (suffix != null)
+			output.print(suffix);
+		return this;
+	}
+
+	public ConsoleOutput printInt(float f, int digits) {
+		return printInt(f, digits, null);
+	}
+
+	public ConsoleOutput printInt(float f, int digits, String suffix) {
+		int n = (int) f;
+		String s = Integer.toString(n);
+		String pad = InverterUtils.stringOfChar(digits - s.length(), ' ');
+
+		if (pad.length() > 0) {
+			output.print(BRIGHT_BLACK);
+			output.print(pad);
+		}
+		output.print(BRIGHT_YELLOW);
+		output.print(s);
 		output.print(RESET);
 		if (suffix != null)
 			output.print(suffix);
@@ -122,7 +150,7 @@ public class ConsoleOutput {
 		try {
 			output.flush();
 			outputBuffer.flush();
-			
+
 			target.print(new String(outputBuffer.toByteArray(), StandardCharsets.UTF_8));
 			target.println();
 			target.flush();

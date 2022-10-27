@@ -141,8 +141,8 @@ public class PIP8048MAX {
 	private static final int[] CRC_TABLE = new int[] { 0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50a5, 0x60c6, 0x70e7, 0x8108, 0x9129, 0xa14a, 0xb16b, 0xc18c, 0xd1ad, 0xe1ce, 0xf1ef };
 
 	/**
-	 * this seems to be a weird type of CRC16 with a custom table perhaps? and some
-	 * fettling at the end
+	 * this seems to be a weird type of CRC16 with a custom table perhaps? and
+	 * some fettling at the end
 	 * 
 	 * @param data
 	 * @return
@@ -212,22 +212,44 @@ public class PIP8048MAX {
 		dri.fromTemplateResult(parts);
 		return dri;
 	}
-	
-	
+
 	public DeviceFlags getDeviceFlags() {
 		DeviceFlags flags = new DeviceFlags();
 		flags.fromLine(query("QFLAG"));
 		return flags;
 	}
 
-	private static final Template TPL_QPIGS = new Template("<BBB.B> <CC.C> <DDD.D> <EE.E> <FFFF> <GGGG> <HHH> <III> <JJ.JJ> <KKK> <OOO> <TTTT> <ee.e> <UUU.U> <WW.WW> <PPPPP> <AAAAAAAA> <QQ> <VV> <MMMMM> <ZZZ>");
-	private static final Template TPL_QPIGS2 = new Template("<AA.A> <BBB.B> <CCCCC>");
-	
+	private static final Template	TPL_QPIGS	= new Template("<BBB.B> <CC.C> <DDD.D> <EE.E> <FFFF> <GGGG> <HHH> <III> <JJ.JJ> <KKK> <OOO> <TTTT> <ee.e> <UUU.U> <WW.WW> <PPPPP> <AAAAAAAA> <QQ> <VV> <MMMMM> <ZZZ>");
+	private static final Template	TPL_QPIGS2	= new Template("<AA.A> <BBB.B> <CCCCC>");
+
 	public DeviceStatus getStatus() {
 		DeviceStatus s = new DeviceStatus();
 		s.fromTemplateResultPart1(TPL_QPIGS.apply(query("QPIGS")));
 		s.fromTemplateResultPart2(TPL_QPIGS2.apply(query("QPIGS2")));
 		return s;
+	}
+
+	public DeviceMode getDeviceMode() {
+		String s = query("QMOD");
+		if (s.length() != 2)
+			throw new CommunicationError("Invalid response: " + s);
+		if (s.charAt(0) != '(')
+			throw new CommunicationError("Invalid response: " + s);
+		switch (s.charAt(1)) {
+		case 'P':
+			return DeviceMode.POWER_ON;
+		case 'S':
+			return DeviceMode.STANDBY;
+		case 'L':
+			return DeviceMode.LINE;
+		case 'B':
+			return DeviceMode.BATTERY;
+		case 'F':
+			return DeviceMode.FAULT;
+		case 'D':
+			return DeviceMode.SHUTDOWN;
+		}
+		throw new CommunicationError("Invalid response: " + s);
 	}
 
 }
