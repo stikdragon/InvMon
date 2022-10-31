@@ -1,7 +1,9 @@
-package uk.co.stikman.invmon.inverter;
+package uk.co.stikman.invmon.inverter.PIP8048MAX;
 
 import java.util.HashSet;
 import java.util.Set;
+
+import uk.co.stikman.invmon.inverter.InverterUtils;
 
 public class DeviceFlags {
 

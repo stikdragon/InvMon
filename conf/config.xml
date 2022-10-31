@@ -1,0 +1,8 @@
+<InvMon>
+
+    <FakeInverter id="invA" port="/com/ttyUSBe1" rate="2000" type="PIP8048MAX" />
+
+    <ConsoleOutput id="console" />
+
+    <HTMLOutput id="htmlout" target="g:\junk\inv.html" />
+</InvMon>

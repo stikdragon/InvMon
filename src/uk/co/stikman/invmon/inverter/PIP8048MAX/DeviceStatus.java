@@ -1,4 +1,8 @@
-package uk.co.stikman.invmon.inverter;
+package uk.co.stikman.invmon.inverter.PIP8048MAX;
+
+import uk.co.stikman.invmon.inverter.BatteryChargeStage;
+import uk.co.stikman.invmon.inverter.InverterUtils;
+import uk.co.stikman.invmon.inverter.TemplateResult;
 
 public class DeviceStatus {
 	private float	gridV;
@@ -182,6 +186,18 @@ public class DeviceStatus {
 		pv2I = parts.getFloat("A");
 		pv2V = parts.getFloat("B");
 		pv2P = parts.getFloat("C");
+	}
+
+	public BatteryChargeStage getBatteryChargeStage() {
+		if (batteryChargeI == 0 && batteryDischargeI == 0)
+			return BatteryChargeStage.IDLE;
+		if (batteryDischargeI > 0)
+			return BatteryChargeStage.DISCHARGING;
+		if (deviceStatus.charAt(4) == '1')
+			return BatteryChargeStage.CHARGE_ABSORB;
+		if (deviceStatus2.charAt(0) == '1')
+			return BatteryChargeStage.CHARGE_FLOAT;
+		return BatteryChargeStage.CHARGE_BULK; // i guess if it's not the others then it must be this?
 	}
 
 }

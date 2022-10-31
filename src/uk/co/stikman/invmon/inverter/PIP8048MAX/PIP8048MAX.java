@@ -1,4 +1,4 @@
-package uk.co.stikman.invmon.inverter;
+package uk.co.stikman.invmon.inverter.PIP8048MAX;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -8,11 +8,16 @@ import java.util.function.Consumer;
 
 import com.fazecast.jSerialComm.SerialPort;
 
+import uk.co.stikman.invmon.inverter.CommunicationError;
+import uk.co.stikman.invmon.inverter.Template;
+import uk.co.stikman.invmon.inverter.TemplateResult;
+
 public class PIP8048MAX {
 
 	private SerialPort			port;
 	private long				started;
 	private Consumer<String>	logHandler;
+
 
 	public Consumer<String> getLogHandler() {
 		return logHandler;

@@ -1,164 +1,86 @@
 package uk.co.stikman.invmon;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
-import java.text.DecimalFormat;
+import org.w3c.dom.Element;
 
-import uk.co.stikman.invmon.inverter.InverterUtils;
+public class ConsoleOutput implements ProcessPart, RecordListener {
 
-public class ConsoleOutput {
-	public static final String		RESET			= "\u001B[0m";
+	private Env					env;
+	private String				id;
+	private ConsoleTextOutput	console;
 
-	public static final String		BLACK			= "\u001B[30m";
-	public static final String		RED				= "\u001B[31m";
-	public static final String		GREEN			= "\u001B[32m";
-	public static final String		YELLOW			= "\u001B[33m";
-	public static final String		BLUE			= "\u001B[34m";
-	public static final String		PURPLE			= "\u001B[35m";
-	public static final String		CYAN			= "\u001B[36m";
-	public static final String		WHITE			= "\u001B[37m";
-
-	public static final String		BRIGHT_BLACK	= "\u001B[30;1m";
-	public static final String		BRIGHT_RED		= "\u001B[31;1m";
-	public static final String		BRIGHT_GREEN	= "\u001B[32;1m";
-	public static final String		BRIGHT_YELLOW	= "\u001B[33;1m";
-	public static final String		BRIGHT_BLUE		= "\u001B[34;1m";
-	public static final String		BRIGHT_PURPLE	= "\u001B[35;1m";
-	public static final String		BRIGHT_CYAN		= "\u001B[36;1m";
-	public static final String		BRIGHT_WHITE	= "\u001B[37;1m";
-
-	private static final String		CLEAR			= "\033[H\033[2J";
-	private static final String		MOVE_TOPLEFT	= "\033[H";
-	private static final String		HIDE_CURSOR		= "\u001B[?25l";
-	private static final String		SHOW_CURSOR		= "\u001B[?25h";
-	private PrintStream				output;
-	private PrintStream				target;
-
-	private ByteArrayOutputStream	outputBuffer;
-
-	public ConsoleOutput(PrintStream output) {
-		this.target = output;
-		this.output = output;
+	public ConsoleOutput(String id, Env env) {
+		this.id = id;
+		this.env = env;
 	}
 
-	public ConsoleOutput clear() {
-		output.print(CLEAR);
-		return this;
+	@Override
+	public void configure(Element config) {
 	}
 
-	public ConsoleOutput println(String s) {
-		output.println(s);
-		return this;
+	@Override
+	public void start() {
+		console = new ConsoleTextOutput(System.out);
+		env.addListener(this);
 	}
 
-	public ConsoleOutput print(String s) {
-		output.print(s);
-		return this;
+	@Override
+	public String getId() {
+		return id;
 	}
 
-	public ConsoleOutput printFloat(float f, int digits, int dp) {
-		return printFloat(f, digits, dp, null);
+	public Env getEnv() {
+		return env;
 	}
 
-	public ConsoleOutput printFloat(float f, int digits, int dp, String suffix) {
-		DecimalFormat df = new DecimalFormat();
-		df.setMaximumFractionDigits(dp);
-		df.setMinimumFractionDigits(dp);
-		df.setGroupingUsed(false);
-		String s = df.format(f);
+	@Override
+	public void record(long id, InverterDataPoint rec) {
+		console.beginFrame();
+		console.clear();
+		console.hideCursor();
 
-		String pad = InverterUtils.stringOfChar(digits - s.length(), ' ');
-
-		if (pad.length() > 0) {
-			output.print(BRIGHT_BLACK);
-			output.print(pad);
+		console.moveTopLeft();
+		console.print("        Battery: ").printFloat(rec.getBattery().getV(), 2, 1, "V").print(" (").printFloat(rec.getStateOfCharge() * 100.0f, 2, 1, "%").print(")").spaces(4).newline();
+		String colour = "";
+		switch (rec.getMode()) {
+		case CHARGING:
+			colour = ConsoleTextOutput.BRIGHT_GREEN;
+			break;
+		case DISCHARGING:
+		case ERROR:
+			colour = ConsoleTextOutput.BRIGHT_RED;
+			break;
+		case OFFLINE:
+			colour = ConsoleTextOutput.BRIGHT_BLACK;
+			break;
 		}
-
-		output.print(BRIGHT_YELLOW);
-		output.print(s);
-		output.print(RESET);
-		if (suffix != null)
-			output.print(suffix);
-		return this;
-	}
-
-	public ConsoleOutput printInt(float f, int digits) {
-		return printInt(f, digits, null);
-	}
-
-	public ConsoleOutput printInt(float f, int digits, String suffix) {
-		int n = (int) f;
-		String s = Integer.toString(n);
-		String pad = InverterUtils.stringOfChar(digits - s.length(), ' ');
-
-		if (pad.length() > 0) {
-			output.print(BRIGHT_BLACK);
-			output.print(pad);
+		console.print("Battery current: ").printFloat(Math.abs(rec.getBattery().getI()), 2, 1, "A").print("  [ ").color(colour).print(rec.getMode().name()).reset().print(" ]").spaces(4).newline();
+		float pf = rec.getLoadPF();
+		console.print("           Load: ").printInt(rec.getLoad().getP(), 5, "W").print(" (active: ").printInt(rec.getLoad().getP() * pf, 5, "W").print(" PF: ").printFloat(pf, 1, 2).print(")").spaces(4).newline();
+		//
+		// solar stuff
+		//
+		//				console.print("           Mode: [ ").color(ConsoleOutput.BRIGHT_YELLOW).print(inv.getDeviceMode().name()).reset().print(" ]").spaces(4).newline();
+		float totp = 0.0f;
+		for (int i = 0; i < rec.getPvCount(); ++i) {
+			console.print("            PV" + (i + 1) + ": ").printInt(rec.getPv(i).getP(), 5, "W").print(" - ").printInt(rec.getPv(i).getV(), 3, "V").print(" @ ").printFloat(rec.getPv(i).getI(), 2, 1, "A").spaces(4).newline();
+			totp += rec.getPv(i).getP();
 		}
-		output.print(BRIGHT_YELLOW);
-		output.print(s);
-		output.print(RESET);
-		if (suffix != null)
-			output.print(suffix);
-		return this;
+		
+		console.print("       PV Total: ").printInt(totp, 5, "W").spaces(4).newline();
+
+		console.print("    Temperature: ").printFloat(rec.getTemperature(), 2, 1, "C").spaces(4).newline();
+		console.print("    Bus Voltage: ").printInt(rec.getBusVoltage(), 3, "V").spaces(4).newline();
+
+		console.print("Status1 :").color(ConsoleTextOutput.BRIGHT_PURPLE).print(rec.getMisc()).reset().spaces(4).newline();
+
+		console.showCursor();
+		console.endFrame();
+
 	}
 
-	public void newline() {
-		output.println();
-	}
-
-	public void moveTopLeft() {
-		output.print(MOVE_TOPLEFT);
-	}
-
-	public void hideCursor() {
-		output.print(HIDE_CURSOR);
-	}
-
-	public void showCursor() {
-		output.print(SHOW_CURSOR);
-	}
-
-	public ConsoleOutput color(String code) {
-		output.print(code);
-		return this;
-	}
-
-	public ConsoleOutput reset() {
-		output.print(RESET);
-		return this;
-	}
-
-	public ConsoleOutput spaces(int n) {
-		while (n-- > 0)
-			output.print(" ");
-		return this;
-	}
-
-	public void beginFrame() {
-		if (outputBuffer != null)
-			throw new IllegalStateException("endFrame() has not been called");
-		outputBuffer = new ByteArrayOutputStream();
-		output = new PrintStream(outputBuffer);
-	}
-
-	public void endFrame() {
-		if (outputBuffer == null)
-			throw new IllegalStateException("beginFrame() has not been called");
-		try {
-			output.flush();
-			outputBuffer.flush();
-
-			target.print(new String(outputBuffer.toByteArray(), StandardCharsets.UTF_8));
-			target.println();
-			target.flush();
-			outputBuffer = null;
-			output = target;
-		} catch (IOException e) {
-			throw new RuntimeException("IOException: " + e.getMessage(), e);
-		}
+	@Override
+	public void terminate() {
+		console = null;
 	}
 
 }
