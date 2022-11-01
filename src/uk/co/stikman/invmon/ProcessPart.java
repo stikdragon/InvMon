@@ -3,20 +3,38 @@ package uk.co.stikman.invmon;
 import org.w3c.dom.Element;
 
 /**
- * contructor must be <code>(Env env, String id)</code>
+ * contructor must be <code>(String id, Env env)</code>
  * 
  * @author stikd
  *
  */
-public interface ProcessPart {
+public abstract class ProcessPart {
 
-	String getId();
-	
-	void configure(Element config);
+	private final Env		env;
+	private final String	id;
 
-	void start() throws InvMonException;
-	void terminate();
+	public ProcessPart(String id, Env env) {
+		super();
+		this.id = id;
+		this.env = env;
+	}
 
+	public String getId() {
+		return id;
+	}
 
+	public abstract void configure(Element config);
+
+	public Env getEnv() {
+		return env;
+	}
+
+	public void start() throws InvMonException {
+		getEnv().getBus().register(this);
+	}
+
+	public void terminate() {
+		getEnv().getBus().unregister(this);
+	};
 
 }

@@ -6,7 +6,7 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 
-import uk.co.stikman.invmon.inverter.InverterUtils;
+import uk.co.stikman.invmon.inverter.InvUtil;
 
 public class ConsoleTextOutput {
 	public static final String		RESET			= "\u001B[0m";
@@ -69,7 +69,7 @@ public class ConsoleTextOutput {
 		df.setGroupingUsed(false);
 		String s = df.format(f);
 
-		String pad = InverterUtils.stringOfChar(digits - s.length(), ' ');
+		String pad = InvUtil.stringOfChar(digits - s.length(), ' ');
 
 		if (pad.length() > 0) {
 			output.print(BRIGHT_BLACK);
@@ -91,7 +91,7 @@ public class ConsoleTextOutput {
 	public ConsoleTextOutput printInt(float f, int digits, String suffix) {
 		int n = (int) f;
 		String s = Integer.toString(n);
-		String pad = InverterUtils.stringOfChar(digits - s.length(), ' ');
+		String pad = InvUtil.stringOfChar(digits - s.length(), ' ');
 
 		if (pad.length() > 0) {
 			output.print(BRIGHT_BLACK);

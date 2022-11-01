@@ -1,6 +1,6 @@
 package uk.co.stikman.invmon.minidb;
 
-public enum DataType {
+public enum FieldType {
 	STRING,
 	INT,
 	LONG,

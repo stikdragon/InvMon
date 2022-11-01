@@ -1,10 +1,16 @@
 <InvMon>
 
-    <FakeInverter id="invA" port="/com/ttyUSBe1" rate="2000" type="PIP8048MAX" />
+    <Settings updatePeriod="1000" />
 
-    <ConsoleOutput id="console" />
+    <Modules>
 
-    <!-- <HTMLOutput id="htmlout" target="g:\junk\inv.html" /> -->
+        <FakeInverter id="invA" port="/com/ttyUSBe1" rate="2000" type="PIP8048MAX" />
 
-    <DataLogger id="datalogger" file="junk\datalog.dat" />
+        <ConsoleOutput id="console" />
+
+        <!-- <HTMLOutput id="htmlout" target="g:\junk\inv.html" /> -->
+
+        <DataLogger id="datalogger" file="junk\datalog.dat" />
+    </Modules>
+
 </InvMon>

@@ -8,28 +8,30 @@ import java.nio.charset.StandardCharsets;
 
 import org.w3c.dom.Element;
 
-import uk.co.stikman.invmon.inverter.InverterUtils;
+import uk.co.stikman.eventbus.Subscribe;
+import uk.co.stikman.invmon.inverter.InvUtil;
 import uk.co.stikman.log.StikLog;
 
-public class HTMLOutput implements ProcessPart, RecordListener {
+public class HTMLOutput extends ProcessPart {
 	private static final StikLog	LOGGER	= StikLog.getLogger(HTMLOutput.class);
 	private Env						env;
 	private String					id;
 	private File					target;
 
 	public HTMLOutput(String id, Env env) {
+		super(id, env);
 		this.id = id;
 		this.env = env;
 	}
 
 	@Override
 	public void configure(Element config) {
-		this.target = new File(InverterUtils.getAttrib(config, "target"));
+		this.target = new File(InvUtil.getAttrib(config, "target"));
 	}
 
 	@Override
-	public void start() {
-		env.addListener(this);
+	public void start() throws InvMonException {
+		super.start();
 	}
 
 	@Override
@@ -41,8 +43,11 @@ public class HTMLOutput implements ProcessPart, RecordListener {
 		return env;
 	}
 
-	@Override
-	public void record(long id, InverterDataPoint rec) {
+	
+	@Subscribe(Events.POST_DATA)
+	public void postData(PollData data) {
+		InverterDataPoint rec = data.get("inverter");
+		
 		HTMLConsoleThing console = new HTMLConsoleThing();
 		console.beginFrame();
 		console.print("        Battery: ").printFloat(rec.getBattery().getV(), 2, 1, "V").print(" (").printFloat(rec.getStateOfCharge() * 100.0f, 2, 1, "%").print(")").newline();
@@ -88,8 +93,5 @@ public class HTMLOutput implements ProcessPart, RecordListener {
 		}
 	}
 
-	@Override
-	public void terminate() {
-	}
 
 }

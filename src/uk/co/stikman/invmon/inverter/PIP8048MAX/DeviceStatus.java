@@ -1,7 +1,7 @@
 package uk.co.stikman.invmon.inverter.PIP8048MAX;
 
 import uk.co.stikman.invmon.inverter.BatteryChargeStage;
-import uk.co.stikman.invmon.inverter.InverterUtils;
+import uk.co.stikman.invmon.inverter.InvUtil;
 import uk.co.stikman.invmon.inverter.TemplateResult;
 
 public class DeviceStatus {
@@ -130,30 +130,30 @@ public class DeviceStatus {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(InverterUtils.padLeft("gridV", 20)).append(": ").append(gridV).append("\n");
-		sb.append(InverterUtils.padLeft("gridF", 20)).append(": ").append(gridF).append("\n");
-		sb.append(InverterUtils.padLeft("outputV", 20)).append(": ").append(outputV).append("\n");
-		sb.append(InverterUtils.padLeft("outputF", 20)).append(": ").append(outputF).append("\n");
-		sb.append(InverterUtils.padLeft("outputApparentP", 20)).append(": ").append(outputApparentP).append("\n");
-		sb.append(InverterUtils.padLeft("outputActiveP", 20)).append(": ").append(outputActiveP).append("\n");
-		sb.append(InverterUtils.padLeft("outputLoad", 20)).append(": ").append(outputLoad).append("\n");
-		sb.append(InverterUtils.padLeft("busV", 20)).append(": ").append(busV).append("\n");
-		sb.append(InverterUtils.padLeft("batteryV", 20)).append(": ").append(batteryV).append("\n");
-		sb.append(InverterUtils.padLeft("batteryChargeI", 20)).append(": ").append(batteryChargeI).append("\n");
-		sb.append(InverterUtils.padLeft("batteryDischargeI", 20)).append(": ").append(batteryDischargeI).append("\n");
-		sb.append(InverterUtils.padLeft("batteryCapacity", 20)).append(": ").append(batteryCapacity).append("\n");
-		sb.append(InverterUtils.padLeft("pv1V", 20)).append(": ").append(pv1V).append("\n");
-		sb.append(InverterUtils.padLeft("pv1I", 20)).append(": ").append(pv1I).append("\n");
-		sb.append(InverterUtils.padLeft("pv1P", 20)).append(": ").append(pv1P).append("\n");
-		sb.append(InverterUtils.padLeft("pv2V", 20)).append(": ").append(pv2V).append("\n");
-		sb.append(InverterUtils.padLeft("pv2I", 20)).append(": ").append(pv2I).append("\n");
-		sb.append(InverterUtils.padLeft("pv2P", 20)).append(": ").append(pv2P).append("\n");
-		sb.append(InverterUtils.padLeft("inverterTemp", 20)).append(": ").append(inverterTemp).append("\n");
-		sb.append(InverterUtils.padLeft("sccBatteryV", 20)).append(": ").append(sccBatteryV).append("\n");
-		sb.append(InverterUtils.padLeft("deviceStatus", 20)).append(": ").append(deviceStatus).append("\n");
-		sb.append(InverterUtils.padLeft("deviceStatus2", 20)).append(": ").append(deviceStatus2).append("\n");
-		sb.append(InverterUtils.padLeft("fanOffsetV", 20)).append(": ").append(fanOffsetV).append("\n");
-		sb.append(InverterUtils.padLeft("eepromVersion", 20)).append(": ").append(eepromVersion).append("\n");
+		sb.append(InvUtil.padLeft("gridV", 20)).append(": ").append(gridV).append("\n");
+		sb.append(InvUtil.padLeft("gridF", 20)).append(": ").append(gridF).append("\n");
+		sb.append(InvUtil.padLeft("outputV", 20)).append(": ").append(outputV).append("\n");
+		sb.append(InvUtil.padLeft("outputF", 20)).append(": ").append(outputF).append("\n");
+		sb.append(InvUtil.padLeft("outputApparentP", 20)).append(": ").append(outputApparentP).append("\n");
+		sb.append(InvUtil.padLeft("outputActiveP", 20)).append(": ").append(outputActiveP).append("\n");
+		sb.append(InvUtil.padLeft("outputLoad", 20)).append(": ").append(outputLoad).append("\n");
+		sb.append(InvUtil.padLeft("busV", 20)).append(": ").append(busV).append("\n");
+		sb.append(InvUtil.padLeft("batteryV", 20)).append(": ").append(batteryV).append("\n");
+		sb.append(InvUtil.padLeft("batteryChargeI", 20)).append(": ").append(batteryChargeI).append("\n");
+		sb.append(InvUtil.padLeft("batteryDischargeI", 20)).append(": ").append(batteryDischargeI).append("\n");
+		sb.append(InvUtil.padLeft("batteryCapacity", 20)).append(": ").append(batteryCapacity).append("\n");
+		sb.append(InvUtil.padLeft("pv1V", 20)).append(": ").append(pv1V).append("\n");
+		sb.append(InvUtil.padLeft("pv1I", 20)).append(": ").append(pv1I).append("\n");
+		sb.append(InvUtil.padLeft("pv1P", 20)).append(": ").append(pv1P).append("\n");
+		sb.append(InvUtil.padLeft("pv2V", 20)).append(": ").append(pv2V).append("\n");
+		sb.append(InvUtil.padLeft("pv2I", 20)).append(": ").append(pv2I).append("\n");
+		sb.append(InvUtil.padLeft("pv2P", 20)).append(": ").append(pv2P).append("\n");
+		sb.append(InvUtil.padLeft("inverterTemp", 20)).append(": ").append(inverterTemp).append("\n");
+		sb.append(InvUtil.padLeft("sccBatteryV", 20)).append(": ").append(sccBatteryV).append("\n");
+		sb.append(InvUtil.padLeft("deviceStatus", 20)).append(": ").append(deviceStatus).append("\n");
+		sb.append(InvUtil.padLeft("deviceStatus2", 20)).append(": ").append(deviceStatus2).append("\n");
+		sb.append(InvUtil.padLeft("fanOffsetV", 20)).append(": ").append(fanOffsetV).append("\n");
+		sb.append(InvUtil.padLeft("eepromVersion", 20)).append(": ").append(eepromVersion).append("\n");
 
 		return sb.toString();
 	}

@@ -1,8 +1,9 @@
 package uk.co.stikman.invmon;
 
-import static uk.co.stikman.invmon.inverter.InverterUtils.getAttrib;
-import static uk.co.stikman.invmon.inverter.InverterUtils.getElements;
-import static uk.co.stikman.invmon.inverter.InverterUtils.loadXML;
+import static uk.co.stikman.invmon.inverter.InvUtil.getAttrib;
+import static uk.co.stikman.invmon.inverter.InvUtil.getElements;
+import static uk.co.stikman.invmon.inverter.InvUtil.getElement;
+import static uk.co.stikman.invmon.inverter.InvUtil.loadXML;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,6 +24,7 @@ public class Config {
 	private boolean						runWebserver	= false;
 	private IniFile						ini;
 	private List<ProcessPartDefinition>	things			= new ArrayList<>();
+	private int							updatePeriod;
 
 	public void loadFromFile(File f) throws IOException {
 		Document doc = loadXML(f);
@@ -33,7 +35,11 @@ public class Config {
 		thingtypes.put("HTMLOutput", HTMLOutput.class);
 		thingtypes.put("DataLogger ", DataLogger.class);
 
-		for (Element el : getElements(doc.getDocumentElement())) {
+		Element eset = getElement(doc.getDocumentElement(), "Settings");
+		this.updatePeriod = Integer.parseInt(getAttrib(eset, "updatePeriod"));
+
+		Element emod = getElement(doc.getDocumentElement(), "Modules");
+		for (Element el : getElements(emod)) {
 			Class<? extends ProcessPart> cls = thingtypes.get(el.getTagName());
 			if (cls != null) {
 				String id = getAttrib(el, "id");
@@ -62,6 +68,10 @@ public class Config {
 
 	public List<ProcessPartDefinition> getThings() {
 		return things;
+	}
+
+	public int getUpdatePeriod() {
+		return updatePeriod;
 	}
 
 }

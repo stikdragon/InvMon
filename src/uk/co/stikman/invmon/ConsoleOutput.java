@@ -2,16 +2,15 @@ package uk.co.stikman.invmon;
 
 import org.w3c.dom.Element;
 
-public class ConsoleOutput implements ProcessPart, RecordListener {
+import uk.co.stikman.eventbus.Subscribe;
 
-	private Env					env;
-	private String				id;
+public class ConsoleOutput extends ProcessPart {
+
 	private ConsoleTextOutput	console;
 	private boolean				firstTime	= true;
 
 	public ConsoleOutput(String id, Env env) {
-		this.id = id;
-		this.env = env;
+		super(id, env);
 	}
 
 	@Override
@@ -19,23 +18,20 @@ public class ConsoleOutput implements ProcessPart, RecordListener {
 	}
 
 	@Override
-	public void start() {
+	public void start() throws InvMonException {
+		super.start();
 		console = new ConsoleTextOutput(System.out);
-		env.addListener(this);
 		console.clear();
 	}
 
 	@Override
-	public String getId() {
-		return id;
+	public void terminate() {
+		console = null;
+		super.terminate();
 	}
 
-	public Env getEnv() {
-		return env;
-	}
-
-	@Override
-	public void record(long id, InverterDataPoint rec) {
+	@Subscribe(Events.POST_DATA)
+	public void postData(PollData data) {
 		if (firstTime) {
 			console.clear();
 			firstTime = false;
@@ -43,20 +39,22 @@ public class ConsoleOutput implements ProcessPart, RecordListener {
 		console.beginFrame();
 		console.hideCursor();
 
+		InverterDataPoint rec = data.get("invA");
+
 		console.moveTopLeft();
 		console.print("        Battery: ").printFloat(rec.getBattery().getV(), 2, 1, "V").print(" (").printFloat(rec.getStateOfCharge() * 100.0f, 2, 1, "%").print(")").spaces(4).newline();
 		String colour = "";
 		switch (rec.getMode()) {
-			case CHARGING:
-				colour = ConsoleTextOutput.BRIGHT_GREEN;
-				break;
-			case DISCHARGING:
-			case ERROR:
-				colour = ConsoleTextOutput.BRIGHT_RED;
-				break;
-			case OFFLINE:
-				colour = ConsoleTextOutput.BRIGHT_BLACK;
-				break;
+		case CHARGING:
+			colour = ConsoleTextOutput.BRIGHT_GREEN;
+			break;
+		case DISCHARGING:
+		case ERROR:
+			colour = ConsoleTextOutput.BRIGHT_RED;
+			break;
+		case OFFLINE:
+			colour = ConsoleTextOutput.BRIGHT_BLACK;
+			break;
 		}
 		String s = rec.getMode().name();
 		if (rec.getMode() == InverterMode.CHARGING)
@@ -83,12 +81,6 @@ public class ConsoleOutput implements ProcessPart, RecordListener {
 
 		console.showCursor();
 		console.endFrame();
-
-	}
-
-	@Override
-	public void terminate() {
-		console = null;
 	}
 
 }

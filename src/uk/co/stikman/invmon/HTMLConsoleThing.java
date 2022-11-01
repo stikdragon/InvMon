@@ -7,7 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.Scanner;
 
-import uk.co.stikman.invmon.inverter.InverterUtils;
+import uk.co.stikman.invmon.inverter.InvUtil;
 import uk.co.stikman.log.StikLog;
 
 public class HTMLConsoleThing {
@@ -49,7 +49,7 @@ public class HTMLConsoleThing {
 		df.setGroupingUsed(false);
 		String s = df.format(f);
 
-		String pad = InverterUtils.stringOfChar(digits - s.length(), ' ');
+		String pad = InvUtil.stringOfChar(digits - s.length(), ' ');
 
 		curCol = WHITE;
 		if (pad.length() > 0)
@@ -80,7 +80,7 @@ public class HTMLConsoleThing {
 	public HTMLConsoleThing printInt(float f, int digits, String suffix) {
 		int n = (int) f;
 		String s = Integer.toString(n);
-		String pad = InverterUtils.stringOfChar(digits - s.length(), ' ');
+		String pad = InvUtil.stringOfChar(digits - s.length(), ' ');
 
 		if (pad.length() > 0)
 			print(pad);

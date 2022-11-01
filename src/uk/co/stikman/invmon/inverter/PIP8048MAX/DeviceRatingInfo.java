@@ -6,7 +6,7 @@ import uk.co.stikman.invmon.inverter.InputVoltageRange;
 import uk.co.stikman.invmon.inverter.InverterOutputMode;
 import uk.co.stikman.invmon.inverter.InverterTopology;
 import uk.co.stikman.invmon.inverter.InverterType;
-import uk.co.stikman.invmon.inverter.InverterUtils;
+import uk.co.stikman.invmon.inverter.InvUtil;
 import uk.co.stikman.invmon.inverter.OutputSourcePriority;
 import uk.co.stikman.invmon.inverter.TemplateResult;
 
@@ -135,30 +135,30 @@ public class DeviceRatingInfo {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(InverterUtils.padLeft("GridRatingV", 30)).append(": ").append(getGridRatingV()).append("\n");
-		sb.append(InverterUtils.padLeft("GridRatingI", 30)).append(": ").append(getGridRatingI()).append("\n");
-		sb.append(InverterUtils.padLeft("OutputRatingV", 30)).append(": ").append(getOutputRatingV()).append("\n");
-		sb.append(InverterUtils.padLeft("OutputRatingF", 30)).append(": ").append(getOutputRatingF()).append("\n");
-		sb.append(InverterUtils.padLeft("OutputRatingI", 30)).append(": ").append(getOutputRatingI()).append("\n");
-		sb.append(InverterUtils.padLeft("OutputRatingApparentP", 30)).append(": ").append(getOutputRatingApparentP()).append("\n");
-		sb.append(InverterUtils.padLeft("OutputRatingActiveP", 30)).append(": ").append(getOutputRatingActiveP()).append("\n");
-		sb.append(InverterUtils.padLeft("BatteryRatingV", 30)).append(": ").append(getBatteryRatingV()).append("\n");
-		sb.append(InverterUtils.padLeft("BatteryRechargeV", 30)).append(": ").append(getBatteryRechargeV()).append("\n");
-		sb.append(InverterUtils.padLeft("BatteryUnderV", 30)).append(": ").append(getBatteryUnderV()).append("\n");
-		sb.append(InverterUtils.padLeft("BatteryBulkV", 30)).append(": ").append(getBatteryBulkV()).append("\n");
-		sb.append(InverterUtils.padLeft("BatteryFloatV", 30)).append(": ").append(getBatteryFloatV()).append("\n");
-		sb.append(InverterUtils.padLeft("BatteryType", 30)).append(": ").append(getBatteryType()).append("\n");
-		sb.append(InverterUtils.padLeft("MaxGridChargeI", 30)).append(": ").append(getMaxGridChargeI()).append("\n");
-		sb.append(InverterUtils.padLeft("MaxChargeI", 30)).append(": ").append(getMaxChargeI()).append("\n");
-		sb.append(InverterUtils.padLeft("InputVoltageRange", 30)).append(": ").append(getInputVoltageRange()).append("\n");
-		sb.append(InverterUtils.padLeft("OutputSourcePriority", 30)).append(": ").append(getOutputSourcePriority()).append("\n");
-		sb.append(InverterUtils.padLeft("ChargerSourcePriority", 30)).append(": ").append(getChargerSourcePriority()).append("\n");
-		sb.append(InverterUtils.padLeft("ParallelMax", 30)).append(": ").append(getParallelMax()).append("\n");
-		sb.append(InverterUtils.padLeft("MachineType", 30)).append(": ").append(getMachineType()).append("\n");
-		sb.append(InverterUtils.padLeft("Topology", 30)).append(": ").append(getTopology()).append("\n");
-		sb.append(InverterUtils.padLeft("OutputMode", 30)).append(": ").append(getOutputMode()).append("\n");
-		sb.append(InverterUtils.padLeft("BatteryReDischargeV", 30)).append(": ").append(getBatteryReDischargeV()).append("\n");
-		sb.append(InverterUtils.padLeft("MaxChargeTimeCV", 30)).append(": ").append(getMaxChargeTimeCV()).append("\n");
+		sb.append(InvUtil.padLeft("GridRatingV", 30)).append(": ").append(getGridRatingV()).append("\n");
+		sb.append(InvUtil.padLeft("GridRatingI", 30)).append(": ").append(getGridRatingI()).append("\n");
+		sb.append(InvUtil.padLeft("OutputRatingV", 30)).append(": ").append(getOutputRatingV()).append("\n");
+		sb.append(InvUtil.padLeft("OutputRatingF", 30)).append(": ").append(getOutputRatingF()).append("\n");
+		sb.append(InvUtil.padLeft("OutputRatingI", 30)).append(": ").append(getOutputRatingI()).append("\n");
+		sb.append(InvUtil.padLeft("OutputRatingApparentP", 30)).append(": ").append(getOutputRatingApparentP()).append("\n");
+		sb.append(InvUtil.padLeft("OutputRatingActiveP", 30)).append(": ").append(getOutputRatingActiveP()).append("\n");
+		sb.append(InvUtil.padLeft("BatteryRatingV", 30)).append(": ").append(getBatteryRatingV()).append("\n");
+		sb.append(InvUtil.padLeft("BatteryRechargeV", 30)).append(": ").append(getBatteryRechargeV()).append("\n");
+		sb.append(InvUtil.padLeft("BatteryUnderV", 30)).append(": ").append(getBatteryUnderV()).append("\n");
+		sb.append(InvUtil.padLeft("BatteryBulkV", 30)).append(": ").append(getBatteryBulkV()).append("\n");
+		sb.append(InvUtil.padLeft("BatteryFloatV", 30)).append(": ").append(getBatteryFloatV()).append("\n");
+		sb.append(InvUtil.padLeft("BatteryType", 30)).append(": ").append(getBatteryType()).append("\n");
+		sb.append(InvUtil.padLeft("MaxGridChargeI", 30)).append(": ").append(getMaxGridChargeI()).append("\n");
+		sb.append(InvUtil.padLeft("MaxChargeI", 30)).append(": ").append(getMaxChargeI()).append("\n");
+		sb.append(InvUtil.padLeft("InputVoltageRange", 30)).append(": ").append(getInputVoltageRange()).append("\n");
+		sb.append(InvUtil.padLeft("OutputSourcePriority", 30)).append(": ").append(getOutputSourcePriority()).append("\n");
+		sb.append(InvUtil.padLeft("ChargerSourcePriority", 30)).append(": ").append(getChargerSourcePriority()).append("\n");
+		sb.append(InvUtil.padLeft("ParallelMax", 30)).append(": ").append(getParallelMax()).append("\n");
+		sb.append(InvUtil.padLeft("MachineType", 30)).append(": ").append(getMachineType()).append("\n");
+		sb.append(InvUtil.padLeft("Topology", 30)).append(": ").append(getTopology()).append("\n");
+		sb.append(InvUtil.padLeft("OutputMode", 30)).append(": ").append(getOutputMode()).append("\n");
+		sb.append(InvUtil.padLeft("BatteryReDischargeV", 30)).append(": ").append(getBatteryReDischargeV()).append("\n");
+		sb.append(InvUtil.padLeft("MaxChargeTimeCV", 30)).append(": ").append(getMaxChargeTimeCV()).append("\n");
 		return sb.toString();
 	}
 

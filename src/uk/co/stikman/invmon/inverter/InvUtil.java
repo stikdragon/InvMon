@@ -18,7 +18,7 @@ import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-public class InverterUtils {
+public class InvUtil {
 	public static String padLeft(String s, int len) {
 		if (s == null)
 			s = "";
@@ -55,9 +55,20 @@ public class InverterUtils {
 		}
 	}
 
-	public static List<Element> getElements(Element doc) {
+	public static Element getElement(Element root, String name) {
+		Node n = root.getFirstChild();
+		while (n != null) {
+			if (n instanceof Element)
+				if (((Element) n).getTagName().equals(name))
+					return (Element) n;
+			n = n.getNextSibling();
+		}
+		throw new NoSuchElementException("Child element called [" + name + "] not found");
+	}
+
+	public static List<Element> getElements(Element root) {
 		List<Element> res = new ArrayList<>();
-		Node n = doc.getFirstChild();
+		Node n = root.getFirstChild();
 		while (n != null) {
 			if (n instanceof Element)
 				res.add((Element) n);
@@ -71,6 +82,12 @@ public class InverterUtils {
 			throw new NoSuchElementException("Element [" + el.getTagName() + "] is missing attribute [" + name + "]");
 		return el.getAttribute(name);
 
+	}
+
+	public static String getAttrib(Element el, String name, String def) {
+		if (!el.hasAttribute(name))
+			return def;
+		return el.getAttribute(name);
 	}
 
 }

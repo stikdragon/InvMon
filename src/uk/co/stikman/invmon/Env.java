@@ -5,36 +5,27 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import uk.co.stikman.invmon.datalog.DataLogger;
+import uk.co.stikman.eventbus.StringEventBus;
 
 public class Env {
-	private List<ProcessPart>		parts			= new ArrayList<>();
-	private List<RecordListener>	recordListeners	= new ArrayList<>();
-	private long					nextId			= 0;
+	private List<ProcessPart>	parts		= new ArrayList<>();
+	private long				nextId		= 0;
+	private StringEventBus		bus			= new StringEventBus();
+	private Thread				mainthread;
+	private boolean				terminated	= false;
+	private Config				config;
 
-	public void postRecord(InverterDataPoint rec) {
-		synchronized (this) {
-			long id = ++nextId;
-			for (RecordListener l : recordListeners)
-				l.record(id, rec);
-		}
-	}
-
-	public void addListener(RecordListener l) {
-		synchronized (this) {
-			recordListeners.add(l);
-		}
-	}
-
-	public void start() {
-		Config conf = new Config();
+	public void start() throws InvMonException {
+		bus.setImmediateMode(true);
+		
+		config = new Config();
 		try {
-			conf.loadFromFile(Paths.get("conf", "config.xml").toFile());
+			config.loadFromFile(Paths.get("conf", "config.xml").toFile());
 		} catch (IOException e) {
 			throw new RuntimeException("Failed to load config: " + e.getMessage(), e);
 		}
 
-		for (ProcessPartDefinition def : conf.getThings()) {
+		for (ProcessPartDefinition def : config.getThings()) {
 			try {
 				ProcessPart part = def.getClazz().getConstructor(String.class, Env.class).newInstance(def.getId(), this);
 				part.configure(def.getConfig());
@@ -47,13 +38,42 @@ public class Env {
 		for (ProcessPart part : parts)
 			part.start();
 
+		mainthread = new Thread(this::loop);
+		mainthread.start();
+	}
 
+	private void loop() {
+
+		for (;;) {
+			if (terminated)
+				return;
+
+			PollData data = new PollData();
+			bus.fire(Events.POLL_SOURCES, data);
+			bus.fire(Events.POST_DATA, data);
+
+			try {
+				Thread.sleep(config.getUpdatePeriod());
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+			}
+		}
 	}
 
 	public void terminate() {
+		terminated = true;
+		mainthread.interrupt();
+
 		// todo..
 		for (ProcessPart part : parts)
 			part.terminate();
+
+		try {
+			mainthread.join();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		mainthread = null;
 	}
 
 	public void awaitTermination() {
@@ -64,6 +84,10 @@ public class Env {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	public StringEventBus getBus() {
+		return bus;
 	}
 
 }

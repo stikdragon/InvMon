@@ -6,16 +6,12 @@ import java.io.InputStreamReader;
 
 import com.fazecast.jSerialComm.SerialPort;
 
-import uk.co.stikman.invmon.datalog.DataLogger;
 import uk.co.stikman.table.DataTable;
 
 public class InvMon {
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws Exception {
 		Env env = new Env();
 		env.start();
-
-		DataLogger logger = new DataLogger();
-		logger.setDatabaseFile("conf//inverterdata.db");
 
 		for (;;) {
 			int n = System.in.read();

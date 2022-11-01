@@ -3,7 +3,7 @@ package uk.co.stikman.invmon.inverter.PIP8048MAX;
 import java.util.HashSet;
 import java.util.Set;
 
-import uk.co.stikman.invmon.inverter.InverterUtils;
+import uk.co.stikman.invmon.inverter.InvUtil;
 
 public class DeviceFlags {
 
@@ -57,14 +57,14 @@ public class DeviceFlags {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(InverterUtils.padLeft("buzzer", 20)).append(": ").append(isBuzzer() ? "TRUE" : "-").append("\n");
-		sb.append(InverterUtils.padLeft("overloadBypass", 20)).append(": ").append(isOverloadBypass() ? "TRUE" : "-").append("\n");
-		sb.append(InverterUtils.padLeft("lcdReturnDefault", 20)).append(": ").append(isLcdReturnDefault() ? "TRUE" : "-").append("\n");
-		sb.append(InverterUtils.padLeft("overloadRestart", 20)).append(": ").append(isOverloadRestart() ? "TRUE" : "-").append("\n");
-		sb.append(InverterUtils.padLeft("overheatRestart", 20)).append(": ").append(isOverheatRestart() ? "TRUE" : "-").append("\n");
-		sb.append(InverterUtils.padLeft("backlight", 20)).append(": ").append(isBacklight() ? "TRUE" : "-").append("\n");
-		sb.append(InverterUtils.padLeft("alarmOnPrimaryLoss", 20)).append(": ").append(isAlarmOnPrimaryLoss() ? "TRUE" : "-").append("\n");
-		sb.append(InverterUtils.padLeft("faultRecord", 20)).append(": ").append(isFaultRecord() ? "TRUE" : "-").append("\n");
+		sb.append(InvUtil.padLeft("buzzer", 20)).append(": ").append(isBuzzer() ? "TRUE" : "-").append("\n");
+		sb.append(InvUtil.padLeft("overloadBypass", 20)).append(": ").append(isOverloadBypass() ? "TRUE" : "-").append("\n");
+		sb.append(InvUtil.padLeft("lcdReturnDefault", 20)).append(": ").append(isLcdReturnDefault() ? "TRUE" : "-").append("\n");
+		sb.append(InvUtil.padLeft("overloadRestart", 20)).append(": ").append(isOverloadRestart() ? "TRUE" : "-").append("\n");
+		sb.append(InvUtil.padLeft("overheatRestart", 20)).append(": ").append(isOverheatRestart() ? "TRUE" : "-").append("\n");
+		sb.append(InvUtil.padLeft("backlight", 20)).append(": ").append(isBacklight() ? "TRUE" : "-").append("\n");
+		sb.append(InvUtil.padLeft("alarmOnPrimaryLoss", 20)).append(": ").append(isAlarmOnPrimaryLoss() ? "TRUE" : "-").append("\n");
+		sb.append(InvUtil.padLeft("faultRecord", 20)).append(": ").append(isFaultRecord() ? "TRUE" : "-").append("\n");
 		return sb.toString();
 	}
 
