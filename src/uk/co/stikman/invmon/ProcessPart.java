@@ -14,7 +14,7 @@ public interface ProcessPart {
 	
 	void configure(Element config);
 
-	void start();
+	void start() throws InvMonException;
 	void terminate();
 
 

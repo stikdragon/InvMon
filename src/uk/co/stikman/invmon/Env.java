@@ -47,8 +47,7 @@ public class Env {
 		for (ProcessPart part : parts)
 			part.start();
 
-		DataLogger logger = new DataLogger();
-		logger.setDatabaseFile("conf//inverterdata.db");
+
 	}
 
 	public void terminate() {

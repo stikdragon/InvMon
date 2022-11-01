@@ -14,6 +14,7 @@ import java.util.Map;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import uk.co.stikman.invmon.datalog.DataLogger;
 import uk.co.stikman.invmon.inverter.PIP8048MAX.InverterMonitorPIP;
 
 public class Config {
@@ -30,6 +31,7 @@ public class Config {
 		thingtypes.put("FakeInverter", FakeInverterMonitor.class);
 		thingtypes.put("ConsoleOutput", ConsoleOutput.class);
 		thingtypes.put("HTMLOutput", HTMLOutput.class);
+		thingtypes.put("DataLogger ", DataLogger.class);
 
 		for (Element el : getElements(doc.getDocumentElement())) {
 			Class<? extends ProcessPart> cls = thingtypes.get(el.getTagName());

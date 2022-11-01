@@ -4,5 +4,7 @@
 
     <ConsoleOutput id="console" />
 
-    <HTMLOutput id="htmlout" target="g:\junk\inv.html" />
+    <!-- <HTMLOutput id="htmlout" target="g:\junk\inv.html" /> -->
+
+    <DataLogger id="datalogger" file="junk\datalog.dat" />
 </InvMon>

@@ -3,6 +3,7 @@ package uk.co.stikman.invmon.inverter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -40,6 +41,12 @@ public class InverterUtils {
 
 	public static Document loadXML(File file) throws IOException {
 		try (FileInputStream fis = new FileInputStream(file)) {
+			return loadXML(fis);
+		}
+	}
+
+	public static Document loadXML(InputStream fis) throws IOException {
+		try {
 			DocumentBuilderFactory f = DocumentBuilderFactory.newInstance();
 			DocumentBuilder b = f.newDocumentBuilder();
 			return b.parse(new InputSource(fis));
