@@ -12,12 +12,15 @@ import org.w3c.dom.Element;
 import uk.co.stikman.eventbus.Subscribe;
 import uk.co.stikman.invmon.datamodel.DataModel;
 import uk.co.stikman.invmon.datamodel.Field;
+import uk.co.stikman.invmon.datamodel.FieldVIF;
+import uk.co.stikman.invmon.datamodel.InverterMode;
+import uk.co.stikman.invmon.datamodel.VIFReading;
 import uk.co.stikman.invmon.inverter.BatteryChargeStage;
 import uk.co.stikman.invmon.inverter.InvUtil;
 import uk.co.stikman.log.StikLog;
 
-public class HTMLOutput extends ProcessPart {
-	private static final StikLog	LOGGER	= StikLog.getLogger(HTMLOutput.class);
+public class TempHTMLOutput extends ProcessPart {
+	private static final StikLog	LOGGER	= StikLog.getLogger(TempHTMLOutput.class);
 	private Env						env;
 	private String					id;
 	private File					target;
@@ -33,7 +36,7 @@ public class HTMLOutput extends ProcessPart {
 	private Field					fieldStateOfCharge;
 	private Field					fieldMisc;
 
-	public HTMLOutput(String id, Env env) {
+	public TempHTMLOutput(String id, Env env) {
 		super(id, env);
 		this.id = id;
 		this.env = env;
@@ -76,10 +79,10 @@ public class HTMLOutput extends ProcessPart {
 	@Subscribe(Events.POST_DATA)
 	public void postData(PollData data) {
 		HTMLConsoleThing output = new HTMLConsoleThing();
+		output.beginFrame();
 		
 		
-		
-		DataPoint2 rec = data.get("invA");
+		DataPoint rec = data.get("invA");
 		VIFReading battvif = rec.get(fieldBattery);
 		output.moveTopLeft();
 		output.print("        Battery: ").printFloat(battvif.getV(), 2, 1, "V").print(" (").printFloat(rec.getFloat(fieldStateOfCharge) * 100.0f, 2, 1, "%").print(")").spaces(4).newline();
@@ -122,6 +125,9 @@ public class HTMLOutput extends ProcessPart {
 
 		output.print("       Status1 : ").color(ConsoleTextOutput.BRIGHT_PURPLE).print(rec.getString(fieldMisc)).reset().spaces(4).newline();
 
+		
+		
+		
 		output.endFrame();
 		
 		

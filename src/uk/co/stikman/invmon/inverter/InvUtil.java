@@ -1,5 +1,6 @@
 package uk.co.stikman.invmon.inverter;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -88,6 +89,17 @@ public class InvUtil {
 		if (!el.hasAttribute(name))
 			return def;
 		return el.getAttribute(name);
+	}
+
+	public static byte[] readAll(InputStream is) throws IOException {
+		int size = 1024;
+		try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+			byte[] buf = new byte[size];
+			int n;
+			while ((n = is.read(buf, 0, size)) != -1)
+				baos.write(buf, 0, n);
+			return baos.toByteArray();
+		}
 	}
 
 }

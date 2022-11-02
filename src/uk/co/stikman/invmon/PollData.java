@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PollData {
-	private Map<String, DataPoint2>	data	= new HashMap<>();
+	private Map<String, DataPoint>	data	= new HashMap<>();
 	private long					timestamp;
 
 	public PollData() {
@@ -12,16 +12,20 @@ public class PollData {
 		timestamp = System.currentTimeMillis();
 	}
 
-	public void add(String id, DataPoint2 rec) {
+	public void add(String id, DataPoint rec) {
 		data.put(id, rec);
 	}
 
-	public DataPoint2 get(String id) {
+	public DataPoint get(String id) {
 		return data.get(id);
 	}
 
 	public long getTimestamp() {
 		return timestamp;
+	}
+
+	public Map<String, DataPoint> getData() {
+		return data;
 	}
 
 }

@@ -1,4 +1,4 @@
-package uk.co.stikman.invmon;
+package uk.co.stikman.invmon.datamodel;
 
 public class VIFReading {
 	public static final VIFReading	EMPTY	= new VIFReading(0, 0, 0);

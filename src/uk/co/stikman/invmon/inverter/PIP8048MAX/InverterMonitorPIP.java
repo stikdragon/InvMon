@@ -7,19 +7,16 @@ import org.w3c.dom.Element;
 import com.fazecast.jSerialComm.SerialPort;
 
 import uk.co.stikman.eventbus.Subscribe;
+import uk.co.stikman.invmon.DataPoint;
 import uk.co.stikman.invmon.Env;
 import uk.co.stikman.invmon.Events;
-import uk.co.stikman.invmon.FieldVIF;
 import uk.co.stikman.invmon.InvMonException;
-import uk.co.stikman.invmon.DataPoint;
-import uk.co.stikman.invmon.DataPoint2;
-import uk.co.stikman.invmon.InverterMode;
 import uk.co.stikman.invmon.PollData;
 import uk.co.stikman.invmon.ProcessPart;
-import uk.co.stikman.invmon.VIFReading;
 import uk.co.stikman.invmon.datamodel.DataModel;
 import uk.co.stikman.invmon.datamodel.Field;
-import uk.co.stikman.invmon.inverter.BatteryChargeStage;
+import uk.co.stikman.invmon.datamodel.FieldVIF;
+import uk.co.stikman.invmon.datamodel.InverterMode;
 import uk.co.stikman.invmon.inverter.InvUtil;
 import uk.co.stikman.log.StikLog;
 import uk.co.stikman.table.DataTable;
@@ -57,7 +54,7 @@ public class InverterMonitorPIP extends ProcessPart {
 
 		float pf = sts.getOutputApparentP() == 0 ? 0.0f : (float) sts.getOutputActiveP() / sts.getOutputApparentP();
 
-		DataPoint2 dp = new DataPoint2(data.getTimestamp());
+		DataPoint dp = new DataPoint(data.getTimestamp());
 		data.add(getId(), dp);
 		
 		dp.put(fieldMode, charging ? InverterMode.CHARGING : InverterMode.DISCHARGING);

@@ -1,4 +1,4 @@
-package uk.co.stikman.invmon;
+package uk.co.stikman.invmon.datamodel;
 
 public enum InverterMode {
 	OFFLINE,

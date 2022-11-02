@@ -1,5 +1,7 @@
 <Model>
-	<Field id="INV_MODE" type="string" />
+	<Field id="TIMESTAMP" type="TIMESTAMP" />
+	
+	<Field id="INV_MODE" type="string" width="16" />
 	<Field id="INV_TEMP" type="float" />
 	<Field id="INV_BUS_V" type="float" />
 
@@ -10,7 +12,7 @@
 	<Field id="BATT_V" type="voltage" />
 	<Field id="BATT_I" type="current" />
 	<Field id="BATT_SOC" type="float" /> 
-	<Field id="BATT_MODE" type="string" /> 
+	<Field id="BATT_MODE" type="string" width="16" /> 
 
     <Field id="LOAD_V" type="voltage" />
     <Field id="LOAD_I" type="current" />
@@ -38,5 +40,5 @@
     <Field id="PV4_P" type="power" parent="PV_TOTAL_P" />
 
 
-	<Field id="MISC" type="string" />
+	<Field id="MISC" type="string" width="32" />
 </Model>

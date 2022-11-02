@@ -1,5 +1,11 @@
 package uk.co.stikman.invmon;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import uk.co.stikman.invmon.datamodel.Field;
+import uk.co.stikman.invmon.datamodel.FieldVIF;
+import uk.co.stikman.invmon.datamodel.VIFReading;
 import uk.co.stikman.invmon.inverter.BatteryChargeStage;
 
 /**
@@ -10,126 +16,79 @@ import uk.co.stikman.invmon.inverter.BatteryChargeStage;
  *
  */
 public class DataPoint {
-	private long				timestamp;
-	private VIFReading			load	= VIFReading.EMPTY;
-	private VIFReading[]		pv		= new VIFReading[0];
-	private VIFReading			grid	= VIFReading.EMPTY;
-	private VIFReading			battery	= VIFReading.EMPTY;
-	private float				stateOfCharge;
-	private InverterMode		mode;
-	private float				temperature;
-	private int					busVoltage;
-	private float				loadPF;
-	private BatteryChargeStage	chargeState;
-	private String				misc;
+	private final long					timestamp;
+
+	private final Map<Field, Object>	values	= new HashMap<>();
+
+	public DataPoint(long timestamp) {
+		super();
+		this.timestamp = timestamp;
+	}
 
 	public long getTimestamp() {
 		return timestamp;
 	}
 
-	public void setTimestamp(long timestamp) {
-		this.timestamp = timestamp;
+	public void put(Field fld, Object val) {
+		nonull(fld);
+		values.put(fld, val);
 	}
 
-	public VIFReading getLoad() {
-		return load;
+	public void put(Field fld, float v) {
+		nonull(fld);
+		values.put(fld, Float.valueOf(v));
 	}
 
-	public void setLoad(VIFReading load) {
-		this.load = load;
+	public void put(Field fld, int v) {
+		nonull(fld);
+		values.put(fld, Integer.valueOf(v));
 	}
 
-	public VIFReading getPv(int idx) {
-		return pv[idx];
+	public void put(FieldVIF vif, float v, float i, float f) {
+		nonull(vif);
+		if (vif.getV() != null)
+			values.put(vif.getV(), v);
+		if (vif.getI() != null)
+			values.put(vif.getI(), i);
+		if (vif.getF() != null)
+			values.put(vif.getF(), f);
 	}
 
-	public void setPv(int idx, VIFReading pv) {
-		this.pv[idx] = pv;
+	public float getFloat(Field f) {
+		nonull(f);
+		Number v = (Number) values.get(f);
+		if (v == null)
+			return 0.0f;
+		return v.floatValue();
 	}
 
-	public VIFReading getGrid() {
-		return grid;
+	public String getString(Field f) {
+		nonull(f);
+		Object x = values.get(f);
+		if (x == null)
+			return null;
+		return x.toString();
 	}
 
-	public void setGrid(VIFReading grid) {
-		this.grid = grid;
+	public VIFReading get(FieldVIF vif) {
+		nonull(vif);
+		float v = vif.getV() != null ? getFloat(vif.getV()) : 0.0f;
+		float i = vif.getI() != null ? getFloat(vif.getI()) : 0.0f;
+		float f = vif.getF() != null ? getFloat(vif.getF()) : 0.0f;
+		return new VIFReading(v, i, f);
 	}
 
-	public VIFReading getBattery() {
-		return battery;
+	private void nonull(Object x) {
+		if (x == null)
+			throw new NullPointerException();
 	}
 
-	public void setBattery(VIFReading battery) {
-		this.battery = battery;
+	public <T extends Enum<T>> T getEnum(Field f, Class<T> cls) {
+		return (T) Enum.valueOf(cls, getString(f));
 	}
 
-	public InverterMode getMode() {
-		return mode;
-	}
-
-	public void setMode(InverterMode mode) {
-		this.mode = mode;
-	}
-
-	public void setPvCount(int n) {
-		pv = new VIFReading[n];
-	}
-
-	public int getPvCount() {
-		return pv.length;
-	}
-
-	public float getTemperature() {
-		return temperature;
-	}
-
-	public void setTemperature(float temperature) {
-		this.temperature = temperature;
-	}
-
-	public void setBusVoltage(int v) {
-		this.busVoltage = v;
-	}
-
-	public float getLoadPF() {
-		return loadPF;
-	}
-
-	public void setLoadPF(float loadPF) {
-		this.loadPF = loadPF;
-	}
-
-	public int getBusVoltage() {
-		return busVoltage;
-	}
-
-	public void setChargeState(BatteryChargeStage x) {
-		this.chargeState = x;
-	}
-
-	public BatteryChargeStage getChargeState() {
-		return chargeState;
-	}
-
-	public float getStateOfCharge() {
-		return stateOfCharge;
-	}
-
-	/**
-	 * 0.0 to 1.0
-	 * 
-	 * @param stateOfCharge
-	 */
-	public void setStateOfCharge(float stateOfCharge) {
-		this.stateOfCharge = stateOfCharge;
-	}
-
-	public String getMisc() {
-		return misc;
-	}
-
-	public void setMisc(String misc) {
-		this.misc = misc;
+	public Map<Field, Object> getValues() {
+		return values;
 	}
 
 }

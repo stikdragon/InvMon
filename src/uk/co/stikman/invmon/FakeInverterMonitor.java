@@ -5,6 +5,8 @@ import org.w3c.dom.Element;
 import uk.co.stikman.eventbus.Subscribe;
 import uk.co.stikman.invmon.datamodel.DataModel;
 import uk.co.stikman.invmon.datamodel.Field;
+import uk.co.stikman.invmon.datamodel.FieldVIF;
+import uk.co.stikman.invmon.datamodel.InverterMode;
 import uk.co.stikman.invmon.inverter.BatteryChargeStage;
 import uk.co.stikman.log.StikLog;
 
@@ -51,7 +53,7 @@ public class FakeInverterMonitor extends ProcessPart {
 
 	@Subscribe(Events.POLL_SOURCES)
 	public void poll(PollData data) {
-		DataPoint2 dp = new DataPoint2(data.getTimestamp());
+		DataPoint dp = new DataPoint(data.getTimestamp());
 		data.add(getId(), dp);
 		
 		dp.put(fieldMode, InverterMode.CHARGING);

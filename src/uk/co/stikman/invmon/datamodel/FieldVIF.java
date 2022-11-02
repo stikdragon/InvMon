@@ -1,6 +1,4 @@
-package uk.co.stikman.invmon;
-
-import uk.co.stikman.invmon.datamodel.Field;
+package uk.co.stikman.invmon.datamodel;
 
 /**
  * a group of three fields, Voltage, CUrrent, Freq

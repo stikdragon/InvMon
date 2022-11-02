@@ -8,19 +8,29 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import uk.co.stikman.invmon.FieldVIF;
 import uk.co.stikman.invmon.inverter.InvUtil;
 import uk.co.stikman.table.DataRecord;
 import uk.co.stikman.table.DataTable;
 
-public class DataModel implements Iterable<Field>{
-	private Map<String, Field> fields = new HashMap<>();
+public class DataModel implements Iterable<Field> {
+	private Map<String, Field>	fields	= new HashMap<>();
+	private int					recordWidth;
 
 	public void loadXML(InputStream str) throws IOException {
 		Document doc = InvUtil.loadXML(str);
+		int idx = 0;
+		int offset = 0;
+		recordWidth = 0;
 		for (Element el : InvUtil.getElements(doc.getDocumentElement())) {
 			Field f = new Field(InvUtil.getAttrib(el, "id"));
 			if (find(f.getId()) != null)
@@ -32,12 +42,46 @@ public class DataModel implements Iterable<Field>{
 				if (f.getParent() == null)
 					throw new IllegalArgumentException("Field [" + f.getId() + "] specifies missing field [" + s + "] as parent");
 			}
+
+			if (f.getType() == FieldType.STRING)
+				f.setWidth(Integer.parseInt(InvUtil.getAttrib(el, "width")));
+			else
+				f.setWidth(f.getType().getTypeSize());
 			fields.put(f.getId(), f);
+			f.setPosition(idx++);
+			f.setOffset(offset);
+
+			if (f.getType() != FieldType.STRING)
+				offset += f.getType().getTypeSize();
+			else
+				offset += f.getWidth();
+			recordWidth += f.getWidth();
 		}
 	}
 
-	public void writeXML(OutputStream str) {
-		throw new RuntimeException("Not implemented yet");
+	public void writeXML(OutputStream str) throws IOException {
+		try {
+			DocumentBuilder bld = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+			Document doc = bld.newDocument();
+			Element root = doc.createElement("Model");
+			doc.appendChild(root);
+			fields.values().stream().sorted((a, b) -> a.getPosition() - b.getPosition()).forEach(f -> {
+				Element el = doc.createElement("Field");
+				el.setAttribute("id", f.getId());
+				el.setAttribute("type", f.getType().name());
+				if (f.getParent() != null)
+					el.setAttribute("parent", f.getParent().getId());
+				if (f.getType() == FieldType.STRING)
+					el.setAttribute("width", Integer.toString(f.getWidth()));
+				root.appendChild(el);
+			});
+
+			Transformer xf = TransformerFactory.newInstance().newTransformer();
+			xf.transform(new DOMSource(doc), new StreamResult(str));
+
+		} catch (Exception e) {
+			throw new IOException("Failed to write model xml: " + e.getMessage(), e);
+		}
 	}
 
 	public Field get(String name) {
@@ -116,6 +160,14 @@ public class DataModel implements Iterable<Field>{
 	@Override
 	public Iterator<Field> iterator() {
 		return fields.values().iterator();
+	}
+
+	public int getRecordWidth() {
+		return recordWidth;
+	}
+
+	public int getFieldCount() {
+		return fields.size();
 	}
 
 }
