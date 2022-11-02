@@ -1,14 +1,18 @@
 package uk.co.stikman.invmon;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.w3c.dom.Element;
 
 import uk.co.stikman.eventbus.Subscribe;
+import uk.co.stikman.invmon.datamodel.DataModel;
+import uk.co.stikman.invmon.datamodel.Field;
+import uk.co.stikman.invmon.inverter.BatteryChargeStage;
 import uk.co.stikman.invmon.inverter.InvUtil;
 import uk.co.stikman.log.StikLog;
 
@@ -17,6 +21,17 @@ public class HTMLOutput extends ProcessPart {
 	private Env						env;
 	private String					id;
 	private File					target;
+
+	private Field					fieldMode;
+	private Field					fieldChargeState;
+	private FieldVIF				fieldBattery;
+	private FieldVIF				fieldLoad;
+	private List<FieldVIF>			fieldPv	= new ArrayList<>();
+	private Field					fieldTemperature;
+	private Field					fieldBusVoltage;
+	private Field					fieldLoadPF;
+	private Field					fieldStateOfCharge;
+	private Field					fieldMisc;
 
 	public HTMLOutput(String id, Env env) {
 		super(id, env);
@@ -32,6 +47,21 @@ public class HTMLOutput extends ProcessPart {
 	@Override
 	public void start() throws InvMonException {
 		super.start();
+
+		DataModel model = getEnv().getModel();
+		fieldMode = model.get("INV_MODE");
+		fieldChargeState = model.get("BATT_MODE");
+		fieldBattery = model.getVIF("BATT");
+		fieldLoad = model.getVIF("BATT");
+
+		for (Field f : model)
+			if (f.getId().matches("PV[0-9]+_V"))
+				fieldPv.add(model.getVIF(f.getId().substring(0, f.getId().length() - 2)));
+		fieldTemperature = model.get("INV_TEMP");
+		fieldBusVoltage = model.get("INV_BUS_V");
+		fieldLoadPF = model.get("LOAD_PF");
+		fieldStateOfCharge = model.get("BATT_SOC");
+		fieldMisc = model.get("MISC");
 	}
 
 	@Override
@@ -43,55 +73,64 @@ public class HTMLOutput extends ProcessPart {
 		return env;
 	}
 
-	
 	@Subscribe(Events.POST_DATA)
 	public void postData(PollData data) {
-		InverterDataPoint rec = data.get("inverter");
+		HTMLConsoleThing output = new HTMLConsoleThing();
 		
-		HTMLConsoleThing console = new HTMLConsoleThing();
-		console.beginFrame();
-		console.print("        Battery: ").printFloat(rec.getBattery().getV(), 2, 1, "V").print(" (").printFloat(rec.getStateOfCharge() * 100.0f, 2, 1, "%").print(")").newline();
+		
+		
+		DataPoint2 rec = data.get("invA");
+		VIFReading battvif = rec.get(fieldBattery);
+		output.moveTopLeft();
+		output.print("        Battery: ").printFloat(battvif.getV(), 2, 1, "V").print(" (").printFloat(rec.getFloat(fieldStateOfCharge) * 100.0f, 2, 1, "%").print(")").spaces(4).newline();
 		String colour = "";
-		switch (rec.getMode()) {
-		case CHARGING:
-			colour = HTMLConsoleThing.BRIGHT_GREEN;
-			break;
-		case DISCHARGING:
-		case ERROR:
-			colour = HTMLConsoleThing.BRIGHT_RED;
-			break;
-		case OFFLINE:
-			colour = HTMLConsoleThing.BRIGHT_BLACK;
-			break;
+		InverterMode mode = rec.getEnum(fieldMode, InverterMode.class);
+		switch (mode) {
+			case CHARGING:
+				colour = ConsoleTextOutput.BRIGHT_GREEN;
+				break;
+			case DISCHARGING:
+			case ERROR:
+				colour = ConsoleTextOutput.BRIGHT_RED;
+				break;
+			case OFFLINE:
+				colour = ConsoleTextOutput.BRIGHT_BLACK;
+				break;
 		}
-		console.print("Battery current: ").printFloat(Math.abs(rec.getBattery().getI()), 2, 1, "A").print("  [ ").color(colour).print(rec.getMode().name()).reset().print(" ]").newline();
-		float pf = rec.getLoadPF();
-		console.print("           Load: ").printInt(rec.getLoad().getP(), 5, "W").print(" (active: ").printInt(rec.getLoad().getP() * pf, 5, "W").print(" PF: ").printFloat(pf, 1, 2).print(")").newline();
+		String s = mode.name();
+		if (mode == InverterMode.CHARGING)
+			s += " - " + rec.getEnum(fieldChargeState, BatteryChargeStage.class).name().replaceFirst("CHARGE_", "");
+		output.print("Battery current: ").printFloat(Math.abs(battvif.getI()), 2, 1, "A").print("  [ ").color(colour).print(s).reset().print(" ]").spaces(4).newline();
+		float pf = rec.getFloat(fieldLoadPF);
+		VIFReading loadvif = rec.get(fieldLoad);
+		output.print("           Load: ").printInt(loadvif.getP(), 5, "W").print(" (active: ").printInt(loadvif.getP() * pf, 5, "W").print(" PF: ").printFloat(pf, 1, 2).print(")").spaces(4).newline();
+
 		//
 		// solar stuff
-		//
-		//				console.print("           Mode: [ ").color(ConsoleOutput.BRIGHT_YELLOW).print(inv.getDeviceMode().name()).reset().print(" ]").spaces(4).newline();
+		//				
 		float totp = 0.0f;
-		for (int i = 0; i < rec.getPvCount(); ++i) {
-			console.print("            PV" + (i + 1) + ": ").printInt(rec.getPv(i).getP(), 5, "W").print(" - ").printInt(rec.getPv(i).getV(), 3, "V").print(" @ ").printFloat(rec.getPv(i).getI(), 2, 1, "A").newline();
-			totp += rec.getPv(i).getP();
+		for (FieldVIF f : fieldPv) {
+			String name = f.getV().getId().substring(f.getV().getId().length() - 2);
+			float p = rec.getFloat(f.getV()) * rec.getFloat(f.getI());
+			totp += p;
+			output.print("            " + name + ": ").printInt(p, 5, "W").print(" - ").printInt(rec.getFloat(f.getV()), 3, "V").print(" @ ").printFloat(rec.getFloat(f.getI()), 2, 1, "A").spaces(4).newline();
 		}
+		output.print("       PV Total: ").printInt(totp, 5, "W").spaces(4).newline();
 
-		console.print("       PV Total: ").printInt(totp, 5, "W").spaces(4).newline();
+		output.print("    Temperature: ").printFloat(rec.getFloat(fieldTemperature), 2, 1, "C").spaces(4).newline();
+		output.print("    Bus Voltage: ").printInt(rec.getFloat(fieldBusVoltage), 3, "V").spaces(4).newline();
 
-		console.print("    Temperature: ").printFloat(rec.getTemperature(), 2, 1, "C").spaces(4).newline();
-		console.print("    Bus Voltage: ").printInt(rec.getBusVoltage(), 3, "V").spaces(4).newline();
+		output.print("       Status1 : ").color(ConsoleTextOutput.BRIGHT_PURPLE).print(rec.getString(fieldMisc)).reset().spaces(4).newline();
 
-		console.print("Status1 :").color(ConsoleTextOutput.BRIGHT_PURPLE).print(rec.getMisc()).reset().spaces(4).newline();
-
-		console.endFrame();
+		output.endFrame();
+		
+		
 
 		try (FileOutputStream fos = new FileOutputStream(target)) {
-			fos.write(console.toString().getBytes(StandardCharsets.UTF_8));
+			fos.write(output.toString().getBytes(StandardCharsets.UTF_8));
 		} catch (IOException e) {
 			LOGGER.error(e);
 		}
 	}
-
 
 }

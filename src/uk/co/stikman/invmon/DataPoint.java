@@ -3,13 +3,13 @@ package uk.co.stikman.invmon;
 import uk.co.stikman.invmon.inverter.BatteryChargeStage;
 
 /**
- * a general purpose data point, assumes that there's one inverter, one battery,
- * one load, one grid, and some number of inputs (solar, wind, etc)
+ * a general purpose data point, contains a bunch of values associated with
+ * fields in the model
  * 
  * @author stikd
  *
  */
-public class InverterDataPoint {
+public class DataPoint {
 	private long				timestamp;
 	private VIFReading			load	= VIFReading.EMPTY;
 	private VIFReading[]		pv		= new VIFReading[0];
@@ -117,6 +117,7 @@ public class InverterDataPoint {
 
 	/**
 	 * 0.0 to 1.0
+	 * 
 	 * @param stateOfCharge
 	 */
 	public void setStateOfCharge(float stateOfCharge) {

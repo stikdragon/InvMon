@@ -1,4 +1,4 @@
-package uk.co.stikman.invmon.minidb;
+package uk.co.stikman.invmon.datamodel;
 
 public class CachedBlock {
 	private int lowIndex;

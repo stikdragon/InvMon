@@ -8,10 +8,9 @@ import org.w3c.dom.Element;
 
 import uk.co.stikman.invmon.Env;
 import uk.co.stikman.invmon.InvMonException;
-import uk.co.stikman.invmon.InverterDataPoint;
 import uk.co.stikman.invmon.ProcessPart;
+import uk.co.stikman.invmon.datamodel.MiniDB;
 import uk.co.stikman.invmon.inverter.InvUtil;
-import uk.co.stikman.invmon.minidb.MiniDB;
 
 public class DataLogger extends ProcessPart {
 

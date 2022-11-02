@@ -4,14 +4,24 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PollData {
-	private Map<String, InverterDataPoint> data = new HashMap<>();
+	private Map<String, DataPoint2>	data	= new HashMap<>();
+	private long					timestamp;
 
-	public void add(String id, InverterDataPoint rec) {
+	public PollData() {
+		super();
+		timestamp = System.currentTimeMillis();
+	}
+
+	public void add(String id, DataPoint2 rec) {
 		data.put(id, rec);
 	}
 
-	public <T> T get(String id) {
-		return (T) data.get(id);
+	public DataPoint2 get(String id) {
+		return data.get(id);
+	}
+
+	public long getTimestamp() {
+		return timestamp;
 	}
 
 }

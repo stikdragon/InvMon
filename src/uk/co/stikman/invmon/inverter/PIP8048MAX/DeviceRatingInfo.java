@@ -3,10 +3,10 @@ package uk.co.stikman.invmon.inverter.PIP8048MAX;
 import uk.co.stikman.invmon.inverter.BatteryType;
 import uk.co.stikman.invmon.inverter.ChargerSourcePriority;
 import uk.co.stikman.invmon.inverter.InputVoltageRange;
+import uk.co.stikman.invmon.inverter.InvUtil;
 import uk.co.stikman.invmon.inverter.InverterOutputMode;
 import uk.co.stikman.invmon.inverter.InverterTopology;
 import uk.co.stikman.invmon.inverter.InverterType;
-import uk.co.stikman.invmon.inverter.InvUtil;
 import uk.co.stikman.invmon.inverter.OutputSourcePriority;
 import uk.co.stikman.invmon.inverter.TemplateResult;
 

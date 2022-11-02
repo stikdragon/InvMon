@@ -1,13 +1,30 @@
 package uk.co.stikman.invmon;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.w3c.dom.Element;
 
 import uk.co.stikman.eventbus.Subscribe;
+import uk.co.stikman.invmon.datamodel.DataModel;
+import uk.co.stikman.invmon.datamodel.Field;
+import uk.co.stikman.invmon.inverter.BatteryChargeStage;
 
 public class ConsoleOutput extends ProcessPart {
 
-	private ConsoleTextOutput	console;
+	private ConsoleTextOutput	output;
 	private boolean				firstTime	= true;
+
+	private Field				fieldMode;
+	private Field				fieldChargeState;
+	private FieldVIF			fieldBattery;
+	private FieldVIF			fieldLoad;
+	private List<FieldVIF>		fieldPv		= new ArrayList<>();
+	private Field				fieldTemperature;
+	private Field				fieldBusVoltage;
+	private Field				fieldLoadPF;
+	private Field				fieldStateOfCharge;
+	private Field				fieldMisc;
 
 	public ConsoleOutput(String id, Env env) {
 		super(id, env);
@@ -20,67 +37,86 @@ public class ConsoleOutput extends ProcessPart {
 	@Override
 	public void start() throws InvMonException {
 		super.start();
-		console = new ConsoleTextOutput(System.out);
-		console.clear();
+
+		DataModel model = getEnv().getModel();
+		fieldMode = model.get("INV_MODE");
+		fieldChargeState = model.get("BATT_MODE");
+		fieldBattery = model.getVIF("BATT");
+		fieldLoad = model.getVIF("BATT");
+
+		for (Field f : model)
+			if (f.getId().matches("PV[0-9]+_V"))
+				fieldPv.add(model.getVIF(f.getId().substring(0, f.getId().length() - 2)));
+		fieldTemperature = model.get("INV_TEMP");
+		fieldBusVoltage = model.get("INV_BUS_V");
+		fieldLoadPF = model.get("LOAD_PF");
+		fieldStateOfCharge = model.get("BATT_SOC");
+		fieldMisc = model.get("MISC");
+
+		output = new ConsoleTextOutput(System.out);
+		output.clear();
 	}
 
 	@Override
 	public void terminate() {
-		console = null;
+		output = null;
 		super.terminate();
 	}
 
 	@Subscribe(Events.POST_DATA)
 	public void postData(PollData data) {
 		if (firstTime) {
-			console.clear();
+			output.clear();
 			firstTime = false;
 		}
-		console.beginFrame();
-		console.hideCursor();
+		output.beginFrame();
+		output.hideCursor();
 
-		InverterDataPoint rec = data.get("invA");
-
-		console.moveTopLeft();
-		console.print("        Battery: ").printFloat(rec.getBattery().getV(), 2, 1, "V").print(" (").printFloat(rec.getStateOfCharge() * 100.0f, 2, 1, "%").print(")").spaces(4).newline();
+		DataPoint2 rec = data.get("invA");
+		VIFReading battvif = rec.get(fieldBattery);
+		output.moveTopLeft();
+		output.print("        Battery: ").printFloat(battvif.getV(), 2, 1, "V").print(" (").printFloat(rec.getFloat(fieldStateOfCharge) * 100.0f, 2, 1, "%").print(")").spaces(4).newline();
 		String colour = "";
-		switch (rec.getMode()) {
-		case CHARGING:
-			colour = ConsoleTextOutput.BRIGHT_GREEN;
-			break;
-		case DISCHARGING:
-		case ERROR:
-			colour = ConsoleTextOutput.BRIGHT_RED;
-			break;
-		case OFFLINE:
-			colour = ConsoleTextOutput.BRIGHT_BLACK;
-			break;
+		InverterMode mode = rec.getEnum(fieldMode, InverterMode.class);
+		switch (mode) {
+			case CHARGING:
+				colour = ConsoleTextOutput.BRIGHT_GREEN;
+				break;
+			case DISCHARGING:
+			case ERROR:
+				colour = ConsoleTextOutput.BRIGHT_RED;
+				break;
+			case OFFLINE:
+				colour = ConsoleTextOutput.BRIGHT_BLACK;
+				break;
 		}
-		String s = rec.getMode().name();
-		if (rec.getMode() == InverterMode.CHARGING)
-			s += " - " + rec.getChargeState().name().replaceFirst("CHARGE_", "");
-		console.print("Battery current: ").printFloat(Math.abs(rec.getBattery().getI()), 2, 1, "A").print("  [ ").color(colour).print(s).reset().print(" ]").spaces(4).newline();
-		float pf = rec.getLoadPF();
-		console.print("           Load: ").printInt(rec.getLoad().getP(), 5, "W").print(" (active: ").printInt(rec.getLoad().getP() * pf, 5, "W").print(" PF: ").printFloat(pf, 1, 2).print(")").spaces(4).newline();
+		String s = mode.name();
+		if (mode == InverterMode.CHARGING)
+			s += " - " + rec.getEnum(fieldChargeState, BatteryChargeStage.class).name().replaceFirst("CHARGE_", "");
+		output.print("Battery current: ").printFloat(Math.abs(battvif.getI()), 2, 1, "A").print("  [ ").color(colour).print(s).reset().print(" ]").spaces(4).newline();
+		float pf = rec.getFloat(fieldLoadPF);
+		VIFReading loadvif = rec.get(fieldLoad);
+		output.print("           Load: ").printInt(loadvif.getP(), 5, "W").print(" (active: ").printInt(loadvif.getP() * pf, 5, "W").print(" PF: ").printFloat(pf, 1, 2).print(")").spaces(4).newline();
 
 		//
 		// solar stuff
 		//				
 		float totp = 0.0f;
-		for (int i = 0; i < rec.getPvCount(); ++i) {
-			console.print("            PV" + (i + 1) + ": ").printInt(rec.getPv(i).getP(), 5, "W").print(" - ").printInt(rec.getPv(i).getV(), 3, "V").print(" @ ").printFloat(rec.getPv(i).getI(), 2, 1, "A").spaces(4).newline();
-			totp += rec.getPv(i).getP();
+		for (FieldVIF f : fieldPv) {
+			String name = f.getV().getId().substring(f.getV().getId().length() - 2);
+			float p = rec.getFloat(f.getV()) * rec.getFloat(f.getI());
+			totp += p;
+			output.print("            " + name + ": ").printInt(p, 5, "W").print(" - ").printInt(rec.getFloat(f.getV()), 3, "V").print(" @ ").printFloat(rec.getFloat(f.getI()), 2, 1, "A").spaces(4).newline();
 		}
+		output.print("       PV Total: ").printInt(totp, 5, "W").spaces(4).newline();
 
-		console.print("       PV Total: ").printInt(totp, 5, "W").spaces(4).newline();
+		output.print("    Temperature: ").printFloat(rec.getFloat(fieldTemperature), 2, 1, "C").spaces(4).newline();
+		output.print("    Bus Voltage: ").printInt(rec.getFloat(fieldBusVoltage), 3, "V").spaces(4).newline();
 
-		console.print("    Temperature: ").printFloat(rec.getTemperature(), 2, 1, "C").spaces(4).newline();
-		console.print("    Bus Voltage: ").printInt(rec.getBusVoltage(), 3, "V").spaces(4).newline();
+		output.print("       Status1 : ").color(ConsoleTextOutput.BRIGHT_PURPLE).print(rec.getString(fieldMisc)).reset().spaces(4).newline();
 
-		console.print("       Status1 : ").color(ConsoleTextOutput.BRIGHT_PURPLE).print(rec.getMisc()).reset().spaces(4).newline();
-
-		console.showCursor();
-		console.endFrame();
+		output.showCursor();
+		output.endFrame();
 	}
 
 }

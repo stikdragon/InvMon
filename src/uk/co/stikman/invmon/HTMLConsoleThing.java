@@ -1,9 +1,7 @@
 package uk.co.stikman.invmon;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.Scanner;
 
@@ -104,5 +102,8 @@ public class HTMLConsoleThing {
 	@Override
 	public String toString() {
 		return sb.toString();
+	}
+
+	public void moveTopLeft() {
 	}
 }

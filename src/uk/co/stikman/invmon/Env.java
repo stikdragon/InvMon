@@ -1,28 +1,40 @@
 package uk.co.stikman.invmon;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
 import uk.co.stikman.eventbus.StringEventBus;
+import uk.co.stikman.invmon.datamodel.DataModel;
 
 public class Env {
+	public static final String	VERSION		= "0.1";
+
 	private List<ProcessPart>	parts		= new ArrayList<>();
 	private long				nextId		= 0;
 	private StringEventBus		bus			= new StringEventBus();
 	private Thread				mainthread;
 	private boolean				terminated	= false;
 	private Config				config;
+	private DataModel			model;
 
 	public void start() throws InvMonException {
 		bus.setImmediateMode(true);
-		
+
 		config = new Config();
 		try {
 			config.loadFromFile(Paths.get("conf", "config.xml").toFile());
 		} catch (IOException e) {
-			throw new RuntimeException("Failed to load config: " + e.getMessage(), e);
+			throw new InvMonException("Failed to load config: " + e.getMessage(), e);
+		}
+
+		model = new DataModel();
+		try (InputStream is = getClass().getResourceAsStream("model.xml")) {
+			model.loadXML(is);
+		} catch (IOException e) {
+			throw new InvMonException("Failed to load model: " + e.getMessage(), e);
 		}
 
 		for (ProcessPartDefinition def : config.getThings()) {
@@ -31,7 +43,7 @@ public class Env {
 				part.configure(def.getConfig());
 				parts.add(part);
 			} catch (Exception e) {
-				throw new RuntimeException("Failed to start part [" + def.getId() + "]: " + e.getMessage(), e);
+				throw new InvMonException("Failed to start part [" + def.getId() + "]: " + e.getMessage(), e);
 			}
 		}
 
@@ -40,6 +52,10 @@ public class Env {
 
 		mainthread = new Thread(this::loop);
 		mainthread.start();
+	}
+
+	public DataModel getModel() {
+		return model;
 	}
 
 	private void loop() {

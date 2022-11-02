@@ -9,20 +9,37 @@ import com.fazecast.jSerialComm.SerialPort;
 import uk.co.stikman.eventbus.Subscribe;
 import uk.co.stikman.invmon.Env;
 import uk.co.stikman.invmon.Events;
+import uk.co.stikman.invmon.FieldVIF;
 import uk.co.stikman.invmon.InvMonException;
-import uk.co.stikman.invmon.InverterDataPoint;
+import uk.co.stikman.invmon.DataPoint;
+import uk.co.stikman.invmon.DataPoint2;
 import uk.co.stikman.invmon.InverterMode;
 import uk.co.stikman.invmon.PollData;
 import uk.co.stikman.invmon.ProcessPart;
 import uk.co.stikman.invmon.VIFReading;
+import uk.co.stikman.invmon.datamodel.DataModel;
+import uk.co.stikman.invmon.datamodel.Field;
+import uk.co.stikman.invmon.inverter.BatteryChargeStage;
 import uk.co.stikman.invmon.inverter.InvUtil;
 import uk.co.stikman.log.StikLog;
 import uk.co.stikman.table.DataTable;
 
 public class InverterMonitorPIP extends ProcessPart {
-	private static final StikLog	LOGGER		= StikLog.getLogger(InverterMonitorPIP.class);
+	private static final StikLog	LOGGER	= StikLog.getLogger(InverterMonitorPIP.class);
 	private PIP8048MAX				inv;
 	private SerialPort				port;
+
+	private Field					fieldMode;
+	private Field					fieldChargeState;
+	private FieldVIF				fieldBattery;
+	private FieldVIF				fieldLoad;
+	private FieldVIF				fieldPv1;
+	private FieldVIF				fieldPv2;
+	private Field					fieldTemperature;
+	private Field					fieldBusVoltage;
+	private Field					fieldLoadPF;
+	private Field					fieldStateOfCharge;
+	private Field					fieldMisc;
 
 	public InverterMonitorPIP(String id, Env env) {
 		super(id, env);
@@ -40,21 +57,22 @@ public class InverterMonitorPIP extends ProcessPart {
 
 		float pf = sts.getOutputApparentP() == 0 ? 0.0f : (float) sts.getOutputActiveP() / sts.getOutputApparentP();
 
-		InverterDataPoint rec = new InverterDataPoint();
-		rec.setMode(charging ? InverterMode.CHARGING : InverterMode.DISCHARGING);
-		rec.setChargeState(sts.getBatteryChargeStage());
-		rec.setBattery(new VIFReading(sts.getBatteryV(), charging ? sts.getBatteryChargeI() : -sts.getBatteryDischargeI()));
+		DataPoint2 dp = new DataPoint2(data.getTimestamp());
+		data.add(getId(), dp);
+		
+		dp.put(fieldMode, charging ? InverterMode.CHARGING : InverterMode.DISCHARGING);
+		dp.put(fieldChargeState,  sts.getBatteryChargeStage());
+		dp.put(fieldBattery, sts.getBatteryV(), charging ? sts.getBatteryChargeI() : -sts.getBatteryDischargeI(), 0);
 		float maxp = Math.max(sts.getOutputActiveP(), sts.getOutputApparentP());
-		rec.setLoad(new VIFReading(sts.getOutputV(), maxp / sts.getOutputV(), sts.getOutputF()));
-		rec.setPvCount(2);
-		rec.setPv(0, new VIFReading(sts.getPv1V(), sts.getPv1I()));
-		rec.setPv(1, new VIFReading(sts.getPv2V(), sts.getPv2I()));
-		rec.setTemperature(sts.getInverterTemp());
-		rec.setBusVoltage(sts.getBusV());
-		rec.setLoadPF(pf);
-		rec.setStateOfCharge((float) sts.getBatteryCapacity() / 100.0f);
-		rec.setMisc(sts.getDeviceStatus() + " / " + sts.getDeviceStatus2());
-		data.add(getId(), rec);
+		dp.put(fieldLoad, sts.getOutputV(), maxp / sts.getOutputV(), sts.getOutputF());
+		dp.put(fieldPv1, sts.getPv1V(), sts.getPv1I(), 0);
+		dp.put(fieldPv2, sts.getPv2V(), sts.getPv2I(), 0);
+		dp.put(fieldTemperature, sts.getInverterTemp());
+		dp.put(fieldBusVoltage, sts.getBusV());
+		dp.put(fieldLoadPF, pf);
+		dp.put(fieldStateOfCharge, (float) sts.getBatteryCapacity() / 100.0f);
+		dp.put(fieldMisc, sts.getDeviceStatus() + " / " + sts.getDeviceStatus2());
+		
 	}
 
 	@Override
@@ -99,6 +117,19 @@ public class InverterMonitorPIP extends ProcessPart {
 	@Override
 	public void start() throws InvMonException {
 		super.start();
+
+		DataModel model = getEnv().getModel();
+		fieldMode = model.get("INV_MODE");
+		fieldChargeState = model.get("BATT_MODE");
+		fieldBattery = model.getVIF("BATT");
+		fieldLoad = model.getVIF("BATT");
+		fieldPv1 = model.getVIF("PV1");
+		fieldPv2 = model.getVIF("PV2");
+		fieldTemperature = model.get("INV_TEMP");
+		fieldBusVoltage = model.get("INV_BUS_V");
+		fieldLoadPF = model.get("LOAD_PF");
+		fieldStateOfCharge = model.get("BATT_SOC");
+		fieldMisc = model.get("MISC");
 	}
 
 	@Override

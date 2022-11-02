@@ -1,10 +1,9 @@
-package uk.co.stikman.invmon.minidb;
+package uk.co.stikman.invmon.datamodel;
 
 public class Field {
 	private final String	id;
 	private Field			parent;
 	private FieldType		type;
-	private boolean			key;
 
 	public String getId() {
 		return id;
@@ -36,7 +35,6 @@ public class Field {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		result = prime * result + (key ? 1231 : 1237);
 		result = prime * result + ((parent == null) ? 0 : parent.hashCode());
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		return result;
@@ -56,8 +54,6 @@ public class Field {
 				return false;
 		} else if (!id.equals(other.id))
 			return false;
-		if (key != other.key)
-			return false;
 		if (parent == null) {
 			if (other.parent != null)
 				return false;
@@ -66,14 +62,6 @@ public class Field {
 		if (type != other.type)
 			return false;
 		return true;
-	}
-
-	public boolean isKey() {
-		return key;
-	}
-
-	public void setKey(boolean key) {
-		this.key = key;
 	}
 
 }

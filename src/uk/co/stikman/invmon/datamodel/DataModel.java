@@ -1,20 +1,22 @@
-package uk.co.stikman.invmon.minidb;
+package uk.co.stikman.invmon.datamodel;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import uk.co.stikman.invmon.FieldVIF;
 import uk.co.stikman.invmon.inverter.InvUtil;
 import uk.co.stikman.table.DataRecord;
 import uk.co.stikman.table.DataTable;
 
-public class Model {
+public class DataModel implements Iterable<Field>{
 	private Map<String, Field> fields = new HashMap<>();
 
 	public void loadXML(InputStream str) throws IOException {
@@ -23,7 +25,6 @@ public class Model {
 			Field f = new Field(InvUtil.getAttrib(el, "id"));
 			if (find(f.getId()) != null)
 				throw new IllegalArgumentException("Field [" + f.getId() + "] already declared");
-			f.setKey(InvUtil.getAttrib(el, "key", "false").equals("true"));
 			f.setType(FieldType.valueOf(InvUtil.getAttrib(el, "type").toUpperCase()));
 			String s = InvUtil.getAttrib(el, "parent", null);
 			if (s != null) {
@@ -86,13 +87,35 @@ public class Model {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Model other = (Model) obj;
+		DataModel other = (DataModel) obj;
 		if (fields == null) {
 			if (other.fields != null)
 				return false;
 		} else if (!fields.equals(other.fields))
 			return false;
 		return true;
+	}
+
+	/**
+	 * returns a group of up to three fields that have the suffixes _V, _I, _F. Is a
+	 * convenience thing. Throws exception if non of them can be found
+	 * 
+	 * @param prefix
+	 * @return
+	 */
+	public FieldVIF getVIF(String prefix) {
+		FieldVIF x = new FieldVIF();
+		x.setF(find(prefix + "_F"));
+		x.setV(find(prefix + "_V"));
+		x.setI(find(prefix + "_I"));
+		if (x.getF() == null && x.getV() == null && x.getI() == null)
+			throw new NoSuchElementException("Field group [" + prefix + "] not found");
+		return x;
+	}
+
+	@Override
+	public Iterator<Field> iterator() {
+		return fields.values().iterator();
 	}
 
 }
