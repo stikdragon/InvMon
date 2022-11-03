@@ -1,6 +1,7 @@
 package uk.co.stikman.invmon.datamodel;
 
 import java.util.Objects;
+import java.util.function.Consumer;
 
 import uk.co.stikman.invmon.datalog.DBRecord;
 
@@ -8,62 +9,73 @@ public class Field {
 	private final String	id;
 	private Field			parent;
 	private FieldType		type;
-	private int				width;		// for strings
+	private AggregationMode	aggregationMode	= AggregationMode.SUM;
+	private int				width;									// for strings
 	private int				position;
 	private int				offset;
+	private String			calculated;
+	private CalcMethod		calculationMethod;
 
 	public Field(String id) {
 		super();
 		this.id = id;
 	}
 
-	public int getWidth() {
-		return width;
-	}
-
-	public void setWidth(int width) {
-		this.width = width;
-	}
-
-	public int getOffset() {
-		return offset;
-	}
-
-	void setOffset(int offset) {
-		this.offset = offset;
-	}
-
-	public int getPosition() {
-		return position;
-	}
-
-	void setPosition(int position) {
-		this.position = position;
+	public AggregationMode getAggregationMode() {
+		return aggregationMode;
 	}
 
 	public String getId() {
 		return id;
 	}
 
+	public int getOffset() {
+		return offset;
+	}
+
 	public Field getParent() {
 		return parent;
 	}
 
-	public void setParent(Field parent) {
-		this.parent = parent;
+	public int getPosition() {
+		return position;
 	}
 
 	public FieldType getType() {
 		return type;
 	}
 
+	public int getWidth() {
+		return width;
+	}
+
+	public void setAggregationMode(AggregationMode aggregationMode) {
+		this.aggregationMode = aggregationMode;
+	}
+
+	void setOffset(int offset) {
+		this.offset = offset;
+	}
+
+	public void setParent(Field parent) {
+		this.parent = parent;
+	}
+
+	void setPosition(int position) {
+		this.position = position;
+	}
+
 	public void setType(FieldType type) {
 		this.type = type;
 	}
 
+	public void setWidth(int width) {
+		this.width = width;
+	}
+
 	@Override
 	public int hashCode() {
-		return Objects.hash(id, parent, position, type, width);
+		return Objects.hash(aggregationMode, calculated, id, offset, parent, position, type, width);
 	}
 
 	@Override
@@ -75,7 +87,7 @@ public class Field {
 		if (getClass() != obj.getClass())
 			return false;
 		Field other = (Field) obj;
-		return Objects.equals(id, other.id) && Objects.equals(parent, other.parent) && position == other.position && type == other.type && width == other.width;
+		return aggregationMode == other.aggregationMode && Objects.equals(calculated, other.calculated) && Objects.equals(id, other.id) && offset == other.offset && Objects.equals(parent, other.parent) && position == other.position && type == other.type && width == other.width;
 	}
 
 	public Object toString(DBRecord r) {
@@ -97,4 +109,19 @@ public class Field {
 		}
 	}
 
+	public void setCalculated(String expression) {
+		this.calculated = expression;
+	}
+
+	public String getCalculated() {
+		return calculated;
+	}
+
+	public void setCalculationMethod(CalcMethod mthd) {
+		this.calculationMethod = mthd;
+	}
+
+	public CalcMethod getCalculationMethod() {
+		return calculationMethod;
+	}
 }

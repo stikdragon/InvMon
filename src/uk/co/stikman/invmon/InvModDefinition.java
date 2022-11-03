@@ -2,13 +2,13 @@ package uk.co.stikman.invmon;
 
 import org.w3c.dom.Element;
 
-public class ProcessPartDefinition {
+public class InvModDefinition {
 
 	private final String						id;
 	private final Element						config;
-	private final Class<? extends ProcessPart>	clazz;
+	private final Class<? extends InvModule>	clazz;
 
-	public ProcessPartDefinition(String id, Class<? extends ProcessPart> clazz, Element config) {
+	public InvModDefinition(String id, Class<? extends InvModule> clazz, Element config) {
 		this.id = id;
 		this.clazz = clazz;
 		this.config = config;
@@ -18,7 +18,7 @@ public class ProcessPartDefinition {
 		return config;
 	}
 
-	public Class<? extends ProcessPart> getClazz() {
+	public Class<? extends InvModule> getClazz() {
 		return clazz;
 	}
 

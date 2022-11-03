@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import uk.co.stikman.eventbus.StringEventBus;
 import uk.co.stikman.invmon.datamodel.DataModel;
@@ -12,7 +13,7 @@ import uk.co.stikman.invmon.datamodel.DataModel;
 public class Env {
 	public static final String	VERSION		= "0.1";
 
-	private List<ProcessPart>	parts		= new ArrayList<>();
+	private List<InvModule>		parts		= new ArrayList<>();
 	private long				nextId		= 0;
 	private StringEventBus		bus			= new StringEventBus();
 	private Thread				mainthread;
@@ -37,9 +38,9 @@ public class Env {
 			throw new InvMonException("Failed to load model: " + e.getMessage(), e);
 		}
 
-		for (ProcessPartDefinition def : config.getThings()) {
+		for (InvModDefinition def : config.getThings()) {
 			try {
-				ProcessPart part = def.getClazz().getConstructor(String.class, Env.class).newInstance(def.getId(), this);
+				InvModule part = def.getClazz().getConstructor(String.class, Env.class).newInstance(def.getId(), this);
 				part.configure(def.getConfig());
 				parts.add(part);
 			} catch (Exception e) {
@@ -47,7 +48,7 @@ public class Env {
 			}
 		}
 
-		for (ProcessPart part : parts)
+		for (InvModule part : parts)
 			part.start();
 
 		mainthread = new Thread(this::loop);
@@ -81,7 +82,7 @@ public class Env {
 		mainthread.interrupt();
 
 		// todo..
-		for (ProcessPart part : parts)
+		for (InvModule part : parts)
 			part.terminate();
 
 		try {
@@ -104,6 +105,15 @@ public class Env {
 
 	public StringEventBus getBus() {
 		return bus;
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T extends InvModule> T getModule(String id) {
+		for (InvModule m : parts) {
+			if (id.equals(m.getId()))
+				return (T) m;
+		}
+		throw new NoSuchElementException("Module [" + id + "] not found");
 	}
 
 }

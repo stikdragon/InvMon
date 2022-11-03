@@ -14,12 +14,25 @@ public class HTMLBuilder {
 		return sb.toString();
 	}
 
-	public void append(Class<?> cls, String resourceName) {
+	public HTMLBuilder append(Class<?> cls, String resourceName) {
 		try (InputStream is = cls.getResourceAsStream(resourceName)) {
 			sb.append(new String(InvUtil.readAll(is), StandardCharsets.UTF_8));
 		} catch (IOException e) {
 			throw new RuntimeException("Error loading resource[" + resourceName + "]: " + e.getMessage(), e);
 		}
+		return this;
+	}
+
+	public HTMLBuilder append(String s) {
+		sb.append(s);
+		return this;
+	}
+
+	public HTMLBuilder div(String cls) {
+		append("<div class=\"");
+		append(cls);
+		append("\">");
+		return this;
 	}
 
 }

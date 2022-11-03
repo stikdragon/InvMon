@@ -13,7 +13,7 @@ import uk.co.stikman.invmon.datamodel.InverterMode;
 import uk.co.stikman.invmon.datamodel.VIFReading;
 import uk.co.stikman.invmon.inverter.BatteryChargeStage;
 
-public class ConsoleOutput extends ProcessPart {
+public class ConsoleOutput extends InvModule {
 
 	private ConsoleTextOutput	output;
 	private boolean				firstTime	= true;

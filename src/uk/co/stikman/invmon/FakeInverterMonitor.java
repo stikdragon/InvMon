@@ -10,7 +10,7 @@ import uk.co.stikman.invmon.datamodel.InverterMode;
 import uk.co.stikman.invmon.inverter.BatteryChargeStage;
 import uk.co.stikman.log.StikLog;
 
-public class FakeInverterMonitor extends ProcessPart {
+public class FakeInverterMonitor extends InvModule {
 	private static final StikLog	LOGGER	= StikLog.getLogger(FakeInverterMonitor.class);
 
 	private Field					fieldMode;
@@ -24,6 +24,8 @@ public class FakeInverterMonitor extends ProcessPart {
 	private Field					fieldLoadPF;
 	private Field					fieldStateOfCharge;
 	private Field					fieldMisc;
+	private Field					fieldPv1P;
+	private Field					fieldPv2P;
 
 	public FakeInverterMonitor(String id, Env env) {
 		super(id, env);
@@ -44,6 +46,8 @@ public class FakeInverterMonitor extends ProcessPart {
 		fieldLoad = model.getVIF("BATT");
 		fieldPv1 = model.getVIF("PV1");
 		fieldPv2 = model.getVIF("PV2");
+		fieldPv1P = model.get("PV1_P");
+		fieldPv2P = model.get("PV2_P");
 		fieldTemperature = model.get("INV_TEMP");
 		fieldBusVoltage = model.get("INV_BUS_V");
 		fieldLoadPF = model.get("LOAD_PF");
@@ -55,15 +59,17 @@ public class FakeInverterMonitor extends ProcessPart {
 	public void poll(PollData data) {
 		DataPoint dp = new DataPoint(data.getTimestamp());
 		data.add(getId(), dp);
-		
+
 		dp.put(fieldMode, InverterMode.CHARGING);
-		dp.put(fieldChargeState,  BatteryChargeStage.CHARGE_FLOAT);
+		dp.put(fieldChargeState, BatteryChargeStage.CHARGE_FLOAT);
 		dp.put(fieldBattery, 50.2f + rand(10f), 24.0f + rand(10f), 0f);
 		dp.put(fieldLoad, 30.0f, 1.45f + rand(3f), 50.0f);
 		dp.put(fieldPv1, 304f + rand(40f), 4.0f + rand(7f), 0);
 		dp.put(fieldPv2, 304f + rand(40f), 4.0f + rand(7f), 0);
+		dp.put(fieldPv1P, rand(1000) + 500);
+		dp.put(fieldPv2P, rand(1000) + 500);
 		dp.put(fieldTemperature, 41f + rand(5f));
-		dp.put(fieldBusVoltage, (int)(380 + rand(100)));
+		dp.put(fieldBusVoltage, (int) (380 + rand(100)));
 		dp.put(fieldLoadPF, rand(1.0f));
 		dp.put(fieldStateOfCharge, 0.52f + rand(0.5f));
 		dp.put(fieldMisc, "misc");

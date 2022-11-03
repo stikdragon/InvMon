@@ -8,12 +8,12 @@ import org.w3c.dom.Element;
  * @author stikd
  *
  */
-public abstract class ProcessPart {
+public abstract class InvModule {
 
 	private final Env		env;
 	private final String	id;
 
-	public ProcessPart(String id, Env env) {
+	public InvModule(String id, Env env) {
 		super();
 		this.id = id;
 		this.env = env;

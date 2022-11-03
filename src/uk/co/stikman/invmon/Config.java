@@ -24,12 +24,12 @@ public class Config {
 	private String						defaultPort		= null;
 	private boolean						runWebserver	= false;
 	private IniFile						ini;
-	private List<ProcessPartDefinition>	things			= new ArrayList<>();
+	private List<InvModDefinition>	things			= new ArrayList<>();
 	private int							updatePeriod;
 
 	public void loadFromFile(File f) throws IOException {
 		Document doc = loadXML(f);
-		Map<String, Class<? extends ProcessPart>> thingtypes = new HashMap<>();
+		Map<String, Class<? extends InvModule>> thingtypes = new HashMap<>();
 		thingtypes.put("Inverter", InverterMonitorPIP.class);
 		thingtypes.put("FakeInverter", FakeInverterMonitor.class);
 		thingtypes.put("ConsoleOutput", ConsoleOutput.class);
@@ -42,17 +42,17 @@ public class Config {
 
 		Element emod = getElement(doc.getDocumentElement(), "Modules");
 		for (Element el : getElements(emod)) {
-			Class<? extends ProcessPart> cls = thingtypes.get(el.getTagName());
+			Class<? extends InvModule> cls = thingtypes.get(el.getTagName());
 			if (cls != null) {
 				String id = getAttrib(el, "id");
 				if (findPartDef(id) != null)
 					throw new IllegalArgumentException("Object with id [" + id + "] already defined");
-				things.add(new ProcessPartDefinition(id, cls, el));
+				things.add(new InvModDefinition(id, cls, el));
 			}
 		}
 	}
 
-	public ProcessPartDefinition findPartDef(String id) {
+	public InvModDefinition findPartDef(String id) {
 		return things.stream().filter(x -> x.getId().equals(id)).findAny().orElse(null);
 	}
 
@@ -68,7 +68,7 @@ public class Config {
 		return ini;
 	}
 
-	public List<ProcessPartDefinition> getThings() {
+	public List<InvModDefinition> getThings() {
 		return things;
 	}
 

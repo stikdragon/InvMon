@@ -33,7 +33,7 @@
     <Field id="PV3_I" type="current" />
     <Field id="PV4_I" type="current" />
     
-    <Field id="PV_TOTAL_P" type="power" />
+    <Field id="PV_TOTAL_P" type="power" calculated="[PV1_P], [PV2_P], [PV3_P], [PV4_P], +, +, +" />
     <Field id="PV1_P" type="power" parent="PV_TOTAL_P" />
     <Field id="PV2_P" type="power" parent="PV_TOTAL_P" />
     <Field id="PV3_P" type="power" parent="PV_TOTAL_P" />

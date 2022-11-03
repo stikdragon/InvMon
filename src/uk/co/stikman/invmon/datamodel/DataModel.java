@@ -3,11 +3,15 @@ package uk.co.stikman.invmon.datamodel;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import javax.management.RuntimeErrorException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
@@ -23,8 +27,9 @@ import uk.co.stikman.table.DataRecord;
 import uk.co.stikman.table.DataTable;
 
 public class DataModel implements Iterable<Field> {
-	private Map<String, Field>	fields	= new HashMap<>();
+	private Map<String, Field>	fields				= new HashMap<>();
 	private int					recordWidth;
+	private List<Field>			calculatedFields	= Collections.emptyList();
 
 	public void loadXML(InputStream str) throws IOException {
 		Document doc = InvUtil.loadXML(str);
@@ -47,6 +52,19 @@ public class DataModel implements Iterable<Field> {
 				f.setWidth(Integer.parseInt(InvUtil.getAttrib(el, "width")));
 			else
 				f.setWidth(f.getType().getTypeSize());
+
+			if (el.hasAttribute("aggregationMode")) {
+				f.setAggregationMode(AggregationMode.valueOf(el.getAttribute("aggregationMode")));
+			} else {
+				if (f.getType() == FieldType.STRING)
+					f.setAggregationMode(AggregationMode.FIRST);
+				else
+					f.setAggregationMode(AggregationMode.MEAN);
+			}
+
+			if (el.hasAttribute("calculated"))
+				f.setCalculated(el.getAttribute("calculated"));
+
 			fields.put(f.getId(), f);
 			f.setPosition(idx++);
 			f.setOffset(offset);
@@ -57,6 +75,8 @@ public class DataModel implements Iterable<Field> {
 				offset += f.getWidth();
 			recordWidth += f.getWidth();
 		}
+
+		compileExpressions();
 	}
 
 	public void writeXML(OutputStream str) throws IOException {
@@ -73,6 +93,8 @@ public class DataModel implements Iterable<Field> {
 					el.setAttribute("parent", f.getParent().getId());
 				if (f.getType() == FieldType.STRING)
 					el.setAttribute("width", Integer.toString(f.getWidth()));
+				if (f.getCalculated() != null)
+					el.setAttribute("calculated", f.getCalculated());
 				root.appendChild(el);
 			});
 
@@ -168,6 +190,54 @@ public class DataModel implements Iterable<Field> {
 
 	public int getFieldCount() {
 		return fields.size();
+	}
+
+	public List<Field> getCalculatedFields() {
+		return calculatedFields;
+	}
+
+	/**
+	 * set up calculated fields
+	 */
+	private void compileExpressions() {
+		List<Field> lst = new ArrayList<>();
+		for (Field f : this) {
+			if (f.getCalculated() != null) {
+				lst.add(f);
+
+				//
+				// calculations are very basic, just +-*/, and RPN
+				//
+				// TODO: make this more comprehensive
+				String[] bits = f.getCalculated().split(",");
+				final List<CalcOp> ops = new ArrayList<>();
+				for (String bit : bits) {
+					bit = bit.trim();
+					if (bit.matches("\\[[a-zA-Z0-9_]+\\]")) {
+						ops.add(new FetchValOp(get(bit.substring(1, bit.length() - 1))));
+					} else if (bit.matches("[\\-\\+\\*\\/]")) {
+						if (bit.charAt(0) == '-')
+							ops.add(new SubOp());
+						else if (bit.charAt(0) == '+')
+							ops.add(new AddOp());
+						else if (bit.charAt(0) == '*')
+							ops.add(new MulOp());
+						else if (bit.charAt(0) == '/')
+							ops.add(new DivOp());
+					} else
+						throw new IllegalArgumentException("Expression invalid");
+				}
+
+				f.setCalculationMethod(r -> {
+					FloatStack stk = new FloatStack(); // can we cache this?
+					for (CalcOp op : ops)
+						op.calc(r, stk);
+					return stk.pop();
+				});
+			}
+		}
+		if (!lst.isEmpty())
+			calculatedFields = lst;
 	}
 
 }

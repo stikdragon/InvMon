@@ -6,9 +6,9 @@
 
         <FakeInverter id="invA" port="/com/ttyUSBe1" rate="2000" type="PIP8048MAX" />
 
-        <ConsoleOutput id="console" />
+        <!-- <ConsoleOutput id="console" /> -->
 
-        <TempHTMLOutput id="htmlout" target="junk\inv.html" />
+        <HTMLOutput id="htmlout" target="junk\inv.html" />
 
         <DataLogger id="datalogger" file="junk\datalog.dat" />
     </Modules>

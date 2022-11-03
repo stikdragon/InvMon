@@ -89,6 +89,7 @@ public class MiniDB {
 			if (!existing.equals(model)) // TODO: convert
 				throw new IOException("Model version different");
 
+			int idx = 0;
 			byte[] recbuf = new byte[model.getRecordWidth()];
 			for (;;) {
 				try {
@@ -101,6 +102,7 @@ public class MiniDB {
 				if (n == 1) { // marks a record
 					dis.readFully(recbuf);
 					DBRecord r = new DBRecord(this);
+					r.setIndex(idx++);
 					r.copyData(recbuf);
 					records.add(r);
 				}
@@ -141,7 +143,13 @@ public class MiniDB {
 	}
 
 	public void commitRecord(DBRecord rec) {
+
 		synchronized (this) {
+			//
+			// calculate fields if necessary
+			//
+			for (Field f : model.getCalculatedFields())
+				rec.set(f, f.getCalculationMethod().calc(rec));
 			//
 			// trim any strings
 			//
@@ -180,5 +188,35 @@ public class MiniDB {
 			}
 			return dt;
 		}
+	}
+
+	/**
+	 * given an int or a long field it finds a range of records
+	 * 
+	 * @param field
+	 * @param start
+	 * @param end
+	 * @return
+	 */
+	public IntRange getRecordRange(Field field, long start, long end) {
+		IntRange res = new IntRange(-1, -1);
+		synchronized (this) {
+			for (DBRecord r : records) {
+				long v = r.getLong(field);
+				if (res.getLow() == -1 && start <= v)
+					res.setLow(r.getIndex());
+				if (v > end)
+					res.setHigh(r.getIndex());
+				if (res.getHigh() != -1 && res.getLow() != -1)
+					return res;
+			}
+			if (res.getHigh() == -1)
+				res.setHigh(records.size() - 1);
+		}
+		return res;
+	}
+
+	public DBRecord getRecord(int idx) {
+		return records.get(idx);
 	}
 }

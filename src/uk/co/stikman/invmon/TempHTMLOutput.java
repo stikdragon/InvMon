@@ -19,7 +19,7 @@ import uk.co.stikman.invmon.inverter.BatteryChargeStage;
 import uk.co.stikman.invmon.inverter.InvUtil;
 import uk.co.stikman.log.StikLog;
 
-public class TempHTMLOutput extends ProcessPart {
+public class TempHTMLOutput extends InvModule {
 	private static final StikLog	LOGGER	= StikLog.getLogger(TempHTMLOutput.class);
 	private Env						env;
 	private String					id;
