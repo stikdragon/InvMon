@@ -18,10 +18,12 @@
     <Field id="LOAD_I" type="current" />
     <Field id="LOAD_F" type="freq" />
     <Field id="LOAD_PF" type="float" />
-
+    <Field id="LOAD_P" type="power" calculated="[LOAD_V], [LOAD_I], *" />
 
     <Field id="LOAD_HOUSE_I" type="current" parent="LOAD_I" />
-    <Field id="LOAD_GARAGE_I" type="current" parent="LOAD_I" />
+    <Field id="LOAD_HOUSE_P" type="power" parent="LOAD_P" calculated="[LOAD_V], [LOAD_HOUSE_I], *" />
+    <Field id="LOAD_GARAGE_I" type="power" parent="LOAD_I" />
+    <Field id="LOAD_GARAGE_P" type="current" parent="LOAD_P" calculated="[LOAD_V], [LOAD_GARAGE_I], *" />
 
     <Field id="PV1_V" type="voltage" />
     <Field id="PV2_V" type="voltage" />

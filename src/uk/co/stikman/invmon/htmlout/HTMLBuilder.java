@@ -35,4 +35,9 @@ public class HTMLBuilder {
 		return this;
 	}
 
+	public HTMLBuilder append(float f) {
+		append(Float.toString(f));
+		return this;
+	}
+
 }

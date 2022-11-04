@@ -43,7 +43,7 @@ public class FakeInverterMonitor extends InvModule {
 		fieldMode = model.get("INV_MODE");
 		fieldChargeState = model.get("BATT_MODE");
 		fieldBattery = model.getVIF("BATT");
-		fieldLoad = model.getVIF("BATT");
+		fieldLoad = model.getVIF("LOAD");
 		fieldPv1 = model.getVIF("PV1");
 		fieldPv2 = model.getVIF("PV2");
 		fieldPv1P = model.get("PV1_P");
@@ -63,7 +63,7 @@ public class FakeInverterMonitor extends InvModule {
 		dp.put(fieldMode, InverterMode.CHARGING);
 		dp.put(fieldChargeState, BatteryChargeStage.CHARGE_FLOAT);
 		dp.put(fieldBattery, 50.2f + rand(10f), 24.0f + rand(10f), 0f);
-		dp.put(fieldLoad, 30.0f, 1.45f + rand(3f), 50.0f);
+		dp.put(fieldLoad, 230.0f + rand(10f), 1.45f + rand(3f), 50.0f);
 		dp.put(fieldPv1, 304f + rand(40f), 4.0f + rand(7f), 0);
 		dp.put(fieldPv2, 304f + rand(40f), 4.0f + rand(7f), 0);
 		dp.put(fieldPv1P, rand(1000) + 500);

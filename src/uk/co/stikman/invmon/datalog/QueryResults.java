@@ -2,6 +2,7 @@ package uk.co.stikman.invmon.datalog;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import javax.management.RuntimeErrorException;
 
@@ -70,6 +71,16 @@ public class QueryResults {
 		}
 		records.add(r);
 		return r;
+	}
+
+	public int getFieldIndex(String name) {
+		int i = 0;
+		for (Field f : fields) {
+			if (name.equals(f.getId()))
+				return i;
+			++i;
+		}
+		throw new NoSuchElementException("Field not found: " + name);
 	}
 
 }
