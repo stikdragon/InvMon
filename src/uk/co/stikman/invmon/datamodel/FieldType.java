@@ -17,9 +17,10 @@ public enum FieldType {
 
 	/**
 	 * size, in bytes
+	 * 
 	 * @return
 	 */
-	int getTypeSize() {
+	public int getTypeSize() {
 		switch (this) {
 			case BOOLEAN:
 				return 1;
@@ -34,6 +35,26 @@ public enum FieldType {
 				return -1;
 			case TIMESTAMP:
 				return 8;
+			default:
+				throw new IllegalArgumentException("what");
+		}
+	}
+
+	public FieldType getBaseType() {
+		switch (this) {
+			case BOOLEAN:
+				return BOOLEAN;
+			case CURRENT:
+			case FLOAT:
+			case FREQ:
+			case INT:
+			case POWER:
+			case VOLTAGE:
+				return FLOAT;
+			case STRING:
+				return STRING;
+			case TIMESTAMP:
+				return TIMESTAMP;
 			default:
 				throw new IllegalArgumentException("what");
 		}

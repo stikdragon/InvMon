@@ -17,6 +17,8 @@ import org.w3c.dom.Element;
 
 import uk.co.stikman.invmon.datalog.DataLogger;
 import uk.co.stikman.invmon.htmlout.HTMLOutput;
+import uk.co.stikman.invmon.htmlout.HTMLOutputStatic;
+import uk.co.stikman.invmon.htmlout.HTTPServer;
 import uk.co.stikman.invmon.inverter.PIP8048MAX.InverterMonitorPIP;
 
 public class Config {
@@ -33,9 +35,10 @@ public class Config {
 		thingtypes.put("Inverter", InverterMonitorPIP.class);
 		thingtypes.put("FakeInverter", FakeInverterMonitor.class);
 		thingtypes.put("ConsoleOutput", ConsoleOutput.class);
-		thingtypes.put("TempHTMLOutput", TempHTMLOutput.class);
+		thingtypes.put("TempHTMLOutput", HTMLOutputStatic.class);
 		thingtypes.put("HTMLOutput", HTMLOutput.class);
 		thingtypes.put("DataLogger", DataLogger.class);
+		thingtypes.put("HTTPServer", HTTPServer.class);
 
 		Element eset = getElement(doc.getDocumentElement(), "Settings");
 		this.updatePeriod = Integer.parseInt(getAttrib(eset, "updatePeriod"));

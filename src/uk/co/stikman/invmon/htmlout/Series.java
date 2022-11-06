@@ -8,6 +8,20 @@ public class Series {
 	private String			field;
 	private List<String>	subfields	= Collections.emptyList();
 	private String			fill		= "transparent";
+	private Axis			yAxis;
+
+	public Axis getyAxis() {
+		return yAxis;
+	}
+
+	/**
+	 * if <code>null</code> then it's the first axis
+	 * 
+	 * @param yAxis
+	 */
+	public void setyAxis(Axis yAxis) {
+		this.yAxis = yAxis;
+	}
 
 	public Series(String field) {
 		this.field = field;

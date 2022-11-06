@@ -8,9 +8,11 @@
 
         <!-- <ConsoleOutput id="console" /> -->
 
-        <HTMLOutput id="htmlout" target="junk\inv.html" />
+        <TempHTMLOutput id="htmlout" target="junk\inv.html" />
 
         <DataLogger id="datalogger" file="junk\datalog.dat" />
+
+        <HTTPServer id="httpserver" port="8083" />
     </Modules>
 
 </InvMon>

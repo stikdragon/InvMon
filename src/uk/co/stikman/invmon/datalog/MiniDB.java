@@ -109,7 +109,6 @@ public class MiniDB {
 			}
 		}
 
-		System.out.println(this.toDataTable().toString());
 	}
 
 	public void close() throws IOException {
@@ -161,6 +160,7 @@ public class MiniDB {
 				rec.getBuffer().rewind();
 				outputChannel.write(rec.getBuffer());
 				outputChannel.force(false);
+				System.out.println("size: "+ outputChannel.size());
 			} catch (IOException e) {
 				throw new RuntimeException("Failed to write record: " + e.getMessage(), e);
 			}

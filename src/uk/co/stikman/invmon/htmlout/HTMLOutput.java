@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.w3c.dom.Element;
@@ -20,7 +21,9 @@ import uk.co.stikman.invmon.TempHTMLOutput;
 import uk.co.stikman.invmon.datalog.DataLogger;
 import uk.co.stikman.invmon.datalog.QueryRecord;
 import uk.co.stikman.invmon.datalog.QueryResults;
+import uk.co.stikman.invmon.datamodel.DataModel;
 import uk.co.stikman.invmon.datamodel.Field;
+import uk.co.stikman.invmon.datamodel.FieldType;
 import uk.co.stikman.invmon.inverter.InvUtil;
 import uk.co.stikman.log.StikLog;
 
@@ -51,24 +54,100 @@ public class HTMLOutput extends InvModule {
 		long dt = System.currentTimeMillis() - lastT;
 		if (dt > 5000) {
 			lastT = System.currentTimeMillis();
-
+			DataModel model = getEnv().getModel();
 			//
 			// render a nice page
 			//
 			HTMLBuilder html = new HTMLBuilder();
 			html.append(getClass(), "top.html");
 
+			//
+			// data sets
+			//
+			int timeperiod = 1000 * 60 * 10;
+			int pointCount = 120;
+
+			//
+			// to avoid ugly aliasing we'll snap to a point in future
+			//
+			long snap = timeperiod / 10;
+			long cur = System.currentTimeMillis() / snap;
+			cur++;
+			cur *= snap;
+
+			long limit = cur - timeperiod;
+			List<Field> fields = new ArrayList<>();
+			fields.add(model.get("TIMESTAMP"));
+			fields.add(model.get("PV_TOTAL_P"));
+			fields.add(model.get("PV1_P"));
+			fields.add(model.get("PV2_P"));
+			fields.add(model.get("PV3_P"));
+			fields.add(model.get("PV4_P"));
+			fields.add(model.get("LOAD_P"));
+			fields.add(model.get("BATT_V"));
+			fields.add(model.get("BATT_I"));
+			fields.add(model.get("INV_MODE"));
+			List<String> fieldsS = new ArrayList<>();
+			fields.stream().map(Field::getId).forEach(fieldsS::add);
+			QueryResults res = datalogger.query(limit, cur, pointCount, fieldsS);
+
+			List<StringBuilder> arrays = new ArrayList<>();
+			for (Field f : fields) {
+				StringBuilder sb = new StringBuilder();
+				sb.append("const d").append(f.getId()).append("=[");
+				arrays.add(sb);
+			}
+			String sep = "";
+			for (QueryRecord rec : res.getRecords()) {
+				int i = 0;
+				for (StringBuilder sb : arrays) {
+					switch (fields.get(i).getType().getBaseType()) {
+						case TIMESTAMP:
+							sb.append(sep).append(rec.getLong(i));
+							break;
+						case FLOAT:
+							sb.append(sep).append(rec.getFloat(i));
+							break;
+						case STRING:
+							sb.append(sep).append("\"").append(rec.getString(i)).append("\"");
+							break;
+					}
+					++i;
+				}
+				sep = ",";
+			}
+			for (StringBuilder sb : arrays)
+				sb.append("];\n");
+
+			for (StringBuilder sb : arrays)
+				html.append(sb.toString());
+
+			html.append("</script></head><body>");
+
 			html.div("sect").append("<h1>PV Power</h1>");
-			renderPVPowerChart(html);
-			html.append("</div>");
+			html.append("<canvas id=\"c1\" width=\"500\" height=\"280\"></canvas>");
+			html.append("</div>\n");
 
 			html.div("sect").append("<h1>Load</h1>");
-			renderLoadChart(html);
-			html.append("</div>");
+			html.append("<canvas id=\"c2\" width=\"500\" height=\"280\"></canvas>");
+			html.append("</div>\n");
 
 			html.div("sect").append("<h1>Battery Current</h1>");
-			renderBatteryChart(html);
-			html.append("</div>");
+			html.append("<canvas id=\"c3\" width=\"500\" height=\"280\"></canvas>");
+			html.append("</div>\n");
+
+			StringBuilder datasets = new StringBuilder();
+			datasets.append("{").append(generateChartDSEntry("PV1_P", "hsl(30, 75%, 75%)")).append("},");
+			datasets.append("{").append(generateChartDSEntry("PV2_P", "hsl(60, 75%, 75%)")).append("},");
+			datasets.append("{").append(generateChartDSEntry("PV3_P", "hsl(90, 75%, 75%)")).append("},");
+			datasets.append("{").append(generateChartDSEntry("PV4_P", "hsl(120, 75%, 75%)")).append("},");
+
+			html.append("<script>\n");
+			String s = HTMLBuilder.readResource(getClass(), "chart1.js");
+			s = s.replaceAll("DATASETS", datasets.toString());
+			s = s.replaceAll("CHARTNAME", "c1");
+			html.append(s);
+			html.append("</script>\n");
 
 			html.append(getClass(), "bottom.html");
 
@@ -80,137 +159,20 @@ public class HTMLOutput extends InvModule {
 		}
 	}
 
-	private void renderPVPowerChart(HTMLBuilder html) {
-		ChartOptions opts = new ChartOptions(120, 5 * 60 * 1000);
-		opts.addSeries("PV_TOTAL_P", list("PV1_P", "PV2_P", "PV3_P", "PV4_P"));
-		renderChart(html, opts);
-	}
-
-	private void renderLoadChart(HTMLBuilder html) {
-		ChartOptions opts = new ChartOptions(120, 5 * 60 * 1000);
-		opts.addSeries("LOAD_P").setFill("#ffc456");
-		renderChart(html, opts);
-	}
-
-	private void renderBatteryChart(HTMLBuilder html) {
-		ChartOptions opts = new ChartOptions(120, 5 * 60 * 1000);
-		opts.addSeries("BATT_V").setFill("#c4ff56");
-		opts.addSeries("BATT_I");
-		renderChart(html, opts);
-	}
-
-	private void renderChart(HTMLBuilder html, ChartOptions opts) {
-		//
-		// this is quite messy i'm afraid
-		//
-		int timeperiod = opts.getTimePeriod();
-
-		//
-		// to avoid ugly aliasing we'll snap to a point in future
-		//
-		long snap = timeperiod / 10;
-		long cur = System.currentTimeMillis() / snap;
-		cur++;
-		cur *= snap;
-
-		long limit = cur - timeperiod;
-		List<String> fields = new ArrayList<>();
-		for (Series s : opts.getSeries()) {
-			fields.add(s.getField());
-			fields.addAll(s.getSubfields());
-		}
-		QueryResults res = datalogger.query(limit, cur, opts.getPointCount(), fields);
-
-		//
-		// now onto rendering the chart
-		//
-		final int w = 400;
-		final int h = 200;
-		html.append("<svg width=\"" + w + "px\" height=\"" + h + "px\">\n");
-		int fts = res.getFieldIndex("TIMESTAMP");
-
-		for (Series series : opts.getSeries()) {
-			int fmain = res.getFieldIndex(series.getField());
-			int[] fsubs = new int[series.getSubfields().size()];
-			String[] colours = new String[fsubs.length];
-			for (int i = 0; i < fsubs.length; ++i) {
-				fsubs[i] = res.getFieldIndex(series.getSubfields().get(i));
-				colours[i] = COLOURS[i % COLOURS.length];
-			}
-
-			int rcount = res.getRecords().size();
-			float[] points = new float[2 * (rcount + 2)]; // 2 extra points for the corners
-			int p = 0;
-			points[p++] = 0.0f;
-			points[p++] = h;
-
-			float scaleP = 1.0f;
-			for (QueryRecord rec : res.getRecords()) {
-				float f = rec.getFloat(fmain);
-				if (f > scaleP)
-					scaleP = f;
-			}
-
-			//
-			// align to a major increments
-			//
-			int oom = scaleP == 0.0f ? 0 : (int) Math.log10(scaleP);
-			float f = (float) Math.pow(10, oom - 1);
-			scaleP = (float) (f * Math.floor((scaleP) / f)) * 1.1f;
-
-			List<String> pathlist = new ArrayList<>();
-			//
-			// total line
-			//
-			StringBuilder sb = new StringBuilder();
-			sb.append("<path d=\"M0 ").append(h - 0).append(" ");
-			f = 0.0f;
-			for (QueryRecord rec : res.getRecords()) {
-				long ts = rec.getLong(fts);
-				f = rec.getFloat(fmain);
-				sb.append("L").append(w * (float) (ts - limit) / timeperiod).append(" ").append(h - (h * f / scaleP)).append(" ");
-			}
-			sb.append("L").append(w).append(" ").append(h - 0).append(" ");
-			sb.append("\" stroke=\"#000000a0\" fill=\"" + series.getFill() + "\" stroke-width=\"2px\" />\n");
-			pathlist.add(sb.toString());
-
-			//
-			// polygons for each sub-measure, if we have them
-			//
-			float[] offsets = new float[rcount];
-			for (int i = 0; i < offsets.length; ++i)
-				offsets[i] = 0.0f;
-			for (int i = 0; i < fsubs.length; ++i) {
-				sb = new StringBuilder();
-				sb.append("<path d=\"M0 ").append(h - 0).append(" ");
-				int j = 0;
-				for (QueryRecord rec : res.getRecords()) {
-					long ts = rec.getLong(fts);
-					f = rec.getFloat(fsubs[i]);
-					float y = h * f / scaleP;
-					sb.append("L").append(w * (float) (ts - limit) / timeperiod).append(" ").append(h - (y + offsets[j])).append(" ");
-					offsets[j] += y;
-					++j;
-				}
-
-				sb.append("L").append(w).append(" ").append(h - 0).append(" ");
-				sb.append("\" stroke=\"none\" fill=\"" + colours[i] + "\"/>\n");
-				pathlist.add(sb.toString());
-			}
-
-			for (int i = pathlist.size() - 1; i >= 0; --i)
-				html.append(pathlist.get(i));
-
-		}
-
-		html.append("</svg>\n");
-	}
-
-	private static List<String> list(String... strings) {
-		List<String> a = new ArrayList<>();
-		for (String s : strings)
-			a.add(s);
-		return a;
+	private String generateChartDSEntry(String sourcefield, String colour) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("fill: true,\n");
+		sb.append("backgroundColor: \"").append(colour).append("\",\n");
+//		sb.append("pointBackgroundColor: colors.purple.stroke,\n");
+//		sb.append("borderColor: colors.purple.stroke,\n");
+//		sb.append("pointHighlightStroke: colors.purple.stroke,\n");
+//		sb.append("borderCapStyle: 'butt',\n");
+		sb.append("data: d").append(sourcefield).append(",\n");
+		sb.append("lineTension: 0,\n");
+		sb.append("pointRadius: 0,\n");
+		sb.append("borderWidth: 0,\n");
+		
+		return sb.toString();
 	}
 
 }
