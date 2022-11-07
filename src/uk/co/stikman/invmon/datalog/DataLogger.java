@@ -43,6 +43,7 @@ public class DataLogger extends InvModule {
 		db.setModel(getEnv().getModel());
 		try {
 			db.open();
+			System.out.println(db.toDataTable());
 		} catch (IOException e) {
 			throw new InvMonException("Failed to start database: " + e.getMessage(), e);
 		}

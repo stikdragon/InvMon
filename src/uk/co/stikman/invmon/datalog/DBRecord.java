@@ -8,11 +8,9 @@ import uk.co.stikman.invmon.datamodel.Field;
 public class DBRecord {
 	private int			index;
 	private ByteBuffer	buffer;
-	private MiniDB		owner;
 
 	public DBRecord(MiniDB owner) {
 		super();
-		this.owner = owner;
 		buffer = ByteBuffer.allocate(owner.getModel().getRecordWidth());
 	}
 
@@ -31,7 +29,7 @@ public class DBRecord {
 	public void set(Field field, long f) {
 		buffer.putLong(field.getOffset(), f);
 	}
-	
+
 	public void set(Field field, float f) {
 		buffer.putInt(field.getOffset(), Float.floatToRawIntBits(f));
 	}
@@ -46,6 +44,8 @@ public class DBRecord {
 		if (n > field.getWidth())
 			n = field.getWidth();
 		buffer.put(field.getOffset(), b, 0, n);
+		if (n < field.getWidth())
+			buffer.put(field.getOffset() + n, (byte) 0);
 	}
 
 	public void copyData(byte[] buf) {
@@ -55,7 +55,13 @@ public class DBRecord {
 	}
 
 	public float getFloat(Field field) {
-		return Float.intBitsToFloat(buffer.getInt(field.getOffset()));
+		//
+		// calculate fields if necessary
+		//
+		if (field.getCalculationMethod() != null)
+			return field.getCalculationMethod().calc(this);
+		else
+			return Float.intBitsToFloat(buffer.getInt(field.getOffset()));
 	}
 
 	public String getString(Field field) {

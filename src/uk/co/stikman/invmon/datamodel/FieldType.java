@@ -32,7 +32,7 @@ public enum FieldType {
 			case VOLTAGE:
 				return 4;
 			case STRING:
-				return -1;
+				return 4;
 			case TIMESTAMP:
 				return 8;
 			default:

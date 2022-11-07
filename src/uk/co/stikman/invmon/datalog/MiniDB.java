@@ -1,6 +1,7 @@
 package uk.co.stikman.invmon.datalog;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -8,15 +9,11 @@ import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.file.StandardOpenOption;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,18 +22,26 @@ import uk.co.stikman.invmon.datamodel.Field;
 import uk.co.stikman.table.DataRecord;
 import uk.co.stikman.table.DataTable;
 
+/**
+ * Stores data in "blocks" of a given size. There's an "index" file which is the
+ * main database file, this contains information about which record is in which
+ * block. requesting a record from a block means it is loaded into memory. old
+ * blocks get pushed out of this cache
+ * 
+ * @author stik
+ *
+ */
 public class MiniDB {
 	private static final int	VERSION_1		= 1;
 	private static final int	MAGIC_NUMBER	= 0x15C4238E;
 	private DataModel			model;
 	private List<DBRecord>		records			= new ArrayList<>();
-	private long				modelHash;
-	private File				file;
+	private File				outputFile;
 	private ByteBuffer			markerBuffer;
-	private FileChannel			outputChannel;
+	private DataOutputStream	output;
 
 	public MiniDB(File file) {
-		this.file = file;
+		this.outputFile = file;
 		markerBuffer = ByteBuffer.allocate(1);
 		markerBuffer.put((byte) 1);
 	}
@@ -45,9 +50,9 @@ public class MiniDB {
 		//
 		// read what we've got first
 		//
-		boolean exists = file.exists();
+		boolean exists = outputFile.exists();
 		if (exists) {
-			try (InputStream is = new BufferedInputStream(new FileInputStream(file))) {
+			try (InputStream is = new BufferedInputStream(new FileInputStream(outputFile))) {
 				read(is);
 			}
 		}
@@ -55,7 +60,7 @@ public class MiniDB {
 			//
 			// write initial file
 			//
-			try (DataOutputStream dos = new DataOutputStream(new FileOutputStream(file))) {
+			try (DataOutputStream dos = new DataOutputStream(new FileOutputStream(outputFile))) {
 				dos.writeInt(MAGIC_NUMBER);
 				dos.writeInt(VERSION_1);
 
@@ -68,7 +73,7 @@ public class MiniDB {
 			}
 		}
 
-		outputChannel = FileChannel.open(file.toPath(), StandardOpenOption.APPEND);
+		output = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(outputFile, true)));
 	}
 
 	private void read(InputStream is) throws IOException {
@@ -105,7 +110,8 @@ public class MiniDB {
 					r.setIndex(idx++);
 					r.copyData(recbuf);
 					records.add(r);
-				}
+				} else
+					throw new IOException("Corrupt file");
 			}
 		}
 
@@ -113,15 +119,14 @@ public class MiniDB {
 
 	public void close() throws IOException {
 		synchronized (this) {
-			outputChannel.close();
-			outputChannel = null;
+			output.close();
+			output = null;
 		}
 	}
 
 	public void setModel(DataModel model) {
 		synchronized (this) {
 			this.model = model;
-			modelHash = model.hashCode();
 		}
 	}
 
@@ -129,7 +134,6 @@ public class MiniDB {
 		synchronized (this) {
 			model = new DataModel();
 			model.loadXML(is);
-			modelHash = model.hashCode();
 		}
 	}
 
@@ -145,22 +149,15 @@ public class MiniDB {
 
 		synchronized (this) {
 			//
-			// calculate fields if necessary
-			//
-			for (Field f : model.getCalculatedFields())
-				rec.set(f, f.getCalculationMethod().calc(rec));
-			//
 			// trim any strings
 			//
 			rec.setIndex(records.size());
 			records.add(rec);
 			try {
-				markerBuffer.rewind();
-				outputChannel.write(markerBuffer);
-				rec.getBuffer().rewind();
-				outputChannel.write(rec.getBuffer());
-				outputChannel.force(false);
-				System.out.println("size: "+ outputChannel.size());
+				output.write(1); // "record"
+				output.write(rec.getBuffer().array());
+				output.flush();
+				System.out.println("size: " + outputFile.length());
 			} catch (IOException e) {
 				throw new RuntimeException("Failed to write record: " + e.getMessage(), e);
 			}
@@ -219,4 +216,5 @@ public class MiniDB {
 	public DBRecord getRecord(int idx) {
 		return records.get(idx);
 	}
+
 }

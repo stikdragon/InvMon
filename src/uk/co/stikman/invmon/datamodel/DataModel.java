@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import javax.management.RuntimeErrorException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
@@ -28,6 +27,7 @@ import uk.co.stikman.table.DataTable;
 
 public class DataModel implements Iterable<Field> {
 	private Map<String, Field>	fields				= new HashMap<>();
+	private List<Field>			fieldList			= new ArrayList<>();
 	private int					recordWidth;
 	private List<Field>			calculatedFields	= Collections.emptyList();
 
@@ -52,7 +52,7 @@ public class DataModel implements Iterable<Field> {
 				f.setWidth(Integer.parseInt(InvUtil.getAttrib(el, "width")));
 			else
 				f.setWidth(f.getType().getTypeSize());
-
+			
 			if (el.hasAttribute("aggregationMode")) {
 				f.setAggregationMode(AggregationMode.valueOf(el.getAttribute("aggregationMode")));
 			} else {
@@ -62,21 +62,26 @@ public class DataModel implements Iterable<Field> {
 					f.setAggregationMode(AggregationMode.MEAN);
 			}
 
-			if (el.hasAttribute("calculated"))
+			if (el.hasAttribute("calculated")) {
+				if (f.getType().getBaseType() != FieldType.FLOAT)
+					throw new IllegalArgumentException("Only FLOAT fields can be calculated");
 				f.setCalculated(el.getAttribute("calculated"));
+				f.setPosition(-1);
+				f.setOffset(-1);
+			} else {
+				f.setPosition(idx++);
+				f.setOffset(offset);
+				offset += f.getWidth();
+				recordWidth += f.getWidth();
+			}
 
 			fields.put(f.getId(), f);
-			f.setPosition(idx++);
-			f.setOffset(offset);
-
-			if (f.getType() != FieldType.STRING)
-				offset += f.getType().getTypeSize();
-			else
-				offset += f.getWidth();
-			recordWidth += f.getWidth();
+			fieldList.add(f);
 		}
 
 		compileExpressions();
+
+		System.out.println(toString());
 	}
 
 	public void writeXML(OutputStream str) throws IOException {
@@ -85,7 +90,7 @@ public class DataModel implements Iterable<Field> {
 			Document doc = bld.newDocument();
 			Element root = doc.createElement("Model");
 			doc.appendChild(root);
-			fields.values().stream().sorted((a, b) -> a.getPosition() - b.getPosition()).forEach(f -> {
+			fieldList.forEach(f -> {
 				Element el = doc.createElement("Field");
 				el.setAttribute("id", f.getId());
 				el.setAttribute("type", f.getType().name());
@@ -126,13 +131,14 @@ public class DataModel implements Iterable<Field> {
 	@Override
 	public String toString() {
 		DataTable dt = new DataTable();
-		dt.addFields("ID", "Type", "Parent");
-		fields.keySet().stream().sorted().forEach(k -> {
+		dt.addFields("ID", "Type", "Parent", "Offset", "Position");
+		fieldList.forEach(f -> {
 			DataRecord r = dt.addRecord();
-			Field f = fields.get(k);
 			r.setValue(0, f.getId());
 			r.setValue(1, f.getType().name());
 			r.setValue(2, f.getParent() == null ? "-" : f.getParent().getId());
+			r.setValue(3, f.getOffset());
+			r.setValue(4, f.getPosition());
 		});
 		return dt.toString();
 	}
