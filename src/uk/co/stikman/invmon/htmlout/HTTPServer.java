@@ -1,6 +1,7 @@
 package uk.co.stikman.invmon.htmlout;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.w3c.dom.Element;
 
@@ -51,14 +52,28 @@ public class HTTPServer extends InvModule {
 
 	private Response serve(IHTTPSession session) {
 		try {
+			String offset = getParam(session, "off");
+			String duration = getParam(session, "dur");
+
+			HTMLOpts opts = new HTMLOpts();
+			opts.setDuration(duration == null ? 60 * 10 : Long.parseLong(duration));
+			opts.setOffset(offset == null ? 0 : Long.parseLong(offset));
+
 			HTMLBuilder html = new HTMLBuilder();
-			new HTMLGenerator(datalogger).render(html);
+			new HTMLGenerator(datalogger).render(html, opts);
 
 			return NanoHTTPD.newFixedLengthResponse(Status.OK, "text/html", html.toString());
 		} catch (Exception e) {
 			LOGGER.error(e);
 			return NanoHTTPD.newFixedLengthResponse(Status.INTERNAL_ERROR, "text/html", "Internal Error");
 		}
+	}
+
+	private static String getParam(IHTTPSession session, String key) {
+		List<String> lst = session.getParameters().get(key);
+		if (lst == null)
+			return null;
+		return lst.get(0);
 	}
 
 	public static class Svr extends NanoHTTPD {

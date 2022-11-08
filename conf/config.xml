@@ -8,7 +8,7 @@
     
         <ConsoleOutput id="console" controlCodes="false" />
 
-        <TempHTMLOutput id="htmlout" target="junk\inv.html" />
+        <!-- <TempHTMLOutput id="htmlout" target="junk\inv.html" /> -->
 
         <DataLogger id="datalogger" file="junk\datalog.db" blockSize="400000" />
 

@@ -13,7 +13,10 @@ public class ChartOptions {
 	private long			endTime;
 
 	public ChartOptions(int pointCount, long backwards) {
-		this(pointCount, System.currentTimeMillis() - backwards, System.currentTimeMillis());
+		System.out.println("backwards == " + backwards);
+		this.pointCount = pointCount;
+		this.startTime = System.currentTimeMillis() - backwards;
+		this.endTime = System.currentTimeMillis();
 	}
 
 	public ChartOptions(int pointCount, long tsStart, long tsEnd) {

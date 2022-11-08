@@ -12,30 +12,60 @@ import uk.co.stikman.invmon.datalog.QueryRecord;
 import uk.co.stikman.invmon.datalog.QueryResults;
 
 public class HTMLGenerator {
-	private static final String[]	COLOURS	= new String[] { "#ff7c7c", "#7cff7c", "#7c7cff", "#ff7cff" };
+	private static final String[]	COLOURS			= new String[] { "#ff7c7c", "#7cff7c", "#7c7cff", "#ff7cff" };
 	private DataLogger				source;
+	private static final long[]		TIMESCALES		= new long[] { 5, 30, 60, 2 * 60, 12 * 60, 24 * 60, 5 * 24 * 60, 30 * 24 * 60 };
+	private static final int[]		TIMESCALE_TYPE	= new int[] { 0, 0, 1, 1, 1, 1, 2, 2 };											// min, hour, day
 
 	public HTMLGenerator(DataLogger datalogger) {
 		this.source = datalogger;
 	}
 
 	public void render(HTMLBuilder html) {
+		HTMLOpts def = new HTMLOpts();
+		def.setDuration(5 * 60);
+		render(html, def);
+	}
+
+	public void render(HTMLBuilder html, HTMLOpts opts) {
 		//
 		// render a nice page
 		//
 		long lastT = System.currentTimeMillis();
 		html.append(getClass(), "top_static.html");
 
+		html.div("controls");
+		int i = 0;
+		for (long n : TIMESCALES) {
+			String s = null;
+			switch (TIMESCALE_TYPE[i++]) {
+				case 0:
+					s = n + " Min";
+					break;
+				case 1:
+					s = (n / 60) + " Hour";
+					break;
+				case 2:
+					s = (n / 1440) + " Day";
+					break;
+			}
+			if (opts.getDuration() == n)
+				html.div("sel").append(s).append("</div>");
+			else
+				html.div("unsel").append("<a href=\"?dur=" + n + "\">" + s + "</a></div>");
+		}
+		html.append("</div>");
+
 		html.div("sect").append("<h1>PV Power</h1>");
-		renderPVPowerChart(html);
+		renderPVPowerChart(html, opts);
 		html.append("</div>");
 
 		html.div("sect").append("<h1>Load</h1>");
-		renderLoadChart(html);
+		renderLoadChart(html, opts);
 		html.append("</div>");
 
 		html.div("sect").append("<h1>Battery Current</h1>");
-		renderBatteryChart(html);
+		renderBatteryChart(html, opts);
 		html.append("</div>");
 
 		html.append("<div class=\"tiny\"><div class=\"a\">Render time: </div><div class=\"b\">").append(System.currentTimeMillis() - lastT).append("ms</div></div>");
@@ -44,26 +74,26 @@ public class HTMLGenerator {
 		html.append(getClass(), "bottom_static.html");
 	}
 
-	private void renderPVPowerChart(HTMLBuilder html) {
-		ChartOptions opts = new ChartOptions(120, 5 * 60 * 1000);
-		opts.addSeries("PV_TOTAL_P", list("PV1_P", "PV2_P", "PV3_P", "PV4_P"));
-		opts.getAxisY1().setFormatter(f -> String.format("%d W", f.intValue()));
-		renderChart(html, opts);
+	private void renderPVPowerChart(HTMLBuilder html, HTMLOpts opts) {
+		ChartOptions co = new ChartOptions(120, opts.getDuration() * 1000 * 60);
+		co.addSeries("PV_TOTAL_P", list("PV1_P", "PV2_P", "PV3_P", "PV4_P"));
+		co.getAxisY1().setFormatter(f -> String.format("%d W", f.intValue()));
+		renderChart(html, co);
 	}
 
-	private void renderLoadChart(HTMLBuilder html) {
-		ChartOptions opts = new ChartOptions(120, 5 * 60 * 1000);
-		opts.addSeries("LOAD_P").setFill("#ffc456");
-		opts.getAxisY1().setFormatter(f -> String.format("%d W", f.intValue()));
-		renderChart(html, opts);
+	private void renderLoadChart(HTMLBuilder html, HTMLOpts opts) {
+		ChartOptions co = new ChartOptions(120, opts.getDuration() * 1000 * 60);
+		co.addSeries("LOAD_P").setFill("#ffc456");
+		co.getAxisY1().setFormatter(f -> String.format("%d W", f.intValue()));
+		renderChart(html, co);
 	}
 
-	private void renderBatteryChart(HTMLBuilder html) {
-		ChartOptions opts = new ChartOptions(120, 5 * 60 * 1000);
-		opts.getAxisY1().setFormatter(f -> String.format("%.1f A", f.floatValue()));
-		opts.addSeries("BATT_V").setFill("#c4ff56");
-		opts.addSeries("BATT_I");
-		renderChart(html, opts);
+	private void renderBatteryChart(HTMLBuilder html, HTMLOpts opts) {
+		ChartOptions co = new ChartOptions(120, opts.getDuration() * 1000 * 60);
+		co.getAxisY1().setFormatter(f -> String.format("%.1f A", f.floatValue()));
+		co.addSeries("BATT_V").setFill("#c4ff56");
+		co.addSeries("BATT_I");
+		renderChart(html, co);
 	}
 
 	private SimpleDateFormat sdf = new SimpleDateFormat("yyy/MM/dd HH:mm:ss");
