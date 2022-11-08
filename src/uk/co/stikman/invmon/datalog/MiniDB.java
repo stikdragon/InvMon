@@ -24,16 +24,16 @@ import uk.co.stikman.table.DataTable;
  *
  */
 public class MiniDB {
-	private static final int	DEFAULT_BLOCKSIZE	= 100000;
-	private DataModel			model;
-	private File				indexFile;
-	private IndexFile			index;
-	private List<Block>			blocks				= new ArrayList<>();
-	private int					recordCount			= 0;
-	private int					maxCachedBlocks		= 4;
-	private final int			blockSize;
-	private Field				keyField;
-	private Set<Block>			open				= new HashSet<>();
+	public static final int	DEFAULT_BLOCKSIZE	= 100000;
+	private DataModel		model;
+	private File			indexFile;
+	private IndexFile		index;
+	private List<Block>		blocks				= new ArrayList<>();
+	private int				recordCount			= 0;
+	private int				maxCachedBlocks		= 4;
+	private final int		blockSize;
+	private Field			keyField;
+	private Set<Block>		open				= new HashSet<>();
 
 	/**
 	 * <code>file</code> is the main index file, block files will be called

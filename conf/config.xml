@@ -10,7 +10,7 @@
 
         <TempHTMLOutput id="htmlout" target="junk\inv.html" />
 
-        <DataLogger id="datalogger" file="junk\datalog.dat" />
+        <DataLogger id="datalogger" file="junk\datalog.db" blockSize="400000" />
 
         <HTTPServer id="httpserver" port="8083" />
     </Modules>

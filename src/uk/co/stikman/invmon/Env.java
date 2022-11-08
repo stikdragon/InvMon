@@ -81,7 +81,6 @@ public class Env {
 		terminated = true;
 		mainthread.interrupt();
 
-		// todo..
 		for (InvModule part : parts)
 			part.terminate();
 

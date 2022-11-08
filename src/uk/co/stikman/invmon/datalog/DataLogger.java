@@ -28,10 +28,10 @@ import uk.co.stikman.table.DataTable;
 
 public class DataLogger extends InvModule {
 
-	private String	filename;
 	private MiniDB	db;
 	private File	lock;
 	private File	file;
+	private int		blockSize;
 
 	public DataLogger(String id, Env env) {
 		super(id, env);
@@ -39,7 +39,7 @@ public class DataLogger extends InvModule {
 
 	public void start() throws InvMonException {
 		super.start();
-		db = new MiniDB(file);
+		db = new MiniDB(file, blockSize);
 		db.setModel(getEnv().getModel());
 		try {
 			db.open();
@@ -85,6 +85,7 @@ public class DataLogger extends InvModule {
 	public void configure(Element config) {
 		file = new File(InvUtil.getAttrib(config, "file"));
 		lock = new File(file.getAbsolutePath() + ".lock");
+		blockSize = Integer.parseInt(InvUtil.getAttrib(config, "blockSize", Integer.toString(MiniDB.DEFAULT_BLOCKSIZE)));
 	}
 
 	@Override
