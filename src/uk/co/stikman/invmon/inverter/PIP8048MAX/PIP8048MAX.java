@@ -11,13 +11,13 @@ import com.fazecast.jSerialComm.SerialPort;
 import uk.co.stikman.invmon.inverter.CommunicationError;
 import uk.co.stikman.invmon.inverter.Template;
 import uk.co.stikman.invmon.inverter.TemplateResult;
+import uk.co.stikman.log.StikLog;
 
 public class PIP8048MAX {
-
-	private SerialPort			port;
-	private long				started;
-	private Consumer<String>	logHandler;
-
+	private static final StikLog	LOGGER	= StikLog.getLogger(PIP8048MAX.class);
+	private SerialPort				port;
+	private long					started;
+	private Consumer<String>		logHandler;
 
 	public Consumer<String> getLogHandler() {
 		return logHandler;
@@ -34,6 +34,7 @@ public class PIP8048MAX {
 	public void open(SerialPort port) {
 		if (isOpen())
 			throw new IllegalStateException("Port already open");
+		LOGGER.info("Opening port...");
 		this.port = port;
 		port.setBaudRate(2400);
 		port.setNumStopBits(1);
@@ -146,8 +147,8 @@ public class PIP8048MAX {
 	private static final int[] CRC_TABLE = new int[] { 0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50a5, 0x60c6, 0x70e7, 0x8108, 0x9129, 0xa14a, 0xb16b, 0xc18c, 0xd1ad, 0xe1ce, 0xf1ef };
 
 	/**
-	 * this seems to be a weird type of CRC16 with a custom table perhaps? and
-	 * some fettling at the end
+	 * this seems to be a weird type of CRC16 with a custom table perhaps? and some
+	 * fettling at the end
 	 * 
 	 * @param data
 	 * @return
@@ -241,18 +242,18 @@ public class PIP8048MAX {
 		if (s.charAt(0) != '(')
 			throw new CommunicationError("Invalid response: " + s);
 		switch (s.charAt(1)) {
-		case 'P':
-			return DeviceMode.POWER_ON;
-		case 'S':
-			return DeviceMode.STANDBY;
-		case 'L':
-			return DeviceMode.LINE;
-		case 'B':
-			return DeviceMode.BATTERY;
-		case 'F':
-			return DeviceMode.FAULT;
-		case 'D':
-			return DeviceMode.SHUTDOWN;
+			case 'P':
+				return DeviceMode.POWER_ON;
+			case 'S':
+				return DeviceMode.STANDBY;
+			case 'L':
+				return DeviceMode.LINE;
+			case 'B':
+				return DeviceMode.BATTERY;
+			case 'F':
+				return DeviceMode.FAULT;
+			case 'D':
+				return DeviceMode.SHUTDOWN;
 		}
 		throw new CommunicationError("Invalid response: " + s);
 	}

@@ -8,11 +8,11 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="lib" path="lib/ivy/commons-io-2.7.jar"/>
-	<classpathentry kind="lib" path="lib/ivy/jSerialComm-2.9.2.jar" sourcepath="lib/ivy/jSerialComm-sources-2.9.2.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/json-20200518.jar"/>
 	<classpathentry kind="lib" path="lib/provided/stikutils-2.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/h2-2.1.214.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/nanohttpd-2.3.1.jar" sourcepath="lib/ivy/nanohttpd-sources-2.3.1.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/5"/>
+	<classpathentry kind="lib" path="lib/provided/jSerialComm-2.9.3-beta1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

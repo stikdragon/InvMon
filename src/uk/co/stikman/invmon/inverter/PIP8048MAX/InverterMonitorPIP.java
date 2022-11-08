@@ -118,12 +118,12 @@ public class InverterMonitorPIP extends InvModule {
 	@Override
 	public void start() throws InvMonException {
 		super.start();
-
+		inv.open(port);
 		DataModel model = getEnv().getModel();
 		fieldMode = model.get("INV_MODE");
 		fieldChargeState = model.get("BATT_MODE");
 		fieldBattery = model.getVIF("BATT");
-		fieldLoad = model.getVIF("BATT");
+		fieldLoad = model.getVIF("LOAD");
 		fieldPv1 = model.getVIF("PV1");
 		fieldPv2 = model.getVIF("PV2");
 		fieldPv1P = model.get("PV1_P");
@@ -137,6 +137,7 @@ public class InverterMonitorPIP extends InvModule {
 
 	@Override
 	public void terminate() {
+		inv.close();
 		super.terminate();
 	}
 

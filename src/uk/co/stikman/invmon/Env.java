@@ -7,11 +7,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import com.fazecast.jSerialComm.SerialPort;
+
 import uk.co.stikman.eventbus.StringEventBus;
 import uk.co.stikman.invmon.datamodel.DataModel;
 
 public class Env {
-	public static final String	VERSION		= "0.1";
+	public static final String	VERSION		= "0.2";
 
 	private List<InvModule>		parts		= new ArrayList<>();
 	private long				nextId		= 0;
@@ -22,6 +24,9 @@ public class Env {
 	private DataModel			model;
 
 	public void start() throws InvMonException {
+		for (SerialPort port : SerialPort.getCommPorts()) {
+		}
+		
 		bus.setImmediateMode(true);
 
 		config = new Config();

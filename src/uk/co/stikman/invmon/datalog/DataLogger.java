@@ -1,13 +1,10 @@
 package uk.co.stikman.invmon.datalog;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
-
-import javax.management.RuntimeErrorException;
 
 import org.w3c.dom.Element;
 
@@ -22,9 +19,6 @@ import uk.co.stikman.invmon.datamodel.AggregationMode;
 import uk.co.stikman.invmon.datamodel.DataModel;
 import uk.co.stikman.invmon.datamodel.Field;
 import uk.co.stikman.invmon.inverter.InvUtil;
-import uk.co.stikman.table.DataField;
-import uk.co.stikman.table.DataRecord;
-import uk.co.stikman.table.DataTable;
 
 public class DataLogger extends InvModule {
 

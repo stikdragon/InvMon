@@ -1,5 +1,6 @@
 package uk.co.stikman.invmon.datalog;
 
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
@@ -48,7 +49,8 @@ public class DBRecord {
 		int n = b.length;
 		if (n > field.getWidth())
 			n = field.getWidth();
-		buffer.put(field.getOffset(), b, 0, n);
+		((Buffer)buffer).position(field.getOffset());
+		buffer.put(b, 0, n);
 		if (n < field.getWidth())
 			buffer.put(field.getOffset() + n, (byte) 0);
 	}
@@ -59,9 +61,9 @@ public class DBRecord {
 	}
 
 	public void copyData(byte[] buf) {
-		buffer.rewind();
+		((Buffer)buffer).rewind();
 		buffer.put(buf);
-		buffer.rewind();
+		((Buffer)buffer).rewind();
 	}
 
 	public float getFloat(Field field) {

@@ -12,6 +12,7 @@ import uk.co.stikman.invmon.datamodel.FieldVIF;
 import uk.co.stikman.invmon.datamodel.InverterMode;
 import uk.co.stikman.invmon.datamodel.VIFReading;
 import uk.co.stikman.invmon.inverter.BatteryChargeStage;
+import uk.co.stikman.invmon.inverter.InvUtil;
 
 public class ConsoleOutput extends InvModule {
 
@@ -28,6 +29,7 @@ public class ConsoleOutput extends InvModule {
 	private Field				fieldLoadPF;
 	private Field				fieldStateOfCharge;
 	private Field				fieldMisc;
+	private boolean				enabledControlCodes;
 
 	public ConsoleOutput(String id, Env env) {
 		super(id, env);
@@ -35,6 +37,7 @@ public class ConsoleOutput extends InvModule {
 
 	@Override
 	public void configure(Element config) {
+		enabledControlCodes = Boolean.parseBoolean(InvUtil.getAttrib(config, "controlCodes", "true"));
 	}
 
 	@Override
@@ -45,7 +48,7 @@ public class ConsoleOutput extends InvModule {
 		fieldMode = model.get("INV_MODE");
 		fieldChargeState = model.get("BATT_MODE");
 		fieldBattery = model.getVIF("BATT");
-		fieldLoad = model.getVIF("BATT");
+		fieldLoad = model.getVIF("LOAD");
 
 		for (Field f : model)
 			if (f.getId().matches("PV[0-9]+_V"))
@@ -57,6 +60,7 @@ public class ConsoleOutput extends InvModule {
 		fieldMisc = model.get("MISC");
 
 		output = new ConsoleTextOutput(System.out);
+		output.setEnableControlCodes(enabledControlCodes);
 	}
 
 	@Override
@@ -105,7 +109,7 @@ public class ConsoleOutput extends InvModule {
 		//				
 		float totp = 0.0f;
 		for (FieldVIF f : fieldPv) {
-			String name = f.getV().getId().substring(f.getV().getId().length() - 2);
+			String name = f.getV().getId().substring(0, f.getV().getId().length() - 2);
 			float p = rec.getFloat(f.getV()) * rec.getFloat(f.getI());
 			totp += p;
 			output.print("            " + name + ": ").printInt(p, 5, "W").print(" - ").printInt(rec.getFloat(f.getV()), 3, "V").print(" @ ").printFloat(rec.getFloat(f.getI()), 2, 1, "A").spaces(4).newline();

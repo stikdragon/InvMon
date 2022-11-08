@@ -9,32 +9,33 @@ import java.text.DecimalFormat;
 import uk.co.stikman.invmon.inverter.InvUtil;
 
 public class ConsoleTextOutput {
-	public static final String		RESET			= "\u001B[0m";
+	public static final String		RESET				= "\u001B[0m";
 
-	public static final String		BLACK			= "\u001B[30m";
-	public static final String		RED				= "\u001B[31m";
-	public static final String		GREEN			= "\u001B[32m";
-	public static final String		YELLOW			= "\u001B[33m";
-	public static final String		BLUE			= "\u001B[34m";
-	public static final String		PURPLE			= "\u001B[35m";
-	public static final String		CYAN			= "\u001B[36m";
-	public static final String		WHITE			= "\u001B[37m";
+	public static final String		BLACK				= "\u001B[30m";
+	public static final String		RED					= "\u001B[31m";
+	public static final String		GREEN				= "\u001B[32m";
+	public static final String		YELLOW				= "\u001B[33m";
+	public static final String		BLUE				= "\u001B[34m";
+	public static final String		PURPLE				= "\u001B[35m";
+	public static final String		CYAN				= "\u001B[36m";
+	public static final String		WHITE				= "\u001B[37m";
 
-	public static final String		BRIGHT_BLACK	= "\u001B[30;1m";
-	public static final String		BRIGHT_RED		= "\u001B[31;1m";
-	public static final String		BRIGHT_GREEN	= "\u001B[32;1m";
-	public static final String		BRIGHT_YELLOW	= "\u001B[33;1m";
-	public static final String		BRIGHT_BLUE		= "\u001B[34;1m";
-	public static final String		BRIGHT_PURPLE	= "\u001B[35;1m";
-	public static final String		BRIGHT_CYAN		= "\u001B[36;1m";
-	public static final String		BRIGHT_WHITE	= "\u001B[37;1m";
+	public static final String		BRIGHT_BLACK		= "\u001B[30;1m";
+	public static final String		BRIGHT_RED			= "\u001B[31;1m";
+	public static final String		BRIGHT_GREEN		= "\u001B[32;1m";
+	public static final String		BRIGHT_YELLOW		= "\u001B[33;1m";
+	public static final String		BRIGHT_BLUE			= "\u001B[34;1m";
+	public static final String		BRIGHT_PURPLE		= "\u001B[35;1m";
+	public static final String		BRIGHT_CYAN			= "\u001B[36;1m";
+	public static final String		BRIGHT_WHITE		= "\u001B[37;1m";
 
-	private static final String		CLEAR			= "\033[H\033[2J";
-	private static final String		MOVE_TOPLEFT	= "\033[H";
-	private static final String		HIDE_CURSOR		= "\u001B[?25l";
-	private static final String		SHOW_CURSOR		= "\u001B[?25h";
+	private static final String		CLEAR				= "\033[H\033[2J";
+	private static final String		MOVE_TOPLEFT		= "\033[H";
+	private static final String		HIDE_CURSOR			= "\u001B[?25l";
+	private static final String		SHOW_CURSOR			= "\u001B[?25h";
 	private PrintStream				output;
 	private PrintStream				target;
+	private boolean					enableControlCodes	= true;
 
 	private ByteArrayOutputStream	outputBuffer;
 
@@ -44,7 +45,8 @@ public class ConsoleTextOutput {
 	}
 
 	public ConsoleTextOutput clear() {
-		output.print(CLEAR);
+		if (enableControlCodes)
+			output.print(CLEAR);
 		return this;
 	}
 
@@ -72,13 +74,15 @@ public class ConsoleTextOutput {
 		String pad = InvUtil.stringOfChar(digits - s.length(), ' ');
 
 		if (pad.length() > 0) {
-			output.print(BRIGHT_BLACK);
+			if (enableControlCodes)
+				output.print(BRIGHT_BLACK);
 			output.print(pad);
 		}
-
-		output.print(BRIGHT_YELLOW);
+		if (enableControlCodes)
+			output.print(BRIGHT_YELLOW);
 		output.print(s);
-		output.print(RESET);
+		if (enableControlCodes)
+			output.print(RESET);
 		if (suffix != null)
 			output.print(suffix);
 		return this;
@@ -94,12 +98,15 @@ public class ConsoleTextOutput {
 		String pad = InvUtil.stringOfChar(digits - s.length(), ' ');
 
 		if (pad.length() > 0) {
-			output.print(BRIGHT_BLACK);
+			if (enableControlCodes)
+				output.print(BRIGHT_BLACK);
 			output.print(pad);
 		}
-		output.print(BRIGHT_YELLOW);
+		if (enableControlCodes)
+			output.print(BRIGHT_YELLOW);
 		output.print(s);
-		output.print(RESET);
+		if (enableControlCodes)
+			output.print(RESET);
 		if (suffix != null)
 			output.print(suffix);
 		return this;
@@ -110,24 +117,29 @@ public class ConsoleTextOutput {
 	}
 
 	public void moveTopLeft() {
-		output.print(MOVE_TOPLEFT);
+		if (enableControlCodes)
+			output.print(MOVE_TOPLEFT);
 	}
 
 	public void hideCursor() {
-		output.print(HIDE_CURSOR);
+		if (enableControlCodes)
+			output.print(HIDE_CURSOR);
 	}
 
 	public void showCursor() {
-		output.print(SHOW_CURSOR);
+		if (enableControlCodes)
+			output.print(SHOW_CURSOR);
 	}
 
 	public ConsoleTextOutput color(String code) {
-		output.print(code);
+		if (enableControlCodes)
+			output.print(code);
 		return this;
 	}
 
 	public ConsoleTextOutput reset() {
-		output.print(RESET);
+		if (enableControlCodes)
+			output.print(RESET);
 		return this;
 	}
 
@@ -159,6 +171,14 @@ public class ConsoleTextOutput {
 		} catch (IOException e) {
 			throw new RuntimeException("IOException: " + e.getMessage(), e);
 		}
+	}
+
+	public boolean isEnableControlCodes() {
+		return enableControlCodes;
+	}
+
+	public void setEnableControlCodes(boolean enableControlCodes) {
+		this.enableControlCodes = enableControlCodes;
 	}
 
 }

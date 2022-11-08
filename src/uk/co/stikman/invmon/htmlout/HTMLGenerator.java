@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.function.Function;
 
+import uk.co.stikman.invmon.Env;
 import uk.co.stikman.invmon.datalog.DataLogger;
 import uk.co.stikman.invmon.datalog.QueryRecord;
 import uk.co.stikman.invmon.datalog.QueryResults;
@@ -37,7 +38,9 @@ public class HTMLGenerator {
 		renderBatteryChart(html);
 		html.append("</div>");
 
-		html.append("<div class=\"tiny\">Render time: ").append(System.currentTimeMillis() - lastT).append("ms</div>");
+		html.append("<div class=\"tiny\"><div class=\"a\">Render time: </div><div class=\"b\">").append(System.currentTimeMillis() - lastT).append("ms</div></div>");
+		html.append("<div class=\"tiny\"><div class=\"a\">Local Time: </div><div class=\"b\">").append(new Date().toString()).append("</div></div>");
+		html.append("<div class=\"tiny\"><div class=\"a\">Version: </div><div class=\"b\">").append(Env.VERSION).append("</div></div>");
 		html.append(getClass(), "bottom_static.html");
 	}
 
