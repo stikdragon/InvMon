@@ -106,20 +106,4 @@ public class InvUtil {
 		return (int) Math.log10(f);
 	}
 
-	
-	public static void main(String[] args) {
-		f(1);
-		f(51);
-		f(0.2);
-		f(10.6125);
-		f(1130912);
-		f(100000);
-		f(0);
-	}
-
-	private static void f(double f) {
-		System.out.println(f + " == " + oom(f) + "     -> " + Math.pow(10, oom(f)-1) * 5.0);
-		
-	}
-	
 }

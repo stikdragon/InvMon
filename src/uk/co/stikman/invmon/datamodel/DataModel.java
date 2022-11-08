@@ -81,7 +81,6 @@ public class DataModel implements Iterable<Field> {
 
 		compileExpressions();
 
-		System.out.println(toString());
 	}
 
 	public void writeXML(OutputStream str) throws IOException {

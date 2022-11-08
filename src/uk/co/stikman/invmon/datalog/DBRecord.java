@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
 import uk.co.stikman.invmon.datamodel.Field;
+import uk.co.stikman.invmon.datamodel.FieldType;
 
 public class DBRecord {
 	private int			index;
@@ -26,19 +27,23 @@ public class DBRecord {
 		return buffer;
 	}
 
-	public void set(Field field, long f) {
+	public void setLong(Field field, long f) {
+		checkFieldType(field, FieldType.TIMESTAMP);
 		buffer.putLong(field.getOffset(), f);
 	}
 
-	public void set(Field field, float f) {
+	public void setFloat(Field field, float f) {
+		checkFieldType(field, FieldType.FLOAT);
 		buffer.putInt(field.getOffset(), Float.floatToRawIntBits(f));
 	}
 
-	public void set(Field field, int n) {
+	public void setInt(Field field, int n) {
+		checkFieldType(field, FieldType.INT);
 		buffer.putInt(field.getOffset(), n);
 	}
 
-	public void set(Field field, String s) {
+	public void setString(Field field, String s) {
+		checkFieldType(field, FieldType.STRING);
 		byte[] b = s.getBytes(StandardCharsets.ISO_8859_1);
 		int n = b.length;
 		if (n > field.getWidth())
@@ -48,6 +53,11 @@ public class DBRecord {
 			buffer.put(field.getOffset() + n, (byte) 0);
 	}
 
+	private static void checkFieldType(Field f, FieldType t) {
+		if (f.getType().getBaseType() != t)
+			throw new IllegalArgumentException("Field [" + f.getId() + "] is not of type " + t);
+	}
+
 	public void copyData(byte[] buf) {
 		buffer.rewind();
 		buffer.put(buf);
@@ -55,6 +65,7 @@ public class DBRecord {
 	}
 
 	public float getFloat(Field field) {
+		checkFieldType(field, FieldType.FLOAT);
 		//
 		// calculate fields if necessary
 		//
@@ -65,6 +76,7 @@ public class DBRecord {
 	}
 
 	public String getString(Field field) {
+		checkFieldType(field, FieldType.STRING);
 		byte[] arr = new byte[field.getWidth()];
 		buffer.get(field.getOffset(), arr);
 		int p = 0;
@@ -78,10 +90,12 @@ public class DBRecord {
 	}
 
 	public int getInt(Field field) {
+		checkFieldType(field, FieldType.INT);
 		return buffer.getInt(field.getOffset());
 	}
 
 	public long getLong(Field field) {
+		checkFieldType(field, FieldType.TIMESTAMP);
 		return buffer.getLong(field.getOffset());
 	}
 

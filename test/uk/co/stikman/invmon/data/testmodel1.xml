@@ -1,0 +1,7 @@
+<Model>
+	<Field id="TIMESTAMP" type="TIMESTAMP" />
+	
+	<Field id="F1" type="float" />
+	<Field id="F2" type="float" />
+	<Field id="F3" type="float" />
+</Model>

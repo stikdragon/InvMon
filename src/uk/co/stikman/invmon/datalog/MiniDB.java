@@ -1,21 +1,12 @@
 package uk.co.stikman.invmon.datalog;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.EOFException;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import uk.co.stikman.invmon.datamodel.DataModel;
 import uk.co.stikman.invmon.datamodel.Field;
@@ -26,101 +17,101 @@ import uk.co.stikman.table.DataTable;
  * Stores data in "blocks" of a given size. There's an "index" file which is the
  * main database file, this contains information about which record is in which
  * block. requesting a record from a block means it is loaded into memory. old
- * blocks get pushed out of this cache
+ * blocks get pushed out of this cache. An exception to this is that the most
+ * recent block is always open
  * 
  * @author stik
  *
  */
 public class MiniDB {
-	private static final int	VERSION_1		= 1;
-	private static final int	MAGIC_NUMBER	= 0x15C4238E;
+	private static final int	DEFAULT_BLOCKSIZE	= 100000;
 	private DataModel			model;
-	private List<DBRecord>		records			= new ArrayList<>();
-	private File				outputFile;
-	private ByteBuffer			markerBuffer;
-	private DataOutputStream	output;
+	private File				indexFile;
+	private IndexFile			index;
+	private List<Block>			blocks				= new ArrayList<>();
+	private int					recordCount			= 0;
+	private int					maxCachedBlocks		= 4;
+	private final int			blockSize;
+	private Field				keyField;
+	private Set<Block>			open				= new HashSet<>();
 
-	public MiniDB(File file) {
-		this.outputFile = file;
-		markerBuffer = ByteBuffer.allocate(1);
-		markerBuffer.put((byte) 1);
+	/**
+	 * <code>file</code> is the main index file, block files will be called
+	 * <code>file.1</code>, <code>file.2</code>, etc
+	 * 
+	 * @param file
+	 */
+	public MiniDB(File file, int blockSize) {
+		this.indexFile = file;
+		this.blockSize = blockSize;
 	}
 
-	public void open() throws IOException {
+	public MiniDB(File file) {
+		this(file, DEFAULT_BLOCKSIZE);
+	}
+
+	public void open() throws MiniDbException {
+		if (model == null)
+			throw new IllegalStateException("Model has not been assigned");
+
+		keyField = model.get("TIMESTAMP");
+
 		//
 		// read what we've got first
 		//
-		boolean exists = outputFile.exists();
-		if (exists) {
-			try (InputStream is = new BufferedInputStream(new FileInputStream(outputFile))) {
-				read(is);
-			}
-		}
-		if (!exists) {
-			//
-			// write initial file
-			//
-			try (DataOutputStream dos = new DataOutputStream(new FileOutputStream(outputFile))) {
-				dos.writeInt(MAGIC_NUMBER);
-				dos.writeInt(VERSION_1);
-
-				try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-					model.writeXML(baos);
-					byte[] bytes = baos.toByteArray();
-					dos.writeInt(bytes.length);
-					dos.write(bytes);
-				}
-			}
+		index = new IndexFile(this, indexFile);
+		try {
+			index.open();
+		} catch (IOException e) {
+			throw new MiniDbException(e);
 		}
 
-		output = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(outputFile, true)));
+		//
+		// create blocks
+		//
+		for (BlockInfo bi : index.getBlockInfo()) {
+			Block b = new Block(this, bi, new File(indexFile.getAbsoluteFile() + "." + bi.getId()));
+			blocks.add(b);
+		}
+
+		//
+		// open last block
+		//
+		if (blocks.size() > 0) {
+			Block b = blocks.get(blocks.size() - 1);
+			b.open();
+			recordCount = b.getInfo().getStartIndex() + b.getRecords().size();
+		}
+
+		System.out.println(toDataTable());
 	}
 
-	private void read(InputStream is) throws IOException {
-		try (DataInputStream dis = new DataInputStream(is)) {
-			if (dis.readInt() != MAGIC_NUMBER)
-				throw new IOException("Stream is not a database file");
-			int ver = dis.readInt();
-			if (ver != VERSION_1)
-				throw new IOException("Unsupported file version: " + ver);
-			DataModel existing = new DataModel();
-			int n = dis.readInt();
-			byte[] buf = new byte[n];
-			dis.readFully(buf);
-			try (ByteArrayInputStream bais = new ByteArrayInputStream(buf)) {
-				existing.loadXML(bais);
-			}
-
-			if (!existing.equals(model)) // TODO: convert
-				throw new IOException("Model version different");
-
-			int idx = 0;
-			byte[] recbuf = new byte[model.getRecordWidth()];
-			for (;;) {
-				try {
-					n = dis.readByte();
-				} catch (EOFException eofe) {
-					break;
-				}
-				if (n == -1)
-					break;
-				if (n == 1) { // marks a record
-					dis.readFully(recbuf);
-					DBRecord r = new DBRecord(this);
-					r.setIndex(idx++);
-					r.copyData(recbuf);
-					records.add(r);
-				} else
-					throw new IOException("Corrupt file");
-			}
-		}
-
+	/**
+	 * create an entirely new block of records
+	 * 
+	 * @return
+	 * @throws MiniDbException
+	 */
+	private Block newBlock(long ts) throws MiniDbException {
+		Block prev = blocks.isEmpty() ? null : blocks.get(blocks.size() - 1);
+		BlockInfo bi = new BlockInfo();
+		bi.setId(blocks.size());
+		bi.setStartIndex(recordCount * bi.getId());
+		bi.setEndIndex(recordCount * (bi.getId() + 1) - 1);
+		bi.setStartTS(prev == null ? 0 : prev.getInfo().getEndTS());
+		bi.setEndTS(-1);
+		Block b = new Block(this, bi, new File(indexFile.getAbsoluteFile() + "." + bi.getId()));
+		b.open();
+		blocks.add(b);
+		index.addBlock(bi);
+		return b;
 	}
 
 	public void close() throws IOException {
 		synchronized (this) {
-			output.close();
-			output = null;
+			for (Block b : blocks)
+				b.close();
+			index.close();
 		}
 	}
 
@@ -145,21 +136,26 @@ public class MiniDB {
 		return new DBRecord(this);
 	}
 
-	public void commitRecord(DBRecord rec) {
-
+	public void commitRecord(DBRecord rec) throws MiniDbException {
+		//
+		// see if it'll fit in the current block
+		//
 		synchronized (this) {
-			//
-			// trim any strings
-			//
-			rec.setIndex(records.size());
-			records.add(rec);
 			try {
-				output.write(1); // "record"
-				output.write(rec.getBuffer().array());
-				output.flush();
-				System.out.println("size: " + outputFile.length());
+				Block top = null;
+				boolean create = blocks.isEmpty();
+				if (!create) {
+					top = blocks.get(blocks.size() - 1);
+					create = top.isFull();
+				}
+				if (create) {
+					top = newBlock(rec.getLong(keyField));
+					index.save();
+				}
+				rec.setIndex(recordCount++);
+				top.add(rec);
 			} catch (IOException e) {
-				throw new RuntimeException("Failed to write record: " + e.getMessage(), e);
+				throw new MiniDbException("Commit failed: " + e.getMessage(), e);
 			}
 		}
 	}
@@ -172,49 +168,190 @@ public class MiniDB {
 	public DataTable toDataTable() {
 		synchronized (this) {
 			DataTable dt = new DataTable();
-			for (Field f : model)
-				dt.addField(f.getId());
+			dt.addFields("ID", "Min", "Max", "MinTS", "MaxTS");
 
-			for (DBRecord r : records) {
-				DataRecord r2 = dt.addRecord();
-				int i = 0;
-				for (Field f : model) {
-					r2.setValue(i, f.toString(r));
-					++i;
-				}
+			for (Block b : blocks) {
+				DataRecord r = dt.addRecord();
+				r.setValue(0, b.getInfo().getId());
+				r.setValue(1, b.getInfo().getStartIndex());
+				r.setValue(2, b.getInfo().getEndIndex());
+				r.setValue(3, b.getInfo().getStartTS());
+				r.setValue(4, b.getInfo().getEndTS());
 			}
+
+			//			for (Field f : model)
+			//				dt.addField(f.getId());
+
+			//			for (DBRecord r : records) {
+			//				DataRecord r2 = dt.addRecord();
+			//				int i = 0;
+			//				for (Field f : model) {
+			//					r2.setValue(i, f.toString(r));
+			//					++i;
+			//				}
+			//			}
 			return dt;
 		}
 	}
 
 	/**
-	 * given an int or a long field it finds a range of records
+	 * given an int or a long field it finds a range of records. we look at the
+	 * blocks that contain it and try to load them all. it's possible for this to
+	 * fail if you ask for a range that would span more than
+	 * <code>maxCachedBlocks</code>
 	 * 
 	 * @param field
 	 * @param start
 	 * @param end
 	 * @return
+	 * @throws MiniDbException
 	 */
-	public IntRange getRecordRange(Field field, long start, long end) {
+	public IntRange getRecordRange(Field field, long start, long end) throws MiniDbException {
 		IntRange res = new IntRange(-1, -1);
 		synchronized (this) {
-			for (DBRecord r : records) {
-				long v = r.getLong(field);
-				if (res.getLow() == -1 && start <= v)
-					res.setLow(r.getIndex());
-				if (v > end)
-					res.setHigh(r.getIndex());
-				if (res.getHigh() != -1 && res.getLow() != -1)
-					return res;
+			Block first = null;
+			Block last = null;
+			for (Block block : blocks) {
+				if (block.containsTS(start))
+					first = block;
+				if (block.containsTS(end))
+					last = block;
+				if (last != null && first != null)
+					break;
 			}
+
+			if (first == null) {
+				if (blocks.get(0).getInfo().getStartTS() > start)
+					first = blocks.get(0);
+			}
+			if (last == null) {
+				if (blocks.get(blocks.size() - 1).getInfo().getEndIndex() < end)
+					last = blocks.get(blocks.size() - 1);
+			}
+
+			if (first == null || last == null)
+				throw new MiniDbException("Could not identify block range for [" + start + ", " + end + "]");
+
+			//
+			// now we need to find the index of the specific records in each of those blocks
+			//
+			openBlock(first);
+			for (DBRecord r : first.getRecords()) {
+				long v = r.getLong(field);
+				if (v >= start) {
+					res.setLow(r.getIndex());
+					break;
+				}
+			}
+
+			openBlock(last);
+			for (DBRecord r : last.getRecords()) {
+				long v = r.getLong(field);
+				if (v > end) {
+					res.setHigh(r.getIndex() - 1);
+					break;
+				}
+			}
+
 			if (res.getHigh() == -1)
-				res.setHigh(records.size() - 1);
+				res.setHigh(recordCount - 1);
+
 		}
 		return res;
 	}
 
-	public DBRecord getRecord(int idx) {
-		return records.get(idx);
+	private Block openBlock(int id) throws MiniDbException {
+		Block b = blocks.get(id);
+		openBlock(b);
+		return b;
+	}
+
+	/**
+	 * Makes sure this block is loaded. Loading a block will push out the oldest one
+	 * from the cache if it's over
+	 * 
+	 * @return
+	 * 
+	 * @throws MiniDbException
+	 */
+	private void openBlock(Block b) throws MiniDbException {
+		if (!b.isOpen()) {
+			b.open();
+			b.setLastAccessed(System.currentTimeMillis());
+			open.add(b);
+		}
+		testCacheSize();
+		if (!b.isOpen())
+			throw new MiniDbException("Could not open block [" + b + "] because the cache is full");
+	}
+
+	private void testCacheSize() throws MiniDbException {
+		while (open.size() > maxCachedBlocks)
+			closeOldestBlock();
+	}
+
+	private void closeOldestBlock() throws MiniDbException {
+		long oldestT = Long.MAX_VALUE;
+		Block oldestB = null;
+		for (Block b : open) {
+			if (b.getLastAccessed() < oldestT) {
+				oldestT = b.getLastAccessed();
+				oldestB = b;
+			}
+		}
+		if (oldestB != null)
+			closeBlock(oldestB);
+	}
+
+	private void closeBlock(Block block) throws MiniDbException {
+		if (!block.isOpen())
+			return;
+		try {
+			block.close();
+		} catch (IOException e) {
+			throw new MiniDbException(e);
+		}
+		open.remove(block);
+	}
+
+	public int getMaxCachedBlocks() {
+		return maxCachedBlocks;
+	}
+
+	public void setMaxCachedBlocks(int maxCachedBlocks) {
+		this.maxCachedBlocks = maxCachedBlocks;
+	}
+
+	public int getBlockSize() {
+		return blockSize;
+	}
+
+	public Field getKeyField() {
+		return keyField;
+	}
+
+	public DBRecord getRecord(int idx) throws MiniDbException {
+		int blockid = idx / blockSize;
+		Block b = openBlock(blockid);
+		return b.getRecords().get(idx - blockid * blockSize);
+	}
+
+	public String recordToString(DBRecord rec) {
+		StringBuilder sb = new StringBuilder();
+		String sep = "";
+		for (Field f : model) {
+			sb.append(sep);
+			switch (f.getType().getBaseType()) {
+				case FLOAT:
+					sb.append(rec.getFloat(f));
+					break;
+				case TIMESTAMP:
+					sb.append(rec.getLong(f));
+					break;
+			}
+			sep = ", ";
+		}
+		return sb.toString();
 	}
 
 }

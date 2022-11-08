@@ -8,7 +8,7 @@ import uk.co.stikman.invmon.datalog.DataLogger;
 import uk.co.stikman.invmon.inverter.InvUtil;
 
 public class HTMLBuilder {
-	private StringBuilder	sb	= new StringBuilder();
+	private StringBuilder sb = new StringBuilder();
 
 	public HTMLBuilder() {
 	}
@@ -55,6 +55,10 @@ public class HTMLBuilder {
 	public HTMLBuilder append(float f) {
 		append(Float.toString(f));
 		return this;
+	}
+
+	public void clear() {
+		sb = new StringBuilder();
 	}
 
 }

@@ -44,19 +44,19 @@ public class DataLogger extends InvModule {
 		try {
 			db.open();
 			System.out.println(db.toDataTable());
-		} catch (IOException e) {
+		} catch (MiniDbException e) {
 			throw new InvMonException("Failed to start database: " + e.getMessage(), e);
 		}
 	}
 
 	@Subscribe(Events.POST_DATA)
-	public void postData(PollData data) {
+	public void postData(PollData data) throws MiniDbException {
 		//
 		// insert record into database
 		//
 		Field fts = db.getModel().get("TIMESTAMP");
 		DBRecord rec = db.addRecord();
-		rec.set(fts, data.getTimestamp());
+		rec.setLong(fts, data.getTimestamp());
 		for (DataPoint x : data.getData().values()) {
 			for (Entry<Field, Object> e : x.getValues().entrySet()) {
 				switch (e.getKey().getType()) {
@@ -65,13 +65,13 @@ public class DataLogger extends InvModule {
 					case CURRENT:
 					case POWER:
 					case VOLTAGE:
-						rec.set(e.getKey(), ((Number) e.getValue()).floatValue());
+						rec.setFloat(e.getKey(), ((Number) e.getValue()).floatValue());
 						break;
 					case STRING:
-						rec.set(e.getKey(), e.getValue().toString());
+						rec.setString(e.getKey(), e.getValue().toString());
 						break;
 					case INT:
-						rec.set(e.getKey(), ((Number) e.getValue()).intValue());
+						rec.setInt(e.getKey(), ((Number) e.getValue()).intValue());
 						break;
 					default:
 						throw new IllegalStateException("unsupported field type: " + e.getKey().getType());
@@ -92,7 +92,7 @@ public class DataLogger extends InvModule {
 		super.terminate();
 	}
 
-	public QueryResults query(long tsStart, long tsEnd, int points, List<String> fieldnames) {
+	public QueryResults query(long tsStart, long tsEnd, int points, List<String> fieldnames) throws MiniDbException {
 		DataModel model = getEnv().getModel();
 		if (!fieldnames.get(0).equals("TIMESTAMP"))
 			fieldnames.add(0, "TIMESTAMP");
@@ -162,7 +162,7 @@ public class DataLogger extends InvModule {
 									outrec.setString(i, minString(dbrec.getString(srcfld), outrec.getString(i)));
 									break;
 								default:
-									throw new RuntimeException("Invalid aggregation mode for string type: " + srcfld.getAggregationMode());
+									throw new MiniDbException("Invalid aggregation mode for string type: " + srcfld.getAggregationMode());
 							}
 							break;
 						case TIMESTAMP:
@@ -202,7 +202,7 @@ public class DataLogger extends InvModule {
 							}
 							break;
 						default:
-							throw new RuntimeException("Unsupported type: " + srcfld.getType());
+							throw new MiniDbException("Unsupported type: " + srcfld.getType());
 					}
 				}
 				outrec.setBaseRecordCount(outrec.getBaseRecordCount() + 1);
