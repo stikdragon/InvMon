@@ -34,6 +34,7 @@ public class HTMLGenerator {
 		long lastT = System.currentTimeMillis();
 		html.append(getClass(), "top_static.html");
 
+		html.div("sect");
 		html.div("controls");
 		int i = 0;
 		for (long n : TIMESCALES) {
@@ -54,19 +55,19 @@ public class HTMLGenerator {
 			else
 				html.div("unsel").append("<a href=\"?dur=" + n + "\">" + s + "</a></div>");
 		}
-		html.append("</div>");
+		html.append("</div></div>");
 
-		html.div("sect").append("<h1>PV Power</h1>");
+		html.append("<div>").div("sect").append("<h1>PV Power</h1>");
 		renderPVPowerChart(html, opts);
-		html.append("</div>");
+		html.append("</div></div>");
 
-		html.div("sect").append("<h1>Load</h1>");
+		html.append("<div>").div("sect").append("<h1>Load</h1>");
 		renderLoadChart(html, opts);
-		html.append("</div>");
+		html.append("</div></div>");
 
-		html.div("sect").append("<h1>Battery Current</h1>");
+		html.append("<div>").div("sect").append("<h1>Battery Current</h1>");
 		renderBatteryChart(html, opts);
-		html.append("</div>");
+		html.append("</div></div>");
 
 		html.append("<div class=\"tiny\"><div class=\"a\">Render time: </div><div class=\"b\">").append(System.currentTimeMillis() - lastT).append("ms</div></div>");
 		html.append("<div class=\"tiny\"><div class=\"a\">Local Time: </div><div class=\"b\">").append(new Date().toString()).append("</div></div>");

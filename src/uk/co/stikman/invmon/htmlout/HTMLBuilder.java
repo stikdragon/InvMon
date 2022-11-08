@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
-import uk.co.stikman.invmon.datalog.DataLogger;
 import uk.co.stikman.invmon.inverter.InvUtil;
 
 public class HTMLBuilder {

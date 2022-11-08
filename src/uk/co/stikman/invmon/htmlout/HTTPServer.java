@@ -1,6 +1,7 @@
 package uk.co.stikman.invmon.htmlout;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 import org.w3c.dom.Element;
@@ -13,6 +14,7 @@ import uk.co.stikman.invmon.Env;
 import uk.co.stikman.invmon.InvModule;
 import uk.co.stikman.invmon.InvMonException;
 import uk.co.stikman.invmon.datalog.DataLogger;
+import uk.co.stikman.invmon.htmlout.res.Res;
 import uk.co.stikman.invmon.inverter.InvUtil;
 import uk.co.stikman.log.StikLog;
 
@@ -52,17 +54,24 @@ public class HTTPServer extends InvModule {
 
 	private Response serve(IHTTPSession session) {
 		try {
-			String offset = getParam(session, "off");
-			String duration = getParam(session, "dur");
+			System.out.println(session.getUri());
+			if (session.getUri().equals("/")) {
+				String offset = getParam(session, "off");
+				String duration = getParam(session, "dur");
 
-			HTMLOpts opts = new HTMLOpts();
-			opts.setDuration(duration == null ? 60 * 10 : Long.parseLong(duration));
-			opts.setOffset(offset == null ? 0 : Long.parseLong(offset));
+				HTMLOpts opts = new HTMLOpts();
+				opts.setDuration(duration == null ? 60 * 10 : Long.parseLong(duration));
+				opts.setOffset(offset == null ? 0 : Long.parseLong(offset));
 
-			HTMLBuilder html = new HTMLBuilder();
-			new HTMLGenerator(datalogger).render(html, opts);
-
-			return NanoHTTPD.newFixedLengthResponse(Status.OK, "text/html", html.toString());
+				HTMLBuilder html = new HTMLBuilder();
+				new HTMLGenerator(datalogger).render(html, opts);
+				return NanoHTTPD.newFixedLengthResponse(Status.OK, "text/html", html.toString());
+			} else {
+				Res r = Res.get(session.getUri().substring(1));
+				return NanoHTTPD.newFixedLengthResponse(Status.OK, NanoHTTPD.getMimeTypeForFile(session.getUri()), r.makeStream(), r.getSize());
+			}
+		} catch (NotFoundException nfe) {
+			return NanoHTTPD.newFixedLengthResponse(Status.NOT_FOUND, "text/html", "404 Not Found: " + nfe.getMessage());
 		} catch (Exception e) {
 			LOGGER.error(e);
 			return NanoHTTPD.newFixedLengthResponse(Status.INTERNAL_ERROR, "text/html", "Internal Error");
