@@ -13,3 +13,7 @@ It's intended to run on a raspberry pi zero that lives in my garage, and talks t
 It's not perfectly implemented, i've been doing it in a big rush.  
 
 Runs against Java8, which has been a bit of a nuisance at times.  This is required because there doesn't seem to be a 9+ JVM that works on a Pi Zero's ARM chip
+
+## Pictures
+<img width="267" alt="image" src="https://user-images.githubusercontent.com/6278403/200788937-f9e8c9a8-c640-49dd-af00-deab42dc53db.png">
+<img width="418" alt="image" src="https://user-images.githubusercontent.com/6278403/200789132-91a21c69-4792-457b-b816-5c524362296d.png">
