@@ -149,7 +149,7 @@ public class MiniDB {
 					create = top.isFull();
 				}
 				if (create) {
-					top = newBlock(rec.getLong(keyField));
+					top = newBlock(rec.getTimestamp());
 					index.save();
 				}
 				rec.setIndex(recordCount++);
@@ -206,7 +206,7 @@ public class MiniDB {
 	 * @return
 	 * @throws MiniDbException
 	 */
-	public IntRange getRecordRange(Field field, long start, long end) throws MiniDbException {
+	public IntRange getRecordRange(long start, long end) throws MiniDbException {
 		IntRange res = new IntRange(-1, -1);
 		synchronized (this) {
 			Block first = null;
@@ -237,7 +237,7 @@ public class MiniDB {
 			//
 			openBlock(first);
 			for (DBRecord r : first.getRecords()) {
-				long v = r.getLong(field);
+				long v = r.getTimestamp();
 				if (v >= start) {
 					res.setLow(r.getIndex());
 					break;
@@ -246,7 +246,7 @@ public class MiniDB {
 
 			openBlock(last);
 			for (DBRecord r : last.getRecords()) {
-				long v = r.getLong(field);
+				long v = r.getTimestamp();
 				if (v > end) {
 					res.setHigh(r.getIndex() - 1);
 					break;
@@ -341,12 +341,9 @@ public class MiniDB {
 		String sep = "";
 		for (Field f : model) {
 			sb.append(sep);
-			switch (f.getType().getBaseType()) {
+			switch (f.getDataType()) {
 				case FLOAT:
 					sb.append(rec.getFloat(f));
-					break;
-				case TIMESTAMP:
-					sb.append(rec.getLong(f));
 					break;
 			}
 			sep = ", ";

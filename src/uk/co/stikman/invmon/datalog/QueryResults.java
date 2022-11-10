@@ -4,10 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import javax.management.RuntimeErrorException;
-
 import uk.co.stikman.invmon.datamodel.Field;
-import uk.co.stikman.table.DataField;
 import uk.co.stikman.table.DataRecord;
 import uk.co.stikman.table.DataTable;
 

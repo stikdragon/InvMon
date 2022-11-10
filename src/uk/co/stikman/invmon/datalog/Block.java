@@ -2,19 +2,16 @@ package uk.co.stikman.invmon.datalog;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import uk.co.stikman.invmon.datamodel.DataModel;
 import uk.co.stikman.log.StikLog;
 
 public class Block {
@@ -65,7 +62,6 @@ public class Block {
 
 				int idx = info.getStartIndex();
 				int n;
-				byte[] recbuf = new byte[owner.getModel().getRecordWidth()];
 				for (;;) {
 					try {
 						n = dis.readByte();
@@ -75,10 +71,9 @@ public class Block {
 					if (n == -1)
 						break;
 					if (n == 1) { // marks a record
-						dis.readFully(recbuf);
 						DBRecord r = new DBRecord(owner);
 						r.setIndex(idx++);
-						r.copyData(recbuf);
+						r.fromStream(dis);
 						records.add(r);
 					} else
 						throw new IOException("Corrupt file");
@@ -120,12 +115,12 @@ public class Block {
 
 	public void add(DBRecord rec) throws MiniDbException {
 		info.setEndIndex(rec.getIndex());
-		info.setEndTS(rec.getLong(owner.getKeyField()));
+		info.setEndTS(rec.getTimestamp());
 		records.add(rec);
 
 		try {
 			output.write(1); // "record"
-			output.write(rec.getBuffer().array());
+			rec.toStream(output);
 			output.flush();
 		} catch (IOException e) {
 			throw new MiniDbException("Failed to write record: " + e.getMessage(), e);

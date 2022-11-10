@@ -1,7 +1,6 @@
 package uk.co.stikman.invmon.datamodel;
 
 import java.util.Objects;
-import java.util.function.Consumer;
 
 import uk.co.stikman.invmon.datalog.DBRecord;
 
@@ -12,9 +11,9 @@ public class Field {
 	private AggregationMode	aggregationMode	= AggregationMode.SUM;
 	private int				width;									// for strings
 	private int				position;
-	private int				offset;
 	private String			calculated;
 	private CalcMethod		calculationMethod;
+	private FieldDataType	dataType;
 
 	public Field(String id) {
 		super();
@@ -27,10 +26,6 @@ public class Field {
 
 	public String getId() {
 		return id;
-	}
-
-	public int getOffset() {
-		return offset;
 	}
 
 	public Field getParent() {
@@ -53,20 +48,22 @@ public class Field {
 		this.aggregationMode = aggregationMode;
 	}
 
-	void setOffset(int offset) {
-		this.offset = offset;
-	}
-
 	public void setParent(Field parent) {
 		this.parent = parent;
 	}
 
+	/**
+	 * position in respective type array in each record
+	 * 
+	 * @param position
+	 */
 	void setPosition(int position) {
 		this.position = position;
 	}
 
 	public void setType(FieldType type) {
 		this.type = type;
+		this.dataType = type.getBaseType();
 	}
 
 	public void setWidth(int width) {
@@ -75,7 +72,7 @@ public class Field {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(aggregationMode, calculated, id, offset, parent, position, type, width);
+		return Objects.hash(aggregationMode, calculated, id, parent, position, type, width);
 	}
 
 	@Override
@@ -87,7 +84,7 @@ public class Field {
 		if (getClass() != obj.getClass())
 			return false;
 		Field other = (Field) obj;
-		return aggregationMode == other.aggregationMode && Objects.equals(calculated, other.calculated) && Objects.equals(id, other.id) && offset == other.offset && Objects.equals(parent, other.parent) && position == other.position && type == other.type && width == other.width;
+		return aggregationMode == other.aggregationMode && Objects.equals(calculated, other.calculated) && Objects.equals(id, other.id) && Objects.equals(parent, other.parent) && position == other.position && type == other.type && width == other.width;
 	}
 
 	public Object toString(DBRecord r) {
@@ -103,7 +100,7 @@ public class Field {
 			case INT:
 				return r.getInt(this);
 			case TIMESTAMP:
-				return Long.valueOf(r.getLong(this));
+				return r.getTimestamp();
 			default:
 				throw new RuntimeException("Unknown type: " + this.getType());
 		}
@@ -124,4 +121,9 @@ public class Field {
 	public CalcMethod getCalculationMethod() {
 		return calculationMethod;
 	}
+
+	public FieldDataType getDataType() {
+		return dataType;
+	}
+
 }

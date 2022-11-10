@@ -15,46 +15,21 @@ public enum FieldType {
 	POWER,
 	FREQ;
 
-	/**
-	 * size, in bytes
-	 * 
-	 * @return
-	 */
-	public int getTypeSize() {
+	public FieldDataType getBaseType() {
 		switch (this) {
 			case BOOLEAN:
-				return 1;
+				return FieldDataType.INT;
 			case CURRENT:
 			case FLOAT:
 			case FREQ:
 			case INT:
 			case POWER:
 			case VOLTAGE:
-				return 4;
+				return FieldDataType.FLOAT;
 			case STRING:
-				return 4;
-			case TIMESTAMP:
-				return 8;
-			default:
-				throw new IllegalArgumentException("what");
-		}
-	}
-
-	public FieldType getBaseType() {
-		switch (this) {
-			case BOOLEAN:
-				return BOOLEAN;
-			case CURRENT:
-			case FLOAT:
-			case FREQ:
-			case INT:
-			case POWER:
-			case VOLTAGE:
-				return FLOAT;
-			case STRING:
-				return STRING;
-			case TIMESTAMP:
-				return TIMESTAMP;
+				return FieldDataType.STRING;
+			case TIMESTAMP: // timestamp is a special field
+				return null;
 			default:
 				throw new IllegalArgumentException("what");
 		}

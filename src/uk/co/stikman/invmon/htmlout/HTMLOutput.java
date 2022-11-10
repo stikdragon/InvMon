@@ -2,10 +2,8 @@ package uk.co.stikman.invmon.htmlout;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.w3c.dom.Element;
@@ -13,17 +11,14 @@ import org.w3c.dom.Element;
 import uk.co.stikman.eventbus.Subscribe;
 import uk.co.stikman.invmon.Env;
 import uk.co.stikman.invmon.Events;
-import uk.co.stikman.invmon.HTMLConsoleThing;
-import uk.co.stikman.invmon.PollData;
 import uk.co.stikman.invmon.InvModule;
 import uk.co.stikman.invmon.InvMonException;
-import uk.co.stikman.invmon.TempHTMLOutput;
+import uk.co.stikman.invmon.PollData;
 import uk.co.stikman.invmon.datalog.DataLogger;
 import uk.co.stikman.invmon.datalog.QueryRecord;
 import uk.co.stikman.invmon.datalog.QueryResults;
 import uk.co.stikman.invmon.datamodel.DataModel;
 import uk.co.stikman.invmon.datamodel.Field;
-import uk.co.stikman.invmon.datamodel.FieldType;
 import uk.co.stikman.invmon.inverter.InvUtil;
 import uk.co.stikman.log.StikLog;
 
@@ -102,10 +97,7 @@ public class HTMLOutput extends InvModule {
 				for (QueryRecord rec : res.getRecords()) {
 					int i = 0;
 					for (StringBuilder sb : arrays) {
-						switch (fields.get(i).getType().getBaseType()) {
-							case TIMESTAMP:
-								sb.append(sep).append(rec.getLong(i));
-								break;
+						switch (fields.get(i).getDataType()) {
 							case FLOAT:
 								sb.append(sep).append(rec.getFloat(i));
 								break;

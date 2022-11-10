@@ -1,7 +1,6 @@
 package uk.co.stikman.invmon.htmlout;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 
 import org.w3c.dom.Element;

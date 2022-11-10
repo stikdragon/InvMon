@@ -49,7 +49,7 @@ public class TestMiniDB {
 
 		for (int i = 0; i < 100; ++i) {
 			DBRecord r = db.addRecord();
-			r.setLong(model.get("TIMESTAMP"), i * 100);
+			r.setTimestamp(i * 100);
 			r.setFloat(model.get("F1"), i);
 			r.setFloat(model.get("F2"), i * 2);
 			r.setFloat(model.get("F3"), i + 10);
@@ -71,7 +71,7 @@ public class TestMiniDB {
 
 	private void testRangeTotal(MiniDB db, DataModel model, int low, int hi, String field, int total) throws MiniDbException {
 		long x = 0;
-		IntRange rng = db.getRecordRange(model.get("TIMESTAMP"), low, hi);
+		IntRange rng = db.getRecordRange(low, hi);
 		for (int i = rng.getLow(); i <= rng.getHigh(); ++i) {
 			DBRecord rec = db.getRecord(i);
 			x += rec.getFloat(model.get(field));

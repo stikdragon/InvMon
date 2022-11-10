@@ -6,7 +6,6 @@ import java.util.Map;
 import uk.co.stikman.invmon.datamodel.Field;
 import uk.co.stikman.invmon.datamodel.FieldVIF;
 import uk.co.stikman.invmon.datamodel.VIFReading;
-import uk.co.stikman.invmon.inverter.BatteryChargeStage;
 
 /**
  * a general purpose data point, contains a bunch of values associated with

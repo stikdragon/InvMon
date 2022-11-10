@@ -28,51 +28,53 @@ import uk.co.stikman.table.DataTable;
 public class DataModel implements Iterable<Field> {
 	private Map<String, Field>	fields				= new HashMap<>();
 	private List<Field>			fieldList			= new ArrayList<>();
-	private int					recordWidth;
 	private List<Field>			calculatedFields	= Collections.emptyList();
+	private FieldCounts			fieldCounts			= new FieldCounts();
 
 	public void loadXML(InputStream str) throws IOException {
 		Document doc = InvUtil.loadXML(str);
-		int idx = 0;
-		int offset = 0;
-		recordWidth = 0;
+		fieldCounts = new FieldCounts();
+		Field ftimestamp = null;
 		for (Element el : InvUtil.getElements(doc.getDocumentElement())) {
 			Field f = new Field(InvUtil.getAttrib(el, "id"));
 			if (find(f.getId()) != null)
 				throw new IllegalArgumentException("Field [" + f.getId() + "] already declared");
 			f.setType(FieldType.valueOf(InvUtil.getAttrib(el, "type").toUpperCase()));
-			String s = InvUtil.getAttrib(el, "parent", null);
-			if (s != null) {
-				f.setParent(find(s));
-				if (f.getParent() == null)
-					throw new IllegalArgumentException("Field [" + f.getId() + "] specifies missing field [" + s + "] as parent");
-			}
 
-			if (f.getType() == FieldType.STRING)
-				f.setWidth(Integer.parseInt(InvUtil.getAttrib(el, "width")));
-			else
-				f.setWidth(f.getType().getTypeSize());
-			
-			if (el.hasAttribute("aggregationMode")) {
-				f.setAggregationMode(AggregationMode.valueOf(el.getAttribute("aggregationMode")));
+			if (f.getType() == FieldType.TIMESTAMP) {
+				if (ftimestamp != null)
+					throw new IOException("[TIMESTAMP] field has already been defined, there can only be one");
+				ftimestamp = f;
 			} else {
+				String s = InvUtil.getAttrib(el, "parent", null);
+				if (s != null) {
+					f.setParent(find(s));
+					if (f.getParent() == null)
+						throw new IllegalArgumentException("Field [" + f.getId() + "] specifies missing field [" + s + "] as parent");
+				}
+
 				if (f.getType() == FieldType.STRING)
-					f.setAggregationMode(AggregationMode.FIRST);
+					f.setWidth(Integer.parseInt(InvUtil.getAttrib(el, "width")));
 				else
-					f.setAggregationMode(AggregationMode.MEAN);
-			}
+					f.setWidth(f.getDataType().getTypeSize());
 
-			if (el.hasAttribute("calculated")) {
-				if (f.getType().getBaseType() != FieldType.FLOAT)
-					throw new IllegalArgumentException("Only FLOAT fields can be calculated");
-				f.setCalculated(el.getAttribute("calculated"));
-				f.setPosition(-1);
-				f.setOffset(-1);
-			} else {
-				f.setPosition(idx++);
-				f.setOffset(offset);
-				offset += f.getWidth();
-				recordWidth += f.getWidth();
+				if (el.hasAttribute("aggregationMode")) {
+					f.setAggregationMode(AggregationMode.valueOf(el.getAttribute("aggregationMode")));
+				} else {
+					if (f.getType() == FieldType.STRING)
+						f.setAggregationMode(AggregationMode.FIRST);
+					else
+						f.setAggregationMode(AggregationMode.MEAN);
+				}
+
+				if (el.hasAttribute("calculated")) {
+					if (f.getDataType() != FieldDataType.FLOAT)
+						throw new IllegalArgumentException("Only FLOAT fields can be calculated");
+					f.setCalculated(el.getAttribute("calculated"));
+					f.setPosition(fieldCounts.getAndInc(f.getDataType()));
+				} else {
+					f.setPosition(fieldCounts.getAndInc(f.getDataType()));
+				}
 			}
 
 			fields.put(f.getId(), f);
@@ -136,7 +138,6 @@ public class DataModel implements Iterable<Field> {
 			r.setValue(0, f.getId());
 			r.setValue(1, f.getType().name());
 			r.setValue(2, f.getParent() == null ? "-" : f.getParent().getId());
-			r.setValue(3, f.getOffset());
 			r.setValue(4, f.getPosition());
 		});
 		return dt.toString();
@@ -189,10 +190,6 @@ public class DataModel implements Iterable<Field> {
 		return fields.values().iterator();
 	}
 
-	public int getRecordWidth() {
-		return recordWidth;
-	}
-
 	public int getFieldCount() {
 		return fields.size();
 	}
@@ -243,6 +240,10 @@ public class DataModel implements Iterable<Field> {
 		}
 		if (!lst.isEmpty())
 			calculatedFields = lst;
+	}
+
+	public FieldCounts getFieldCounts() {
+		return fieldCounts;
 	}
 
 }

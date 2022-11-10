@@ -1,7 +1,6 @@
 package uk.co.stikman.invmon.remote;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -176,9 +175,6 @@ public class JSONRecv extends InvModule {
 						break;
 					case INT:
 						dp.put(f, jo2.getInt("v"));
-						break;
-					case TIMESTAMP:
-						dp.put(f, jo2.getLong("v"));
 						break;
 					case STRING:
 						dp.put(f, jo2.getString("v"));

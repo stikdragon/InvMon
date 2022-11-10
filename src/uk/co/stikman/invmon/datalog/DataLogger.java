@@ -48,14 +48,13 @@ public class DataLogger extends InvModule {
 		//
 		// insert record into database
 		//
-		Field fts = db.getModel().get("TIMESTAMP");
 		DBRecord last = db.getLastRecord();
 		if (last != null) {
-			if (data.getTimestamp() <= last.getLong(fts))
+			if (data.getTimestamp() <= last.getTimestamp())
 				throw new MiniDbException("Records must be in timestamp order");
 		}
 		DBRecord rec = db.addRecord();
-		rec.setLong(fts, data.getTimestamp());
+		rec.setTimestamp(data.getTimestamp());
 		for (DataPoint x : data.getData().values()) {
 			for (Entry<Field, Object> e : x.getValues().entrySet()) {
 				switch (e.getKey().getType()) {
@@ -97,7 +96,6 @@ public class DataLogger extends InvModule {
 		if (!fieldnames.get(0).equals("TIMESTAMP"))
 			fieldnames.add(0, "TIMESTAMP");
 		List<Field> fields = fieldnames.stream().map(model::get).collect(Collectors.toList());
-		Field fts = fields.get(0); // timestamp field
 		long span = tsEnd - tsStart;
 
 		//
@@ -116,11 +114,11 @@ public class DataLogger extends InvModule {
 		//
 		// find all records in the source data between these times
 		//
-		IntRange range = db.getRecordRange(fts, tsStart, tsEnd);
+		IntRange range = db.getRecordRange(tsStart, tsEnd);
 		if (range.isValid()) {
 			for (int idx = range.getLow(); idx < range.getHigh(); ++idx) {
 				DBRecord dbrec = db.getRecord(idx);
-				long ts = dbrec.getLong(fts);
+				long ts = dbrec.getTimestamp();
 				int slot = (int) (points * (ts - tsStart) / span);
 				QueryRecord outrec = recs.get(slot);
 				for (int i = 1; i < fields.size(); ++i) { // starts at 1! (skip key field)
@@ -169,17 +167,17 @@ public class DataLogger extends InvModule {
 							switch (srcfld.getAggregationMode()) {
 								case FIRST:
 									if (outrec.getBaseRecordCount() == 0)
-										outrec.setLong(i, dbrec.getLong(srcfld));
+										outrec.setLong(i, dbrec.getTimestamp());
 									break;
 								case MAX:
-									outrec.setLong(i, Math.max(dbrec.getLong(srcfld), outrec.getLong(i)));
+									outrec.setLong(i, Math.max(dbrec.getTimestamp(), outrec.getLong(i)));
 									break;
 								case MIN:
-									outrec.setLong(i, Math.min(dbrec.getLong(srcfld), outrec.getLong(i)));
+									outrec.setLong(i, Math.min(dbrec.getTimestamp(), outrec.getLong(i)));
 									break;
 								case MEAN:
 								case SUM:
-									outrec.setLong(i, dbrec.getLong(srcfld) + outrec.getLong(i));
+									outrec.setLong(i, dbrec.getTimestamp() + outrec.getLong(i));
 									break;
 							}
 							break;
