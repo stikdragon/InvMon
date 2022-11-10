@@ -3,7 +3,7 @@
 		<link rel="preconnect" href="https://fonts.googleapis.com">
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 		<link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet">
-		<style>
+<style>
 * {
 	font-family: 'Source Code Pro', monospace;
 }
@@ -62,22 +62,39 @@ h1 {
 	margin-bottom: 5px;
 }
 
-.sect h1 {
+.sect .hdr {
 	background: rgba(0, 0, 0, 0.1);
 	margin-top: 0px;
 	border-radius: 6px 6px 0px 0px;
 	padding: 6px;
 }
 
-.chart {
-	padding: 8px;
-	font-size: 12px;
-	font-weight: bold;
+.sect .hdr .grp {
+	display: inline-block;
 }
 
-.chart .background {
-	fill: #fff;
-	stroke: none;
+.sect .hdr h1 {
+	display: inline-block;
+	margin-top: 0px;
+	margin-bottom: 0px;
+	margin-right: 20px;
+}
+
+.grp {
+	font-size: 12px;
+	background-color: rgba(0, 0, 0, 5%);
+	padding: 2px;
+	margin-right: 8px;
+	float: right;
+}
+
+.grp .a {
+	color: rgba(0, 0, 0, 50%);
+}
+
+.grp .b {
+	color: #555;
+	font-weight: bold;
 }
 
 .tiny {
@@ -111,7 +128,75 @@ h1 {
 	border-radius: 5px;
 	background: #e2e2e2;
 }
+
+.chart {
+	padding: 8px;
+	font-size: 12px;
+	font-weight: bold;
+}
+
+.chart .background {
+	fill: #fff;
+	stroke: none;
+}
+
+
+.chart.pv .series1 {
+	stroke: #000000a0;
+	fill: none;
+	stroke-width: 2px;
+}
+
+.chart.pv .series1_1 {
+	stroke: none;
+	fill: hsl(50 90% 50%);
+}
+
+.chart.pv .series1_2 {
+	stroke: none;
+	fill: hsl(80 90% 50%);
+}
+
+.chart.pv .series1_3 {
+	stroke: none;
+	fill: hsl(110 90% 50%);
+}
+
+.chart.pv .series1_4 {
+	stroke: none;
+	fill: hsl(140 90% 50%);
+}
+
+/* **** */
+
+
+.chart.load .series1 {
+	stroke: #000000a0;
+	fill: #ff9000;
+	stroke-width: 2px;
+}
+
+
+
+/* **** */
+
+
+.chart.battery .series2 {
+	stroke: #000000;
+	fill: none;
+	stroke-width: 5px;
+}
+
+.chart.battery .series1 {
+	stroke: #000000a0;
+	fill: hsl(200 90% 50%);
+	stroke-width: 3px;
+}
+
+
+
+
 </style>
-	</head>
+</head>
 	<body>
 		<div class="content">

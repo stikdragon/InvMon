@@ -9,9 +9,12 @@ import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoHTTPD.IHTTPSession;
 import fi.iki.elonen.NanoHTTPD.Response;
 import fi.iki.elonen.NanoHTTPD.Response.Status;
+import uk.co.stikman.eventbus.Subscribe;
 import uk.co.stikman.invmon.Env;
+import uk.co.stikman.invmon.Events;
 import uk.co.stikman.invmon.InvModule;
 import uk.co.stikman.invmon.InvMonException;
+import uk.co.stikman.invmon.PollData;
 import uk.co.stikman.invmon.datalog.DataLogger;
 import uk.co.stikman.invmon.htmlout.res.Res;
 import uk.co.stikman.invmon.inverter.InvUtil;
@@ -23,6 +26,7 @@ public class HTTPServer extends InvModule {
 	private DataLogger				datalogger;
 	private int						port;
 	private Svr						svr;
+	private PollData				lastData;
 
 	public HTTPServer(String id, Env env) {
 		super(id, env);
@@ -51,9 +55,13 @@ public class HTTPServer extends InvModule {
 		super.terminate();
 	}
 
+	@Subscribe(Events.POST_DATA)
+	public void postData(PollData data) {
+		this.lastData = data;
+	}
+
 	private Response serve(IHTTPSession session) {
 		try {
-			System.out.println(session.getUri());
 			if (session.getUri().equals("/")) {
 				String offset = getParam(session, "off");
 				String duration = getParam(session, "dur");
@@ -63,7 +71,7 @@ public class HTTPServer extends InvModule {
 				opts.setOffset(offset == null ? 0 : Long.parseLong(offset));
 
 				HTMLBuilder html = new HTMLBuilder();
-				new HTMLGenerator(datalogger).render(html, opts);
+				new HTMLGenerator(datalogger).render(html, opts, lastData);
 				return NanoHTTPD.newFixedLengthResponse(Status.OK, "text/html", html.toString());
 			} else {
 				Res r = Res.get(session.getUri().substring(1));

@@ -7,7 +7,6 @@ public class Series {
 
 	private String			field;
 	private List<String>	subfields	= Collections.emptyList();
-	private String			fill		= "transparent";
 	private Axis			yAxis;
 
 	public Axis getyAxis() {
@@ -31,10 +30,6 @@ public class Series {
 		this.subfields = subfields;
 	}
 
-	public void setFill(String fill) {
-		this.fill = fill;
-	}
-
 	public String getField() {
 		return field;
 	}
@@ -45,10 +40,6 @@ public class Series {
 
 	public List<String> getSubfields() {
 		return subfields;
-	}
-
-	public String getFill() {
-		return fill;
 	}
 
 }

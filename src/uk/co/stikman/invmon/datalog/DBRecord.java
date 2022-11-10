@@ -33,17 +33,17 @@ public class DBRecord {
 	}
 
 	public void setFloat(Field field, float f) {
-		checkFieldType(field, FieldDataType.FLOAT);
+//		checkFieldType(field, FieldDataType.FLOAT);
 		floats[field.getPosition()] = f;
 	}
 
 	public void setInt(Field field, int n) {
-		checkFieldType(field, FieldDataType.INT);
+//		checkFieldType(field, FieldDataType.INT);
 		ints[field.getPosition()] = n;
 	}
 
 	public void setString(Field field, String s) {
-		checkFieldType(field, FieldDataType.STRING);
+//		checkFieldType(field, FieldDataType.STRING);
 		strings[field.getPosition()] = s;
 	}
 
@@ -53,7 +53,7 @@ public class DBRecord {
 	}
 
 	public float getFloat(Field field) {
-		checkFieldType(field, FieldDataType.FLOAT);
+//		checkFieldType(field, FieldDataType.FLOAT);
 		//
 		// calculate fields if necessary
 		//
@@ -64,12 +64,12 @@ public class DBRecord {
 	}
 
 	public String getString(Field field) {
-		checkFieldType(field, FieldDataType.STRING);
+//		checkFieldType(field, FieldDataType.STRING);
 		return strings[field.getPosition()];
 	}
 
 	public int getInt(Field field) {
-		checkFieldType(field, FieldDataType.INT);
+//		checkFieldType(field, FieldDataType.INT);
 		return ints[field.getPosition()];
 	}
 

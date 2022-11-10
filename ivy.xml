@@ -5,10 +5,7 @@
 		<dependency org="org.json" name="json" rev="20200518" />
 		<dependency org="commons-io" name="commons-io" rev="2.7" />
 		<dependency org="com.fazecast" name="jSerialComm" rev="[2.0.0,3.0.0)" />
-		<dependency org="com.h2database" name="h2" rev="2.1.214" />
 		<dependency org="org.nanohttpd" name="nanohttpd" rev="2.3.1" />
-
-
 	</dependencies>
 
 

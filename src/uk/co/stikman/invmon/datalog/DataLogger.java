@@ -130,20 +130,23 @@ public class DataLogger extends InvModule {
 						case FREQ:
 						case VOLTAGE:
 						case POWER:
+							float f = dbrec.getFloat(srcfld);
+							if (!Float.isFinite(f))
+								f = 0.0f;
 							switch (srcfld.getAggregationMode()) {
 								case FIRST:
 									if (outrec.getBaseRecordCount() == 0)
-										outrec.setFloat(i, dbrec.getFloat(srcfld));
+										outrec.setFloat(i, f);
 									break;
 								case MAX:
-									outrec.setFloat(i, Math.max(dbrec.getFloat(srcfld), outrec.getFloat(i)));
+									outrec.setFloat(i, Math.max(f, outrec.getFloat(i)));
 									break;
 								case MIN:
-									outrec.setFloat(i, Math.min(dbrec.getFloat(srcfld), outrec.getFloat(i)));
+									outrec.setFloat(i, Math.min(f, outrec.getFloat(i)));
 									break;
 								case MEAN:
 								case SUM:
-									outrec.setFloat(i, dbrec.getFloat(srcfld) + outrec.getFloat(i));
+									outrec.setFloat(i, f + outrec.getFloat(i));
 									break;
 							}
 							break;
@@ -213,7 +216,7 @@ public class DataLogger extends InvModule {
 		for (QueryRecord r : res.getRecords()) {
 			for (int i = 1; i < fields.size(); ++i) {
 				Field f = fields.get(i);
-				if (f.getAggregationMode() == AggregationMode.MEAN)
+				if (f.getAggregationMode() == AggregationMode.MEAN) 
 					r.setFloat(i, r.getBaseRecordCount() == 0 ? 0.0f : r.getFloat(i) / r.getBaseRecordCount());
 			}
 		}

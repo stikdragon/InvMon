@@ -6,10 +6,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.function.Function;
 
+import uk.co.stikman.invmon.DataPoint;
 import uk.co.stikman.invmon.Env;
+import uk.co.stikman.invmon.PollData;
 import uk.co.stikman.invmon.datalog.DataLogger;
 import uk.co.stikman.invmon.datalog.QueryRecord;
 import uk.co.stikman.invmon.datalog.QueryResults;
+import uk.co.stikman.invmon.datamodel.VIFReading;
 
 public class HTMLGenerator {
 	private static final String[]	COLOURS			= new String[] { "#ff7c7c", "#7cff7c", "#7c7cff", "#ff7cff" };
@@ -21,13 +24,13 @@ public class HTMLGenerator {
 		this.source = datalogger;
 	}
 
-	public void render(HTMLBuilder html) {
+	public void render(HTMLBuilder html, PollData data) {
 		HTMLOpts def = new HTMLOpts();
 		def.setDuration(5 * 60);
-		render(html, def);
+		render(html, def, data);
 	}
 
-	public void render(HTMLBuilder html, HTMLOpts opts) {
+	public void render(HTMLBuilder html, HTMLOpts opts, PollData data) {
 		//
 		// render a nice page
 		//
@@ -57,15 +60,26 @@ public class HTMLGenerator {
 		}
 		html.append("</div></div>");
 
-		html.append("<div>").div("sect").append("<h1>PV Power</h1>");
+		DataPoint dp = data.get("invA");
+
+		VIFReading vif1 = dp.get(source.getEnv().getModel().getVIF("PV1"));
+		VIFReading vif2 = dp.get(source.getEnv().getModel().getVIF("PV2"));
+
+		html.append("<div>").div("sect").append("<div class=\"hdr\"><h1>PV Power</h1>");
+		renderVIF(html, "PV1", vif1);
+		renderVIF(html, "PV2", vif2).append("</div>");
 		renderPVPowerChart(html, opts);
 		html.append("</div></div>");
 
-		html.append("<div>").div("sect").append("<h1>Load</h1>");
+		html.append("<div>").div("sect").append("<div class=\"hdr\"><h1>Load</h1>");
+		vif1 = dp.get(source.getEnv().getModel().getVIF("LOAD"));
+		renderVIF(html, "Load", vif1).append("</div>");
 		renderLoadChart(html, opts);
 		html.append("</div></div>");
 
-		html.append("<div>").div("sect").append("<h1>Battery Current</h1>");
+		html.append("<div>").div("sect").append("<div class=\"hdr\"><h1>Battery Current</h1>");
+		vif1 = dp.get(source.getEnv().getModel().getVIF("BATT"));
+		renderVIF(html, "Batt", vif1).append("</div>");
 		renderBatteryChart(html, opts);
 		html.append("</div></div>");
 
@@ -75,31 +89,38 @@ public class HTMLGenerator {
 		html.append(getClass(), "bottom_static.html");
 	}
 
+	private HTMLBuilder renderVIF(HTMLBuilder html, String name, VIFReading vif) {
+		html.append("<div class=\"grp\">");
+		html.append("<span class=\"a\">%s: </span><span class=\"b\">%d</span><span class=\"a\">W (</span><span class=\"b\">%.1f</span><span class=\"a\">V @ </span><span class=\"b\">%.2f</span><span class=\"a\">A)</span>", name, (int) vif.getP(), vif.getV(), vif.getI());
+		html.append("</div>");
+		return html;
+	}
+
 	private void renderPVPowerChart(HTMLBuilder html, HTMLOpts opts) {
 		ChartOptions co = new ChartOptions(120, opts.getDuration() * 1000 * 60);
 		co.addSeries("PV_TOTAL_P", list("PV1_P", "PV2_P", "PV3_P", "PV4_P"));
 		co.getAxisY1().setFormatter(f -> String.format("%d W", f.intValue()));
-		renderChart(html, co);
+		renderChart(html, "pv", co);
 	}
 
 	private void renderLoadChart(HTMLBuilder html, HTMLOpts opts) {
 		ChartOptions co = new ChartOptions(120, opts.getDuration() * 1000 * 60);
-		co.addSeries("LOAD_P").setFill("#ffc456");
+		co.addSeries("LOAD_P");
 		co.getAxisY1().setFormatter(f -> String.format("%d W", f.intValue()));
-		renderChart(html, co);
+		renderChart(html, "load", co);
 	}
 
 	private void renderBatteryChart(HTMLBuilder html, HTMLOpts opts) {
 		ChartOptions co = new ChartOptions(120, opts.getDuration() * 1000 * 60);
 		co.getAxisY1().setFormatter(f -> String.format("%.1f A", f.floatValue()));
-		co.addSeries("BATT_V").setFill("#c4ff56");
 		co.addSeries("BATT_I");
-		renderChart(html, co);
+		co.addSeries("BATT_V");
+		renderChart(html, "battery", co);
 	}
 
 	private SimpleDateFormat sdf = new SimpleDateFormat("yyy/MM/dd HH:mm:ss");
 
-	private void renderChart(HTMLBuilder html, ChartOptions opts) {
+	private void renderChart(HTMLBuilder html, String cssclass, ChartOptions opts) {
 		try {
 			//
 			// this is quite messy i'm afraid
@@ -149,7 +170,7 @@ public class HTMLGenerator {
 			int nAxes = opts.getAxisY2() != null ? 2 : 1;
 			float sx = 1.0f - (float) (AXIS_W * nAxes) / width; // scale factors
 			float sy = 1.0f - (float) AXIS_H / height;
-			html.append("<svg class=\"chart\" width=\"%dpx\" height=\"%dpx\">\n", width, height);
+			html.append("<svg class=\"chart ").append(cssclass).append("\" width=\"%dpx\" height=\"%dpx\">\n", width, height);
 			html.append("<g transform=\"translate(%d,0) scale(%f, %f)\"> \n", AXIS_W, sx, sy);
 			html.append("<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" class=\"background\" />", 0, 0, width, height);
 			int fts = res.getFieldIndex("TIMESTAMP");
@@ -163,7 +184,9 @@ public class HTMLGenerator {
 
 			float ax1Min = Float.MAX_VALUE;
 			float ax1Max = Float.MIN_VALUE;
+			int seriesIndex = 0;
 			for (Series series : opts.getSeries()) {
+				++seriesIndex;
 				int fmain = res.getFieldIndex(series.getField());
 				int[] fsubs = new int[series.getSubfields().size()];
 				String[] colours = new String[fsubs.length];
@@ -199,7 +222,7 @@ public class HTMLGenerator {
 				// total line
 				//
 				StringBuilder sb = new StringBuilder();
-				sb.append("<path d=\"M0 ").append(height - 0).append(" ");
+				sb.append("<path class=\"series" + seriesIndex + "\" d=\"M0 ").append(height - 0).append(" ");
 				f = 0.0f;
 				for (QueryRecord rec : res.getRecords()) {
 					long ts = rec.getLong(fts);
@@ -207,7 +230,7 @@ public class HTMLGenerator {
 					sb.append("L").append(width * (float) (ts - tsStart) / tsLength).append(" ").append(height - (height * f / scaleP)).append(" ");
 				}
 				sb.append("L").append(width).append(" ").append(height - 0).append(" ");
-				sb.append("\" stroke=\"#000000a0\" fill=\"" + series.getFill() + "\" stroke-width=\"2px\" />\n");
+				sb.append("\" />\n");
 				pathlist.add(sb.toString());
 
 				//
@@ -218,7 +241,7 @@ public class HTMLGenerator {
 					offsets[i] = 0.0f;
 				for (int i = 0; i < fsubs.length; ++i) {
 					sb = new StringBuilder();
-					sb.append("<path d=\"M0 ").append(height - 0).append(" ");
+					sb.append("<path class=\"series" + seriesIndex + "_" + (i + 1) + "\" d=\"M0 ").append(height - 0).append(" ");
 					int j = 0;
 					for (QueryRecord rec : res.getRecords()) {
 						long ts = rec.getLong(fts);
@@ -230,7 +253,7 @@ public class HTMLGenerator {
 					}
 
 					sb.append("L").append(width).append(" ").append(height - 0).append(" ");
-					sb.append("\" stroke=\"none\" fill=\"" + colours[i] + "\"/>\n");
+					sb.append("\"/>\n");
 					pathlist.add(sb.toString());
 				}
 

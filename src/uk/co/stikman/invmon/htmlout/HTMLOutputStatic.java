@@ -43,9 +43,8 @@ public class HTMLOutputStatic extends InvModule {
 	public void postData(PollData data) {
 		long dt = System.currentTimeMillis() - lastT;
 		if (dt > 5000) {
-
 			HTMLBuilder html = new HTMLBuilder();
-			new HTMLGenerator(datalogger).render(html);
+			new HTMLGenerator(datalogger).render(html, data);
 
 			try (FileOutputStream fos = new FileOutputStream(target)) {
 				fos.write(html.toString().getBytes(StandardCharsets.UTF_8));
