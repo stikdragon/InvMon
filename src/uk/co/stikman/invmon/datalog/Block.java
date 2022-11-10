@@ -105,7 +105,8 @@ public class Block {
 
 	public void close() throws IOException {
 		LOGGER.debug("Closing block " + this);
-		output.close();
+		if (output != null)
+			output.close();
 		output = null;
 	}
 

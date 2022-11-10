@@ -10,6 +10,7 @@ import java.util.Set;
 
 import uk.co.stikman.invmon.datamodel.DataModel;
 import uk.co.stikman.invmon.datamodel.Field;
+import uk.co.stikman.log.StikLog;
 import uk.co.stikman.table.DataRecord;
 import uk.co.stikman.table.DataTable;
 
@@ -24,16 +25,17 @@ import uk.co.stikman.table.DataTable;
  *
  */
 public class MiniDB {
-	public static final int	DEFAULT_BLOCKSIZE	= 100000;
-	private DataModel		model;
-	private File			indexFile;
-	private IndexFile		index;
-	private List<Block>		blocks				= new ArrayList<>();
-	private int				recordCount			= 0;
-	private int				maxCachedBlocks		= 4;
-	private final int		blockSize;
-	private Field			keyField;
-	private Set<Block>		open				= new HashSet<>();
+	private static final StikLog	LOGGER				= StikLog.getLogger(MiniDB.class);
+	public static final int			DEFAULT_BLOCKSIZE	= 100000;
+	private DataModel				model;
+	private File					indexFile;
+	private IndexFile				index;
+	private List<Block>				blocks				= new ArrayList<>();
+	private int						recordCount			= 0;
+	private int						maxCachedBlocks		= 4;
+	private final int				blockSize;
+	private Field					keyField;
+	private Set<Block>				open				= new HashSet<>();
 
 	/**
 	 * <code>file</code> is the main index file, block files will be called
@@ -59,11 +61,23 @@ public class MiniDB {
 		//
 		// read what we've got first
 		//
+		boolean upgrade = false;
 		index = new IndexFile(this, indexFile);
 		try {
 			index.open();
+			if (!index.getInternalModel().equals(model)) {
+				//
+				// attempt an upgrade into this, then reopen
+				//
+				LOGGER.info("Database requires upgrade");
+				convertAllBlocks(index, model);
+			}
 		} catch (IOException e) {
+			if (upgrade)
+				throw new MiniDbException("Failed to upgrade database: " + e.getMessage(), e);
 			throw new MiniDbException(e);
+		} catch (ModelChangeException e) {
+			upgrade = true;
 		}
 
 		//
@@ -84,6 +98,32 @@ public class MiniDB {
 		}
 
 		System.out.println(toDataTable());
+	}
+
+	private void convertAllBlocks(IndexFile from, DataModel to) {
+		for (BlockInfo bi : from.getBlockInfo()) {
+			File f = new File(indexFile.getAbsoluteFile() + "." + bi.getId());
+			f.renameTo(new File(f.getAbsolutePath() + ".old"));
+			Block b = new Block(this, bi, f);
+			try {
+				b.open();
+				for (DBRecord r : b.getRecords()) {
+
+				}
+			} catch (MiniDbException e) {
+
+			} finally {
+				try {
+					b.close();
+				} catch (IOException e) {
+					LOGGER.error("Failed conversion of block [" + bi + "]");
+					// ugh how do we recover from this, we've converted some blocks and not others
+					throw new RuntimeException("Failed conversion");
+				}
+			}
+
+		}
+
 	}
 
 	/**
@@ -196,8 +236,8 @@ public class MiniDB {
 
 	/**
 	 * given an int or a long field it finds a range of records. we look at the
-	 * blocks that contain it and try to load them all. it's possible for this to
-	 * fail if you ask for a range that would span more than
+	 * blocks that contain it and try to load them all. it's possible for this
+	 * to fail if you ask for a range that would span more than
 	 * <code>maxCachedBlocks</code>
 	 * 
 	 * @param field
@@ -267,8 +307,8 @@ public class MiniDB {
 	}
 
 	/**
-	 * Makes sure this block is loaded. Loading a block will push out the oldest one
-	 * from the cache if it's over
+	 * Makes sure this block is loaded. Loading a block will push out the oldest
+	 * one from the cache if it's over
 	 * 
 	 * @return
 	 * 
@@ -342,9 +382,9 @@ public class MiniDB {
 		for (Field f : model) {
 			sb.append(sep);
 			switch (f.getDataType()) {
-				case FLOAT:
-					sb.append(rec.getFloat(f));
-					break;
+			case FLOAT:
+				sb.append(rec.getFloat(f));
+				break;
 			}
 			sep = ", ";
 		}
@@ -353,8 +393,9 @@ public class MiniDB {
 
 	/**
 	 * returns <code>null</code> if there's no records yet
+	 * 
 	 * @return
-	 * @throws MiniDbException 
+	 * @throws MiniDbException
 	 */
 	public DBRecord getLastRecord() throws MiniDbException {
 		if (recordCount == 0)

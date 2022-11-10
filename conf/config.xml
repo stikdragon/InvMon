@@ -6,7 +6,7 @@
 
         <FakeInverter id="invA" port="COM8" rate="2000" type="PIP8048MAX" />
     
-        <ConsoleOutput id="console" controlCodes="false" />
+        <!-- <ConsoleOutput id="console" controlCodes="false" /> -->
 
         <!-- <TempHTMLOutput id="htmlout" target="junk\inv.html" /> -->
 

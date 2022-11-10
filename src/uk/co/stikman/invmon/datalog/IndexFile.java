@@ -21,13 +21,14 @@ public class IndexFile {
 	private MiniDB				owner;
 	private File				file;
 	private List<BlockInfo>		blockInfo		= new ArrayList<>();
+	private DataModel			internalModel;
 
 	public IndexFile(MiniDB owner, File file) {
 		this.owner = owner;
 		this.file = file;
 	}
 
-	public void open() throws IOException {
+	public void open() throws IOException, ModelChangeException {
 		boolean exists = file.exists();
 		if (exists) {
 			try (InputStream is = new BufferedInputStream(new FileInputStream(file))) {
@@ -36,7 +37,7 @@ public class IndexFile {
 		}
 	}
 
-	private void read(InputStream is) throws IOException {
+	private void read(InputStream is) throws IOException, ModelChangeException {
 		try (DataInputStream dis = new DataInputStream(is)) {
 			if (dis.readInt() != MAGIC_NUMBER)
 				throw new IOException("Stream is not a database file");
@@ -56,8 +57,7 @@ public class IndexFile {
 				existing.loadXML(bais);
 			}
 
-			if (!existing.equals(owner.getModel())) // TODO: convert
-				throw new IOException("Model version different");
+			internalModel = existing;
 
 			//
 			// read block info
@@ -117,5 +117,9 @@ public class IndexFile {
 			}
 			dos.writeByte(0x0);
 		}
+	}
+
+	public DataModel getInternalModel() {
+		return internalModel;
 	}
 }
