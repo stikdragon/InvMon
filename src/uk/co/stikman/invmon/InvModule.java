@@ -23,7 +23,7 @@ public abstract class InvModule {
 		return id;
 	}
 
-	public abstract void configure(Element config);
+	public abstract void configure(Element config) throws InvMonException;
 
 	public Env getEnv() {
 		return env;

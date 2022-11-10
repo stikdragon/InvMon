@@ -354,4 +354,15 @@ public class MiniDB {
 		return sb.toString();
 	}
 
+	/**
+	 * returns <code>null</code> if there's no records yet
+	 * @return
+	 * @throws MiniDbException 
+	 */
+	public DBRecord getLastRecord() throws MiniDbException {
+		if (recordCount == 0)
+			return null;
+		return getRecord(recordCount - 1);
+	}
+
 }

@@ -26,7 +26,7 @@ public class Env {
 	public void start() throws InvMonException {
 		for (SerialPort port : SerialPort.getCommPorts()) {
 		}
-		
+
 		bus.setImmediateMode(true);
 
 		config = new Config();
@@ -118,6 +118,15 @@ public class Env {
 				return (T) m;
 		}
 		throw new NoSuchElementException("Module [" + id + "] not found");
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T extends InvModule> T findModule(String id) {
+		for (InvModule m : parts) {
+			if (id.equals(m.getId()))
+				return (T) m;
+		}
+		return null;
 	}
 
 }
