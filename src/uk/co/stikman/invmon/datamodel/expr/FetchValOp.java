@@ -1,6 +1,7 @@
-package uk.co.stikman.invmon.datamodel;
+package uk.co.stikman.invmon.datamodel.expr;
 
 import uk.co.stikman.invmon.datalog.DBRecord;
+import uk.co.stikman.invmon.datamodel.Field;
 
 public class FetchValOp implements CalcOp {
 

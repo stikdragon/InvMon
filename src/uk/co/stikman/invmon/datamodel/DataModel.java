@@ -21,6 +21,16 @@ import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import uk.co.stikman.invmon.datamodel.expr.AddOp;
+import uk.co.stikman.invmon.datamodel.expr.CalcOp;
+import uk.co.stikman.invmon.datamodel.expr.DivOp;
+import uk.co.stikman.invmon.datamodel.expr.FetchValOp;
+import uk.co.stikman.invmon.datamodel.expr.FloatStack;
+import uk.co.stikman.invmon.datamodel.expr.InvertOp;
+import uk.co.stikman.invmon.datamodel.expr.MaxOp;
+import uk.co.stikman.invmon.datamodel.expr.MulOp;
+import uk.co.stikman.invmon.datamodel.expr.PushFloatOp;
+import uk.co.stikman.invmon.datamodel.expr.SubOp;
 import uk.co.stikman.invmon.inverter.InvUtil;
 import uk.co.stikman.table.DataRecord;
 import uk.co.stikman.table.DataTable;
@@ -169,8 +179,8 @@ public class DataModel implements Iterable<Field> {
 	}
 
 	/**
-	 * returns a group of up to three fields that have the suffixes _V, _I, _F. Is a
-	 * convenience thing. Throws exception if non of them can be found
+	 * returns a group of up to three fields that have the suffixes _V, _I, _F.
+	 * Is a convenience thing. Throws exception if non of them can be found
 	 * 
 	 * @param prefix
 	 * @return
@@ -217,6 +227,15 @@ public class DataModel implements Iterable<Field> {
 					bit = bit.trim();
 					if (bit.matches("\\[[a-zA-Z0-9_]+\\]")) {
 						ops.add(new FetchValOp(get(bit.substring(1, bit.length() - 1))));
+					} else if (isNumber(bit)) {
+						ops.add(new PushFloatOp(Float.parseFloat(bit)));
+					} else if (bit.matches("![a-z0-9]+")) {
+						if (bit.equals("!invert"))
+							ops.add(new InvertOp());
+						else if (bit.equals("!max"))
+							ops.add(new MaxOp());
+						else
+							throw new IllegalArgumentException("Unknown function: " + bit);
 					} else if (bit.matches("[\\-\\+\\*\\/]")) {
 						if (bit.charAt(0) == '-')
 							ops.add(new SubOp());
@@ -227,7 +246,7 @@ public class DataModel implements Iterable<Field> {
 						else if (bit.charAt(0) == '/')
 							ops.add(new DivOp());
 					} else
-						throw new IllegalArgumentException("Expression invalid");
+						throw new IllegalArgumentException("Expression invalid: " + f.getCalculated());
 				}
 
 				f.setCalculationMethod(r -> {
@@ -240,6 +259,15 @@ public class DataModel implements Iterable<Field> {
 		}
 		if (!lst.isEmpty())
 			calculatedFields = lst;
+	}
+
+	private boolean isNumber(String bit) {
+		try {
+			Float.parseFloat(bit);
+		} catch (NumberFormatException nfe) {
+			return false;
+		}
+		return true;
 	}
 
 	public FieldCounts getFieldCounts() {

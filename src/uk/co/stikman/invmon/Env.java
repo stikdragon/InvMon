@@ -11,22 +11,34 @@ import com.fazecast.jSerialComm.SerialPort;
 
 import uk.co.stikman.eventbus.StringEventBus;
 import uk.co.stikman.invmon.datamodel.DataModel;
+import uk.co.stikman.log.ConsoleLogTarget;
+import uk.co.stikman.log.Level;
+import uk.co.stikman.log.StikLog;
+import uk.co.stikman.table.DataTable;
 
 public class Env {
-	public static final String	VERSION		= "0.3";
+	private static final StikLog	LOGGER		= StikLog.getLogger(Env.class);
+	public static final String		VERSION		= "0.3";
 
-	private List<InvModule>		parts		= new ArrayList<>();
-	private long				nextId		= 0;
-	private StringEventBus		bus			= new StringEventBus();
-	private Thread				mainthread;
-	private boolean				terminated	= false;
-	private Config				config;
-	private DataModel			model;
+	private List<InvModule>			parts		= new ArrayList<>();
+	private long					nextId		= 0;
+	private StringEventBus			bus			= new StringEventBus();
+	private Thread					mainthread;
+	private boolean					terminated	= false;
+	private Config					config;
+	private DataModel				model;
 
 	public void start() throws InvMonException {
-		for (SerialPort port : SerialPort.getCommPorts()) {
-		}
-
+		StikLog.clearTargets();
+		ConsoleLogTarget tgt = new ConsoleLogTarget();
+		tgt.setFormat(new InvMonLogFormatter());
+		tgt.enableLevel(Level.DEBUG, false);
+		StikLog.addTarget(tgt);
+		
+		LOGGER.info("Starting InvMon...");
+		
+		listPorts();		
+		
 		bus.setImmediateMode(true);
 
 		config = new Config();
@@ -53,11 +65,31 @@ public class Env {
 			}
 		}
 
-		for (InvModule part : parts)
+		LOGGER.info("Config loaded");
+		for (InvModule part : parts) {
+			LOGGER.info("Starting [" + part.getClass().getSimpleName() + "] module with id [" + part.getId() + "]");
 			part.start();
+		}
 
+		LOGGER.info("Starting main thread");
 		mainthread = new Thread(this::loop);
 		mainthread.start();
+		LOGGER.info("Ready");
+	}
+
+	private static void listPorts() {
+		//
+		// print a list of serial ports in a nice table
+		//
+		LOGGER.info("Available serial ports:");
+		DataTable dt = new DataTable();
+		dt.addFields("Num", "Port", "Path", "Description");
+		int i = 0;
+		SerialPort[] ports = SerialPort.getCommPorts();
+		for (SerialPort x : ports)
+			dt.addRecord(Integer.toString(++i), x.getSystemPortName(), x.getSystemPortPath(), x.getDescriptivePortName());
+		for (String s :  dt.toString().split("\\n")) 
+			LOGGER.info(s);
 	}
 
 	public DataModel getModel() {
@@ -127,6 +159,10 @@ public class Env {
 				return (T) m;
 		}
 		return null;
+	}
+
+	public Config getConfig() {
+		return config;
 	}
 
 }

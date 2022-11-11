@@ -23,11 +23,9 @@ import uk.co.stikman.invmon.inverter.PIP8048MAX.InverterMonitorPIP;
 
 public class Config {
 
-	private String						defaultPort		= null;
-	private boolean						runWebserver	= false;
-	private IniFile						ini;
 	private List<InvModDefinition>	things			= new ArrayList<>();
-	private int							updatePeriod;
+	private int						updatePeriod;
+	private boolean					allowConversion	= false;
 
 	public void loadFromFile(File f) throws IOException {
 		Document doc = loadXML(f);
@@ -42,6 +40,7 @@ public class Config {
 
 		Element eset = getElement(doc.getDocumentElement(), "Settings");
 		this.updatePeriod = Integer.parseInt(getAttrib(eset, "updatePeriod"));
+		this.allowConversion = Boolean.parseBoolean(getAttrib(eset, "allowConversion"));
 
 		Element emod = getElement(doc.getDocumentElement(), "Modules");
 		for (Element el : getElements(emod)) {
@@ -59,24 +58,16 @@ public class Config {
 		return things.stream().filter(x -> x.getId().equals(id)).findAny().orElse(null);
 	}
 
-	public boolean isRunWebserver() {
-		return runWebserver;
-	}
-
-	public String getDefaultPort() {
-		return defaultPort;
-	}
-
-	public IniFile getIni() {
-		return ini;
-	}
-
 	public List<InvModDefinition> getThings() {
 		return things;
 	}
 
 	public int getUpdatePeriod() {
 		return updatePeriod;
+	}
+
+	public boolean isAllowConversion() {
+		return allowConversion;
 	}
 
 }

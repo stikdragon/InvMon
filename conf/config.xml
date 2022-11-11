@@ -1,6 +1,6 @@
 <InvMon>
 
-    <Settings updatePeriod="1000" />
+    <Settings updatePeriod="1000" allowConversion="true" />
 
     <Modules>
 

@@ -12,12 +12,13 @@ import uk.co.stikman.invmon.datalog.DBRecord;
 import uk.co.stikman.invmon.datalog.IntRange;
 import uk.co.stikman.invmon.datalog.MiniDB;
 import uk.co.stikman.invmon.datalog.MiniDbException;
+import uk.co.stikman.invmon.datalog.ModelChangeException;
 import uk.co.stikman.invmon.datamodel.DataModel;
 
 public class TestMiniDB {
 
 	@Test
-	public void testOpenClose() throws IOException, MiniDbException {
+	public void testOpenClose() throws IOException, MiniDbException, ModelChangeException {
 		DataModel model = new DataModel();
 		model.loadXML(getClass().getResourceAsStream("testmodel1.xml"));
 
@@ -35,7 +36,7 @@ public class TestMiniDB {
 	}
 
 	@Test
-	public void testTinyBlocks() throws IOException, MiniDbException {
+	public void testTinyBlocks() throws IOException, MiniDbException, ModelChangeException {
 		DataModel model = new DataModel();
 		model.loadXML(getClass().getResourceAsStream("testmodel1.xml"));
 

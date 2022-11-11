@@ -3,6 +3,7 @@ package uk.co.stikman.invmon.datamodel;
 import java.util.Objects;
 
 import uk.co.stikman.invmon.datalog.DBRecord;
+import uk.co.stikman.invmon.datamodel.expr.CalcMethod;
 
 public class Field {
 	private final String	id;
@@ -124,6 +125,11 @@ public class Field {
 
 	public FieldDataType getDataType() {
 		return dataType;
+	}
+
+	@Override
+	public String toString() {
+		return id;
 	}
 
 }

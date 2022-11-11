@@ -2,6 +2,10 @@ package uk.co.stikman.invmon;
 
 public class InvMonException extends Exception {
 
+	public InvMonException(Throwable cause) {
+		super(cause);
+	}
+
 	public InvMonException() {
 		super();
 	}

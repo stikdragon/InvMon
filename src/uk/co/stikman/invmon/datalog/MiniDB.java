@@ -4,8 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import uk.co.stikman.invmon.datamodel.DataModel;
@@ -34,7 +37,6 @@ public class MiniDB {
 	private int						recordCount			= 0;
 	private int						maxCachedBlocks		= 4;
 	private final int				blockSize;
-	private Field					keyField;
 	private Set<Block>				open				= new HashSet<>();
 
 	/**
@@ -52,78 +54,53 @@ public class MiniDB {
 		this(file, DEFAULT_BLOCKSIZE);
 	}
 
-	public void open() throws MiniDbException {
-		if (model == null)
-			throw new IllegalStateException("Model has not been assigned");
-
-		keyField = model.get("TIMESTAMP");
+	public void open() throws MiniDbException, ModelChangeException {
 
 		//
 		// read what we've got first
 		//
-		boolean upgrade = false;
-		index = new IndexFile(this, indexFile);
 		try {
-			index.open();
-			if (!index.getInternalModel().equals(model)) {
-				//
-				// attempt an upgrade into this, then reopen
-				//
-				LOGGER.info("Database requires upgrade");
-				convertAllBlocks(index, model);
-			}
-		} catch (IOException e) {
-			if (upgrade)
-				throw new MiniDbException("Failed to upgrade database: " + e.getMessage(), e);
-			throw new MiniDbException(e);
-		} catch (ModelChangeException e) {
-			upgrade = true;
-		}
-
-		//
-		// create blocks
-		//
-		for (BlockInfo bi : index.getBlockInfo()) {
-			Block b = new Block(this, bi, new File(indexFile.getAbsoluteFile() + "." + bi.getId()));
-			blocks.add(b);
-		}
-
-		//
-		// open last block
-		//
-		if (blocks.size() > 0) {
-			Block b = blocks.get(blocks.size() - 1);
-			b.open();
-			recordCount = b.getInfo().getStartIndex() + b.getRecords().size();
-		}
-
-		System.out.println(toDataTable());
-	}
-
-	private void convertAllBlocks(IndexFile from, DataModel to) {
-		for (BlockInfo bi : from.getBlockInfo()) {
-			File f = new File(indexFile.getAbsoluteFile() + "." + bi.getId());
-			f.renameTo(new File(f.getAbsolutePath() + ".old"));
-			Block b = new Block(this, bi, f);
+			index = new IndexFile(this, indexFile);
 			try {
-				b.open();
-				for (DBRecord r : b.getRecords()) {
-
+				index.open();
+				
+				//
+				// special case if we don't have a model assigned then we're meant to be
+				// just opening our internal one without any checks
+				//
+				if (model != null) {
+					if (index.getInternalModel() != null) {
+						if (!model.equals(index.getInternalModel()))
+							throw new ModelChangeException("Model has changed, database requires conversion");
+					}
+				} else { // model is null
+					model = index.getInternalModel();
 				}
-			} catch (MiniDbException e) {
-
-			} finally {
-				try {
-					b.close();
-				} catch (IOException e) {
-					LOGGER.error("Failed conversion of block [" + bi + "]");
-					// ugh how do we recover from this, we've converted some blocks and not others
-					throw new RuntimeException("Failed conversion");
-				}
+				
+			} catch (IOException e) {
+				throw new MiniDbException(e);
 			}
 
-		}
+			//
+			// create blocks
+			//
+			for (BlockInfo bi : index.getBlockInfo()) {
+				Block b = new Block(this, bi, new File(indexFile.getAbsoluteFile() + "." + bi.getId()));
+				blocks.add(b);
+			}
 
+			//
+			// open last block
+			//
+			if (blocks.size() > 0) {
+				Block b = blocks.get(blocks.size() - 1);
+				b.open();
+				recordCount = b.getInfo().getStartIndex() + b.getRecords().size();
+			}
+		} catch (Exception e) {
+			index = null;
+			throw e;
+		}
 	}
 
 	/**
@@ -151,7 +128,9 @@ public class MiniDB {
 		synchronized (this) {
 			for (Block b : blocks)
 				b.close();
-			index.close();
+			if (index != null)
+				index.close();
+			index = null;
 		}
 	}
 
@@ -366,10 +345,6 @@ public class MiniDB {
 		return blockSize;
 	}
 
-	public Field getKeyField() {
-		return keyField;
-	}
-
 	public DBRecord getRecord(int idx) throws MiniDbException {
 		int blockid = idx / blockSize;
 		Block b = openBlock(blockid);
@@ -401,6 +376,43 @@ public class MiniDB {
 		if (recordCount == 0)
 			return null;
 		return getRecord(recordCount - 1);
+	}
+
+	public int getRecordCount() {
+		return recordCount;
+	}
+
+	public boolean isOpen() {
+		return index != null;
+	}
+
+	/**
+	 * rename the index file, and all the blocks
+	 * 
+	 * @param file
+	 * @throws ModelChangeException
+	 * @throws MiniDbException
+	 * @throws IOException
+	 */
+	public void rename(File file) throws MiniDbException, ModelChangeException, IOException {
+		if (isOpen())
+			throw new IllegalStateException("MiniDB must be closed for a rename operation");
+
+		//
+		// get list of all blocks
+		//
+		Map<File, File> pairs = new HashMap<>();
+		open();
+		try {
+			pairs.put(this.indexFile, file);
+			for (Block b : blocks)
+				pairs.put(b.getFile(), new File(file.getAbsoluteFile() + "." + b.getInfo().getId()));
+		} finally {
+			close();
+		}
+
+		for (Entry<File, File> pair : pairs.entrySet())
+			pair.getKey().renameTo(pair.getValue());
 	}
 
 }

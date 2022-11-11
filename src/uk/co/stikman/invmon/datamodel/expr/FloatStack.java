@@ -1,4 +1,4 @@
-package uk.co.stikman.invmon.datamodel;
+package uk.co.stikman.invmon.datamodel.expr;
 
 public class FloatStack {
 	private float[] stack = new float[64];

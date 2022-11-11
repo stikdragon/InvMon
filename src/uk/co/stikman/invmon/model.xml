@@ -13,6 +13,9 @@
 	<Field id="BATT_I" type="current" />
 	<Field id="BATT_SOC" type="float" /> 
 	<Field id="BATT_MODE" type="string" width="16" /> 
+	<Field id="BATT_I_CHG" type="current" calculated="[BATT_I], !invert, 0, !max" />
+	<Field id="BATT_I_DIS" type="current" calculated="[BATT_I], 0, !max" />
+
 
     <Field id="LOAD_V" type="voltage" />
     <Field id="LOAD_I" type="current" />

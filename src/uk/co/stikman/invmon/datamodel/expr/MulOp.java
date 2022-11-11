@@ -1,14 +1,14 @@
-package uk.co.stikman.invmon.datamodel;
+package uk.co.stikman.invmon.datamodel.expr;
 
 import uk.co.stikman.invmon.datalog.DBRecord;
 
-public class AddOp implements CalcOp {
+public class MulOp implements CalcOp {
 
 	@Override
 	public void calc(DBRecord rec, FloatStack stack) {
 		float a = stack.pop();
 		float b = stack.pop();
-		stack.push(a + b);
+		stack.push(a * b);
 	}
 
 }
