@@ -141,10 +141,15 @@ h1 {
 }
 
 
-.chart.pv .series1 {
+.chart.pv .series1_line {
 	stroke: #000000a0;
 	fill: none;
 	stroke-width: 2px;
+}
+
+.chart.pv .series1_fill {
+	stroke: none;
+	fill: none;
 }
 
 .chart.pv .series1_1 {
@@ -170,33 +175,50 @@ h1 {
 /* **** */
 
 
-.chart.load .series1 {
+.chart.load .series1_line {
 	stroke: #000000a0;
-	fill: #ff9000;
+	fill: none;
 	stroke-width: 2px;
+}
+
+.chart.load .series1_fill {
+	stroke: none;
+	fill: #ff9000;
 }
 
 
 
 /* **** */
 
-.chart.battery .series1 {
+.chart.battery .series1_line {
 	stroke: #000000a0;
-	fill: hsl(200 90% 50%);
 	stroke-width: 2px;
-}
-
-.chart.battery .series2 {
-	stroke: #000000a0;
-	fill: hsl(100 90% 50%);
-	stroke-width: 2px;
-}
-
-
-.chart.battery .series3 {
-	stroke: #000000;
 	fill: none;
+}
+
+.chart.battery .series1_fill {
+	fill: hsl(200 90% 50%);
+}
+
+.chart.battery .series2_line {
+	stroke: #000000a0;
+	stroke-width: 2px;
+	fill: none;
+}
+
+.chart.battery .series2_fill {
+	fill: hsl(200 90% 50%);
+	fill: hsl(100 90% 50%);
+}
+
+.chart.battery .series3_line {
+	stroke: #000000;
 	stroke-width: 3px;
+	fill: none;
+}
+
+.chart.battery .series3_fill {
+	fill: none;
 }
 
 

@@ -5,9 +5,9 @@ import java.util.List;
 
 public class ChartOptions {
 	private int				pointCount;
-	private Axis<Long>		axisX1	= new Axis<>();
-	private Axis<Float>		axisY1	= new Axis<>();
-	private Axis<Float>		axisY2	= null;
+	private Axis<Long>		axisX1	= new Axis<>(0);
+	private Axis<Float>		axisY1	= new Axis<>(1);
+	private Axis<Float>		axisY2	= new Axis<>(2);
 	private List<Series>	series	= new ArrayList<>();
 	private long			startTime;
 	private long			endTime;
@@ -16,6 +16,9 @@ public class ChartOptions {
 		this.pointCount = pointCount;
 		this.startTime = System.currentTimeMillis() - backwards;
 		this.endTime = System.currentTimeMillis();
+		axisX1.setEnabled(true);
+		axisY1.setEnabled(true);
+		axisY2.setEnabled(false); // defaults to off
 	}
 
 	public ChartOptions(int pointCount, long tsStart, long tsEnd) {
@@ -45,24 +48,12 @@ public class ChartOptions {
 		return axisX1;
 	}
 
-	public void setAxisX1(Axis<Long> axisX1) {
-		this.axisX1 = axisX1;
-	}
-
 	public Axis<Float> getAxisY1() {
 		return axisY1;
 	}
 
-	public void setAxisY1(Axis<Float> axisY1) {
-		this.axisY1 = axisY1;
-	}
-
 	public Axis<Float> getAxisY2() {
 		return axisY2;
-	}
-
-	public void setAxisY2(Axis<Float> axisY2) {
-		this.axisY2 = axisY2;
 	}
 
 	public List<Series> getSeries() {
@@ -76,7 +67,7 @@ public class ChartOptions {
 	public Series addSeries(String field, List<String> subfields) {
 		Series s = new Series(field);
 		s.setSubfields(subfields);
-		s.setyAxis(axisY1);
+		s.setYAxis(axisY1);
 		series.add(s);
 		return s;
 	}
@@ -84,7 +75,7 @@ public class ChartOptions {
 	public Series addSeries(String field) {
 		Series s = new Series(field);
 		series.add(s);
-		s.setyAxis(axisY1);
+		s.setYAxis(axisY1);
 		return s;
 	}
 

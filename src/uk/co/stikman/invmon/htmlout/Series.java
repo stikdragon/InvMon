@@ -7,9 +7,9 @@ public class Series {
 
 	private String			field;
 	private List<String>	subfields	= Collections.emptyList();
-	private Axis			yAxis;
+	private Axis<?>			yAxis;
 
-	public Axis getyAxis() {
+	public Axis<?> getYAxis() {
 		return yAxis;
 	}
 
@@ -18,7 +18,7 @@ public class Series {
 	 * 
 	 * @param yAxis
 	 */
-	public void setyAxis(Axis yAxis) {
+	public void setYAxis(Axis<?> yAxis) {
 		this.yAxis = yAxis;
 	}
 

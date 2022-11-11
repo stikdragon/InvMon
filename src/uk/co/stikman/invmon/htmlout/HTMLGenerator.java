@@ -45,15 +45,15 @@ public class HTMLGenerator {
 		for (long n : TIMESCALES) {
 			String s = null;
 			switch (TIMESCALE_TYPE[i++]) {
-			case 0:
-				s = n + " Min";
-				break;
-			case 1:
-				s = (n / 60) + " Hour";
-				break;
-			case 2:
-				s = (n / 1440) + " Day";
-				break;
+				case 0:
+					s = n + " Min";
+					break;
+				case 1:
+					s = (n / 60) + " Hour";
+					break;
+				case 2:
+					s = (n / 1440) + " Day";
+					break;
 			}
 			if (opts.getDuration() == n)
 				html.div("sel").append(s).append("</div>");
@@ -101,6 +101,7 @@ public class HTMLGenerator {
 	private void renderPVPowerChart(HTMLBuilder html, HTMLOpts opts) {
 		ChartOptions co = new ChartOptions(120, opts.getDuration() * 1000 * 60);
 		co.addSeries("PV_TOTAL_P", list("PV1_P", "PV2_P", "PV3_P", "PV4_P"));
+		co.getAxisY1().setForceMin(Float.valueOf(0));
 		co.getAxisY1().setFormatter(f -> String.format("%d W", f.intValue()));
 		renderChart(html, "pv", co);
 	}
@@ -108,6 +109,7 @@ public class HTMLGenerator {
 	private void renderLoadChart(HTMLBuilder html, HTMLOpts opts) {
 		ChartOptions co = new ChartOptions(120, opts.getDuration() * 1000 * 60);
 		co.addSeries("LOAD_P");
+		co.getAxisY1().setForceMin(Float.valueOf(0));
 		co.getAxisY1().setFormatter(f -> String.format("%d W", f.intValue()));
 		renderChart(html, "load", co);
 	}
@@ -115,9 +117,13 @@ public class HTMLGenerator {
 	private void renderBatteryChart(HTMLBuilder html, HTMLOpts opts) {
 		ChartOptions co = new ChartOptions(120, opts.getDuration() * 1000 * 60);
 		co.getAxisY1().setFormatter(f -> String.format("%.1f A", f.floatValue()));
+		co.getAxisY1().setForceMin(Float.valueOf(0));
+		co.getAxisY2().setFormatter(f -> String.format("%.1f V", f.floatValue()));
+		co.getAxisY2().setEnabled(true);
+		co.getAxisY2().forceRange(35.0f, 65.0f);
 		co.addSeries("BATT_I_CHG");
 		co.addSeries("BATT_I_DIS");
-		co.addSeries("BATT_V");
+		co.addSeries("BATT_V").setYAxis(co.getAxisY2());
 		renderChart(html, "battery", co);
 	}
 
@@ -170,7 +176,7 @@ public class HTMLGenerator {
 			final int AXIS_H = 22;
 			final int width = 800;
 			final int height = 300;
-			int nAxes = opts.getAxisY2() != null ? 2 : 1;
+			int nAxes = (opts.getAxisY2().isEnabled() ? 1 : 0) + (opts.getAxisY1().isEnabled() ? 1 : 0);
 			float sx = 1.0f - (float) (AXIS_W * nAxes) / width; // scale factors
 			float sy = 1.0f - (float) AXIS_H / height;
 			html.append("<svg class=\"chart ").append(cssclass).append("\" width=\"%dpx\" height=\"%dpx\">\n", width, height);
@@ -183,7 +189,6 @@ public class HTMLGenerator {
 			for (QueryRecord rec : res.getRecords()) {
 				minX = Math.min(minX, rec.getLong(fts));
 				maxX = Math.max(maxX, rec.getLong(fts));
-				
 			}
 
 			int seriesIndex = 0;
@@ -192,18 +197,17 @@ public class HTMLGenerator {
 			// work out the extent of each axis
 			//
 			for (Series series : opts.getSeries()) {
-				series.getyAxis().setMax(Float.MIN_VALUE);
-				series.getyAxis().setMin(Float.MAX_VALUE);
-				series.getyAxis().setScaleP(1.0f);
+				Axis<?> ax = series.getYAxis();
+				ax.setMin(Float.MAX_VALUE);
+				ax.setMax(Float.MIN_VALUE);
 			}
 			for (Series series : opts.getSeries()) {
 				int fmain = res.getFieldIndex(series.getField());
+				Axis<?> ax = series.getYAxis();
 				for (QueryRecord rec : res.getRecords()) {
 					float f = rec.getFloat(fmain);
-					series.getyAxis().setMin(Math.min(series.getyAxis().getMin(), f));
-					series.getyAxis().setMax(Math.max(series.getyAxis().getMax(), f));
-					if (f > series.getyAxis().getScaleP())
-						series.getyAxis().setScaleP(f);
+					ax.setMin(Math.min(ax.getMin(), f));
+					ax.setMax(Math.max(ax.getMax(), f));
 				}
 			}
 
@@ -211,39 +215,39 @@ public class HTMLGenerator {
 				++seriesIndex;
 				int fmain = res.getFieldIndex(series.getField());
 				int[] fsubs = new int[series.getSubfields().size()];
-				String[] colours = new String[fsubs.length];
-				for (int i = 0; i < fsubs.length; ++i) {
+				for (int i = 0; i < fsubs.length; ++i)
 					fsubs[i] = res.getFieldIndex(series.getSubfields().get(i));
-					colours[i] = COLOURS[i % COLOURS.length];
-				}
 
-				int rcount = res.getRecords().size();
-				float[] points = new float[2 * (rcount + 2)]; // 2 extra points for the corners
-				int p = 0;
-				points[p++] = 0.0f;
-				points[p++] = height;
-
-
-				//
-				// align to a major increments
-				//
-				float scaleP = series.getyAxis().getScaleP();
-//				int oom = scaleP == 0.0f ? 0 : (int) Math.log10(scaleP);
-//				float f = (float) Math.pow(10, oom - 1);
-//				scaleP = (float) Math.pow(10,  oom);
-//				scaleP = (float) (f * Math.floor((scaleP) / f)) * 1.1f;
+				Axis<?> axy = series.getYAxis();
 
 				List<String> pathlist = new ArrayList<>();
+
 				//
-				// total line
+				// main line
 				//
 				StringBuilder sb = new StringBuilder();
-				sb.append("<path class=\"series" + seriesIndex + "\" d=\"M0 ").append(height - 0).append(" ");
+				sb.append("<path class=\"series" + seriesIndex + "_line\" d=\"");
 				float f = 0.0f;
+				char ch = 'M';
 				for (QueryRecord rec : res.getRecords()) {
 					long ts = rec.getLong(fts);
 					f = rec.getFloat(fmain);
-					sb.append("L").append(width * (float) (ts - tsStart) / tsLength).append(" ").append(height - (height * f / scaleP)).append(" ");
+					sb.append(ch).append(width * (float) (ts - tsStart) / tsLength).append(" ").append(height - (height * axy.eval(f))).append(" ");
+					ch = 'L';
+				}
+				sb.append("\" />\n");
+				pathlist.add(sb.toString());
+
+				//
+				// fill
+				//
+				sb = new StringBuilder();
+				sb.append("<path class=\"series" + seriesIndex + "_fill\" d=\"M0 ").append(height - 0).append(" ");
+				f = 0.0f;
+				for (QueryRecord rec : res.getRecords()) {
+					long ts = rec.getLong(fts);
+					f = rec.getFloat(fmain);
+					sb.append("L").append(width * (float) (ts - tsStart) / tsLength).append(" ").append(height - (height * axy.eval(f))).append(" ");
 				}
 				sb.append("L").append(width).append(" ").append(height - 0).append(" ");
 				sb.append("\" />\n");
@@ -252,6 +256,7 @@ public class HTMLGenerator {
 				//
 				// polygons for each sub-measure, if we have them
 				//
+				int rcount = res.getRecords().size();
 				float[] offsets = new float[rcount];
 				for (int i = 0; i < offsets.length; ++i)
 					offsets[i] = 0.0f;
@@ -262,7 +267,7 @@ public class HTMLGenerator {
 					for (QueryRecord rec : res.getRecords()) {
 						long ts = rec.getLong(fts);
 						f = rec.getFloat(fsubs[i]);
-						float y = height * f / scaleP;
+						float y = height * axy.eval(f);
 						sb.append("L").append(width * (float) (ts - tsStart) / tsLength).append(" ").append(height - (y + offsets[j])).append(" ");
 						offsets[j] += y;
 						++j;
@@ -282,19 +287,27 @@ public class HTMLGenerator {
 			//
 			// do axes
 			//
-			Function<Float, String> f = opts.getAxisY1().getFormatter();
-			html.append("<path d=\"M%d %d %d %d\" stroke-width=\"2\" stroke=\"black\"/>\n", AXIS_W, 0, AXIS_W, height - AXIS_H);
-			html.append("<text x=\"%d\" y=\"%d\" alignment-baseline=\"hanging\" text-anchor=\"end\" class=\"axis\">%s</text>", AXIS_W - 4, 0, f.apply(opts.getAxisY1().getMax()));
-			html.append("<text x=\"%d\" y=\"%d\" text-anchor=\"end\" class=\"axis\">%s</text>", AXIS_W - 4, height - AXIS_H, f.apply(opts.getAxisY1().getMin()));
-
+			if (opts.getAxisY1().isEnabled()) {
+				Function<Float, String> f = opts.getAxisY1().getFormatter();
+				html.append("<path d=\"M%d %d %d %d\" stroke-width=\"2\" stroke=\"black\"/>\n", AXIS_W, 0, AXIS_W, height - AXIS_H);
+				html.append("<text x=\"%d\" y=\"%d\" alignment-baseline=\"hanging\" text-anchor=\"end\" class=\"axis\">%s</text>", AXIS_W - 4, 0, f.apply(opts.getAxisY1().getMax()));
+				html.append("<text x=\"%d\" y=\"%d\" text-anchor=\"end\" class=\"axis\">%s</text>", AXIS_W - 4, height - AXIS_H, f.apply(opts.getAxisY1().getMin()));
+			}
+			if (opts.getAxisY2().isEnabled()) {
+				Function<Float, String> f = opts.getAxisY2().getFormatter();
+				int w = width - AXIS_W;
+				html.append("<path d=\"M%d %d %d %d\" stroke-width=\"2\" stroke=\"black\"/>\n", w, 0, w, height - AXIS_H);
+				html.append("<text x=\"%d\" y=\"%d\" alignment-baseline=\"hanging\" text-anchor=\"start\" class=\"axis\">%s</text>", w + 4, 0, f.apply(opts.getAxisY2().getMax()));
+				html.append("<text x=\"%d\" y=\"%d\" text-anchor=\"start\" class=\"axis\">%s</text>", w + 4, height - AXIS_H, f.apply(opts.getAxisY2().getMin()));
+			}
 			Function<Long, String> f2 = opts.getAxisX1().getFormatter();
-			html.append("<path d=\"M%d %d %d %d\" stroke-width=\"2\" stroke=\"black\"/>\n", AXIS_W, height - AXIS_H, width, height - AXIS_H);
+			html.append("<path d=\"M%d %d %d %d\" stroke-width=\"2\" stroke=\"black\"/>\n", (opts.getAxisY1().isEnabled() ? 1 : 0) * AXIS_W, height - AXIS_H, width - (opts.getAxisY2().isEnabled() ? 1 : 0) * AXIS_W, height - AXIS_H);
 			html.append("<text x=\"%d\" y=\"%d\" alignment-baseline=\"hanging\" class=\"axis\">%s</text>", AXIS_W, height - AXIS_H + 4, f2.apply(minX));
-			html.append("<text x=\"%d\" y=\"%d\" alignment-baseline=\"hanging\" text-anchor=\"end\" class=\"axis\">%s</text>", width, height - AXIS_H + 4, f2.apply(maxX));
+			html.append("<text x=\"%d\" y=\"%d\" alignment-baseline=\"hanging\" text-anchor=\"end\" class=\"axis\">%s</text>", width - (AXIS_W * (nAxes - 1)), height - AXIS_H + 4, f2.apply(maxX));
 
-			html.append("<circle cx=\"%d\" cy=\"%d\" r=\"2\" fill=\"black\" />", AXIS_W, height - AXIS_H);
-			html.append("<circle cx=\"%d\" cy=\"%d\" r=\"2\" fill=\"black\" />", width, height - AXIS_H);
-			html.append("<circle cx=\"%d\" cy=\"%d\" r=\"2\" fill=\"black\" />", AXIS_W, 0);
+			html.append("<circle cx=\"%d\" cy=\"%d\" r=\"2\" fill=\"black\" />", (opts.getAxisY1().isEnabled() ? 1 : 0) * AXIS_W, height - AXIS_H);
+			html.append("<circle cx=\"%d\" cy=\"%d\" r=\"2\" fill=\"black\" />", width - (opts.getAxisY2().isEnabled() ? 1 : 0) * AXIS_W, height - AXIS_H);
+			html.append("<circle cx=\"%d\" cy=\"%d\" r=\"2\" fill=\"black\" />", (opts.getAxisY1().isEnabled() ? 1 : 0) * AXIS_W, 0);
 
 			html.append("</svg>\n");
 		} catch (Exception e) {
