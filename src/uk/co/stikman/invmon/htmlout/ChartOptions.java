@@ -76,6 +76,7 @@ public class ChartOptions {
 	public Series addSeries(String field, List<String> subfields) {
 		Series s = new Series(field);
 		s.setSubfields(subfields);
+		s.setyAxis(axisY1);
 		series.add(s);
 		return s;
 	}
@@ -83,6 +84,7 @@ public class ChartOptions {
 	public Series addSeries(String field) {
 		Series s = new Series(field);
 		series.add(s);
+		s.setyAxis(axisY1);
 		return s;
 	}
 

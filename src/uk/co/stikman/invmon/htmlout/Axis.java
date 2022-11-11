@@ -7,6 +7,7 @@ public class Axis<T extends Number> {
 	private float				max;
 	private int					intervals;
 	private Function<T, String>	formatter	= f -> f.toString();
+	private float				scaleP;
 
 	public float getMin() {
 		return min;
@@ -38,6 +39,14 @@ public class Axis<T extends Number> {
 
 	public void setFormatter(Function<T, String> formatter) {
 		this.formatter = formatter;
+	}
+
+	public void setScaleP(float f) {
+		this.scaleP = f;
+	}
+
+	public float getScaleP() {
+		return scaleP;
 	}
 
 }

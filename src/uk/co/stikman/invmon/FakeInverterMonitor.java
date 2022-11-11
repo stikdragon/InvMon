@@ -62,7 +62,7 @@ public class FakeInverterMonitor extends InvModule {
 
 		dp.put(fieldMode, InverterMode.CHARGING);
 		dp.put(fieldChargeState, BatteryChargeStage.CHARGE_FLOAT);
-		dp.put(fieldBattery, 50.2f + rand(10f), 24.0f + rand(10f), 0f);
+		dp.put(fieldBattery, 50.2f + rand(10f), rand(90f), 0f);
 		dp.put(fieldLoad, 230.0f + rand(10f), 1.45f + rand(3f), 50.0f);
 		dp.put(fieldPv1, 304f + rand(40f), 4.0f + rand(7f), 0);
 		dp.put(fieldPv2, 304f + rand(40f), 4.0f + rand(7f), 0);

@@ -18,7 +18,7 @@ import uk.co.stikman.table.DataTable;
 
 public class Env {
 	private static final StikLog	LOGGER		= StikLog.getLogger(Env.class);
-	public static final String		VERSION		= "0.3";
+	public static final String		VERSION		= "0.4";
 
 	private List<InvModule>			parts		= new ArrayList<>();
 	private long					nextId		= 0;
