@@ -12,7 +12,9 @@
 
         <DataLogger id="datalogger" file="junk\datalog.db" blockSize="400000" />
 
-        <HTTPServer id="httpserver" port="8083" />
+        <!-- <HTTPServer id="httpserver" port="8083" /> -->
+
+        <JSONSend id="sender" destination="localhost" port="28347" key="turnips" user="user1___" logger="datalogger" />
     </Modules>
 
 </InvMon>

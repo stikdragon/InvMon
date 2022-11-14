@@ -31,6 +31,7 @@ public class DataLogger extends InvModule {
 	private File					file;
 	private int						blockSize;
 
+	
 	public DataLogger(String id, Env env) {
 		super(id, env);
 	}
@@ -50,7 +51,7 @@ public class DataLogger extends InvModule {
 			} catch (MiniDbException e1) {
 				throw new InvMonException(e1);
 			}
-			
+
 			//
 			// now attempt to reopen it
 			//
@@ -62,7 +63,7 @@ public class DataLogger extends InvModule {
 				LOGGER.error("Error converting database.  The original files should still exist with the extension .old");
 				throw new InvMonException("Attempted to convert database, but failed to open it because: " + ee.getMessage(), ee);
 			}
-			
+
 		}
 		LOGGER.info("  done.");
 	}
@@ -186,6 +187,7 @@ public class DataLogger extends InvModule {
 			}
 		}
 		db.commitRecord(rec);
+		getEnv().getBus().fire(Events.LOGGER_RECORD_COMMITED, this);
 	}
 
 	@Override

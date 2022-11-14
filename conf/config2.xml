@@ -1,0 +1,18 @@
+<InvMon>
+
+    <Settings updatePeriod="1000" allowConversion="true" />
+
+    <Modules>
+    
+        <ConsoleOutput id="console" controlCodes="false" />
+
+        <DataLogger id="datalogger" file="junk\datalog.db" blockSize="400000" />
+
+        <JSONRecv id="recv" port="28347" logger="datalogger">
+            <Keys>
+                <Key user="user1___" key="turnips" />
+            </Keys>
+        </JSONRecv>
+    </Modules>
+
+</InvMon>
