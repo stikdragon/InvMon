@@ -18,7 +18,7 @@ import uk.co.stikman.table.DataTable;
 
 public class Env {
 	private static final StikLog	LOGGER		= StikLog.getLogger(Env.class);
-	public static final String		VERSION		= "0.4";
+	public static final String		VERSION		= "0.5";
 
 	private List<InvModule>			parts		= new ArrayList<>();
 	private long					nextId		= 0;
@@ -77,7 +77,7 @@ public class Env {
 		LOGGER.info("Ready");
 	}
 
-	private static void listPorts() {
+	public static void listPorts() {
 		//
 		// print a list of serial ports in a nice table
 		//

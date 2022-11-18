@@ -203,6 +203,8 @@ public class DataLogger extends InvModule {
 	}
 
 	public QueryResults query(long tsStart, long tsEnd, int points, List<String> fieldnames) throws MiniDbException {
+		if (tsStart > tsEnd)
+			throw new MiniDbException("Range is smaller than 0");
 		DataModel model = getEnv().getModel();
 		if (!fieldnames.get(0).equals("TIMESTAMP"))
 			fieldnames.add(0, "TIMESTAMP");
@@ -332,6 +334,9 @@ public class DataLogger extends InvModule {
 			}
 		}
 
+		res.setStart(tsStart);
+		res.setEnd(tsEnd);
+		
 		return res;
 	}
 

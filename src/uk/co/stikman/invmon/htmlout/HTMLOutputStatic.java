@@ -44,11 +44,10 @@ public class HTMLOutputStatic extends InvModule {
 		long dt = System.currentTimeMillis() - lastT;
 		if (dt > 5000) {
 			HTMLBuilder html = new HTMLBuilder();
-			new HTMLGenerator(datalogger).render(html, data);
-
 			try (FileOutputStream fos = new FileOutputStream(target)) {
+				new HTMLGenerator(datalogger).render(html, data);
 				fos.write(html.toString().getBytes(StandardCharsets.UTF_8));
-			} catch (IOException e) {
+			} catch (Exception e) {
 				LOGGER.error(e);
 			}
 		}

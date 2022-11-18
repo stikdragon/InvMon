@@ -16,6 +16,9 @@ public class QueryResults {
 	private List<QueryRecord>		records	= new ArrayList<>();
 	private List<Field>				fields	= new ArrayList<>();
 
+	private long					start;
+	private long					end;
+
 	public List<Field> getFields() {
 		return fields;
 	}
@@ -78,6 +81,22 @@ public class QueryResults {
 			++i;
 		}
 		throw new NoSuchElementException("Field not found: " + name);
+	}
+
+	public long getStart() {
+		return start;
+	}
+
+	public void setStart(long start) {
+		this.start = start;
+	}
+
+	public long getEnd() {
+		return end;
+	}
+
+	public void setEnd(long end) {
+		this.end = end;
 	}
 
 }

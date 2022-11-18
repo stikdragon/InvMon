@@ -10,9 +10,12 @@ import uk.co.stikman.invmon.DataPoint;
 import uk.co.stikman.invmon.Env;
 import uk.co.stikman.invmon.PollData;
 import uk.co.stikman.invmon.datalog.DataLogger;
+import uk.co.stikman.invmon.datalog.MiniDbException;
 import uk.co.stikman.invmon.datalog.QueryRecord;
 import uk.co.stikman.invmon.datalog.QueryResults;
 import uk.co.stikman.invmon.datamodel.VIFReading;
+import uk.co.stikman.invmon.inverter.Tok;
+import uk.co.stikman.invmon.inverter.TokenThing;
 import uk.co.stikman.log.StikLog;
 
 public class HTMLGenerator {
@@ -26,13 +29,13 @@ public class HTMLGenerator {
 		this.source = datalogger;
 	}
 
-	public void render(HTMLBuilder html, PollData data) {
+	public void render(HTMLBuilder html, PollData data) throws MiniDbException {
 		HTMLOpts def = new HTMLOpts();
 		def.setDuration(5 * 60);
 		render(html, def, data);
 	}
 
-	public void render(HTMLBuilder html, HTMLOpts opts, PollData data) {
+	public void render(HTMLBuilder html, HTMLOpts opts, PollData data) throws MiniDbException {
 		//
 		// render a nice page
 		//
@@ -62,33 +65,90 @@ public class HTMLGenerator {
 		}
 		html.append("</div></div>");
 
+		long end = System.currentTimeMillis();
+		long start = end - opts.getDuration() * 1000 * 60;
+		List<String> flds = new ArrayList<>();
+		add(flds, "BATT_V", "BATT_I_CHG", "BATT_I_DIS");
+		add(flds, "LOAD_V", "LOAD_I", "LOAD_F", "LOAD_P");
+		add(flds, "PV1_V", "PV1_I", "PV1_P");
+		add(flds, "PV2_V", "PV2_I", "PV2_P");
+		add(flds, "PV3_V", "PV3_I", "PV3_P");
+		add(flds, "PV4_V", "PV4_I", "PV4_P");
+		add(flds, "PV_TOTAL_P");
+		add(flds, "INV_TEMP");
+		add(flds, "INV_BUS_V");
+		QueryResults qr = getQueryResults(start, end, flds, 120);
+
 		DataPoint dp = data.get("invA");
 
 		VIFReading vif1 = dp.get(source.getEnv().getModel().getVIF("PV1"));
 		VIFReading vif2 = dp.get(source.getEnv().getModel().getVIF("PV2"));
 
 		html.append("<div>").div("sect").append("<div class=\"hdr\"><h1>PV Power</h1>");
-		renderVIF(html, "PV1", vif1);
-		renderVIF(html, "PV2", vif2).append("</div>");
-		renderPVPowerChart(html, opts);
+		renderGrp(html, "<div class=\"grp\">PV1: [%d]W ([%.2f]V @ [%.2f]A)</div>", (int) vif1.getP(), vif1.getV(), vif1.getI());
+		renderGrp(html, "<div class=\"grp\">PV2: [%d]W ([%.2f]V @ [%.2f]A)</div>", (int) vif2.getP(), vif2.getV(), vif2.getI());
+		renderGrp(html, "<div class=\"grp\">Total: [%d]W</div>", (int) (vif1.getP() + vif2.getP()));
+		html.append("</div>");
+		renderPVPowerChart(html, opts, qr);
 		html.append("</div></div>");
 
 		html.append("<div>").div("sect").append("<div class=\"hdr\"><h1>Load</h1>");
 		vif1 = dp.get(source.getEnv().getModel().getVIF("LOAD"));
 		renderVIF(html, "Load", vif1).append("</div>");
-		renderLoadChart(html, opts);
+		renderLoadChart(html, opts, qr);
 		html.append("</div></div>");
 
 		html.append("<div>").div("sect").append("<div class=\"hdr\"><h1>Battery Current</h1>");
 		vif1 = dp.get(source.getEnv().getModel().getVIF("BATT"));
 		renderVIF(html, "Batt", vif1).append("</div>");
-		renderBatteryChart(html, opts);
+		renderBatteryChart(html, opts, qr);
+		html.append("</div></div>");
+
+		html.append("<div>").div("sect").append("<div class=\"hdr\"><h1>Temperatures</h1>");
+		float ftmp = dp.getFloat(source.getEnv().getModel().get("INV_TEMP"));
+		float busv = dp.getFloat(source.getEnv().getModel().get("INV_BUS_V"));
+		renderGrp(html, "<div class=\"grp\">Temp: [%.1f]C  BusV: [%d]V</div>", ftmp, (int) busv);
+		html.append("</div>");
+		renderTempChart(html, opts, qr);
 		html.append("</div></div>");
 
 		html.append("<div class=\"tiny\"><div class=\"a\">Render time: </div><div class=\"b\">").append(System.currentTimeMillis() - lastT).append("ms</div></div>");
 		html.append("<div class=\"tiny\"><div class=\"a\">Local Time: </div><div class=\"b\">").append(new Date().toString()).append("</div></div>");
 		html.append("<div class=\"tiny\"><div class=\"a\">Version: </div><div class=\"b\">").append(Env.VERSION).append("</div></div>");
 		html.append(getClass(), "bottom_static.html");
+	}
+
+	private static void add(List<String> lst, String... s) {
+		for (String t : s)
+			lst.add(t);
+	}
+
+	private QueryResults getQueryResults(long start, long end, List<String> fields, int pointcount) throws MiniDbException {
+		//
+		// so snap to nearest N millis, depending on how big our range is, to 
+		// avoid aliasing
+		//
+		int N = 1;
+		long tsStart = start;
+		long tsEnd = end;
+		long tsLength = tsEnd - tsStart;
+		if (tsLength <= 60000)
+			N = 2500;
+		else if (tsLength <= 60000 * 10)
+			N = 30000;
+		else
+			N = 30000 * 5;
+
+		tsEnd = tsEnd / N;
+		++tsEnd;
+		tsEnd *= N;
+
+		tsLength = tsLength / N;
+		++tsLength;
+		tsLength *= N;
+
+		return source.query(tsStart, tsEnd, pointcount, fields);
+
 	}
 
 	private HTMLBuilder renderVIF(HTMLBuilder html, String name, VIFReading vif) {
@@ -98,24 +158,40 @@ public class HTMLGenerator {
 		return html;
 	}
 
-	private void renderPVPowerChart(HTMLBuilder html, HTMLOpts opts) {
-		ChartOptions co = new ChartOptions(120, opts.getDuration() * 1000 * 60);
+	private HTMLBuilder renderGrp(HTMLBuilder html, String fmt, Object... values) {
+		TokenThing tt = new TokenThing(fmt);
+		int p = 0;
+		for (Tok t : tt) {
+			if (t.isSquare()) {
+				html.append("<span class=\"b\">").append(String.format(t.getText(), values[p++])).append("</span>");
+			} else {
+				html.append(t.getText());
+			}
+		}
+		return html;
+	}
+
+	private void renderPVPowerChart(HTMLBuilder html, HTMLOpts opts, QueryResults data) {
+		ChartOptions co = new ChartOptions();
+		co.setSize(800, 260);
 		co.addSeries("PV_TOTAL_P", list("PV1_P", "PV2_P", "PV3_P", "PV4_P"));
 		co.getAxisY1().setForceMin(Float.valueOf(0));
 		co.getAxisY1().setFormatter(f -> String.format("%d W", f.intValue()));
-		renderChart(html, "pv", co);
+		renderChart(html, "pv", co, data);
 	}
 
-	private void renderLoadChart(HTMLBuilder html, HTMLOpts opts) {
-		ChartOptions co = new ChartOptions(120, opts.getDuration() * 1000 * 60);
+	private void renderLoadChart(HTMLBuilder html, HTMLOpts opts, QueryResults data) {
+		ChartOptions co = new ChartOptions();
+		co.setSize(800, 260);
 		co.addSeries("LOAD_P");
 		co.getAxisY1().setForceMin(Float.valueOf(0));
 		co.getAxisY1().setFormatter(f -> String.format("%d W", f.intValue()));
-		renderChart(html, "load", co);
+		renderChart(html, "load", co, data);
 	}
 
-	private void renderBatteryChart(HTMLBuilder html, HTMLOpts opts) {
-		ChartOptions co = new ChartOptions(120, opts.getDuration() * 1000 * 60);
+	private void renderBatteryChart(HTMLBuilder html, HTMLOpts opts, QueryResults data) {
+		ChartOptions co = new ChartOptions();
+		co.setSize(800, 230);
 		co.getAxisY1().setFormatter(f -> String.format("%.1f A", f.floatValue()));
 		co.getAxisY1().setForceMin(Float.valueOf(0));
 		co.getAxisY2().setFormatter(f -> String.format("%.1f V", f.floatValue()));
@@ -124,42 +200,29 @@ public class HTMLGenerator {
 		co.addSeries("BATT_I_CHG");
 		co.addSeries("BATT_I_DIS");
 		co.addSeries("BATT_V").setYAxis(co.getAxisY2());
-		renderChart(html, "battery", co);
+		renderChart(html, "battery", co, data);
+	}
+
+	private void renderTempChart(HTMLBuilder html, HTMLOpts opts, QueryResults data) {
+		ChartOptions co = new ChartOptions();
+		co.setSize(800, 120);
+		co.addSeries("INV_TEMP");
+		co.addSeries("INV_BUS_V").setYAxis(co.getAxisY2());
+		co.getAxisY1().setFormatter(f -> String.format("%.1f C", f.floatValue()));
+		co.getAxisY1().setForceMin(Float.valueOf(0));
+		co.getAxisY2().setFormatter(f -> String.format("%d V", (int) f.floatValue()));
+		co.getAxisY2().setEnabled(true);
+		renderChart(html, "temperature", co, data);
 	}
 
 	private SimpleDateFormat sdf = new SimpleDateFormat("yyy/MM/dd HH:mm:ss");
 
-	private void renderChart(HTMLBuilder html, String cssclass, ChartOptions opts) {
+	private void renderChart(HTMLBuilder html, String cssclass, ChartOptions opts, QueryResults res) {
 		try {
 			//
 			// this is quite messy i'm afraid
 			//
 			opts.getAxisX1().setFormatter(f -> sdf.format(new Date(f.longValue())));
-
-			//
-			// so snap to nearest N millis, depending on how big our range is, to 
-			// avoid aliasing
-			//
-			int N = 1;
-			long tsStart = opts.getStartTime();
-			long tsEnd = opts.getEndTime();
-			long tsLength = tsEnd - tsStart;
-			if (tsLength <= 60000)
-				N = 2500;
-			else if (tsLength <= 60000 * 10)
-				N = 30000;
-			else
-				N = 30000 * 5;
-
-			tsEnd = tsEnd / N;
-			++tsEnd;
-			tsEnd *= N;
-
-			tsLength = tsLength / N;
-			++tsLength;
-			tsLength *= N;
-
-			tsStart = tsEnd - tsLength;
 
 			List<String> fields = new ArrayList<>();
 			for (Series s : opts.getSeries()) {
@@ -167,15 +230,16 @@ public class HTMLGenerator {
 				fields.addAll(s.getSubfields());
 			}
 
-			QueryResults res = source.query(tsStart, tsEnd, opts.getPointCount(), fields);
+			long tsStart = res.getStart();
+			long tsLength = res.getEnd() - res.getStart();
 
 			//
 			// now onto rendering the chart
 			//
 			final int AXIS_W = 55;
 			final int AXIS_H = 22;
-			final int width = 800;
-			final int height = 300;
+			final int width = opts.getWidth();
+			final int height = opts.getHeight();
 			int nAxes = (opts.getAxisY2().isEnabled() ? 1 : 0) + (opts.getAxisY1().isEnabled() ? 1 : 0);
 			float sx = 1.0f - (float) (AXIS_W * nAxes) / width; // scale factors
 			float sy = 1.0f - (float) AXIS_H / height;
@@ -210,6 +274,9 @@ public class HTMLGenerator {
 					ax.setMax(Math.max(ax.getMax(), f));
 				}
 			}
+			opts.getAxisY1().setMax(opts.getAxisY1().getMax() * 1.05f);
+			opts.getAxisY2().setMax(opts.getAxisY2().getMax() * 1.05f);
+			
 
 			for (Series series : opts.getSeries()) {
 				++seriesIndex;

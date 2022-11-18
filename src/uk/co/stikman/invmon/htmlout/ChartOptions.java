@@ -4,44 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ChartOptions {
-	private int				pointCount;
 	private Axis<Long>		axisX1	= new Axis<>(0);
 	private Axis<Float>		axisY1	= new Axis<>(1);
 	private Axis<Float>		axisY2	= new Axis<>(2);
 	private List<Series>	series	= new ArrayList<>();
-	private long			startTime;
-	private long			endTime;
+	private int				width	= 800;
+	private int				height	= 300;
 
-	public ChartOptions(int pointCount, long backwards) {
-		this.pointCount = pointCount;
-		this.startTime = System.currentTimeMillis() - backwards;
-		this.endTime = System.currentTimeMillis();
+	public ChartOptions() {
 		axisX1.setEnabled(true);
 		axisY1.setEnabled(true);
 		axisY2.setEnabled(false); // defaults to off
-	}
-
-	public ChartOptions(int pointCount, long tsStart, long tsEnd) {
-		super();
-		this.pointCount = pointCount;
-		this.startTime = tsStart;
-		this.endTime = tsEnd;
-	}
-
-	public long getStartTime() {
-		return startTime;
-	}
-
-	public void setStartTime(long startTime) {
-		this.startTime = startTime;
-	}
-
-	public long getEndTime() {
-		return endTime;
-	}
-
-	public void setEndTime(long endTime) {
-		this.endTime = endTime;
 	}
 
 	public Axis<Long> getAxisX1() {
@@ -60,10 +33,6 @@ public class ChartOptions {
 		return series;
 	}
 
-	public int getPointCount() {
-		return pointCount;
-	}
-
 	public Series addSeries(String field, List<String> subfields) {
 		Series s = new Series(field);
 		s.setSubfields(subfields);
@@ -77,6 +46,27 @@ public class ChartOptions {
 		series.add(s);
 		s.setYAxis(axisY1);
 		return s;
+	}
+
+	public int getWidth() {
+		return width;
+	}
+
+	public void setWidth(int width) {
+		this.width = width;
+	}
+
+	public int getHeight() {
+		return height;
+	}
+
+	public void setHeight(int height) {
+		this.height = height;
+	}
+
+	public void setSize(int w, int h) {
+		this.width = w;
+		this.height = h;
 	}
 
 }
