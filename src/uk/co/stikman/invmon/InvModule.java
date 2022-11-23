@@ -3,6 +3,8 @@ package uk.co.stikman.invmon;
 import org.w3c.dom.Element;
 
 /**
+ * A component in the inverter monitor system
+ * 
  * contructor must be <code>(String id, Env env)</code>
  * 
  * @author stikd

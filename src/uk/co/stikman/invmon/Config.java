@@ -19,7 +19,7 @@ import uk.co.stikman.invmon.datalog.DataLogger;
 import uk.co.stikman.invmon.htmlout.HTMLOutput;
 import uk.co.stikman.invmon.htmlout.HTMLOutputStatic;
 import uk.co.stikman.invmon.htmlout.HTTPServer;
-import uk.co.stikman.invmon.inverter.PIP8048MAX.InverterMonitorPIP;
+import uk.co.stikman.invmon.inverter.PIP8048MAX.InverterPIPMAX;
 import uk.co.stikman.invmon.remote.JSONRecv;
 import uk.co.stikman.invmon.remote.JSONSend;
 
@@ -32,7 +32,7 @@ public class Config {
 	public void loadFromFile(File f) throws IOException {
 		Document doc = loadXML(f);
 		Map<String, Class<? extends InvModule>> thingtypes = new HashMap<>();
-		thingtypes.put("Inverter", InverterMonitorPIP.class);
+		thingtypes.put("Inverter", InverterPIPMAX.class);
 		thingtypes.put("FakeInverter", FakeInverterMonitor.class);
 		thingtypes.put("ConsoleOutput", ConsoleOutput.class);
 		thingtypes.put("TempHTMLOutput", HTMLOutputStatic.class);

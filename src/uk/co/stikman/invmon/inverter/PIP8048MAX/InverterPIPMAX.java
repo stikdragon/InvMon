@@ -21,8 +21,8 @@ import uk.co.stikman.invmon.inverter.InvUtil;
 import uk.co.stikman.log.StikLog;
 import uk.co.stikman.table.DataTable;
 
-public class InverterMonitorPIP extends InvModule {
-	private static final StikLog	LOGGER	= StikLog.getLogger(InverterMonitorPIP.class);
+public class InverterPIPMAX extends InvModule {
+	private static final StikLog	LOGGER	= StikLog.getLogger(InverterPIPMAX.class);
 	private PIP8048MAX				inv;
 	private SerialPort				port;
 
@@ -40,7 +40,7 @@ public class InverterMonitorPIP extends InvModule {
 	private Field					fieldPv1P;
 	private Field					fieldPv2P;
 
-	public InverterMonitorPIP(String id, Env env) {
+	public InverterPIPMAX(String id, Env env) {
 		super(id, env);
 	}
 

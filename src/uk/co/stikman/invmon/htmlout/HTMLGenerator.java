@@ -94,7 +94,9 @@ public class HTMLGenerator {
 
 		html.append("<div>").div("sect").append("<div class=\"hdr\"><h1>Load</h1>");
 		vif1 = dp.get(source.getEnv().getModel().getVIF("LOAD"));
-		renderVIF(html, "Load", vif1).append("</div>");
+		renderGrp(html, "<div class=\"grp\">Load: [%d]W ([%.2f]V @ [%.2f]A)</div>", (int) vif1.getP(), vif1.getV(), vif1.getI());
+		float pf = dp.getFloat(source.getEnv().getModel().get("LOAD_PF"));
+		renderGrp(html, "<div class=\"grp\">PF: [%.2f] (Real Power: [%d]V @ [%.2f]A)</div>", pf, (int) (vif1.getP() * pf));
 		renderLoadChart(html, opts, qr);
 		html.append("</div></div>");
 
@@ -104,7 +106,7 @@ public class HTMLGenerator {
 		renderBatteryChart(html, opts, qr);
 		html.append("</div></div>");
 
-		html.append("<div>").div("sect").append("<div class=\"hdr\"><h1>Temperatures</h1>");
+		html.append("<div>").div("sect").append("<div class=\"hdr\"><h1>Temperatures/Bus</h1>");
 		float ftmp = dp.getFloat(source.getEnv().getModel().get("INV_TEMP"));
 		float busv = dp.getFloat(source.getEnv().getModel().get("INV_BUS_V"));
 		renderGrp(html, "<div class=\"grp\">Temp: [%.1f]C  BusV: [%d]V</div>", ftmp, (int) busv);
@@ -212,6 +214,7 @@ public class HTMLGenerator {
 		co.getAxisY1().setForceMin(Float.valueOf(0));
 		co.getAxisY2().setFormatter(f -> String.format("%d V", (int) f.floatValue()));
 		co.getAxisY2().setEnabled(true);
+		co.getAxisY2().setForceMin(Float.valueOf(0));
 		renderChart(html, "temperature", co, data);
 	}
 
@@ -276,7 +279,6 @@ public class HTMLGenerator {
 			}
 			opts.getAxisY1().setMax(opts.getAxisY1().getMax() * 1.05f);
 			opts.getAxisY2().setMax(opts.getAxisY2().getMax() * 1.05f);
-			
 
 			for (Series series : opts.getSeries()) {
 				++seriesIndex;
