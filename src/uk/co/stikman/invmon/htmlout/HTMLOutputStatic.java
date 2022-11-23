@@ -2,7 +2,6 @@ package uk.co.stikman.invmon.htmlout;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 import org.w3c.dom.Element;

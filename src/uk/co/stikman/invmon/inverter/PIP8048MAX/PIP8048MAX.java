@@ -4,28 +4,21 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.function.Consumer;
 
 import com.fazecast.jSerialComm.SerialPort;
 
 import uk.co.stikman.invmon.inverter.CommunicationError;
+import uk.co.stikman.invmon.inverter.InverterModel;
 import uk.co.stikman.invmon.inverter.Template;
 import uk.co.stikman.invmon.inverter.TemplateResult;
 import uk.co.stikman.log.StikLog;
 
-public class PIP8048MAX {
-	private static final StikLog	LOGGER	= StikLog.getLogger(PIP8048MAX.class);
+public class PIP8048MAX implements InverterModel {
+	private static final int		MAX_RETRY		= 8;
+	private static final StikLog	LOGGER			= StikLog.getLogger(PIP8048MAX.class);
 	private SerialPort				port;
 	private long					started;
-	private Consumer<String>		logHandler;
-
-	public Consumer<String> getLogHandler() {
-		return logHandler;
-	}
-
-	public void setLogHandler(Consumer<String> logHandler) {
-		this.logHandler = logHandler;
-	}
+	private boolean					logSerialData	= false;
 
 	public PIP8048MAX() {
 		started = System.currentTimeMillis();
@@ -39,9 +32,8 @@ public class PIP8048MAX {
 		port.setBaudRate(2400);
 		port.setNumStopBits(1);
 		port.setNumDataBits(8);
-		port.setComPortTimeouts(SerialPort.TIMEOUT_READ_BLOCKING, 100, 0);
+		port.setComPortTimeouts(SerialPort.TIMEOUT_READ_BLOCKING, 500, 0);
 		port.setParity(SerialPort.NO_PARITY);
-		port.openPort();
 
 		//
 		// check the protocol id here 
@@ -62,19 +54,28 @@ public class PIP8048MAX {
 		return port != null;
 	}
 
-	private void checkOpen() {
-		if (!isOpen())
-			throw new CommunicationError("Port is not connected");
-	}
-
 	private String query(String command) {
-		checkOpen();
-		try {
-			send(command);
-			return recv();
-		} catch (IOException e) {
-			throw new CommunicationError("Query failed: " + e.getMessage(), e);
+		int failures = 0;
+		for (;;) {
+			try {
+				if (!isOpen()) {
+					port.openPort();
+					port.flushIOBuffers();
+				}
+				;
+				send(command);
+				return recv();
+
+			} catch (Exception ex) {
+				++failures;
+				if (failures >= MAX_RETRY)
+					throw new CommunicationError("Query failed after [" + failures + "] retry attempts: " + ex.getMessage(), ex);
+				LOGGER.warn("Query error: " + ex.getMessage(), ex);
+				port.closePort();
+			}
+
 		}
+
 	}
 
 	private String recv() throws IOException {
@@ -127,9 +128,8 @@ public class PIP8048MAX {
 	}
 
 	private void log(String s) {
-		long dt = System.currentTimeMillis() - started;
-		if (logHandler != null)
-			logHandler.accept("[" + dt + "] " + s);
+		if (logSerialData)
+			LOGGER.info(s);
 	}
 
 	private String formatHex(byte[] buf) {
