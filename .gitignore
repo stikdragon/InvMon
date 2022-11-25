@@ -6,3 +6,5 @@ lib/ivy/*
 junk/*
 /bin/
 lib/provided/jSerialComm-master.zip
+junk
+temp
