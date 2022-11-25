@@ -1,0 +1,33 @@
+<InvMon>
+
+    <!--
+    updatePeriod is the sample period
+
+    allowConversion allows the database to be upgraded if you've switched to a new version
+                    that has a different db structure.  it's worth setting this to `false` and
+                    then taking a backup of the database in the event that it needs converting
+                    (you'll get a startup error if it does and this isn't enabled)
+    -->
+    <Settings updatePeriod="1000" allowConversion="true" />
+
+
+    <Modules>
+        <!-- Inverter talks to an actual inverter.  The `type` attrib tells it which sort of 
+        inverter to talk to.  The rest of the configuration is specific to that type -->
+        <Inverter id="invA" port="COM8" type="PIP8048MAX" />
+    
+        <!-- ConsoleOutput renders a little table in the local terminal.  controlCodes attribute
+        allows colour formatting -->        
+        <ConsoleOutput id="console" controlCodes="true" />
+
+        <!-- DataLogger saves each sample to a database file.  This allows things like HTTPServer
+        to function -->
+        <DataLogger id="datalogger" file="junk\datalog.db" blockSize="400000" />
+
+        <!-- HTTPServer runs a small web server that shows some charts.  It requires a 
+        <DataLogger> to be enabled too -->
+        <HTTPServer id="httpserver" port="8083" />
+
+    </Modules>
+
+</InvMon>

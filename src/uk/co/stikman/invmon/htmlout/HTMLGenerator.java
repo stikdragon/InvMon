@@ -218,7 +218,7 @@ public class HTMLGenerator {
 		renderChart(html, "temperature", co, data);
 	}
 
-	private SimpleDateFormat sdf = new SimpleDateFormat("yyy/MM/dd HH:mm:ss");
+	private SimpleDateFormat sdf = new SimpleDateFormat("yy/MM/dd HH:mm");
 
 	private void renderChart(HTMLBuilder html, String cssclass, ChartOptions opts, QueryResults res) {
 		try {

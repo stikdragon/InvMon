@@ -1,15 +1,17 @@
 <project default="compile" xmlns:ivy="antlib:org.apache.ivy.ant">
 
-	<property name="version" value="1.0" />
+	<property name="version" value="0.6" />
 
 	<target name="clean">
-		<delete dir="build" />
+		<delete dir="build/classes" />
 	</target>
 
 	<path id="cp">
 		<fileset dir="lib/ivy">
-			<include name="json-*.jar" />
-			<include name="junit-*.jar" />
+			<include name="*.jar" />
+		</fileset>
+		<fileset dir="lib/provided">
+			<include name="*.jar" />
 		</fileset>
 	</path>
 
@@ -21,13 +23,43 @@
 
 	<target name="compile" depends="clean">
 		<mkdir dir="build/classes" />
-		<javac srcdir="src" destdir="build/classes" includeantruntime="false" modulepathref="cp">
+		<javac srcdir="src" destdir="build/classes" classpathref="cp" includeantruntime="false">
 		</javac>
+	</target>
+
+
+	<target name="jar" depends="compile">
+		<jar destfile="dist\invmon-${version}.jar" basedir="build">
+			<manifest>
+				<attribute name="Main-Class" value="uk.co.stikman.invmon.InvMon" />
+			</manifest>
+		</jar>
+	</target>
+
+	<target name="package" depends="jar">
+		<copy file="build/resources/start.sh" tofile="temp/start.sh" />
+		<copy file="build/resources/conftemplate.xml" tofile="temp/config.xml" />
+
+		<replace file="temp/start.sh">
+			<replacefilter token="JARFILE" value="invmon-${version}.jar" />
+		</replace>
+
+		<zip destfile="dist\invmon-${version}.zip">
+			<zipfileset dir="dist" includes="invmon-${version}.jar" />
+			<zipfileset dir="build/resources" includes="README.txt" />
+			<zipfileset dir="lib/ivy" prefix="libs" includes="commons-io-2.7.jar,json-20200518.jar,nanohttpd-2.3.1.jar" />
+			<zipfileset dir="lib/provided" prefix="libs" includes="stikutils-1.5-jdk8.jar,jSerialComm-2.9.3-beta.jar" />
+			<zipfileset dir="temp" includes="config.xml" prefix="conf" />
+			<zipfileset dir="temp" includes="start.sh" />
+		</zip>
 	</target>
 
 	<target name="resolve" description="retrieve dependencies with ivy">
 		<ivy:retrieve pattern="lib/ivy/[artifact](-[classifier])-[revision].[ext]" />
 	</target>
+
+
+
 
 
 </project>
