@@ -16,4 +16,4 @@ Runs against Java8, which has been a bit of a nuisance at times.  This is requir
 
 ## Pictures
 <img width="267" alt="image" src="https://user-images.githubusercontent.com/6278403/200788937-f9e8c9a8-c640-49dd-af00-deab42dc53db.png">
-<img width="418" alt="image" src="https://user-images.githubusercontent.com/6278403/200789132-91a21c69-4792-457b-b816-5c524362296d.png">
+<img src="https://user-images.githubusercontent.com/6278403/204019426-03920192-5dfe-444d-8f91-70d9431a6be3.png">
