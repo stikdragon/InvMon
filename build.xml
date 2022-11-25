@@ -1,9 +1,10 @@
 <project default="compile" xmlns:ivy="antlib:org.apache.ivy.ant">
 
-	<property name="version" value="0.6" />
+	<property name="version" value="0.7" />
 
 	<target name="clean">
 		<delete dir="build/classes" />
+		<delete dir="temp" />
 	</target>
 
 	<path id="cp">
@@ -23,13 +24,18 @@
 
 	<target name="compile" depends="clean">
 		<mkdir dir="build/classes" />
-		<javac srcdir="src" destdir="build/classes" classpathref="cp" includeantruntime="false">
-		</javac>
+		<javac target="1.8" source="1.8" srcdir="src" destdir="build/classes" classpathref="cp" includeantruntime="false" />
+		<copy todir="build/classes">
+			<fileset dir="src">
+				<exclude name="**/*.java" />
+			</fileset>
+		</copy>
+		<echo file="build/classes/uk/co/stikman/invmon/version.txt" append="false">${version}</echo>
 	</target>
 
 
 	<target name="jar" depends="compile">
-		<jar destfile="dist\invmon-${version}.jar" basedir="build">
+		<jar destfile="dist\invmon-${version}.jar" basedir="build/classes">
 			<manifest>
 				<attribute name="Main-Class" value="uk.co.stikman.invmon.InvMon" />
 			</manifest>
@@ -38,7 +44,7 @@
 
 	<target name="package" depends="jar">
 		<copy file="build/resources/start.sh" tofile="temp/start.sh" />
-		<copy file="build/resources/conftemplate.xml" tofile="temp/config.xml" />
+		<copy file="build/resources/conftemplate.xml" tofile="temp/config-example.xml" />
 
 		<replace file="temp/start.sh">
 			<replacefilter token="JARFILE" value="invmon-${version}.jar" />
@@ -47,9 +53,9 @@
 		<zip destfile="dist\invmon-${version}.zip">
 			<zipfileset dir="dist" includes="invmon-${version}.jar" />
 			<zipfileset dir="build/resources" includes="README.txt" />
-			<zipfileset dir="lib/ivy" prefix="libs" includes="commons-io-2.7.jar,json-20200518.jar,nanohttpd-2.3.1.jar" />
-			<zipfileset dir="lib/provided" prefix="libs" includes="stikutils-1.5-jdk8.jar,jSerialComm-2.9.3-beta.jar" />
-			<zipfileset dir="temp" includes="config.xml" prefix="conf" />
+			<zipfileset dir="lib/ivy" prefix="lib" includes="commons-io-2.7.jar,json-20200518.jar,nanohttpd-2.3.1.jar" />
+			<zipfileset dir="lib/provided" prefix="lib" includes="stikutils-1.5-jdk8.jar,jSerialComm-2.9.3-beta1.jar" />
+			<zipfileset dir="temp" includes="config-example.xml" />
 			<zipfileset dir="temp" includes="start.sh" />
 		</zip>
 	</target>
@@ -57,9 +63,6 @@
 	<target name="resolve" description="retrieve dependencies with ivy">
 		<ivy:retrieve pattern="lib/ivy/[artifact](-[classifier])-[revision].[ext]" />
 	</target>
-
-
-
 
 
 </project>

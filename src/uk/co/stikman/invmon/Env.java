@@ -2,6 +2,7 @@ package uk.co.stikman.invmon;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +12,8 @@ import com.fazecast.jSerialComm.SerialPort;
 
 import uk.co.stikman.eventbus.StringEventBus;
 import uk.co.stikman.invmon.datamodel.DataModel;
+import uk.co.stikman.invmon.inverter.InvUtil;
+import uk.co.stikman.invmon.remote.InvUserError;
 import uk.co.stikman.log.ConsoleLogTarget;
 import uk.co.stikman.log.Level;
 import uk.co.stikman.log.StikLog;
@@ -18,7 +21,8 @@ import uk.co.stikman.table.DataTable;
 
 public class Env {
 	private static final StikLog	LOGGER		= StikLog.getLogger(Env.class);
-	public static final String		VERSION		= "0.5";
+
+	private static String			version		= "dev";
 
 	private List<InvModule>			parts		= new ArrayList<>();
 	private long					nextId		= 0;
@@ -28,22 +32,30 @@ public class Env {
 	private Config					config;
 	private DataModel				model;
 
+	static {
+		try (InputStream is = Env.class.getResourceAsStream("version.txt")) { // ant script writes this
+			if (is != null)
+				version = new String(InvUtil.readAll(is), StandardCharsets.UTF_8);
+		} catch (IOException e) {
+		}
+	}
+
 	public void start() throws InvMonException {
 		StikLog.clearTargets();
 		ConsoleLogTarget tgt = new ConsoleLogTarget();
 		tgt.setFormat(new InvMonLogFormatter());
 		tgt.enableLevel(Level.DEBUG, false);
 		StikLog.addTarget(tgt);
-		
+
 		LOGGER.info("Starting InvMon...");
-		
-		listPorts();		
-		
+
+		listPorts();
+
 		bus.setImmediateMode(true);
 
 		config = new Config();
 		try {
-			config.loadFromFile(Paths.get("conf", "config.xml").toFile());
+			config.loadFromFile(Paths.get("config.xml").toFile());
 		} catch (IOException e) {
 			throw new InvMonException("Failed to load config: " + e.getMessage(), e);
 		}
@@ -88,7 +100,7 @@ public class Env {
 		SerialPort[] ports = SerialPort.getCommPorts();
 		for (SerialPort x : ports)
 			dt.addRecord(Integer.toString(++i), x.getSystemPortName(), x.getSystemPortPath(), x.getDescriptivePortName());
-		for (String s :  dt.toString().split("\\n")) 
+		for (String s : dt.toString().split("\\n"))
 			LOGGER.info(s);
 	}
 
@@ -163,6 +175,10 @@ public class Env {
 
 	public Config getConfig() {
 		return config;
+	}
+
+	public static String getVersion() {
+		return version;
 	}
 
 }

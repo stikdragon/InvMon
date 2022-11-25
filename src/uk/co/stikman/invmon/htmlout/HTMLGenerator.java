@@ -96,7 +96,8 @@ public class HTMLGenerator {
 		vif1 = dp.get(source.getEnv().getModel().getVIF("LOAD"));
 		renderGrp(html, "<div class=\"grp\">Load: [%d]W ([%.2f]V @ [%.2f]A)</div>", (int) vif1.getP(), vif1.getV(), vif1.getI());
 		float pf = dp.getFloat(source.getEnv().getModel().get("LOAD_PF"));
-		renderGrp(html, "<div class=\"grp\">PF: [%.2f] (Real Power: [%d]V @ [%.2f]A)</div>", pf, (int) (vif1.getP() * pf));
+		renderGrp(html, "<div class=\"grp\">PF: [%.2f] (Real Power: [%d]W @ [%.2f]A)</div>", pf, (int) (vif1.getP() * pf), vif1.getI() * pf);
+		html.append("</div>");
 		renderLoadChart(html, opts, qr);
 		html.append("</div></div>");
 
@@ -116,7 +117,7 @@ public class HTMLGenerator {
 
 		html.append("<div class=\"tiny\"><div class=\"a\">Render time: </div><div class=\"b\">").append(System.currentTimeMillis() - lastT).append("ms</div></div>");
 		html.append("<div class=\"tiny\"><div class=\"a\">Local Time: </div><div class=\"b\">").append(new Date().toString()).append("</div></div>");
-		html.append("<div class=\"tiny\"><div class=\"a\">Version: </div><div class=\"b\">").append(Env.VERSION).append("</div></div>");
+		html.append("<div class=\"tiny\"><div class=\"a\">Version: </div><div class=\"b\">").append(Env.getVersion()).append("</div></div>");
 		html.append(getClass(), "bottom_static.html");
 	}
 

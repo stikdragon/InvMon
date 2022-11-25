@@ -51,7 +51,7 @@ public class PIP8048MAX implements InverterModel {
 	}
 
 	private boolean isOpen() {
-		return port != null;
+		return port != null && port.isOpen();
 	}
 
 	private String query(String command) {
@@ -62,7 +62,6 @@ public class PIP8048MAX implements InverterModel {
 					port.openPort();
 					port.flushIOBuffers();
 				}
-				;
 				send(command);
 				return recv();
 
