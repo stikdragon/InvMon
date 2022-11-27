@@ -6,10 +6,13 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.function.Consumer;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -21,7 +24,11 @@ import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import uk.co.stikman.invmon.ConsumerE;
+import uk.co.stikman.invmon.InvMonException;
+import uk.co.stikman.invmon.datalog.DBRecord;
 import uk.co.stikman.invmon.datamodel.expr.AddOp;
+import uk.co.stikman.invmon.datamodel.expr.CalcMethod;
 import uk.co.stikman.invmon.datamodel.expr.CalcOp;
 import uk.co.stikman.invmon.datamodel.expr.DivOp;
 import uk.co.stikman.invmon.datamodel.expr.FetchValOp;
@@ -40,59 +47,109 @@ public class DataModel implements Iterable<Field> {
 	private List<Field>			fieldList			= new ArrayList<>();
 	private List<Field>			calculatedFields	= Collections.emptyList();
 	private FieldCounts			fieldCounts			= new FieldCounts();
+	private int					repeatCount;
 
-	public void loadXML(InputStream str) throws IOException {
+	public void loadXML(InputStream str) throws IOException, InvMonException {
 		Document doc = InvUtil.loadXML(str);
+		repeatCount = Integer.parseInt(InvUtil.getAttrib(doc.getDocumentElement(), "repeatCount"));
 		fieldCounts = new FieldCounts();
-		Field ftimestamp = null;
 		for (Element el : InvUtil.getElements(doc.getDocumentElement())) {
-			Field f = new Field(InvUtil.getAttrib(el, "id"));
-			if (find(f.getId()) != null)
-				throw new IllegalArgumentException("Field [" + f.getId() + "] already declared");
-			f.setType(FieldType.valueOf(InvUtil.getAttrib(el, "type").toUpperCase()));
+			if ("Field".equals(el.getTagName())) {
+				readField(el, -1);
+			} else if ("Repeat".equals(el.getTagName())) {
+				for (Element el2 : InvUtil.getElements(el)) {
+					if (!el2.getTagName().equals("Field"))
+						throw new InvMonException("Can only have <Field> elements in a <Repeat> block");
+					for (int i = 0; i < repeatCount; ++i) {
+						readField(el2, (i + 1));
+					}
+				}
+			} else
+				throw new InvMonException("Invalid element in model: " + el.getTagName());
+		}
 
+		//
+		// do some checks
+		//
+		Field ftimestamp = null;
+		for (Field f : fields.values()) {
 			if (f.getType() == FieldType.TIMESTAMP) {
 				if (ftimestamp != null)
-					throw new IOException("[TIMESTAMP] field has already been defined, there can only be one");
+					throw new IOException("a TIMESTAMP field has been declared multiple times, there can only be one");
 				ftimestamp = f;
-			} else {
-				String s = InvUtil.getAttrib(el, "parent", null);
-				if (s != null) {
-					f.setParent(find(s));
-					if (f.getParent() == null)
-						throw new IllegalArgumentException("Field [" + f.getId() + "] specifies missing field [" + s + "] as parent");
-				}
-
-				if (f.getType() == FieldType.STRING)
-					f.setWidth(Integer.parseInt(InvUtil.getAttrib(el, "width")));
-				else
-					f.setWidth(f.getDataType().getTypeSize());
-
-				if (el.hasAttribute("aggregationMode")) {
-					f.setAggregationMode(AggregationMode.valueOf(el.getAttribute("aggregationMode")));
-				} else {
-					if (f.getType() == FieldType.STRING)
-						f.setAggregationMode(AggregationMode.FIRST);
-					else
-						f.setAggregationMode(AggregationMode.MEAN);
-				}
-
-				if (el.hasAttribute("calculated")) {
-					if (f.getDataType() != FieldDataType.FLOAT)
-						throw new IllegalArgumentException("Only FLOAT fields can be calculated");
-					f.setCalculated(el.getAttribute("calculated"));
-					f.setPosition(fieldCounts.getAndInc(f.getDataType()));
-				} else {
-					f.setPosition(fieldCounts.getAndInc(f.getDataType()));
-				}
 			}
-
-			fields.put(f.getId(), f);
-			fieldList.add(f);
 		}
 
 		compileExpressions();
+	}
 
+	private void readField(Element el, int repeat) throws InvMonException {
+		String id = InvUtil.getAttrib(el, "id");
+		if (repeat != -1)
+			id = id.replace("$", Integer.toString(repeat));
+		Field f = new Field(id);
+		if (find(f.getId()) != null)
+			throw new IllegalArgumentException("Field [" + f.getId() + "] already declared");
+		f.setType(FieldType.valueOf(InvUtil.getAttrib(el, "type").toUpperCase()));
+
+		if (f.getType() == FieldType.TIMESTAMP) {
+			//
+			// nothing else to do, this is a special field
+			//
+		} else {
+			if (f.getType() == FieldType.STRING)
+				f.setWidth(Integer.parseInt(InvUtil.getAttrib(el, "width")));
+			else
+				f.setWidth(f.getDataType().getTypeSize());
+
+			if (el.hasAttribute("aggregationMode")) {
+				f.setAggregationMode(AggregationMode.valueOf(el.getAttribute("aggregationMode")));
+			} else {
+				if (f.getType() == FieldType.STRING)
+					f.setAggregationMode(AggregationMode.FIRST);
+				else
+					f.setAggregationMode(AggregationMode.MEAN);
+			}
+
+			if (el.hasAttribute("calculated")) {
+				if (f.getDataType() != FieldDataType.FLOAT)
+					throw new IllegalArgumentException("Only FLOAT fields can be calculated");
+				String t = el.getAttribute("calculated");
+				if (repeat != -1)
+					t = t.replace("$", Integer.toString(repeat));
+				f.setCalculated(t);
+				f.setPosition(fieldCounts.getAndInc(f.getDataType()));
+			} else {
+				f.setPosition(fieldCounts.getAndInc(f.getDataType()));
+			}
+
+			if (el.hasAttribute("calculatedRepeat")) {
+				if (repeat != -1)
+					throw new InvMonException("<Field> with calculatedRepeat attribute is only valid outside a <Repeat> element");
+
+				String t = el.getAttribute("calculatedRepeat");
+				String[] bits = t.split(",");
+				if (bits.length != 2)
+					throw new InvMonException("Illegal calcaultedRepeat attrib: " + t);
+				if (!bits[0].matches("\\[.*\\]"))
+					throw new InvMonException("Illegal calcaultedRepeat attrib (invalid field): " + t);
+				if (!bits[1].equals("sum"))
+					throw new InvMonException("Illegal calcaultedRepeat attrib (expected \"sum\"): " + t);
+				StringBuilder sb = new StringBuilder();
+				String sep = "";
+				for (int i = 1; i <= repeatCount; ++i) {
+					String s = bits[0].replace("$", Integer.toString(i));
+					sb.append(sep).append(s);
+					sep = ", ";
+				}
+				for (int i = 1; i < repeatCount; ++i)
+					sb.append(sep).append("+");
+				f.setCalculated(sb.toString());
+			}
+		}
+
+		fields.put(f.getId(), f);
+		fieldList.add(f);
 	}
 
 	public void writeXML(OutputStream str) throws IOException {
@@ -105,8 +162,6 @@ public class DataModel implements Iterable<Field> {
 				Element el = doc.createElement("Field");
 				el.setAttribute("id", f.getId());
 				el.setAttribute("type", f.getType().name());
-				if (f.getParent() != null)
-					el.setAttribute("parent", f.getParent().getId());
 				if (f.getType() == FieldType.STRING)
 					el.setAttribute("width", Integer.toString(f.getWidth()));
 				if (f.getCalculated() != null)
@@ -142,13 +197,12 @@ public class DataModel implements Iterable<Field> {
 	@Override
 	public String toString() {
 		DataTable dt = new DataTable();
-		dt.addFields("ID", "Type", "Parent", "Offset", "Position");
+		dt.addFields("ID", "Type", "Offset", "Position");
 		fieldList.forEach(f -> {
 			DataRecord r = dt.addRecord();
 			r.setValue(0, f.getId());
 			r.setValue(1, f.getType().name());
-			r.setValue(2, f.getParent() == null ? "-" : f.getParent().getId());
-			r.setValue(4, f.getPosition());
+			r.setValue(3, f.getPosition());
 		});
 		return dt.toString();
 	}
@@ -179,8 +233,8 @@ public class DataModel implements Iterable<Field> {
 	}
 
 	/**
-	 * returns a group of up to three fields that have the suffixes _V, _I, _F.
-	 * Is a convenience thing. Throws exception if non of them can be found
+	 * returns a group of up to three fields that have the suffixes _V, _I, _F. Is a
+	 * convenience thing. Throws exception if non of them can be found
 	 * 
 	 * @param prefix
 	 * @return
@@ -204,14 +258,22 @@ public class DataModel implements Iterable<Field> {
 		return fields.size();
 	}
 
+	/**
+	 * this list is ordered such that dependent fields come first, so if you
+	 * evaluate them from first to last then you'll correctly calculate values
+	 * 
+	 * @return
+	 */
 	public List<Field> getCalculatedFields() {
 		return calculatedFields;
 	}
 
 	/**
 	 * set up calculated fields
+	 * 
+	 * @throws InvMonException
 	 */
-	private void compileExpressions() {
+	private void compileExpressions() throws InvMonException {
 		List<Field> lst = new ArrayList<>();
 		for (Field f : this) {
 			if (f.getCalculated() != null) {
@@ -246,19 +308,102 @@ public class DataModel implements Iterable<Field> {
 						else if (bit.charAt(0) == '/')
 							ops.add(new DivOp());
 					} else
-						throw new IllegalArgumentException("Expression invalid: " + f.getCalculated());
+						throw new IllegalArgumentException("Expression invalid for [" + f.getId() + "]: " + f.getCalculated());
 				}
 
-				f.setCalculationMethod(r -> {
-					FloatStack stk = new FloatStack(); // can we cache this?
-					for (CalcOp op : ops)
-						op.calc(r, stk);
-					return stk.pop();
+				f.setCalculationMethod(new CalcMethod() {
+					@Override
+					public List<CalcOp> getOps() {
+						return ops;
+					}
+
+					@Override
+					public float calc(DBRecord r) {
+						FloatStack stk = new FloatStack(); // can we cache this?
+						for (CalcOp op : ops)
+							op.calc(r, stk);
+						return stk.pop();
+					}
 				});
+
 			}
 		}
+
+		//
+		// work out order
+		//
+		lst = sortByCalcOrder(lst);
+
 		if (!lst.isEmpty())
 			calculatedFields = lst;
+	}
+
+	private static class Node {
+		Field		field;
+		List<Node>	children	= new ArrayList<>();
+
+		@Override
+		public String toString() {
+			return field.getId();
+		}
+	}
+
+	private List<Field> sortByCalcOrder(List<Field> lst) throws InvMonException {
+		//
+		// turn them into a tree, then walk the roots for order
+		// also a good place to check for circular refs
+		//
+		Map<Field, Node> lkp = new HashMap<>();
+		Set<Node> roots = new HashSet<>();
+		for (Field f : lst) {
+			Node n = new Node();
+			n.field = f;
+			roots.add(n);
+			lkp.put(f, n);
+		}
+
+		for (Field f : lst) {
+			for (CalcOp op : f.getCalculationMethod().getOps()) {
+				if (op instanceof FetchValOp) {
+					FetchValOp fvo = (FetchValOp) op;
+					Node n2 = lkp.get(fvo.getField());
+					if (n2 != null) { // if it's null then it depends on a non-calculated field, which doesn't matter here
+						Node n = lkp.get(f);
+						roots.remove(n);
+						n2.children.add(n);
+					}
+				}
+			}
+		}
+
+		//
+		// circ refs
+		//
+		for (Node root : roots) {
+			final Set<Node> visited = new HashSet<>();
+			walk(root, n -> {
+				if (!visited.add(n))
+					throw new InvMonException("Circular reference in field [" + n.field.getId() + "]");
+			});
+		}
+
+		List<Field> output = new ArrayList<>();
+		for (Node root : roots)
+			walk(root, n -> {
+				output.remove(n.field);
+				output.add(n.field);
+			});
+
+		for (Field f : output)
+			System.out.println(f.toString());
+
+		return output;
+	}
+
+	private static void walk(Node n, ConsumerE<Node, InvMonException> visitor) throws InvMonException {
+		visitor.accept(n);
+		for (Node x : n.children)
+			walk(x, visitor);
 	}
 
 	private boolean isNumber(String bit) {
@@ -272,6 +417,10 @@ public class DataModel implements Iterable<Field> {
 
 	public FieldCounts getFieldCounts() {
 		return fieldCounts;
+	}
+
+	public int getRepeatCount() {
+		return repeatCount;
 	}
 
 }

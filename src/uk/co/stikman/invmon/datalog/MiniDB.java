@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import uk.co.stikman.invmon.InvMonException;
 import uk.co.stikman.invmon.datamodel.DataModel;
 import uk.co.stikman.invmon.datamodel.Field;
 import uk.co.stikman.log.StikLog;
@@ -54,7 +55,7 @@ public class MiniDB {
 		this(file, DEFAULT_BLOCKSIZE);
 	}
 
-	public void open() throws MiniDbException, ModelChangeException {
+	public void open() throws MiniDbException, ModelChangeException, InvMonException {
 
 		//
 		// read what we've got first
@@ -63,7 +64,7 @@ public class MiniDB {
 			index = new IndexFile(this, indexFile);
 			try {
 				index.open();
-				
+
 				//
 				// special case if we don't have a model assigned then we're meant to be
 				// just opening our internal one without any checks
@@ -76,7 +77,7 @@ public class MiniDB {
 				} else { // model is null
 					model = index.getInternalModel();
 				}
-				
+
 			} catch (IOException e) {
 				throw new MiniDbException(e);
 			}
@@ -140,7 +141,7 @@ public class MiniDB {
 		}
 	}
 
-	public void loadModel(InputStream is) throws IOException {
+	public void loadModel(InputStream is) throws IOException, InvMonException {
 		synchronized (this) {
 			model = new DataModel();
 			model.loadXML(is);
@@ -215,8 +216,8 @@ public class MiniDB {
 
 	/**
 	 * given an int or a long field it finds a range of records. we look at the
-	 * blocks that contain it and try to load them all. it's possible for this
-	 * to fail if you ask for a range that would span more than
+	 * blocks that contain it and try to load them all. it's possible for this to
+	 * fail if you ask for a range that would span more than
 	 * <code>maxCachedBlocks</code>
 	 * 
 	 * @param field
@@ -286,8 +287,8 @@ public class MiniDB {
 	}
 
 	/**
-	 * Makes sure this block is loaded. Loading a block will push out the oldest
-	 * one from the cache if it's over
+	 * Makes sure this block is loaded. Loading a block will push out the oldest one
+	 * from the cache if it's over
 	 * 
 	 * @return
 	 * 
@@ -357,9 +358,9 @@ public class MiniDB {
 		for (Field f : model) {
 			sb.append(sep);
 			switch (f.getDataType()) {
-			case FLOAT:
-				sb.append(rec.getFloat(f));
-				break;
+				case FLOAT:
+					sb.append(rec.getFloat(f));
+					break;
 			}
 			sep = ", ";
 		}
@@ -393,8 +394,9 @@ public class MiniDB {
 	 * @throws ModelChangeException
 	 * @throws MiniDbException
 	 * @throws IOException
+	 * @throws InvMonException 
 	 */
-	public void rename(File file) throws MiniDbException, ModelChangeException, IOException {
+	public void rename(File file) throws MiniDbException, ModelChangeException, IOException, InvMonException {
 		if (isOpen())
 			throw new IllegalStateException("MiniDB must be closed for a rename operation");
 

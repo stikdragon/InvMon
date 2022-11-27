@@ -1,13 +1,13 @@
 <InvMon>
 
-    <Settings updatePeriod="1000" allowConversion="true" />
+    <Settings updatePeriod="1000" allowConversion="true" model="parallel" parallelCount="2" />
 
     <Modules>
 
-        <ParallelInverterGroup id="invertergroup1">
+        <PIP8048MAXParallelGroup id="invertergroup1">
             <FakeInverter id="invA" />
             <FakeInverter id="invB" />
-        </ParallelInverterGroup>
+        </PIP8048MAXParallelGroup>
     
         <!-- <ConsoleOutput id="console" controlCodes="false" /> -->
 

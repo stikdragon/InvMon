@@ -8,6 +8,7 @@ import java.io.IOException;
 import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 
+import uk.co.stikman.invmon.InvMonException;
 import uk.co.stikman.invmon.datalog.DBRecord;
 import uk.co.stikman.invmon.datalog.IntRange;
 import uk.co.stikman.invmon.datalog.MiniDB;
@@ -18,7 +19,7 @@ import uk.co.stikman.invmon.datamodel.DataModel;
 public class TestMiniDB {
 
 	@Test
-	public void testOpenClose() throws IOException, MiniDbException, ModelChangeException {
+	public void testOpenClose() throws IOException, MiniDbException, ModelChangeException, InvMonException {
 		DataModel model = new DataModel();
 		model.loadXML(getClass().getResourceAsStream("testmodel1.xml"));
 
@@ -36,7 +37,7 @@ public class TestMiniDB {
 	}
 
 	@Test
-	public void testTinyBlocks() throws IOException, MiniDbException, ModelChangeException {
+	public void testTinyBlocks() throws IOException, MiniDbException, ModelChangeException, InvMonException {
 		DataModel model = new DataModel();
 		model.loadXML(getClass().getResourceAsStream("testmodel1.xml"));
 

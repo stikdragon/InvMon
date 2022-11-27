@@ -7,7 +7,6 @@ import uk.co.stikman.invmon.datamodel.expr.CalcMethod;
 
 public class Field {
 	private final String	id;
-	private Field			parent;
 	private FieldType		type;
 	private AggregationMode	aggregationMode	= AggregationMode.SUM;
 	private int				width;									// for strings
@@ -29,10 +28,6 @@ public class Field {
 		return id;
 	}
 
-	public Field getParent() {
-		return parent;
-	}
-
 	public int getPosition() {
 		return position;
 	}
@@ -49,9 +44,6 @@ public class Field {
 		this.aggregationMode = aggregationMode;
 	}
 
-	public void setParent(Field parent) {
-		this.parent = parent;
-	}
 
 	/**
 	 * position in respective type array in each record
@@ -73,7 +65,7 @@ public class Field {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(aggregationMode, calculated, id, parent, position, type, width);
+		return Objects.hash(aggregationMode, calculated, id, position, type, width);
 	}
 
 	@Override
@@ -85,7 +77,7 @@ public class Field {
 		if (getClass() != obj.getClass())
 			return false;
 		Field other = (Field) obj;
-		return aggregationMode == other.aggregationMode && Objects.equals(calculated, other.calculated) && Objects.equals(id, other.id) && Objects.equals(parent, other.parent) && position == other.position && type == other.type && width == other.width;
+		return aggregationMode == other.aggregationMode && Objects.equals(calculated, other.calculated) && Objects.equals(id, other.id) && position == other.position && type == other.type && width == other.width;
 	}
 
 	public Object toString(DBRecord r) {

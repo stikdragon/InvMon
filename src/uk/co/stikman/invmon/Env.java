@@ -58,9 +58,9 @@ public class Env {
 		} catch (IOException e) {
 			throw new InvMonException("Failed to load config: " + e.getMessage(), e);
 		}
-
+		
 		model = new DataModel();
-		try (InputStream is = getClass().getResourceAsStream("model.xml")) {
+		try (InputStream is = getClass().getResourceAsStream(config.getModel() == SystemModel.SINGLE ? "model.xml" : "parallelModel.xml")) {
 			model.loadXML(is);
 		} catch (IOException e) {
 			throw new InvMonException("Failed to load model: " + e.getMessage(), e);
