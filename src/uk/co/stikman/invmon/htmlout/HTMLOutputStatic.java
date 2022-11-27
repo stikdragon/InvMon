@@ -21,7 +21,7 @@ public class HTMLOutputStatic extends InvModule {
 	private File					target;
 	private long					lastT;
 	private DataLogger				datalogger;
-	private static final String[]	COLOURS	= new String[] { "#ff7c7c", "#7cff7c", "#7c7cff", "#ff7cff" };
+	private String					source;
 
 	public HTMLOutputStatic(String id, Env env) {
 		super(id, env);
@@ -30,6 +30,7 @@ public class HTMLOutputStatic extends InvModule {
 	@Override
 	public void configure(Element config) {
 		this.target = new File(InvUtil.getAttrib(config, "target"));
+		this.source = InvUtil.getAttrib(config, "sourceData");
 	}
 
 	@Override
@@ -44,7 +45,7 @@ public class HTMLOutputStatic extends InvModule {
 		if (dt > 5000) {
 			HTMLBuilder html = new HTMLBuilder();
 			try (FileOutputStream fos = new FileOutputStream(target)) {
-				new HTMLGenerator(datalogger).render(html, data);
+				new HTMLGenerator(datalogger, source).render(html, data);
 				fos.write(html.toString().getBytes(StandardCharsets.UTF_8));
 			} catch (Exception e) {
 				LOGGER.error(e);

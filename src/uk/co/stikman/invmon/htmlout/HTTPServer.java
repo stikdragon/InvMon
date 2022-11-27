@@ -27,6 +27,8 @@ public class HTTPServer extends InvModule {
 	private int						port;
 	private Svr						svr;
 	private PollData				lastData;
+	private String source;
+	
 
 	public HTTPServer(String id, Env env) {
 		super(id, env);
@@ -35,6 +37,7 @@ public class HTTPServer extends InvModule {
 	@Override
 	public void configure(Element config) {
 		this.port = Integer.parseInt(InvUtil.getAttrib(config, "port"));
+		this.source = InvUtil.getAttrib(config, "sourceData");
 	}
 
 	@Override
@@ -71,7 +74,7 @@ public class HTTPServer extends InvModule {
 				opts.setOffset(offset == null ? 0 : Long.parseLong(offset));
 
 				HTMLBuilder html = new HTMLBuilder();
-				new HTMLGenerator(datalogger).render(html, opts, lastData);
+				new HTMLGenerator(datalogger, source).render(html, opts, lastData);
 				return NanoHTTPD.newFixedLengthResponse(Status.OK, "text/html", html.toString());
 			} else {
 				Res r = Res.get(session.getUri().substring(1));

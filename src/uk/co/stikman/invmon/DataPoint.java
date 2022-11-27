@@ -2,10 +2,12 @@ package uk.co.stikman.invmon;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import uk.co.stikman.invmon.datamodel.Field;
 import uk.co.stikman.invmon.datamodel.FieldVIF;
 import uk.co.stikman.invmon.datamodel.VIFReading;
+import uk.co.stikman.table.DataTable;
 
 /**
  * a general purpose data point, contains a bunch of values associated with
@@ -69,7 +71,7 @@ public class DataPoint {
 		return x.toString();
 	}
 
-	public VIFReading get(FieldVIF vif) {
+	public VIFReading getVIF(FieldVIF vif) {
 		nonull(vif);
 		float v = vif.getV() != null ? getFloat(vif.getV()) : 0.0f;
 		float i = vif.getI() != null ? getFloat(vif.getI()) : 0.0f;
@@ -88,6 +90,15 @@ public class DataPoint {
 
 	public Map<Field, Object> getValues() {
 		return values;
+	}
+
+	@Override
+	public String toString() {
+		DataTable dt = new DataTable();
+		dt.addFields("Field", "Value");
+		for (Entry<Field, Object> e : values.entrySet())
+			dt.addRecord(e.getKey().getId(), e.getValue().getClass().getSimpleName() + ": " + e.getValue().toString());
+		return dt.toString();
 	}
 
 }

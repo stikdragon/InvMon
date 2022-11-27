@@ -2,7 +2,6 @@ package uk.co.stikman.invmon;
 
 import org.w3c.dom.Element;
 
-import uk.co.stikman.eventbus.Subscribe;
 import uk.co.stikman.invmon.datamodel.DataModel;
 import uk.co.stikman.invmon.datamodel.Field;
 import uk.co.stikman.invmon.datamodel.FieldVIF;
@@ -10,7 +9,7 @@ import uk.co.stikman.invmon.datamodel.InverterMode;
 import uk.co.stikman.invmon.inverter.BatteryChargeStage;
 import uk.co.stikman.log.StikLog;
 
-public class FakeInverterMonitor extends InvModule {
+public class FakeInverterMonitor extends InverterMonitor {
 	private static final StikLog	LOGGER	= StikLog.getLogger(FakeInverterMonitor.class);
 
 	private Field					fieldMode;
@@ -26,6 +25,8 @@ public class FakeInverterMonitor extends InvModule {
 	private Field					fieldMisc;
 	private Field					fieldPv1P;
 	private Field					fieldPv2P;
+
+	private boolean grouped;
 
 	public FakeInverterMonitor(String id, Env env) {
 		super(id, env);
@@ -55,11 +56,11 @@ public class FakeInverterMonitor extends InvModule {
 		fieldMisc = model.get("MISC");
 	}
 
-	@Subscribe(Events.POLL_SOURCES)
-	public void poll(PollData data) {
-		DataPoint dp = new DataPoint(data.getTimestamp());
-		data.add(getId(), dp);
 
+	
+	@Override
+	public DataPoint createDataPoint(long ts) {
+		DataPoint dp = new DataPoint(ts);
 		dp.put(fieldMode, InverterMode.CHARGING);
 		dp.put(fieldChargeState, BatteryChargeStage.CHARGE_FLOAT);
 		dp.put(fieldBattery, 50.2f + rand(10f), rand(90f), 0f);
@@ -73,6 +74,7 @@ public class FakeInverterMonitor extends InvModule {
 		dp.put(fieldLoadPF, rand(1.0f));
 		dp.put(fieldStateOfCharge, 0.52f + rand(0.5f));
 		dp.put(fieldMisc, "misc");
+		return dp;
 	}
 
 	private float rand(float f) {
@@ -82,6 +84,16 @@ public class FakeInverterMonitor extends InvModule {
 	@Override
 	public void terminate() {
 		super.terminate();
+	}
+
+	@Override
+	public void setGrouped(boolean b) {
+		this.grouped = b;
+	}
+
+	@Override
+	public boolean isGrouped() {
+		return grouped;
 	}
 
 }

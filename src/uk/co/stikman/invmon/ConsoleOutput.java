@@ -79,7 +79,7 @@ public class ConsoleOutput extends InvModule {
 		output.hideCursor();
 
 		DataPoint rec = data.get("invA");
-		VIFReading battvif = rec.get(fieldBattery);
+		VIFReading battvif = rec.getVIF(fieldBattery);
 		output.moveTopLeft();
 		output.print("        Battery: ").printFloat(battvif.getV(), 2, 1, "V").print(" (").printFloat(rec.getFloat(fieldStateOfCharge) * 100.0f, 2, 1, "%").print(")").spaces(4).newline();
 		String colour = "";
@@ -101,7 +101,7 @@ public class ConsoleOutput extends InvModule {
 			s += " - " + rec.getEnum(fieldChargeState, BatteryChargeStage.class).name().replaceFirst("CHARGE_", "");
 		output.print("Battery current: ").printFloat(Math.abs(battvif.getI()), 2, 1, "A").print("  [ ").color(colour).print(s).reset().print(" ]").spaces(4).newline();
 		float pf = rec.getFloat(fieldLoadPF);
-		VIFReading loadvif = rec.get(fieldLoad);
+		VIFReading loadvif = rec.getVIF(fieldLoad);
 		output.print("           Load: ").printInt(loadvif.getP(), 5, "W").print(" (active: ").printInt(loadvif.getP() * pf, 5, "W").print(" PF: ").printFloat(pf, 1, 2).print(")").spaces(4).newline();
 
 		//

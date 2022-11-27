@@ -20,13 +20,14 @@ import uk.co.stikman.log.StikLog;
 
 public class HTMLGenerator {
 	private static final StikLog	LOGGER			= StikLog.getLogger(HTMLGenerator.class);
-	private static final String[]	COLOURS			= new String[] { "#ff7c7c", "#7cff7c", "#7c7cff", "#ff7cff" };
 	private DataLogger				source;
 	private static final long[]		TIMESCALES		= new long[] { 5, 30, 60, 2 * 60, 12 * 60, 24 * 60, 5 * 24 * 60, 30 * 24 * 60 };
 	private static final int[]		TIMESCALE_TYPE	= new int[] { 0, 0, 1, 1, 1, 1, 2, 2 };											// min, hour, day
+	private String					sourceDataRef;
 
-	public HTMLGenerator(DataLogger datalogger) {
+	public HTMLGenerator(DataLogger datalogger, String sourceRef) {
 		this.source = datalogger;
+		this.sourceDataRef = sourceRef;
 	}
 
 	public void render(HTMLBuilder html, PollData data) throws MiniDbException {
@@ -79,10 +80,10 @@ public class HTMLGenerator {
 		add(flds, "INV_BUS_V");
 		QueryResults qr = getQueryResults(start, end, flds, 120);
 
-		DataPoint dp = data.get("invA");
+		DataPoint dp = data.get(sourceDataRef);
 
-		VIFReading vif1 = dp.get(source.getEnv().getModel().getVIF("PV1"));
-		VIFReading vif2 = dp.get(source.getEnv().getModel().getVIF("PV2"));
+		VIFReading vif1 = dp.getVIF(source.getEnv().getModel().getVIF("PV1"));
+		VIFReading vif2 = dp.getVIF(source.getEnv().getModel().getVIF("PV2"));
 
 		html.append("<div>").div("sect").append("<div class=\"hdr\"><h1>PV Power</h1>");
 		renderGrp(html, "<div class=\"grp\">PV1: [%d]W ([%.2f]V @ [%.2f]A)</div>", (int) vif1.getP(), vif1.getV(), vif1.getI());
@@ -93,7 +94,7 @@ public class HTMLGenerator {
 		html.append("</div></div>");
 
 		html.append("<div>").div("sect").append("<div class=\"hdr\"><h1>Load</h1>");
-		vif1 = dp.get(source.getEnv().getModel().getVIF("LOAD"));
+		vif1 = dp.getVIF(source.getEnv().getModel().getVIF("LOAD"));
 		renderGrp(html, "<div class=\"grp\">Load: [%d]W ([%.2f]V @ [%.2f]A)</div>", (int) vif1.getP(), vif1.getV(), vif1.getI());
 		float pf = dp.getFloat(source.getEnv().getModel().get("LOAD_PF"));
 		renderGrp(html, "<div class=\"grp\">PF: [%.2f] (Real Power: [%d]W @ [%.2f]A)</div>", pf, (int) (vif1.getP() * pf), vif1.getI() * pf);
@@ -102,7 +103,7 @@ public class HTMLGenerator {
 		html.append("</div></div>");
 
 		html.append("<div>").div("sect").append("<div class=\"hdr\"><h1>Battery Current</h1>");
-		vif1 = dp.get(source.getEnv().getModel().getVIF("BATT"));
+		vif1 = dp.getVIF(source.getEnv().getModel().getVIF("BATT"));
 		renderVIF(html, "Batt", vif1).append("</div>");
 		renderBatteryChart(html, opts, qr);
 		html.append("</div></div>");

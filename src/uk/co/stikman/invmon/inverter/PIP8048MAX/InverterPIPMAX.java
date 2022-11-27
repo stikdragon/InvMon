@@ -6,13 +6,10 @@ import org.w3c.dom.Element;
 
 import com.fazecast.jSerialComm.SerialPort;
 
-import uk.co.stikman.eventbus.Subscribe;
 import uk.co.stikman.invmon.DataPoint;
 import uk.co.stikman.invmon.Env;
-import uk.co.stikman.invmon.Events;
-import uk.co.stikman.invmon.InvModule;
 import uk.co.stikman.invmon.InvMonException;
-import uk.co.stikman.invmon.PollData;
+import uk.co.stikman.invmon.InverterMonitor;
 import uk.co.stikman.invmon.datamodel.DataModel;
 import uk.co.stikman.invmon.datamodel.Field;
 import uk.co.stikman.invmon.datamodel.FieldVIF;
@@ -21,10 +18,11 @@ import uk.co.stikman.invmon.inverter.InvUtil;
 import uk.co.stikman.log.StikLog;
 import uk.co.stikman.table.DataTable;
 
-public class InverterPIPMAX extends InvModule {
+public class InverterPIPMAX extends InverterMonitor {
 	private static final StikLog	LOGGER	= StikLog.getLogger(InverterPIPMAX.class);
 	private PIP8048MAX				inv;
 	private SerialPort				port;
+	private boolean					grouped;
 
 	private Field					fieldMode;
 	private Field					fieldChargeState;
@@ -44,8 +42,8 @@ public class InverterPIPMAX extends InvModule {
 		super(id, env);
 	}
 
-	@Subscribe(Events.POLL_SOURCES)
-	public void poll(PollData data) {
+	@Override
+	public DataPoint createDataPoint(long ts) {
 		DeviceStatus sts = inv.getStatus();
 		float current = sts.getBatteryChargeI();
 		boolean charging = true;
@@ -56,8 +54,7 @@ public class InverterPIPMAX extends InvModule {
 
 		float pf = sts.getOutputApparentP() == 0 ? 0.0f : (float) sts.getOutputActiveP() / sts.getOutputApparentP();
 
-		DataPoint dp = new DataPoint(data.getTimestamp());
-		data.add(getId(), dp);
+		DataPoint dp = new DataPoint(ts);
 
 		dp.put(fieldMode, charging ? InverterMode.CHARGING : InverterMode.DISCHARGING);
 		dp.put(fieldChargeState, sts.getBatteryChargeStage());
@@ -73,7 +70,7 @@ public class InverterPIPMAX extends InvModule {
 		dp.put(fieldLoadPF, pf);
 		dp.put(fieldStateOfCharge, (float) sts.getBatteryCapacity() / 100.0f);
 		dp.put(fieldMisc, sts.getDeviceStatus() + " / " + sts.getDeviceStatus2());
-
+		return dp;
 	}
 
 	@Override
@@ -139,6 +136,16 @@ public class InverterPIPMAX extends InvModule {
 	public void terminate() {
 		inv.close();
 		super.terminate();
+	}
+
+	@Override
+	public void setGrouped(boolean b) {
+		this.grouped = b;
+	}
+
+	@Override
+	public boolean isGrouped() {
+		return grouped;
 	}
 
 }

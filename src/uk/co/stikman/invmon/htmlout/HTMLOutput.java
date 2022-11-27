@@ -27,7 +27,6 @@ public class HTMLOutput extends InvModule {
 	private File					target;
 	private long					lastT;
 	private DataLogger				datalogger;
-	private static final String[]	COLOURS	= new String[] { "#ff7c7c", "#7cff7c", "#7c7cff", "#ff7cff" };
 
 	public HTMLOutput(String id, Env env) {
 		super(id, env);
