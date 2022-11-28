@@ -21,15 +21,17 @@ public class ConsoleOutput extends InvModule {
 
 	private Field				fieldMode;
 	private Field				fieldChargeState;
-	private FieldVIF			fieldBattery;
 	private FieldVIF			fieldLoad;
 	private List<FieldVIF>		fieldPv		= new ArrayList<>();
-	private Field				fieldTemperature;
 	private Field				fieldBusVoltage;
 	private Field				fieldLoadPF;
 	private Field				fieldStateOfCharge;
 	private Field				fieldMisc;
 	private boolean				enabledControlCodes;
+	private Field				fieldTemperature1;
+	private Field				fieldTemperature2;
+	private Field fieldBatteryV;
+	private Field fieldBatteryI;
 
 	public ConsoleOutput(String id, Env env) {
 		super(id, env);
@@ -47,14 +49,16 @@ public class ConsoleOutput extends InvModule {
 		DataModel model = getEnv().getModel();
 		fieldMode = model.get("INV_MODE");
 		fieldChargeState = model.get("BATT_MODE");
-		fieldBattery = model.getVIF("BATT");
+		fieldBatteryV = model.get("BATT_V");
+		fieldBatteryI = model.get("BATT_I");
 		fieldLoad = model.getVIF("LOAD");
 
 		for (Field f : model)
 			if (f.getId().matches("PV[0-9]+_V"))
 				fieldPv.add(model.getVIF(f.getId().substring(0, f.getId().length() - 2)));
-		fieldTemperature = model.get("INV_TEMP");
-		fieldBusVoltage = model.get("INV_BUS_V");
+		fieldTemperature1 = model.get("INV_1_TEMP");
+		fieldTemperature2 = model.get("INV_2_TEMP");
+		fieldBusVoltage = model.get("INV_1_BUS_V");
 		fieldLoadPF = model.get("LOAD_PF");
 		fieldStateOfCharge = model.get("BATT_SOC");
 		fieldMisc = model.get("MISC");
@@ -79,9 +83,10 @@ public class ConsoleOutput extends InvModule {
 		output.hideCursor();
 
 		DataPoint rec = data.get("invA");
-		VIFReading battvif = rec.getVIF(fieldBattery);
+		float battv = rec.getFloat(fieldBatteryV);
+		float batti = rec.getFloat(fieldBatteryI);
 		output.moveTopLeft();
-		output.print("        Battery: ").printFloat(battvif.getV(), 2, 1, "V").print(" (").printFloat(rec.getFloat(fieldStateOfCharge) * 100.0f, 2, 1, "%").print(")").spaces(4).newline();
+		output.print("        Battery: ").printFloat(battv, 2, 1, "V").print(" (").printFloat(rec.getFloat(fieldStateOfCharge) * 100.0f, 2, 1, "%").print(")").spaces(4).newline();
 		String colour = "";
 		InverterMode mode = rec.getEnum(fieldMode, InverterMode.class);
 		switch (mode) {
@@ -99,7 +104,7 @@ public class ConsoleOutput extends InvModule {
 		String s = mode.name();
 		if (mode == InverterMode.CHARGING)
 			s += " - " + rec.getEnum(fieldChargeState, BatteryChargeStage.class).name().replaceFirst("CHARGE_", "");
-		output.print("Battery current: ").printFloat(Math.abs(battvif.getI()), 2, 1, "A").print("  [ ").color(colour).print(s).reset().print(" ]").spaces(4).newline();
+		output.print("Battery current: ").printFloat(Math.abs(batti), 2, 1, "A").print("  [ ").color(colour).print(s).reset().print(" ]").spaces(4).newline();
 		float pf = rec.getFloat(fieldLoadPF);
 		VIFReading loadvif = rec.getVIF(fieldLoad);
 		output.print("           Load: ").printInt(loadvif.getP(), 5, "W").print(" (active: ").printInt(loadvif.getP() * pf, 5, "W").print(" PF: ").printFloat(pf, 1, 2).print(")").spaces(4).newline();
@@ -116,7 +121,7 @@ public class ConsoleOutput extends InvModule {
 		}
 		output.print("       PV Total: ").printInt(totp, 5, "W").spaces(4).newline();
 
-		output.print("    Temperature: ").printFloat(rec.getFloat(fieldTemperature), 2, 1, "C").spaces(4).newline();
+		output.print("    Temperature: ").printFloat(Math.max(rec.getFloat(fieldTemperature1), rec.getFloat(fieldTemperature2)), 2, 1, "C").spaces(4).newline();
 		output.print("    Bus Voltage: ").printInt(rec.getFloat(fieldBusVoltage), 3, "V").spaces(4).newline();
 
 		output.print("       Status1 : ").color(ConsoleTextOutput.BRIGHT_PURPLE).print(rec.getString(fieldMisc)).reset().spaces(4).newline();

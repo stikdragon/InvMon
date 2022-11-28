@@ -65,6 +65,7 @@ public class Env {
 		} catch (IOException e) {
 			throw new InvMonException("Failed to load model: " + e.getMessage(), e);
 		}
+		
 
 		for (InvModDefinition def : config.getThings()) {
 			try {

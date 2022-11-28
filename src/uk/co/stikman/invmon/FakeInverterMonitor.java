@@ -14,8 +14,6 @@ public class FakeInverterMonitor extends InverterMonitor {
 
 	private Field					fieldMode;
 	private Field					fieldChargeState;
-	private FieldVIF				fieldBattery;
-	private FieldVIF				fieldLoad;
 	private FieldVIF				fieldPv1;
 	private FieldVIF				fieldPv2;
 	private Field					fieldTemperature;
@@ -25,8 +23,12 @@ public class FakeInverterMonitor extends InverterMonitor {
 	private Field					fieldMisc;
 	private Field					fieldPv1P;
 	private Field					fieldPv2P;
+	private Field					fieldLoadV;
+	private Field					fieldLoadI;
+	private Field					fieldBattV;
+	private Field					fieldBattI;
 
-	private boolean grouped;
+	private boolean					grouped;
 
 	public FakeInverterMonitor(String id, Env env) {
 		super(id, env);
@@ -43,28 +45,30 @@ public class FakeInverterMonitor extends InverterMonitor {
 		DataModel model = getEnv().getModel();
 		fieldMode = model.get("INV_MODE");
 		fieldChargeState = model.get("BATT_MODE");
-		fieldBattery = model.getVIF("BATT");
-		fieldLoad = model.getVIF("LOAD");
-		fieldPv1 = model.getVIF("PV1");
-		fieldPv2 = model.getVIF("PV2");
-		fieldPv1P = model.get("PV1_P");
-		fieldPv2P = model.get("PV2_P");
-		fieldTemperature = model.get("INV_TEMP");
-		fieldBusVoltage = model.get("INV_BUS_V");
+		fieldBattV = model.get("BATT_V");
+		fieldBattI = model.get("BATT_I_1");
+		fieldLoadV = model.get("LOAD_V");
+		fieldLoadI = model.get("LOAD_1_I");
 		fieldLoadPF = model.get("LOAD_PF");
+		fieldPv1 = model.getVIF("PVA_1");
+		fieldPv2 = model.getVIF("PVB_1");
+		fieldPv1P = model.get("PVA_1_P");
+		fieldPv2P = model.get("PVB_1_P");
+		fieldTemperature = model.get("INV_1_TEMP");
+		fieldBusVoltage = model.get("INV_1_BUS_V");
 		fieldStateOfCharge = model.get("BATT_SOC");
 		fieldMisc = model.get("MISC");
 	}
 
-
-	
 	@Override
 	public DataPoint createDataPoint(long ts) {
 		DataPoint dp = new DataPoint(ts);
 		dp.put(fieldMode, InverterMode.CHARGING);
 		dp.put(fieldChargeState, BatteryChargeStage.CHARGE_FLOAT);
-		dp.put(fieldBattery, 50.2f + rand(10f), rand(90f), 0f);
-		dp.put(fieldLoad, 230.0f + rand(10f), 1.45f + rand(3f), 50.0f);
+		dp.put(fieldBattI, rand(90f));
+		dp.put(fieldBattV, 50f + rand(20f));
+		dp.put(fieldLoadI, 1.45f + rand(3f));
+		dp.put(fieldLoadV, 230.0f + rand(10f));
 		dp.put(fieldPv1, 304f + rand(40f), 4.0f + rand(7f), 0);
 		dp.put(fieldPv2, 304f + rand(40f), 4.0f + rand(7f), 0);
 		dp.put(fieldPv1P, rand(1000) + 500);

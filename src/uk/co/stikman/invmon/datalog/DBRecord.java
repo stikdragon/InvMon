@@ -33,18 +33,18 @@ public class DBRecord {
 	}
 
 	public void setFloat(Field field, float f) {
-//		checkFieldType(field, FieldDataType.FLOAT);
+		//		checkFieldType(field, FieldDataType.FLOAT);
 		floats[field.getPosition()] = f;
 	}
 
 	public void setInt(Field field, int n) {
-//		checkFieldType(field, FieldDataType.INT);
+		//		checkFieldType(field, FieldDataType.INT);
 		ints[field.getPosition()] = n;
 	}
 
 	public void setString(Field field, String s) {
-//		checkFieldType(field, FieldDataType.STRING);
-		strings[field.getPosition()] = s;
+		//		checkFieldType(field, FieldDataType.STRING);
+		strings[field.getPosition()] = s.intern();
 	}
 
 	private static void checkFieldType(Field f, FieldDataType typ) {
@@ -53,23 +53,23 @@ public class DBRecord {
 	}
 
 	public float getFloat(Field field) {
-//		checkFieldType(field, FieldDataType.FLOAT);
+		//		checkFieldType(field, FieldDataType.FLOAT);
 		//
 		// calculate fields if necessary
 		//
-		if (field.getCalculationMethod() != null)
-			return field.getCalculationMethod().calc(this);
-		else
-			return floats[field.getPosition()];
+		//		if (field.getCalculationMethod() != null)
+		//			return field.getCalculationMethod().calc(this);
+		//		else
+		return floats[field.getPosition()];
 	}
 
 	public String getString(Field field) {
-//		checkFieldType(field, FieldDataType.STRING);
+		//		checkFieldType(field, FieldDataType.STRING);
 		return strings[field.getPosition()];
 	}
 
 	public int getInt(Field field) {
-//		checkFieldType(field, FieldDataType.INT);
+		//		checkFieldType(field, FieldDataType.INT);
 		return ints[field.getPosition()];
 	}
 
@@ -128,7 +128,7 @@ public class DBRecord {
 					int a = dis.read();
 					byte[] b = new byte[a];
 					dis.readFully(b);
-					strings[i3++] = new String(b, StandardCharsets.ISO_8859_1);
+					strings[i3++] = new String(b, StandardCharsets.ISO_8859_1).intern();
 					break;
 			}
 		}

@@ -46,7 +46,7 @@ public class QueryResults {
 	}
 
 	public QueryRecord addRecord() {
-		QueryRecord r = new QueryRecord();
+		QueryRecord r = new QueryRecord(this);
 		for (Field f : fields) {
 			switch (f.getType()) {
 				case CURRENT:
@@ -81,6 +81,16 @@ public class QueryResults {
 			++i;
 		}
 		throw new NoSuchElementException("Field not found: " + name);
+	}
+
+	public int findFieldIndex(String name) {
+		int i = 0;
+		for (Field f : fields) {
+			if (name.equals(f.getId()))
+				return i;
+			++i;
+		}
+		return -1;
 	}
 
 	public long getStart() {

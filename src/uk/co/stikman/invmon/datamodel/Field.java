@@ -3,6 +3,7 @@ package uk.co.stikman.invmon.datamodel;
 import java.util.Objects;
 
 import uk.co.stikman.invmon.datalog.DBRecord;
+import uk.co.stikman.invmon.datalog.QueryRecord;
 import uk.co.stikman.invmon.datamodel.expr.CalcMethod;
 
 public class Field {
@@ -43,7 +44,6 @@ public class Field {
 	public void setAggregationMode(AggregationMode aggregationMode) {
 		this.aggregationMode = aggregationMode;
 	}
-
 
 	/**
 	 * position in respective type array in each record
@@ -122,6 +122,12 @@ public class Field {
 	@Override
 	public String toString() {
 		return id;
+	}
+
+	public float getFloat(QueryRecord rec) {
+		if (this.getDataType() == FieldDataType.FLOAT)
+			return rec.getFloat(position);
+		throw new IllegalArgumentException("Not a float");
 	}
 
 }

@@ -9,7 +9,7 @@
             <FakeInverter id="invB" />
         </PIP8048MAXParallelGroup>
     
-        <!-- <ConsoleOutput id="console" controlCodes="false" /> -->
+<!--          <ConsoleOutput id="console" controlCodes="false" /> --> 
 
         <!-- <TempHTMLOutput id="htmlout" target="junk\inv.html" /> -->
 

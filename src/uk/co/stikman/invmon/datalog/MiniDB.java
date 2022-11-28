@@ -36,7 +36,7 @@ public class MiniDB {
 	private IndexFile				index;
 	private List<Block>				blocks				= new ArrayList<>();
 	private int						recordCount			= 0;
-	private int						maxCachedBlocks		= 4;
+	private int						maxCachedBlocks		= 1;
 	private final int				blockSize;
 	private Set<Block>				open				= new HashSet<>();
 
@@ -157,6 +157,12 @@ public class MiniDB {
 	}
 
 	public void commitRecord(DBRecord rec) throws MiniDbException {
+		//
+		// calculate fields
+		//
+		for (Field f : model.getCalculatedFields()) 
+			rec.setFloat(f, f.getCalculationMethod().calc(rec));
+
 		//
 		// see if it'll fit in the current block
 		//
@@ -394,7 +400,7 @@ public class MiniDB {
 	 * @throws ModelChangeException
 	 * @throws MiniDbException
 	 * @throws IOException
-	 * @throws InvMonException 
+	 * @throws InvMonException
 	 */
 	public void rename(File file) throws MiniDbException, ModelChangeException, IOException, InvMonException {
 		if (isOpen())
@@ -415,6 +421,10 @@ public class MiniDB {
 
 		for (Entry<File, File> pair : pairs.entrySet())
 			pair.getKey().renameTo(pair.getValue());
+	}
+
+	public int getOpenBlocks() {
+		return open.size();
 	}
 
 }

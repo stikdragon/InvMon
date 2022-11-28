@@ -22,6 +22,7 @@ import uk.co.stikman.invmon.datamodel.Field;
 import uk.co.stikman.invmon.datamodel.FieldVIF;
 import uk.co.stikman.invmon.datamodel.InverterMode;
 import uk.co.stikman.invmon.inverter.InvUtil;
+import uk.co.stikman.table.DataField;
 
 public class PIP8048MAXParallelGroup extends InvModule {
 
@@ -30,19 +31,19 @@ public class PIP8048MAXParallelGroup extends InvModule {
 
 	private Field							fieldMode;
 	private Field							fieldChargeState;
-	private FieldVIF						fieldLoad;
-	private FieldVIF						fieldPv1;
-	private FieldVIF						fieldPv2;
-	private Field							fieldTemperature;
-	private Field							fieldBusVoltage;
+	private FieldVIF[]						fieldPvA;
+	private FieldVIF[]						fieldPvB;
+	private Field[]							fieldTemperature;
+	private Field[]							fieldBusVoltage;
 	private Field							fieldLoadPF;
 	private Field							fieldStateOfCharge;
 	private Field							fieldMisc;
-	private Field							fieldPv1P;
-	private Field							fieldPv2P;
+	private Field[]							fieldPvAP;
+	private Field[]							fieldPvBP;
 	private Field							fieldBattV;
-	private Field							fieldBattI1;
-	private Field							fieldBattI2;
+	private Field[]							fieldBattI;
+	private Field							fieldLoadV;
+	private Field[]							fieldLoadI;
 
 	public PIP8048MAXParallelGroup(String id, Env env) {
 		super(id, env);
@@ -63,8 +64,8 @@ public class PIP8048MAXParallelGroup extends InvModule {
 			childDefs.add(def);
 		}
 
-		if (childDefs.size() != 2)
-			throw new InvMonException("Not supported: Currently only capable of tracking two inverters");
+		if (childDefs.size() < 2)
+			throw new InvMonException("Requires at least one inverter");
 	}
 
 	@Subscribe(Events.POLL_SOURCES)
@@ -77,7 +78,6 @@ public class PIP8048MAXParallelGroup extends InvModule {
 		for (InverterMonitor x : children)
 			in.add(x.createDataPoint(data.getTimestamp()));
 		DataPoint first = in.get(0);
-		DataPoint second = in.get(1);
 
 		//
 		// fields that we get frmo the first one
@@ -85,94 +85,25 @@ public class PIP8048MAXParallelGroup extends InvModule {
 		out.put(fieldMode, first.getString(fieldMode));
 		out.put(fieldChargeState, first.getString(fieldChargeState));
 		out.put(fieldStateOfCharge, first.getFloat(fieldStateOfCharge));
+		out.put(fieldBattV, first.getFloat(fieldBattV));
+		out.put(fieldMisc, first.getString(fieldMisc));
+		out.put(fieldLoadV, first.getFloat(fieldLoadV));
+		out.put(fieldLoadPF, first.getFloat(fieldLoadPF));
 
 		//
-		// these need aggregating in some way
+		// these are separate for each inverter
 		//
-//		out.put(fieldBattV, first.getFloat(fieldBattI1) sts.getBatteryV(), charging ? sts.getBatteryChargeI() : -sts.getBatteryDischargeI(), 0);
-//		float maxp = Math.max(sts.getOutputActiveP(), sts.getOutputApparentP());
-//		out.put(fieldLoad, sts.getOutputV(), maxp / sts.getOutputV(), sts.getOutputF());
-//
-//		//
-//		// these are separate for each inverter
-//		//
-//		out.put(fieldBattI1, maxp)
-//		out.put(fieldTemperature, sts.getInverterTemp());
-//		out.put(fieldBusVoltage, sts.getBusV());
-//		out.put(fieldLoadPF, pf);
-//		out.put(fieldMisc, sts.getDeviceStatus() + " / " + sts.getDeviceStatus2());
-//
-//		out.put(fieldPv1, sts.getPv1V(), sts.getPv1I(), 0);
-//		out.put(fieldPv2, sts.getPv2V(), sts.getPv2I(), 0);
-//		out.put(fieldPv1P, sts.getPv1V() * sts.getPv1I());
-//		out.put(fieldPv2P, sts.getPv2V() * sts.getPv2I());
-
-		//
-		// so they should all have the same set of fields, we can group them
-		// together
-		// oooooooh this is a mess
-		//
-//		DataPoint first = in.get(0);
-		for (Entry<Field, Object> e : first.getValues().entrySet())
-			out.put(e.getKey(), e.getValue());
+		int idx = 0;
 		for (DataPoint dp : in) {
-			if (dp == first)
-				continue;
-
-			for (Entry<Field, Object> e : first.getValues().entrySet()) {
-				Object val = out.getValues().get(e.getKey());
-				switch (e.getKey().getType()) {
-					case CURRENT:
-					case POWER:
-						out.getValues().put(e.getKey(), ((Number) val).floatValue() + ((Number) e.getValue()).floatValue());
-						break;
-					case VOLTAGE: // max
-						out.getValues().put(e.getKey(), Math.max(((Number) val).floatValue(), ((Number) e.getValue()).floatValue()));
-						break;
-					case FREQ: // first (ie. do nothing)
-					case STRING:
-					case TIMESTAMP:
-						break;
-
-					case FLOAT: // check the aggregation method
-						if (e.getKey().getAggregationMode() != AggregationMode.MEAN)
-							throw new RuntimeException("I have not implemented this yet");
-						out.getValues().put(e.getKey(), ((Number) val).floatValue() + ((Number) e.getValue()).floatValue());
-						break;
-					case INT:
-						if (e.getKey().getAggregationMode() != AggregationMode.MEAN)
-							throw new RuntimeException("I have not implemented this yet");
-						out.getValues().put(e.getKey(), ((Number) val).intValue() + ((Number) e.getValue()).intValue());
-						break;
-					default:
-						throw new RuntimeException("I have not implemented this yet");
-				}
-			}
-		}
-
-		//
-		// now sort out averages
-		//
-		int N = in.size();
-		for (Entry<Field, Object> e : first.getValues().entrySet()) {
-			Object val = out.getValues().get(e.getKey());
-			switch (e.getKey().getType()) {
-				case CURRENT:
-				case POWER:
-				case FLOAT:
-					out.getValues().put(e.getKey(), ((Number) val).floatValue() / N);
-					break;
-				case INT:
-					out.getValues().put(e.getKey(), ((Number) val).intValue() / N);
-					break;
-				case VOLTAGE: // max (do nothing)
-				case FREQ: // first (do nothing)
-				case STRING:
-				case TIMESTAMP:
-					break;
-				default:
-					throw new RuntimeException("I have not implemented this yet");
-			}
+			out.put(fieldBattI[idx], dp.getFloat(fieldBattI[0]));
+			out.put(fieldTemperature[idx], dp.getFloat(fieldTemperature[0]));
+			out.put(fieldBusVoltage[idx], dp.getFloat(fieldBusVoltage[0]));
+			out.put(fieldPvA[idx], dp.getVIF(fieldPvA[0]));
+			out.put(fieldPvB[idx], dp.getVIF(fieldPvB[0]));
+			out.put(fieldPvAP[idx], dp.getFloat(fieldPvAP[0]));
+			out.put(fieldPvBP[idx], dp.getFloat(fieldPvBP[0]));
+			out.put(fieldLoadI[idx], dp.getFloat(fieldLoadI[0]));
+			++idx;
 		}
 
 		data.add(getId(), out);
@@ -186,15 +117,27 @@ public class PIP8048MAXParallelGroup extends InvModule {
 		fieldMode = model.get("INV_MODE");
 		fieldChargeState = model.get("BATT_MODE");
 		fieldBattV = model.get("BATT_V");
-		fieldBattI1 = model.get("BATT_I1");
-		fieldBattI2 = model.get("BATT_I2");
-		fieldLoad = model.getVIF("LOAD");
-		fieldPv1 = model.getVIF("PV1");
-		fieldPv2 = model.getVIF("PV2");
-		fieldPv1P = model.get("PV1_P");
-		fieldPv2P = model.get("PV2_P");
-		fieldTemperature = model.get("INV_TEMP");
-		fieldBusVoltage = model.get("INV_BUS_V");
+
+		fieldBattI = new Field[model.getRepeatCount()];
+		fieldTemperature = new Field[model.getRepeatCount()];
+		fieldLoadV = model.get("LOAD_V");
+		fieldLoadI = new Field[model.getRepeatCount()];
+		fieldLoadPF = model.get("LOAD_PF");
+		fieldPvA = new FieldVIF[model.getRepeatCount()];
+		fieldPvB = new FieldVIF[model.getRepeatCount()];
+		fieldPvAP = new Field[model.getRepeatCount()];
+		fieldPvBP = new Field[model.getRepeatCount()];
+		fieldBusVoltage = new Field[model.getRepeatCount()];
+		for (int i = 0; i < model.getRepeatCount(); ++i) {
+			fieldTemperature[i] = model.get("INV_" + (i + 1) + "_TEMP");
+			fieldBattI[i] = model.get("BATT_I_" + (i + 1));
+			fieldPvA[i] = model.getVIF("PVA_" + (i + 1));
+			fieldPvB[i] = model.getVIF("PVB_" + (i + 1));
+			fieldPvAP[i] = model.get("PVA_" + (i + 1) + "_P");
+			fieldPvBP[i] = model.get("PVB_" + (i + 1) + "_P");
+			fieldBusVoltage[i] = model.get("INV_" + (i + 1) + "_BUS_V");
+			fieldLoadI[i] = model.get("LOAD_" + (i + 1) + "_I");
+		}
 		fieldLoadPF = model.get("LOAD_PF");
 		fieldStateOfCharge = model.get("BATT_SOC");
 		fieldMisc = model.get("MISC");

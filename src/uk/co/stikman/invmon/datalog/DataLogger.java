@@ -104,6 +104,7 @@ public class DataLogger extends InvModule {
 					if (System.currentTimeMillis() - lastT > 250) {
 						lastT = System.currentTimeMillis();
 						LOGGER.info("Converting record [" + i + "] of [" + oldDb.getRecordCount() + "]...");
+						LOGGER.info("Open blocks: " + oldDb.getOpenBlocks()  + ",  " + newDb.getOpenBlocks());
 					}
 
 					DBRecord oldR = oldDb.getRecord(i);

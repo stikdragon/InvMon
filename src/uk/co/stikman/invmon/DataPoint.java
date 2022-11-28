@@ -55,6 +55,10 @@ public class DataPoint {
 			values.put(vif.getF(), f);
 	}
 
+	public void put(FieldVIF fields, VIFReading vif) {
+		put(fields, vif.getV(), vif.getI(), vif.getF());
+	}
+
 	public float getFloat(Field f) {
 		nonull(f);
 		Number v = (Number) values.get(f);

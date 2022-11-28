@@ -51,7 +51,7 @@ public class DataModel implements Iterable<Field> {
 
 	public void loadXML(InputStream str) throws IOException, InvMonException {
 		Document doc = InvUtil.loadXML(str);
-		repeatCount = Integer.parseInt(InvUtil.getAttrib(doc.getDocumentElement(), "repeatCount"));
+		repeatCount = Integer.parseInt(InvUtil.getAttrib(doc.getDocumentElement(), "repeatCount", "1"));
 		fieldCounts = new FieldCounts();
 		for (Element el : InvUtil.getElements(doc.getDocumentElement())) {
 			if ("Field".equals(el.getTagName())) {
@@ -118,10 +118,8 @@ public class DataModel implements Iterable<Field> {
 				if (repeat != -1)
 					t = t.replace("$", Integer.toString(repeat));
 				f.setCalculated(t);
-				f.setPosition(fieldCounts.getAndInc(f.getDataType()));
-			} else {
-				f.setPosition(fieldCounts.getAndInc(f.getDataType()));
 			}
+			f.setPosition(fieldCounts.getAndInc(f.getDataType()));
 
 			if (el.hasAttribute("calculatedRepeat")) {
 				if (repeat != -1)
@@ -133,8 +131,8 @@ public class DataModel implements Iterable<Field> {
 					throw new InvMonException("Illegal calcaultedRepeat attrib: " + t);
 				if (!bits[0].matches("\\[.*\\]"))
 					throw new InvMonException("Illegal calcaultedRepeat attrib (invalid field): " + t);
-				if (!bits[1].equals("sum"))
-					throw new InvMonException("Illegal calcaultedRepeat attrib (expected \"sum\"): " + t);
+				if (!bits[1].equals("sum") && !bits[1].equals("avg"))
+					throw new InvMonException("Illegal calcaultedRepeat attrib (expected \"sum\" or \"avg\"): " + t);
 				StringBuilder sb = new StringBuilder();
 				String sep = "";
 				for (int i = 1; i <= repeatCount; ++i) {
@@ -144,6 +142,8 @@ public class DataModel implements Iterable<Field> {
 				}
 				for (int i = 1; i < repeatCount; ++i)
 					sb.append(sep).append("+");
+				if (bits[1].equals("avg")) // divide through by N for an average
+					sb.append(", ").append(repeat).append(", /");
 				f.setCalculated(sb.toString());
 			}
 		}
@@ -197,12 +197,13 @@ public class DataModel implements Iterable<Field> {
 	@Override
 	public String toString() {
 		DataTable dt = new DataTable();
-		dt.addFields("ID", "Type", "Offset", "Position");
+		dt.addFields("ID", "Type", "Offset", "Position", "Calc");
 		fieldList.forEach(f -> {
 			DataRecord r = dt.addRecord();
 			r.setValue(0, f.getId());
 			r.setValue(1, f.getType().name());
 			r.setValue(3, f.getPosition());
+			r.setValue(4, f.getCalculated());
 		});
 		return dt.toString();
 	}
@@ -388,14 +389,12 @@ public class DataModel implements Iterable<Field> {
 		}
 
 		List<Field> output = new ArrayList<>();
-		for (Node root : roots)
+		for (Node root : roots) {
 			walk(root, n -> {
 				output.remove(n.field);
 				output.add(n.field);
 			});
-
-		for (Field f : output)
-			System.out.println(f.toString());
+		}
 
 		return output;
 	}
@@ -421,6 +420,10 @@ public class DataModel implements Iterable<Field> {
 
 	public int getRepeatCount() {
 		return repeatCount;
+	}
+
+	public List<Field> getFields() {
+		return fieldList;
 	}
 
 }
