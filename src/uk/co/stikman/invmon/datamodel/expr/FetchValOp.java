@@ -16,6 +16,8 @@ public class FetchValOp implements CalcOp {
 		stack.push(rec.getFloat(field));
 	}
 
-
+	public Field getField() {
+		return field;
+	}
 
 }

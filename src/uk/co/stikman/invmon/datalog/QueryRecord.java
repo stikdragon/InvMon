@@ -3,9 +3,20 @@ package uk.co.stikman.invmon.datalog;
 import java.util.ArrayList;
 import java.util.List;
 
+import uk.co.stikman.invmon.datamodel.Field;
+import uk.co.stikman.invmon.datamodel.FieldVIF;
+import uk.co.stikman.invmon.datamodel.VIFReading;
+
 public class QueryRecord {
-	private List<Object>	values	= new ArrayList<>();
-	private int				baseRecordCount;
+
+	private final QueryResults	owner;
+	private List<Object>		values	= new ArrayList<>();
+	private int					baseRecordCount;
+
+	public QueryRecord(QueryResults owner) {
+		super();
+		this.owner = owner;
+	}
 
 	public float getFloat(int idx) {
 		return ((Float) values.get(idx)).floatValue();
@@ -56,6 +67,17 @@ public class QueryRecord {
 		if (v == null)
 			return null;
 		return v.toString();
+	}
+
+	public VIFReading getVIF(String name) {
+		int i_v = owner.findFieldIndex(name + "_V");
+		int i_i = owner.findFieldIndex(name + "_I");
+		int i_f = owner.findFieldIndex(name + "_F");
+		return new VIFReading(i_v == -1 ? 0.0f : getFloat(i_v), i_i == -1 ? 0.0f : getFloat(i_i), i_f == -1 ? 0.0f : getFloat(i_f));
+	}
+
+	public float getFloat(String name) {
+		return getFloat(owner.getFieldIndex(name));
 	}
 
 }

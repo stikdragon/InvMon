@@ -6,13 +6,10 @@ import org.w3c.dom.Element;
 
 import com.fazecast.jSerialComm.SerialPort;
 
-import uk.co.stikman.eventbus.Subscribe;
 import uk.co.stikman.invmon.DataPoint;
 import uk.co.stikman.invmon.Env;
-import uk.co.stikman.invmon.Events;
-import uk.co.stikman.invmon.InvModule;
 import uk.co.stikman.invmon.InvMonException;
-import uk.co.stikman.invmon.PollData;
+import uk.co.stikman.invmon.InverterMonitor;
 import uk.co.stikman.invmon.datamodel.DataModel;
 import uk.co.stikman.invmon.datamodel.Field;
 import uk.co.stikman.invmon.datamodel.FieldVIF;
@@ -21,15 +18,13 @@ import uk.co.stikman.invmon.inverter.InvUtil;
 import uk.co.stikman.log.StikLog;
 import uk.co.stikman.table.DataTable;
 
-public class InverterPIPMAX extends InvModule {
+public class InverterPIPMAX extends InverterMonitor {
 	private static final StikLog	LOGGER	= StikLog.getLogger(InverterPIPMAX.class);
 	private PIP8048MAX				inv;
 	private SerialPort				port;
 
 	private Field					fieldMode;
 	private Field					fieldChargeState;
-	private FieldVIF				fieldBattery;
-	private FieldVIF				fieldLoad;
 	private FieldVIF				fieldPv1;
 	private FieldVIF				fieldPv2;
 	private Field					fieldTemperature;
@@ -39,13 +34,19 @@ public class InverterPIPMAX extends InvModule {
 	private Field					fieldMisc;
 	private Field					fieldPv1P;
 	private Field					fieldPv2P;
+	private Field					fieldLoadV;
+	private Field					fieldLoadI;
+	private Field					fieldBattV;
+	private Field					fieldBattI;
+
+	private boolean					grouped;
 
 	public InverterPIPMAX(String id, Env env) {
 		super(id, env);
 	}
 
-	@Subscribe(Events.POLL_SOURCES)
-	public void poll(PollData data) {
+	@Override
+	public DataPoint createDataPoint(long ts) {
 		DeviceStatus sts = inv.getStatus();
 		float current = sts.getBatteryChargeI();
 		boolean charging = true;
@@ -56,14 +57,15 @@ public class InverterPIPMAX extends InvModule {
 
 		float pf = sts.getOutputApparentP() == 0 ? 0.0f : (float) sts.getOutputActiveP() / sts.getOutputApparentP();
 
-		DataPoint dp = new DataPoint(data.getTimestamp());
-		data.add(getId(), dp);
+		DataPoint dp = new DataPoint(ts);
 
 		dp.put(fieldMode, charging ? InverterMode.CHARGING : InverterMode.DISCHARGING);
 		dp.put(fieldChargeState, sts.getBatteryChargeStage());
-		dp.put(fieldBattery, sts.getBatteryV(), charging ? sts.getBatteryChargeI() : -sts.getBatteryDischargeI(), 0);
+		dp.put(fieldBattI, charging ? sts.getBatteryChargeI() : -sts.getBatteryDischargeI());
+		dp.put(fieldBattV, sts.getBatteryV());
 		float maxp = Math.max(sts.getOutputActiveP(), sts.getOutputApparentP());
-		dp.put(fieldLoad, sts.getOutputV(), maxp / sts.getOutputV(), sts.getOutputF());
+		dp.put(fieldLoadI, maxp / sts.getOutputV());
+		dp.put(fieldLoadV, sts.getOutputV());
 		dp.put(fieldPv1, sts.getPv1V(), sts.getPv1I(), 0);
 		dp.put(fieldPv2, sts.getPv2V(), sts.getPv2I(), 0);
 		dp.put(fieldPv1P, sts.getPv1V() * sts.getPv1I());
@@ -73,7 +75,7 @@ public class InverterPIPMAX extends InvModule {
 		dp.put(fieldLoadPF, pf);
 		dp.put(fieldStateOfCharge, (float) sts.getBatteryCapacity() / 100.0f);
 		dp.put(fieldMisc, sts.getDeviceStatus() + " / " + sts.getDeviceStatus2());
-
+		return dp;
 	}
 
 	@Override
@@ -122,15 +124,17 @@ public class InverterPIPMAX extends InvModule {
 		DataModel model = getEnv().getModel();
 		fieldMode = model.get("INV_MODE");
 		fieldChargeState = model.get("BATT_MODE");
-		fieldBattery = model.getVIF("BATT");
-		fieldLoad = model.getVIF("LOAD");
-		fieldPv1 = model.getVIF("PV1");
-		fieldPv2 = model.getVIF("PV2");
-		fieldPv1P = model.get("PV1_P");
-		fieldPv2P = model.get("PV2_P");
-		fieldTemperature = model.get("INV_TEMP");
-		fieldBusVoltage = model.get("INV_BUS_V");
+		fieldBattV = model.get("BATT_V");
+		fieldBattI = model.get("BATT_I_1");
+		fieldLoadV = model.get("LOAD_V");
+		fieldLoadI = model.get("LOAD_1_I");
 		fieldLoadPF = model.get("LOAD_PF");
+		fieldPv1 = model.getVIF("PVA_1");
+		fieldPv2 = model.getVIF("PVB_1");
+		fieldPv1P = model.get("PVA_1_P");
+		fieldPv2P = model.get("PVB_1_P");
+		fieldTemperature = model.get("INV_1_TEMP");
+		fieldBusVoltage = model.get("INV_1_BUS_V");
 		fieldStateOfCharge = model.get("BATT_SOC");
 		fieldMisc = model.get("MISC");
 	}
@@ -139,6 +143,16 @@ public class InverterPIPMAX extends InvModule {
 	public void terminate() {
 		inv.close();
 		super.terminate();
+	}
+
+	@Override
+	public void setGrouped(boolean b) {
+		this.grouped = b;
+	}
+
+	@Override
+	public boolean isGrouped() {
+		return grouped;
 	}
 
 }

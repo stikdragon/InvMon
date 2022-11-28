@@ -1,18 +1,21 @@
 <InvMon>
 
-    <Settings updatePeriod="1000" allowConversion="true" />
+    <Settings updatePeriod="1000" allowConversion="true" model="parallel" parallelCount="2" />
 
     <Modules>
 
-        <FakeInverter id="invA" port="COM8" rate="2000" type="PIP8048MAX" />
+        <PIP8048MAXParallelGroup id="invertergroup1">
+            <FakeInverter id="invA" />
+            <FakeInverter id="invB" />
+        </PIP8048MAXParallelGroup>
     
-        <!-- <ConsoleOutput id="console" controlCodes="false" /> -->
+        <ConsoleOutput id="console" controlCodes="false" />  
 
         <!-- <TempHTMLOutput id="htmlout" target="junk\inv.html" /> -->
 
-        <DataLogger id="datalogger" file="junk\datalog.db" blockSize="400000" />
+        <DataLogger id="datalogger" file="data\datalog.db" blockSize="400000" />
 
-        <HTTPServer id="httpserver" port="8083" />
+        <HTTPServer id="httpserver" port="8083" sourceData="invertergroup1" />
 
         <JSONSend id="sender" destination="localhost" port="28347" key="turnips" user="user1___" logger="datalogger" />
     </Modules>

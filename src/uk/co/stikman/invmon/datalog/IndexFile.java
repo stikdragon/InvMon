@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import uk.co.stikman.invmon.InvMonException;
 import uk.co.stikman.invmon.datamodel.DataModel;
 
 public class IndexFile {
@@ -28,7 +29,7 @@ public class IndexFile {
 		this.file = file;
 	}
 
-	public void open() throws IOException, ModelChangeException {
+	public void open() throws IOException, ModelChangeException, InvMonException {
 		boolean exists = file.exists();
 		if (exists) {
 			try (InputStream is = new BufferedInputStream(new FileInputStream(file))) {
@@ -37,7 +38,7 @@ public class IndexFile {
 		}
 	}
 
-	private void read(InputStream is) throws IOException, ModelChangeException {
+	private void read(InputStream is) throws IOException, ModelChangeException, InvMonException {
 		try (DataInputStream dis = new DataInputStream(is)) {
 			if (dis.readInt() != MAGIC_NUMBER)
 				throw new IOException("Stream is not a database file");

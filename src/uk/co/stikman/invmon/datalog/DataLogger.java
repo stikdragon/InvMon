@@ -104,6 +104,7 @@ public class DataLogger extends InvModule {
 					if (System.currentTimeMillis() - lastT > 250) {
 						lastT = System.currentTimeMillis();
 						LOGGER.info("Converting record [" + i + "] of [" + oldDb.getRecordCount() + "]...");
+						LOGGER.info("Open blocks: " + oldDb.getOpenBlocks()  + ",  " + newDb.getOpenBlocks());
 					}
 
 					DBRecord oldR = oldDb.getRecord(i);
@@ -187,7 +188,7 @@ public class DataLogger extends InvModule {
 			}
 		}
 		db.commitRecord(rec);
-		getEnv().getBus().fire(Events.LOGGER_RECORD_COMMITED, this);
+		getEnv().getBus().fire(Events.LOGGER_RECORD_COMMITED, rec);
 	}
 
 	@Override
@@ -354,6 +355,14 @@ public class DataLogger extends InvModule {
 
 	public int getLastRecordId() throws MiniDbException {
 		return db.getLastRecord().getIndex();
+	}
+
+	public DBRecord getRecord(int i) throws MiniDbException {
+		return db.getRecord(i);
+	}
+
+	public DBRecord getLastRecord() throws MiniDbException {
+		return db.getLastRecord();
 	}
 
 }

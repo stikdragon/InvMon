@@ -13,7 +13,6 @@ import com.fazecast.jSerialComm.SerialPort;
 import uk.co.stikman.eventbus.StringEventBus;
 import uk.co.stikman.invmon.datamodel.DataModel;
 import uk.co.stikman.invmon.inverter.InvUtil;
-import uk.co.stikman.invmon.remote.InvUserError;
 import uk.co.stikman.log.ConsoleLogTarget;
 import uk.co.stikman.log.Level;
 import uk.co.stikman.log.StikLog;
@@ -59,13 +58,14 @@ public class Env {
 		} catch (IOException e) {
 			throw new InvMonException("Failed to load config: " + e.getMessage(), e);
 		}
-
+		
 		model = new DataModel();
-		try (InputStream is = getClass().getResourceAsStream("model.xml")) {
+		try (InputStream is = getClass().getResourceAsStream(config.getModel() == SystemModel.SINGLE ? "model.xml" : "parallelModel.xml")) {
 			model.loadXML(is);
 		} catch (IOException e) {
 			throw new InvMonException("Failed to load model: " + e.getMessage(), e);
 		}
+		
 
 		for (InvModDefinition def : config.getThings()) {
 			try {

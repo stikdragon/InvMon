@@ -15,6 +15,7 @@ import uk.co.stikman.invmon.Env;
 import uk.co.stikman.invmon.Events;
 import uk.co.stikman.invmon.InvModule;
 import uk.co.stikman.invmon.InvMonException;
+import uk.co.stikman.invmon.datalog.DBRecord;
 import uk.co.stikman.invmon.datalog.DataLogger;
 import uk.co.stikman.invmon.inverter.InvUtil;
 import uk.co.stikman.log.StikLog;
@@ -56,10 +57,7 @@ public class JSONSend extends InvModule {
 	}
 
 	@Subscribe(Events.LOGGER_RECORD_COMMITED)
-	public void postData(DataLogger data) {
-		if (data == targetLogger) {
-
-		}
+	public void postData(DBRecord data) {
 	}
 
 	private void loop() {

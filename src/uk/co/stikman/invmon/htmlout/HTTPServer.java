@@ -1,7 +1,9 @@
 package uk.co.stikman.invmon.htmlout;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.w3c.dom.Element;
 
@@ -16,20 +18,27 @@ import uk.co.stikman.invmon.InvModule;
 import uk.co.stikman.invmon.InvMonException;
 import uk.co.stikman.invmon.PollData;
 import uk.co.stikman.invmon.datalog.DataLogger;
+import uk.co.stikman.invmon.htmlout.HTTPServer.FetchMethod;
 import uk.co.stikman.invmon.htmlout.res.Res;
 import uk.co.stikman.invmon.inverter.InvUtil;
 import uk.co.stikman.log.StikLog;
 
 public class HTTPServer extends InvModule {
 
-	private static final StikLog	LOGGER	= StikLog.getLogger(HTTPServer.class);
-	private DataLogger				datalogger;
-	private int						port;
-	private Svr						svr;
-	private PollData				lastData;
+	private interface FetchMethod {
+		void fetch(IHTTPSession session);
+	}
+
+	private static final StikLog			LOGGER		= StikLog.getLogger(HTTPServer.class);
+	private DataLogger						datalogger;
+	private int								port;
+	private Svr								svr;
+	private PollData						lastData;
+	private final Map<String, FetchMethod>	urlMappings	= new HashMap<>();
 
 	public HTTPServer(String id, Env env) {
 		super(id, env);
+
 	}
 
 	@Override
@@ -62,6 +71,10 @@ public class HTTPServer extends InvModule {
 
 	private Response serve(IHTTPSession session) {
 		try {
+			String url = session.getUri();
+			if (url.equals("/"))
+				url = "index.html";
+
 			if (session.getUri().equals("/")) {
 				String offset = getParam(session, "off");
 				String duration = getParam(session, "dur");

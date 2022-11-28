@@ -20,19 +20,22 @@ import uk.co.stikman.invmon.htmlout.HTMLOutput;
 import uk.co.stikman.invmon.htmlout.HTMLOutputStatic;
 import uk.co.stikman.invmon.htmlout.HTTPServer;
 import uk.co.stikman.invmon.inverter.PIP8048MAX.InverterPIPMAX;
+import uk.co.stikman.invmon.inverter.PIP8048MAX.PIP8048MAXParallelGroup;
 import uk.co.stikman.invmon.remote.JSONRecv;
 import uk.co.stikman.invmon.remote.JSONSend;
 
 public class Config {
 
-	private List<InvModDefinition>	things			= new ArrayList<>();
-	private int						updatePeriod;
-	private boolean					allowConversion	= false;
+	private List<InvModDefinition>									things			= new ArrayList<>();
+	private int														updatePeriod;
+	private boolean													allowConversion	= false;
+	private SystemModel												model			= SystemModel.SINGLE;
+	private int														parallelCount	= 1;
+	private final static Map<String, Class<? extends InvModule>>	thingtypes		= new HashMap<>();
 
-	public void loadFromFile(File f) throws IOException {
-		Document doc = loadXML(f);
-		Map<String, Class<? extends InvModule>> thingtypes = new HashMap<>();
+	static {
 		thingtypes.put("Inverter", InverterPIPMAX.class);
+		thingtypes.put("PIP8048MAXParallelGroup", PIP8048MAXParallelGroup.class);
 		thingtypes.put("FakeInverter", FakeInverterMonitor.class);
 		thingtypes.put("ConsoleOutput", ConsoleOutput.class);
 		thingtypes.put("TempHTMLOutput", HTMLOutputStatic.class);
@@ -41,10 +44,16 @@ public class Config {
 		thingtypes.put("HTTPServer", HTTPServer.class);
 		thingtypes.put("JSONRecv", JSONRecv.class);
 		thingtypes.put("JSONSend", JSONSend.class);
+	}
 
+	public void loadFromFile(File f) throws IOException {
+		Document doc = loadXML(f);
 		Element eset = getElement(doc.getDocumentElement(), "Settings");
 		this.updatePeriod = Integer.parseInt(getAttrib(eset, "updatePeriod"));
 		this.allowConversion = Boolean.parseBoolean(getAttrib(eset, "allowConversion"));
+		this.model = SystemModel.valueOf(getAttrib(eset, "model", "single").toUpperCase());
+		if (model == SystemModel.PARALLEL)
+			this.parallelCount = Integer.parseInt(getAttrib(eset, "parallelCount"));
 
 		Element emod = getElement(doc.getDocumentElement(), "Modules");
 		for (Element el : getElements(emod)) {
@@ -72,6 +81,18 @@ public class Config {
 
 	public boolean isAllowConversion() {
 		return allowConversion;
+	}
+
+	public static Map<String, Class<? extends InvModule>> getThingTypes() {
+		return thingtypes;
+	}
+
+	public SystemModel getModel() {
+		return model;
+	}
+
+	public int getParallelCount() {
+		return parallelCount;
 	}
 
 }
