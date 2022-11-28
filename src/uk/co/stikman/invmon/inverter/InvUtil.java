@@ -19,6 +19,8 @@ import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import fi.iki.elonen.NanoHTTPD.IHTTPSession;
+
 public class InvUtil {
 	public static String padLeft(String s, int len) {
 		if (s == null)
@@ -104,6 +106,20 @@ public class InvUtil {
 
 	public static int oom(double f) {
 		return (int) Math.log10(f);
+	}
+
+	/**
+	 * return <code>null</code> if nothing, or the first one if multiple present
+	 * @param request
+	 * @param name
+	 * @return
+	 */
+	public static String getParam(IHTTPSession request, String name) {
+		List<String> lst = request.getParameters().get(name);
+		if (lst == null || lst.isEmpty())
+			return null;
+		return lst.get(0);
+	
 	}
 
 }
