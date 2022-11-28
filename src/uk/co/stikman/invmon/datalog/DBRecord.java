@@ -8,6 +8,8 @@ import java.nio.charset.StandardCharsets;
 import uk.co.stikman.invmon.datamodel.Field;
 import uk.co.stikman.invmon.datamodel.FieldCounts;
 import uk.co.stikman.invmon.datamodel.FieldDataType;
+import uk.co.stikman.invmon.datamodel.FieldVIF;
+import uk.co.stikman.invmon.datamodel.VIFReading;
 
 public class DBRecord {
 	private int			index;
@@ -54,12 +56,6 @@ public class DBRecord {
 
 	public float getFloat(Field field) {
 		//		checkFieldType(field, FieldDataType.FLOAT);
-		//
-		// calculate fields if necessary
-		//
-		//		if (field.getCalculationMethod() != null)
-		//			return field.getCalculationMethod().calc(this);
-		//		else
 		return floats[field.getPosition()];
 	}
 
@@ -132,6 +128,18 @@ public class DBRecord {
 					break;
 			}
 		}
+	}
+
+	public VIFReading getVIF(FieldVIF vif) {
+		float v = vif.getV() != null ? getFloat(vif.getV()) : 0.0f;
+		float i = vif.getI() != null ? getFloat(vif.getI()) : 0.0f;
+		float f = vif.getF() != null ? getFloat(vif.getF()) : 0.0f;
+		return new VIFReading(v, i, f);
+	}
+	
+
+	public <T extends Enum<T>> T getEnum(Field f, Class<T> cls) {
+		return (T) Enum.valueOf(cls, getString(f));
 	}
 
 }

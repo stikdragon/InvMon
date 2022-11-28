@@ -8,6 +8,7 @@ import java.util.function.Function;
 
 import uk.co.stikman.invmon.Env;
 import uk.co.stikman.invmon.PollData;
+import uk.co.stikman.invmon.datalog.DBRecord;
 import uk.co.stikman.invmon.datalog.DataLogger;
 import uk.co.stikman.invmon.datalog.MiniDbException;
 import uk.co.stikman.invmon.datalog.QueryRecord;
@@ -82,24 +83,14 @@ public class HTMLGenerator {
 		//		System.out.println(qr.toString());
 		//		DataPoint dp = data.get(sourceDataRef);
 
-		//
-		// work back from the end to find the most recent record
-		//
-		List<QueryRecord> recs = qr.getRecords();
-		int fbatt = qr.getFieldIndex("BATT_V");
-		QueryRecord dp = null;
-		for (int j = recs.size() - 1; j >= 0; --j) {
-			if (recs.get(j).getFloat(fbatt) > 0.0f) {
-				dp = recs.get(j);
-				break;
-			}
-		}
-
-		VIFReading vif1 = dp.getVIF("PVA_1");
-		VIFReading vif2 = dp.getVIF("PVB_1");
-		VIFReading vif3 = dp.getVIF("PVA_2");
-		VIFReading vif4 = dp.getVIF("PVB_2");
-
+		
+		DBRecord dp = source.getLastRecord();
+		
+		VIFReading vif1 = dp.getVIF(source.getEnv().getModel().getVIF("PVA_1"));
+		VIFReading vif2 = dp.getVIF(source.getEnv().getModel().getVIF("PVB_1"));
+		VIFReading vif3 = dp.getVIF(source.getEnv().getModel().getVIF("PVA_2"));
+		VIFReading vif4 = dp.getVIF(source.getEnv().getModel().getVIF("PVB_2"));
+		
 		html.append("<div>").div("sect").append("<div class=\"hdr\"><h1>PV Power</h1>");
 		renderGrp(html, "<div class=\"grp\">PV1: [%d]W ([%.2f]V @ [%.2f]A)</div>", (int) vif1.getP(), vif1.getV(), vif1.getI());
 		renderGrp(html, "<div class=\"grp\">PV2: [%d]W ([%.2f]V @ [%.2f]A)</div>", (int) vif2.getP(), vif2.getV(), vif2.getI());
@@ -111,25 +102,25 @@ public class HTMLGenerator {
 		html.append("</div></div>");
 
 		html.append("<div>").div("sect").append("<div class=\"hdr\"><h1>Load</h1>");
-		vif1 = dp.getVIF("LOAD");
+		vif1 = dp.getVIF(source.getEnv().getModel().getVIF("LOAD"));
 		renderGrp(html, "<div class=\"grp\">Load: [%d]W ([%.2f]V @ [%.2f]A)</div>", (int) vif1.getP(), vif1.getV(), vif1.getI());
-		float pf = dp.getFloat("LOAD_PF");
+		float pf = dp.getFloat(source.getEnv().getModel().get("LOAD_PF"));
 		renderGrp(html, "<div class=\"grp\">PF: [%.2f] (Real Power: [%d]W @ [%.2f]A)</div>", pf, (int) (vif1.getP() * pf), vif1.getI() * pf);
 		html.append("</div>");
 		renderLoadChart(html, opts, qr);
 		html.append("</div></div>");
 
 		html.append("<div>").div("sect").append("<div class=\"hdr\"><h1>Battery Current</h1>");
-		vif1 = dp.getVIF("BATT");
+		vif1 = dp.getVIF(source.getEnv().getModel().getVIF("BATT"));
 		renderVIF(html, "Batt", vif1).append("</div>");
 		renderBatteryChart(html, opts, qr);
 		html.append("</div></div>");
 
 		html.append("<div>").div("sect").append("<div class=\"hdr\"><h1>Temperatures/Bus</h1>");
-		float ftmp1 = dp.getFloat("INV_1_TEMP");
-		float ftmp2 = dp.getFloat("INV_2_TEMP");
-		float busv1 = dp.getFloat("INV_1_BUS_V");
-		float busv2 = dp.getFloat("INV_2_BUS_V");
+		float ftmp1 = dp.getFloat(source.getEnv().getModel().get("INV_1_TEMP"));
+		float ftmp2 = dp.getFloat(source.getEnv().getModel().get("INV_2_TEMP"));
+		float busv1 = dp.getFloat(source.getEnv().getModel().get("INV_1_BUS_V"));
+		float busv2 = dp.getFloat(source.getEnv().getModel().get("INV_2_BUS_V"));
 		renderGrp(html, "<div class=\"grp\">Temp1: [%.1f]C  BusV: [%d]V</div>", ftmp1, (int) busv1);
 		renderGrp(html, "<div class=\"grp\">Temp2: [%.1f]C  BusV: [%d]V</div>", ftmp2, (int) busv2);
 		html.append("</div>");

@@ -188,7 +188,7 @@ public class DataLogger extends InvModule {
 			}
 		}
 		db.commitRecord(rec);
-		getEnv().getBus().fire(Events.LOGGER_RECORD_COMMITED, this);
+		getEnv().getBus().fire(Events.LOGGER_RECORD_COMMITED, rec);
 	}
 
 	@Override
@@ -355,6 +355,14 @@ public class DataLogger extends InvModule {
 
 	public int getLastRecordId() throws MiniDbException {
 		return db.getLastRecord().getIndex();
+	}
+
+	public DBRecord getRecord(int i) throws MiniDbException {
+		return db.getRecord(i);
+	}
+
+	public DBRecord getLastRecord() throws MiniDbException {
+		return db.getLastRecord();
 	}
 
 }

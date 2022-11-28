@@ -6,6 +6,7 @@ import java.util.List;
 import org.w3c.dom.Element;
 
 import uk.co.stikman.eventbus.Subscribe;
+import uk.co.stikman.invmon.datalog.DBRecord;
 import uk.co.stikman.invmon.datamodel.DataModel;
 import uk.co.stikman.invmon.datamodel.Field;
 import uk.co.stikman.invmon.datamodel.FieldVIF;
@@ -30,8 +31,8 @@ public class ConsoleOutput extends InvModule {
 	private boolean				enabledControlCodes;
 	private Field				fieldTemperature1;
 	private Field				fieldTemperature2;
-	private Field fieldBatteryV;
-	private Field fieldBatteryI;
+	private Field				fieldBatteryV;
+	private Field				fieldBatteryI;
 
 	public ConsoleOutput(String id, Env env) {
 		super(id, env);
@@ -73,8 +74,8 @@ public class ConsoleOutput extends InvModule {
 		super.terminate();
 	}
 
-	@Subscribe(Events.POST_DATA)
-	public void postData(PollData data) {
+	@Subscribe(Events.LOGGER_RECORD_COMMITED)
+	public void postData(DBRecord rec) {
 		if (firstTime) {
 			output.clear();
 			firstTime = false;
@@ -82,7 +83,6 @@ public class ConsoleOutput extends InvModule {
 		output.beginFrame();
 		output.hideCursor();
 
-		DataPoint rec = data.get("invA");
 		float battv = rec.getFloat(fieldBatteryV);
 		float batti = rec.getFloat(fieldBatteryI);
 		output.moveTopLeft();
