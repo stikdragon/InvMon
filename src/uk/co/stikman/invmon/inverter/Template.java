@@ -3,6 +3,12 @@ package uk.co.stikman.invmon.inverter;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * this didn't turn out as clean or clever as i thought :(
+ * 
+ * @author stik
+ *
+ */
 public class Template {
 	private enum BitType {
 		LITERAL, MATCH
@@ -11,6 +17,7 @@ public class Template {
 	private static class Bit {
 		BitType	type;
 		String	pattern;
+		boolean	varLength	= false;
 
 		public String getKey() {
 			return pattern.substring(0, 1);
@@ -49,6 +56,9 @@ public class Template {
 				Bit bit = new Bit();
 				bit.type = BitType.MATCH;
 				bit.pattern = sb.toString();
+				bit.varLength = bit.pattern.endsWith("+");
+				if (bit.varLength)
+					bit.pattern = Character.toString(bit.pattern.charAt(0));
 				bits.add(bit);
 
 				sb = new StringBuilder();
@@ -83,16 +93,32 @@ public class Template {
 						throw new CommunicationError("Response (" + data + ") does not match expected template at position [" + (ptr - 1) + "]");
 				}
 			} else {
-				char[] bits = new char[bit.pattern.length()];
-				int k = 0;
-				for (int i = 0; i < bit.pattern.length(); ++i) {
-					bits[k] = data.charAt(ptr++);
-					if (bit.pattern.charAt(i) == '.')
-						if (bits[k] != '.')
-							throw new CommunicationError("Response (" + data + ") does not match expected template at position [" + (ptr - 1) + "]");
-					++k;
+				if (bit.varLength) {
+					//
+					// keep looking until we get to a space
+					//
+					int start = ptr;
+					while (ptr < data.length()) {
+						char ch = data.charAt(ptr++);
+						if (ch == ' ') {
+							--ptr;
+							break;
+						}
+					}
+					x.setPart(bit.getKey(), data.substring(start, ptr));
+
+				} else {
+					char[] bits = new char[bit.pattern.length()];
+					int k = 0;
+					for (int i = 0; i < bit.pattern.length(); ++i) {
+						bits[k] = data.charAt(ptr++);
+						if (bit.pattern.charAt(i) == '.')
+							if (bits[k] != '.')
+								throw new CommunicationError("Response (" + data + ") does not match expected template at position [" + (ptr - 1) + "]");
+						++k;
+					}
+					x.setPart(bit.getKey(), new String(bits));
 				}
-				x.setPart(bit.getKey(), new String(bits));
 			}
 		}
 

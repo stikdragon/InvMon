@@ -29,8 +29,7 @@ public class Config {
 	private List<InvModDefinition>									things			= new ArrayList<>();
 	private int														updatePeriod;
 	private boolean													allowConversion	= false;
-	private SystemModel												model			= SystemModel.SINGLE;
-	private int														parallelCount	= 1;
+	private int														inverterCount	= 1;
 	private final static Map<String, Class<? extends InvModule>>	thingtypes		= new HashMap<>();
 
 	static {
@@ -51,9 +50,7 @@ public class Config {
 		Element eset = getElement(doc.getDocumentElement(), "Settings");
 		this.updatePeriod = Integer.parseInt(getAttrib(eset, "updatePeriod"));
 		this.allowConversion = Boolean.parseBoolean(getAttrib(eset, "allowConversion"));
-		this.model = SystemModel.valueOf(getAttrib(eset, "model", "single").toUpperCase());
-		if (model == SystemModel.PARALLEL)
-			this.parallelCount = Integer.parseInt(getAttrib(eset, "parallelCount"));
+		this.inverterCount = Integer.parseInt(getAttrib(eset, "inverterCount", "1"));
 
 		Element emod = getElement(doc.getDocumentElement(), "Modules");
 		for (Element el : getElements(emod)) {
@@ -87,12 +84,8 @@ public class Config {
 		return thingtypes;
 	}
 
-	public SystemModel getModel() {
-		return model;
-	}
-
-	public int getParallelCount() {
-		return parallelCount;
+	public int getInverterCount() {
+		return inverterCount;
 	}
 
 }

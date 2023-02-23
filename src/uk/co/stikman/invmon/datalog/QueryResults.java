@@ -109,4 +109,8 @@ public class QueryResults {
 		this.end = end;
 	}
 
+	public QueryRecord getLastRecord() {
+		return records.get(records.size() - 1);
+	}
+
 }

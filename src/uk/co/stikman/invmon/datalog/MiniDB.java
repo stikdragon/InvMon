@@ -141,13 +141,6 @@ public class MiniDB {
 		}
 	}
 
-	public void loadModel(InputStream is) throws IOException, InvMonException {
-		synchronized (this) {
-			model = new DataModel();
-			model.loadXML(is);
-		}
-	}
-
 	public DataModel getModel() {
 		return model;
 	}

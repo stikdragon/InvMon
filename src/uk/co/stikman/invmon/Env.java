@@ -7,6 +7,11 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import com.fazecast.jSerialComm.SerialPort;
 
@@ -30,6 +35,8 @@ public class Env {
 	private boolean					terminated	= false;
 	private Config					config;
 	private DataModel				model;
+	private ExecutorService			exec;
+	private Timer					timer;
 
 	static {
 		try (InputStream is = Env.class.getResourceAsStream("version.txt")) { // ant script writes this
@@ -47,8 +54,9 @@ public class Env {
 		StikLog.addTarget(tgt);
 
 		LOGGER.info("Starting InvMon...");
-
 		listPorts();
+		timer = new Timer();
+		exec = Executors.newFixedThreadPool(4);
 
 		bus.setImmediateMode(true);
 
@@ -58,14 +66,14 @@ public class Env {
 		} catch (IOException e) {
 			throw new InvMonException("Failed to load config: " + e.getMessage(), e);
 		}
-		
+
 		model = new DataModel();
-		try (InputStream is = getClass().getResourceAsStream(config.getModel() == SystemModel.SINGLE ? "model.xml" : "parallelModel.xml")) {
+		try (InputStream is = getClass().getResourceAsStream("parallelModel.xml")) {
+			model.setRepeatCount(config.getInverterCount());
 			model.loadXML(is);
 		} catch (IOException e) {
 			throw new InvMonException("Failed to load model: " + e.getMessage(), e);
 		}
-		
 
 		for (InvModDefinition def : config.getThings()) {
 			try {
@@ -130,6 +138,14 @@ public class Env {
 		terminated = true;
 		mainthread.interrupt();
 
+		timer.cancel();
+		exec.shutdown();
+		try {
+			if (!exec.awaitTermination(5000, TimeUnit.MILLISECONDS))
+				LOGGER.error("Failed to shut down executor service");
+		} catch (InterruptedException e1) {
+		}
+
 		for (InvModule part : parts)
 			part.terminate();
 
@@ -139,16 +155,6 @@ public class Env {
 			e.printStackTrace();
 		}
 		mainthread = null;
-	}
-
-	public void awaitTermination() {
-		// TODO...
-		try {
-			Thread.sleep(500);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 
 	public StringEventBus getBus() {
@@ -179,6 +185,20 @@ public class Env {
 
 	public static String getVersion() {
 		return version;
+	}
+
+	public void submitTask(Runnable task) {
+		exec.execute(task);
+	}
+
+	public void submitTimerTask(Runnable task, long period) {
+		TimerTask tt = new TimerTask() {
+			@Override
+			public void run() {
+				task.run();
+			}
+		};
+		timer.scheduleAtFixedRate(tt, 0, period);
 	}
 
 }

@@ -80,4 +80,8 @@ public class QueryRecord {
 		return getFloat(owner.getFieldIndex(name));
 	}
 
+	public int getInt(String field) {
+		return getInt(owner.getFieldIndex(field));
+	}
+
 }

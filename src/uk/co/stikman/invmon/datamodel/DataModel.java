@@ -47,16 +47,20 @@ public class DataModel implements Iterable<Field> {
 	private List<Field>			fieldList			= new ArrayList<>();
 	private List<Field>			calculatedFields	= Collections.emptyList();
 	private FieldCounts			fieldCounts			= new FieldCounts();
-	private int					repeatCount;
+
+	private int					repeatCount			= -1;
 
 	public void loadXML(InputStream str) throws IOException, InvMonException {
 		Document doc = InvUtil.loadXML(str);
-		repeatCount = Integer.parseInt(InvUtil.getAttrib(doc.getDocumentElement(), "repeatCount", "1"));
+		if (repeatCount == -1)
+			this.repeatCount = Integer.parseInt(InvUtil.getAttrib(doc.getDocumentElement(), "repeatCount", "1"));
 		fieldCounts = new FieldCounts();
 		for (Element el : InvUtil.getElements(doc.getDocumentElement())) {
 			if ("Field".equals(el.getTagName())) {
 				readField(el, -1);
 			} else if ("Repeat".equals(el.getTagName())) {
+				if (repeatCount == -1)
+					throw new InvMonException("<Repeat> element encountered but the repeatCount property has not been set");
 				for (Element el2 : InvUtil.getElements(el)) {
 					if (!el2.getTagName().equals("Field"))
 						throw new InvMonException("Can only have <Field> elements in a <Repeat> block");
@@ -424,6 +428,10 @@ public class DataModel implements Iterable<Field> {
 
 	public List<Field> getFields() {
 		return fieldList;
+	}
+
+	public void setRepeatCount(int repeatCount) {
+		this.repeatCount = repeatCount;
 	}
 
 }

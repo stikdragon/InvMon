@@ -12,10 +12,14 @@ body {
 	flex-direction: column;
 }
 
-body .content {
+.sect .content {
 	flex: 1;
-	overflow: auto;
+	overflow: hidden;
 	padding: 10px;
+}
+
+#timeselector .content {
+	padding: 1px;
 }
 
 .footer {
@@ -47,13 +51,20 @@ h1 {
 	color: #565;
 }
 
+.gridframe {
+	padding: 5px;
+	box-sizing: border-box;
+}
+
 .sect {
 	background: #ddd;
 	border-radius: 6px;
 	box-shadow: 5px 5px 5px -2px rgba(0, 0, 0, 0.41);
-	display: inline-block;
-	margin-top: 5px;
-	margin-bottom: 5px;
+	display: flex;
+	flex-direction: column;
+	margin: 0;
+	width: 100%;
+	height: 100%;
 }
 
 .sect .hdr {
@@ -110,6 +121,7 @@ h1 {
 .controls .sel, .controls .unsel {
 	display: inline-block;
 	padding: 4px;
+    border-right: 2px solid #00000029;	
 }
 
 .controls .sel {
@@ -121,7 +133,6 @@ h1 {
 }
 
 .chart {
-	padding: 8px;
 	font-size: 12px;
 	font-weight: bold;
 	padding-bottom: 0px;
@@ -260,4 +271,43 @@ h1 {
 .chart.temperature .series3_fill {
 	stroke: none;
 	fill: none;
+}
+
+table.data {
+	font-size: 12px;
+	width: 100%;
+}
+
+table.data th {
+	background-color: rgba(0, 0, 0, 5%);
+}
+
+table.data td, table.data th {
+	padding: 2px;
+	text-align: center;
+}
+
+table.data td {
+	color: #888;
+}
+
+table.data .b {
+	color: #555;
+	font-weight: bold;
+}
+
+table.data .total td {
+	font-weight: bold;
+	font-size: 140%;
+}
+
+.glass {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 50%);
+    transition: background-color 0.05s;
+    display: none;
 }

@@ -56,6 +56,11 @@ public class HTMLBuilder {
 		return this;
 	}
 
+	public HTMLBuilder append(int n) {
+		append(Integer.toString(n));
+		return this;
+	}
+
 	public void clear() {
 		sb = new StringBuilder();
 	}

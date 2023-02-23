@@ -13,7 +13,6 @@ import uk.co.stikman.invmon.datalog.DataLogger;
 import uk.co.stikman.invmon.datalog.MiniDbException;
 import uk.co.stikman.invmon.datalog.QueryRecord;
 import uk.co.stikman.invmon.datalog.QueryResults;
-import uk.co.stikman.invmon.datamodel.Field;
 import uk.co.stikman.invmon.datamodel.VIFReading;
 import uk.co.stikman.invmon.inverter.Tok;
 import uk.co.stikman.invmon.inverter.TokenThing;
@@ -29,13 +28,30 @@ public class HTMLGenerator {
 		this.source = datalogger;
 	}
 
-	public void render(HTMLBuilder html, PollData data) throws MiniDbException {
-		HTMLOpts def = new HTMLOpts();
+	public void render(HTMLBuilder html) throws MiniDbException {
+		ChartRenderConfig def = new ChartRenderConfig();
 		def.setDuration(5 * 60);
-		render(html, def, data);
+
+		render(html, def);
 	}
 
-	public void render(HTMLBuilder html, HTMLOpts opts, PollData data) throws MiniDbException {
+	public void render(HTMLBuilder html, ChartRenderConfig opts) throws MiniDbException {
+		long end = System.currentTimeMillis();
+		long start = end - opts.getDuration() * 1000 * 60;
+		List<String> flds = new ArrayList<>();
+		add(flds, "BATT_V", "BATT_I", "BATT_I_CHG", "BATT_I_DIS");
+		add(flds, "LOAD_V", "LOAD_I", "LOAD_F");
+		add(flds, "LOAD_P", "LOAD_1_P", "LOAD_2_P");
+		add(flds, "PVA_1_V", "PVA_1_I", "PVA_1_P");
+		add(flds, "PVB_1_V", "PVB_1_I", "PVB_1_P");
+		add(flds, "PVA_2_V", "PVA_2_I", "PVA_2_P");
+		add(flds, "PVB_2_V", "PVB_2_I", "PVB_2_P");
+		add(flds, "PV_TOTAL_P");
+		add(flds, "INV_1_TEMP", "INV_2_TEMP");
+		add(flds, "INV_1_BUS_V", "INV_2_BUS_V");
+		add(flds, "LOAD_PF");
+		QueryResults qr = getQueryResults(start, end, flds, 120);
+
 		//
 		// render a nice page
 		//
@@ -65,32 +81,16 @@ public class HTMLGenerator {
 		}
 		html.append("</div></div>");
 
-		long end = System.currentTimeMillis();
-		long start = end - opts.getDuration() * 1000 * 60;
-		List<String> flds = new ArrayList<>();
-		add(flds, "BATT_V", "BATT_I", "BATT_I_CHG", "BATT_I_DIS");
-		add(flds, "LOAD_V", "LOAD_I", "LOAD_F");
-		add(flds, "LOAD_P", "LOAD_1_P", "LOAD_2_P");
-		add(flds, "PVA_1_V", "PVA_1_I", "PVA_1_P");
-		add(flds, "PVB_1_V", "PVB_1_I", "PVB_1_P");
-		add(flds, "PVA_2_V", "PVA_2_I", "PVA_2_P");
-		add(flds, "PVB_2_V", "PVB_2_I", "PVB_2_P");
-		add(flds, "PV_TOTAL_P");
-		add(flds, "INV_1_TEMP", "INV_2_TEMP");
-		add(flds, "INV_1_BUS_V", "INV_2_BUS_V");
-		add(flds, "LOAD_PF");
-		QueryResults qr = getQueryResults(start, end, flds, 120);
 		//		System.out.println(qr.toString());
 		//		DataPoint dp = data.get(sourceDataRef);
 
-		
 		DBRecord dp = source.getLastRecord();
-		
+
 		VIFReading vif1 = dp.getVIF(source.getEnv().getModel().getVIF("PVA_1"));
 		VIFReading vif2 = dp.getVIF(source.getEnv().getModel().getVIF("PVB_1"));
 		VIFReading vif3 = dp.getVIF(source.getEnv().getModel().getVIF("PVA_2"));
 		VIFReading vif4 = dp.getVIF(source.getEnv().getModel().getVIF("PVB_2"));
-		
+
 		html.append("<div>").div("sect").append("<div class=\"hdr\"><h1>PV Power</h1>");
 		renderGrp(html, "<div class=\"grp\">PV1: [%d]W ([%.2f]V @ [%.2f]A)</div>", (int) vif1.getP(), vif1.getV(), vif1.getI());
 		renderGrp(html, "<div class=\"grp\">PV2: [%d]W ([%.2f]V @ [%.2f]A)</div>", (int) vif2.getP(), vif2.getV(), vif2.getI());
@@ -98,7 +98,7 @@ public class HTMLGenerator {
 		renderGrp(html, "<div class=\"grp\">PV4: [%d]W ([%.2f]V @ [%.2f]A)</div>", (int) vif4.getP(), vif4.getV(), vif4.getI());
 		renderGrp(html, "<div class=\"grp\">Total: [%d]W</div>", (int) (vif1.getP() + vif2.getP() + vif3.getP() + vif4.getP()));
 		html.append("</div>");
-		renderPVPowerChart(html, opts, qr);
+		renderPVPowerChart(html, new ChartRenderConfig(), qr);
 		html.append("</div></div>");
 
 		html.append("<div>").div("sect").append("<div class=\"hdr\"><h1>Load</h1>");
@@ -107,13 +107,13 @@ public class HTMLGenerator {
 		float pf = dp.getFloat(source.getEnv().getModel().get("LOAD_PF"));
 		renderGrp(html, "<div class=\"grp\">PF: [%.2f] (Real Power: [%d]W @ [%.2f]A)</div>", pf, (int) (vif1.getP() * pf), vif1.getI() * pf);
 		html.append("</div>");
-		renderLoadChart(html, opts, qr);
+		renderLoadChart(html, new ChartRenderConfig(), qr);
 		html.append("</div></div>");
 
 		html.append("<div>").div("sect").append("<div class=\"hdr\"><h1>Battery Current</h1>");
 		vif1 = dp.getVIF(source.getEnv().getModel().getVIF("BATT"));
 		renderVIF(html, "Batt", vif1).append("</div>");
-		renderBatteryChart(html, opts, qr);
+		renderBatteryChart(html, new ChartRenderConfig(), qr);
 		html.append("</div></div>");
 
 		html.append("<div>").div("sect").append("<div class=\"hdr\"><h1>Temperatures/Bus</h1>");
@@ -124,7 +124,7 @@ public class HTMLGenerator {
 		renderGrp(html, "<div class=\"grp\">Temp1: [%.1f]C  BusV: [%d]V</div>", ftmp1, (int) busv1);
 		renderGrp(html, "<div class=\"grp\">Temp2: [%.1f]C  BusV: [%d]V</div>", ftmp2, (int) busv2);
 		html.append("</div>");
-		renderTempChart(html, opts, qr);
+		renderTempChart(html, new ChartRenderConfig(), qr);
 		html.append("</div></div>");
 
 		html.append("<div class=\"tiny\"><div class=\"a\">Render time: </div><div class=\"b\">").append(System.currentTimeMillis() - lastT).append("ms</div></div>");
@@ -138,7 +138,7 @@ public class HTMLGenerator {
 			lst.add(t);
 	}
 
-	private QueryResults getQueryResults(long start, long end, List<String> fields, int pointcount) throws MiniDbException {
+	public QueryResults getQueryResults(long start, long end, List<String> fields, int pointcount) throws MiniDbException {
 		//
 		// so snap to nearest N millis, depending on how big our range is, to 
 		// avoid aliasing
@@ -166,14 +166,14 @@ public class HTMLGenerator {
 
 	}
 
-	private HTMLBuilder renderVIF(HTMLBuilder html, String name, VIFReading vif) {
+	public HTMLBuilder renderVIF(HTMLBuilder html, String name, VIFReading vif) {
 		html.append("<div class=\"grp\">");
 		html.append("<span class=\"a\">%s: </span><span class=\"b\">%d</span><span class=\"a\">W (</span><span class=\"b\">%.1f</span><span class=\"a\">V @ </span><span class=\"b\">%.2f</span><span class=\"a\">A)</span>", name, (int) vif.getP(), vif.getV(), vif.getI());
 		html.append("</div>");
 		return html;
 	}
 
-	private HTMLBuilder renderGrp(HTMLBuilder html, String fmt, Object... values) {
+	public HTMLBuilder renderGrp(HTMLBuilder html, String fmt, Object... values) {
 		TokenThing tt = new TokenThing(fmt);
 		int p = 0;
 		for (Tok t : tt) {
@@ -186,27 +186,27 @@ public class HTMLGenerator {
 		return html;
 	}
 
-	private void renderPVPowerChart(HTMLBuilder html, HTMLOpts opts, QueryResults data) {
+	public void renderPVPowerChart(HTMLBuilder html, ChartRenderConfig opts, QueryResults data) {
 		ChartOptions co = new ChartOptions();
-		co.setSize(800, 260);
+		co.setSize(opts.getWidth(), opts.getHeight());
 		co.addSeries("PV_TOTAL_P", list("PVA_1_P", "PVB_1_P", "PVA_2_P", "PVB_2_P"));
 		co.getAxisY1().setForceMin(Float.valueOf(0));
 		co.getAxisY1().setFormatter(f -> String.format("%d W", f.intValue()));
 		renderChart(html, "pv", co, data);
 	}
 
-	private void renderLoadChart(HTMLBuilder html, HTMLOpts opts, QueryResults data) {
+	public void renderLoadChart(HTMLBuilder html, ChartRenderConfig opts, QueryResults data) {
 		ChartOptions co = new ChartOptions();
-		co.setSize(800, 260);
+		co.setSize(opts.getWidth(), opts.getHeight());
 		co.addSeries("LOAD_P", list("LOAD_1_P", "LOAD_2_P"));
 		co.getAxisY1().setForceMin(Float.valueOf(0));
 		co.getAxisY1().setFormatter(f -> String.format("%d W", f.intValue()));
 		renderChart(html, "load", co, data);
 	}
 
-	private void renderBatteryChart(HTMLBuilder html, HTMLOpts opts, QueryResults data) {
+	public void renderBatteryChart(HTMLBuilder html, ChartRenderConfig opts, QueryResults data) {
 		ChartOptions co = new ChartOptions();
-		co.setSize(800, 230);
+		co.setSize(opts.getWidth(), opts.getHeight());
 		co.getAxisY1().setFormatter(f -> String.format("%.1f A", f.floatValue()));
 		co.getAxisY1().setForceMin(Float.valueOf(0));
 		co.getAxisY2().setFormatter(f -> String.format("%.1f V", f.floatValue()));
@@ -218,9 +218,9 @@ public class HTMLGenerator {
 		renderChart(html, "battery", co, data);
 	}
 
-	private void renderTempChart(HTMLBuilder html, HTMLOpts opts, QueryResults data) {
+	public void renderTempChart(HTMLBuilder html, ChartRenderConfig opts, QueryResults data) {
 		ChartOptions co = new ChartOptions();
-		co.setSize(800, 120);
+		co.setSize(opts.getWidth(), opts.getHeight());
 		co.addSeries("INV_1_TEMP");
 		co.addSeries("INV_2_TEMP");
 		co.addSeries("INV_1_BUS_V").setYAxis(co.getAxisY2());
@@ -230,6 +230,35 @@ public class HTMLGenerator {
 		co.getAxisY2().setEnabled(true);
 		co.getAxisY2().setForceMin(Float.valueOf(0));
 		renderChart(html, "temperature", co, data);
+	}
+
+	private static final String[] IDS = ",PVA_1,PVB_1,PVA_2,PVB_2".split(",");
+	
+	public void renderPVTable(HTMLBuilder html, ChartRenderConfig opts, QueryResults data) {
+		QueryRecord rec = data.getRecords().get(data.getRecords().size() - 1);
+		html.append("<table class=\"data\">");
+		html.append("<tr><td></td><th>P</th><th>V</th><th>I</th></tr>");
+		for (int i = 1; i <= 4; ++i) {
+			html.append("<tr>");
+			html.append("<th>").append(IDS[i]).append("</th>");
+			html.append("<td><span class=\"b\">").append((int) rec.getFloat(IDS[i] + "_P")).append("</span>W</td>");
+			html.append("<td><span class=\"b\">").append((int) rec.getFloat(IDS[i] + "_V")).append("</span>V</td>");
+			html.append(String.format("<td><span class=\"b\">%.1f</span>A</td>", rec.getFloat(IDS[i] + "_I")));
+			html.append("</tr>");
+		}
+		
+		html.append("<tr class=\"total\"><th>Total</th><td colspan=\"3\"><span class=\"b\">").append((int)rec.getFloat("PV_TOTAL_P")).append("</span>W</td></tr>");
+		html.append("</table>");
+	}
+
+	/**
+	 * "to-int"
+	 * 
+	 * @param f
+	 * @return
+	 */
+	private static final String ti(float f) {
+		return Integer.toString((int) f);
 	}
 
 	private SimpleDateFormat sdf = new SimpleDateFormat("yy/MM/dd HH:mm");
@@ -315,7 +344,7 @@ public class HTMLGenerator {
 				for (QueryRecord rec : res.getRecords()) {
 					long ts = rec.getLong(fts);
 					f = rec.getFloat(fmain);
-					sb.append(ch).append(width * (float) (ts - tsStart) / tsLength).append(" ").append(height - (height * axy.eval(f))).append(" ");
+					sb.append(ch).append(ti(width * (float) (ts - tsStart) / tsLength)).append(" ").append(ti(height - (height * axy.eval(f)))).append(" ");
 					ch = 'L';
 				}
 				sb.append("\" />\n");
@@ -330,7 +359,7 @@ public class HTMLGenerator {
 				for (QueryRecord rec : res.getRecords()) {
 					long ts = rec.getLong(fts);
 					f = rec.getFloat(fmain);
-					sb.append("L").append(width * (float) (ts - tsStart) / tsLength).append(" ").append(height - (height * axy.eval(f))).append(" ");
+					sb.append("L").append(ti(width * (float) (ts - tsStart) / tsLength)).append(" ").append(ti(height - (height * axy.eval(f)))).append(" ");
 				}
 				sb.append("L").append(width).append(" ").append(height - 0).append(" ");
 				sb.append("\" />\n");
@@ -351,7 +380,7 @@ public class HTMLGenerator {
 						long ts = rec.getLong(fts);
 						f = rec.getFloat(fsubs[i]);
 						float y = height * axy.eval(f);
-						sb.append("L").append(width * (float) (ts - tsStart) / tsLength).append(" ").append(height - (y + offsets[j])).append(" ");
+						sb.append("L").append(ti(width * (float) (ts - tsStart) / tsLength)).append(" ").append(ti(height - (y + offsets[j]))).append(" ");
 						offsets[j] += y;
 						++j;
 					}
@@ -406,4 +435,5 @@ public class HTMLGenerator {
 			a.add(s);
 		return a;
 	}
+
 }

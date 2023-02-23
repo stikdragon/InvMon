@@ -10,12 +10,16 @@ public class InvMon {
 		for (;;) {
 			int n = System.in.read();
 			if (n == 'q') {
-				env.terminate();
+				try {
+					env.terminate();
+					System.exit(0);
+				} catch (Throwable th) {
+					System.err.println("Shutdown failed: " + th.getMessage());
+					System.exit(-1);
+				}
 				break;
 			}
 		}
-
-		env.awaitTermination();
 	}
 
 }

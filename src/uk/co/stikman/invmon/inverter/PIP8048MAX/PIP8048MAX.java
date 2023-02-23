@@ -209,7 +209,7 @@ public class PIP8048MAX implements InverterModel {
 		return parts.getString("N");
 	}
 
-	private static final Template TPL_QPIRI = new Template("<BBB.B> <CC.C> <DDD.D> <EE.E> <FF.F> <HHHH> <IIII> <JJ.J> <KK.K> <LL.L> <MM.M> <NN.N> <O> <PPP> <QQQ> <R> <S> <T> <r> <ss> <t> <U> <VV.V> <W> <X> <YYY>");
+	private static final Template TPL_QPIRI = new Template("<BBB.B> <CC.C> <DDD.D> <EE.E> <FF.F> <H+> <I+> <JJ.J> <KK.K> <LL.L> <MM.M> <NN.N> <O> <P+> <QQQ> <R> <S> <T> <r> <ss> <t> <U> <VV.V> <W> <X> <YYY>");
 
 	public DeviceRatingInfo getDeviceRatingInfo() {
 		TemplateResult parts = TPL_QPIRI.apply(query("QPIRI"));
@@ -224,7 +224,7 @@ public class PIP8048MAX implements InverterModel {
 		return flags;
 	}
 
-	private static final Template	TPL_QPIGS	= new Template("<BBB.B> <CC.C> <DDD.D> <EE.E> <FFFF> <GGGG> <HHH> <III> <JJ.JJ> <KKK> <OOO> <TTTT> <ee.e> <UUU.U> <WW.WW> <PPPPP> <AAAAAAAA> <QQ> <VV> <MMMMM> <ZZZ>");
+	private static final Template	TPL_QPIGS	= new Template("<BBB.B> <CC.C> <DDD.D> <EE.E> <F+> <G+> <HHH> <III> <JJ.JJ> <KKK> <OOO> <TTTT> <ee.e> <UUU.U> <WW.WW> <PPPPP> <AAAAAAAA> <QQ> <VV> <MMMMM> <ZZZ>");
 	private static final Template	TPL_QPIGS2	= new Template("<AA.A> <BBB.B> <CCCCC>");
 
 	public DeviceStatus getStatus() {

@@ -1,4 +1,4 @@
-<Model repeatCount="2">
+<Model>
 	<Field id="TIMESTAMP" type="TIMESTAMP" />
 
 	<Field id="INV_MODE" type="string" width="16" />

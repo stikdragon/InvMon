@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 
+import uk.co.stikman.table.DataTable;
+
 public class TemplateResultImpl implements TemplateResult {
 
 	private Map<String, String> map = new HashMap<>();
@@ -19,14 +21,6 @@ public class TemplateResultImpl implements TemplateResult {
 		if (x == null)
 			throw new NoSuchElementException(key);
 		return x;
-	}
-
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder();
-		for (Entry<String, String> e : map.entrySet())
-			sb.append(e.getKey()).append(": ").append(e.getValue()).append("\n");
-		return sb.toString();
 	}
 
 	@Override
@@ -58,4 +52,13 @@ public class TemplateResultImpl implements TemplateResult {
 			throw new CommunicationError("Expected integer, found: " + s);
 		}
 	}
+	
+	@Override
+	public String toString() {
+		DataTable dt = new DataTable();
+		dt.addFields("key", "val");
+		map.forEach((k, v) -> dt.addRecord(k, v));
+		return dt.toString();
+	}
+
 }

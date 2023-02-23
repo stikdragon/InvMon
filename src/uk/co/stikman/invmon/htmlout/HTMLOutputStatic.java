@@ -43,7 +43,7 @@ public class HTMLOutputStatic extends InvModule {
 		if (dt > 5000) {
 			HTMLBuilder html = new HTMLBuilder();
 			try (FileOutputStream fos = new FileOutputStream(target)) {
-				new HTMLGenerator(datalogger).render(html, data);
+				new HTMLGenerator(datalogger).render(html);
 				fos.write(html.toString().getBytes(StandardCharsets.UTF_8));
 			} catch (Exception e) {
 				LOGGER.error(e);
