@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.function.Consumer;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -47,24 +46,23 @@ public class DataModel implements Iterable<Field> {
 	private List<Field>			fieldList			= new ArrayList<>();
 	private List<Field>			calculatedFields	= Collections.emptyList();
 	private FieldCounts			fieldCounts			= new FieldCounts();
-
-	private int					repeatCount			= -1;
+	private RepeatSettings		repeatSettings		= new RepeatSettings();
 
 	public void loadXML(InputStream str) throws IOException, InvMonException {
 		Document doc = InvUtil.loadXML(str);
-		if (repeatCount == -1)
-			this.repeatCount = Integer.parseInt(InvUtil.getAttrib(doc.getDocumentElement(), "repeatCount", "1"));
 		fieldCounts = new FieldCounts();
 		for (Element el : InvUtil.getElements(doc.getDocumentElement())) {
 			if ("Field".equals(el.getTagName())) {
 				readField(el, -1);
 			} else if ("Repeat".equals(el.getTagName())) {
-				if (repeatCount == -1)
-					throw new InvMonException("<Repeat> element encountered but the repeatCount property has not been set");
+				String grp = InvUtil.getAttrib(el, "group");
+				int cnt = repeatSettings.getCountForGroup(grp, -1);
+				if (cnt == -1)
+					throw new InvMonException("<Repeat> element encountered with group name [" + grp + "] but the repeatCount has not been set in the RepeatSettings object");
 				for (Element el2 : InvUtil.getElements(el)) {
 					if (!el2.getTagName().equals("Field"))
 						throw new InvMonException("Can only have <Field> elements in a <Repeat> block");
-					for (int i = 0; i < repeatCount; ++i) {
+					for (int i = 0; i < cnt; ++i) {
 						readField(el2, (i + 1));
 					}
 				}
@@ -87,10 +85,10 @@ public class DataModel implements Iterable<Field> {
 		compileExpressions();
 	}
 
-	private void readField(Element el, int repeat) throws InvMonException {
+	private void readField(Element el, int repeatIndex) throws InvMonException {
 		String id = InvUtil.getAttrib(el, "id");
-		if (repeat != -1)
-			id = id.replace("$", Integer.toString(repeat));
+		if (repeatIndex != -1)
+			id = id.replace("$", Integer.toString(repeatIndex));
 		Field f = new Field(id);
 		if (find(f.getId()) != null)
 			throw new IllegalArgumentException("Field [" + f.getId() + "] already declared");
@@ -119,16 +117,17 @@ public class DataModel implements Iterable<Field> {
 				if (f.getDataType() != FieldDataType.FLOAT)
 					throw new IllegalArgumentException("Only FLOAT fields can be calculated");
 				String t = el.getAttribute("calculated");
-				if (repeat != -1)
-					t = t.replace("$", Integer.toString(repeat));
+				if (repeatIndex != -1)
+					t = t.replace("$", Integer.toString(repeatIndex));
 				f.setCalculated(t);
 			}
 			f.setPosition(fieldCounts.getAndInc(f.getDataType()));
 
 			if (el.hasAttribute("calculatedRepeat")) {
-				if (repeat != -1)
+				if (repeatIndex != -1)
 					throw new InvMonException("<Field> with calculatedRepeat attribute is only valid outside a <Repeat> element");
-
+				int repeatCount = repeatSettings.getCountForGroup(InvUtil.getAttrib(el, "repeatGroup")) ;
+				
 				String t = el.getAttribute("calculatedRepeat");
 				String[] bits = t.split(",");
 				if (bits.length != 2)
@@ -147,7 +146,7 @@ public class DataModel implements Iterable<Field> {
 				for (int i = 1; i < repeatCount; ++i)
 					sb.append(sep).append("+");
 				if (bits[1].equals("avg")) // divide through by N for an average
-					sb.append(", ").append(repeat).append(", /");
+					sb.append(", ").append(repeatIndex).append(", /");
 				f.setCalculated(sb.toString());
 			}
 		}
@@ -422,16 +421,16 @@ public class DataModel implements Iterable<Field> {
 		return fieldCounts;
 	}
 
-	public int getRepeatCount() {
-		return repeatCount;
-	}
-
 	public List<Field> getFields() {
 		return fieldList;
 	}
 
-	public void setRepeatCount(int repeatCount) {
-		this.repeatCount = repeatCount;
+	public RepeatSettings getRepeatSettings() {
+		return repeatSettings;
+	}
+
+	public void setRepeatSettings(RepeatSettings repeatSettings) {
+		this.repeatSettings = repeatSettings;
 	}
 
 }

@@ -17,6 +17,7 @@ import com.fazecast.jSerialComm.SerialPort;
 
 import uk.co.stikman.eventbus.StringEventBus;
 import uk.co.stikman.invmon.datamodel.DataModel;
+import uk.co.stikman.invmon.datamodel.RepeatSettings;
 import uk.co.stikman.invmon.inverter.InvUtil;
 import uk.co.stikman.log.ConsoleLogTarget;
 import uk.co.stikman.log.Level;
@@ -69,7 +70,10 @@ public class Env {
 
 		model = new DataModel();
 		try (InputStream is = getClass().getResourceAsStream("parallelModel.xml")) {
-			model.setRepeatCount(config.getInverterCount());
+			RepeatSettings rs = new RepeatSettings();
+			rs.setCountForGroup("inverters", config.getInverterCount());
+			rs.setCountForGroup("batteries", config.getBatteryCount());
+			model.setRepeatSettings(rs);
 			model.loadXML(is);
 		} catch (IOException e) {
 			throw new InvMonException("Failed to load model: " + e.getMessage(), e);

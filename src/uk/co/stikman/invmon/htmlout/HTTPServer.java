@@ -56,6 +56,7 @@ public class HTTPServer extends InvModule {
 	public HTTPServer(String id, Env env) {
 		super(id, env);
 		urlMappings.put("old.html", this::staticPage);
+		urlMappings.put("loading.gif", this::page);
 		urlMappings.put("background.png", this::page);
 		urlMappings.put("style.css", this::page);
 		urlMappings.put("index.html", this::page);
@@ -163,7 +164,7 @@ public class HTTPServer extends InvModule {
 			if (qr == null) {
 				System.out.println("generate");
 				long end = System.currentTimeMillis();
-				long start = end - opts.getDuration() * 1000 * 60;
+				long start = end - (long)opts.getDuration() * 1000 * 60;
 				FieldNameList flds = new FieldNameList();
 				flds.add("BATT_V, BATT_I, BATT_I_CHG, BATT_I_DIS");
 				flds.add("LOAD_V, LOAD_I, LOAD_F");

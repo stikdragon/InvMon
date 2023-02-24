@@ -7,6 +7,7 @@ function updateChart(id, enableGlass) {
 	var hdr = $("#" + id + " .hdr");
 	var gls = $("#" + id + " .glass");
 	var opts = { name: id, w: cont.width(), h: cont.height() };
+	$("#" + id + " .error").hide();
 	if (enableGlass) {
 		gls.css("background-color", "rgba(0, 0, 0, 50%)");
 		gls.show();
@@ -18,6 +19,10 @@ function updateChart(id, enableGlass) {
 		cont.html(obj["contentHtml"]);
 		for (const s of obj["titleBits"])
 			hdr.append(s);
+	}).fail(function(xhr, status, msg) {
+		$("#" + id + " .error .message").text(msg);
+		$("#" + id + " .error").show();
+	}).always(function() {
 		if (enableGlass) {
 			gls.css("background-color", "rgba(0, 0, 0, 0%)");
 			gls.hide();
@@ -54,7 +59,7 @@ function refreshAll(glass) {
 			frames[wij.id].update(glass);
 		}
 	}
-	
+
 }
 
 function buildPage() {

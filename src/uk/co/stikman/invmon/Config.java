@@ -30,6 +30,7 @@ public class Config {
 	private int														updatePeriod;
 	private boolean													allowConversion	= false;
 	private int														inverterCount	= 1;
+	private int														batteryCount	= 1;
 	private final static Map<String, Class<? extends InvModule>>	thingtypes		= new HashMap<>();
 
 	static {
@@ -51,6 +52,7 @@ public class Config {
 		this.updatePeriod = Integer.parseInt(getAttrib(eset, "updatePeriod"));
 		this.allowConversion = Boolean.parseBoolean(getAttrib(eset, "allowConversion"));
 		this.inverterCount = Integer.parseInt(getAttrib(eset, "inverterCount", "1"));
+		this.batteryCount = Integer.parseInt(getAttrib(eset, "batteryCount", "1"));
 
 		Element emod = getElement(doc.getDocumentElement(), "Modules");
 		for (Element el : getElements(emod)) {
@@ -86,6 +88,10 @@ public class Config {
 
 	public int getInverterCount() {
 		return inverterCount;
+	}
+
+	public int getBatteryCount() {
+		return batteryCount;
 	}
 
 }

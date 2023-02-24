@@ -113,22 +113,23 @@ public class PIP8048MAXParallelGroup extends InvModule {
 	public void start() throws InvMonException {
 		super.start();
 
+		int repeatCount = getEnv().getConfig().getInverterCount();
 		DataModel model = getEnv().getModel();
 		fieldMode = model.get("INV_MODE");
 		fieldChargeState = model.get("BATT_MODE");
 		fieldBattV = model.get("BATT_V");
 
-		fieldBattI = new Field[model.getRepeatCount()];
-		fieldTemperature = new Field[model.getRepeatCount()];
+		fieldBattI = new Field[repeatCount];
+		fieldTemperature = new Field[repeatCount];
 		fieldLoadV = model.get("LOAD_V");
-		fieldLoadI = new Field[model.getRepeatCount()];
+		fieldLoadI = new Field[repeatCount];
 		fieldLoadPF = model.get("LOAD_PF");
-		fieldPvA = new FieldVIF[model.getRepeatCount()];
-		fieldPvB = new FieldVIF[model.getRepeatCount()];
-		fieldPvAP = new Field[model.getRepeatCount()];
-		fieldPvBP = new Field[model.getRepeatCount()];
-		fieldBusVoltage = new Field[model.getRepeatCount()];
-		for (int i = 0; i < model.getRepeatCount(); ++i) {
+		fieldPvA = new FieldVIF[repeatCount];
+		fieldPvB = new FieldVIF[repeatCount];
+		fieldPvAP = new Field[repeatCount];
+		fieldPvBP = new Field[repeatCount];
+		fieldBusVoltage = new Field[repeatCount];
+		for (int i = 0; i < repeatCount; ++i) {
 			fieldTemperature[i] = model.get("INV_" + (i + 1) + "_TEMP");
 			fieldBattI[i] = model.get("BATT_I_" + (i + 1));
 			fieldPvA[i] = model.getVIF("PVA_" + (i + 1));

@@ -121,7 +121,7 @@ h1 {
 .controls .sel, .controls .unsel {
 	display: inline-block;
 	padding: 4px;
-    border-right: 2px solid #00000029;	
+	border-right: 2px solid #00000029;
 }
 
 .controls .sel {
@@ -142,7 +142,6 @@ h1 {
 	fill: #fff;
 	stroke: none;
 }
-
 
 .chart.pv .series1_line {
 	stroke: #000000a0;
@@ -176,8 +175,6 @@ h1 {
 }
 
 /* **** */
-
-
 .chart.load .series1_line {
 	stroke: #000000a0;
 	fill: none;
@@ -199,11 +196,7 @@ h1 {
 	fill: #dd6000;
 }
 
-
-
-
 /* **** */
-
 .chart.battery .series1_line {
 	stroke: #000000a0;
 	stroke-width: 2px;
@@ -235,11 +228,7 @@ h1 {
 	fill: none;
 }
 
-
-
 /* **** */
-
-
 .chart.temperature .series1_line {
 	stroke: #7cff00a0;
 	fill: none;
@@ -302,12 +291,39 @@ table.data .total td {
 }
 
 .glass {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 50%);
-    transition: background-color 0.05s;
-    display: none;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(0, 0, 0, 50%);
+	transition: background-color 0.05s;
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }
+
+.glass img {
+	width: 32px;
+	height: 32px;
+}
+
+
+.error {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(200, 0, 0, 50%);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.error .message {
+	width: 80%;
+	background-color: rgba(255, 255, 255, 80%);
+	padding: 10px;	
+}
+
