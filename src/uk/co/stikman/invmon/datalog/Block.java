@@ -73,7 +73,7 @@ public class Block {
 					if (n == 1) { // marks a record
 						DBRecord r = new DBRecord(owner);
 						r.setIndex(idx++);
-						r.fromStream(dis);
+						r.fromStream(dis, ver);
 						records.add(r);
 					} else
 						throw new IOException("Corrupt file");

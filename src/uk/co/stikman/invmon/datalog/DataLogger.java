@@ -178,6 +178,9 @@ public class DataLogger extends InvModule {
 					case INT:
 						rec.setInt(e.getKey(), ((Number) e.getValue()).intValue());
 						break;
+					case FLOAT8:
+						rec.setFloat8(e.getKey(), ((Number) e.getValue()).floatValue());
+						break;
 					default:
 						throw new IllegalStateException("unsupported field type: " + e.getKey().getType());
 				}

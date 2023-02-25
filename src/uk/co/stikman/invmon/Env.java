@@ -17,6 +17,7 @@ import com.fazecast.jSerialComm.SerialPort;
 
 import uk.co.stikman.eventbus.StringEventBus;
 import uk.co.stikman.invmon.datamodel.DataModel;
+import uk.co.stikman.invmon.datamodel.FieldType;
 import uk.co.stikman.invmon.datamodel.RepeatSettings;
 import uk.co.stikman.invmon.inverter.InvUtil;
 import uk.co.stikman.log.ConsoleLogTarget;
@@ -26,6 +27,8 @@ import uk.co.stikman.table.DataTable;
 
 public class Env {
 	private static final StikLog	LOGGER		= StikLog.getLogger(Env.class);
+
+	public FieldType DATATYPE_VOLT8 = null;
 
 	private static String			version		= "dev";
 
@@ -74,7 +77,7 @@ public class Env {
 				rs.setCountForGroup("inverters", config.getInverterCount());
 				rs.setCountForGroup("batteries", config.getBatteryCount());
 				model.setRepeatSettings(rs);
-				model.loadXML(is);
+				model.loadXML(is); 
 			} catch (IOException e) {
 				throw new InvMonException("Failed to load model: " + e.getMessage(), e);
 			}

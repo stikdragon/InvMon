@@ -137,7 +137,15 @@ public class DataModel implements Iterable<Field> {
 					t = t.replace("$", Integer.toString(repeatIndex));
 				f.setCalculated(t);
 			}
-			f.setPosition(fieldCounts.getAndInc(f.getType().getBaseType()));
+			
+			//
+			// a special case for the VOLT8 type
+			//
+			if (f.getType().name().equalsIgnoreCase("volt8")) {
+				fieldCounts.bytes++;
+			} else {			
+				f.setPosition(fieldCounts.getAndInc(f.getType().getBaseType()));
+			}
 
 			if (el.hasAttribute("calculatedRepeat")) {
 				if (repeatIndex != -1)

@@ -70,7 +70,7 @@ public class FieldType {
 		if (bits[0].trim().equalsIgnoreCase("string"))
 			return new FieldType(type.toUpperCase(), FieldDataType.STRING, Integer.parseInt(bits[1]), 0, 0);
 		else if (bits[0].trim().equalsIgnoreCase("volt8"))
-			return new FieldType(type.toUpperCase(), FieldDataType.FLOAT, 0, Float.parseFloat(bits[1]), Float.parseFloat(bits[2]));
+			return new FieldType(type.toUpperCase(), FieldDataType.FLOAT8, 0, Float.parseFloat(bits[1]), Float.parseFloat(bits[2]));
 
 		throw new IllegalArgumentException("Type [" + type.toUpperCase() + "] is not recognised");
 	}

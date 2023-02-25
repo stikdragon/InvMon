@@ -4,6 +4,7 @@ public class FieldCounts {
 	public int	ints;
 	public int	strings;
 	public int	floats;
+	public int	bytes;
 
 	public int getAndInc(FieldDataType dt) {
 		switch (dt) {
@@ -13,6 +14,8 @@ public class FieldCounts {
 				return ints++;
 			case STRING:
 				return strings++;
+			case FLOAT8:
+				return bytes++;
 			default:
 				throw new IllegalArgumentException();
 		}
