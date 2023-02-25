@@ -2,8 +2,10 @@ package uk.co.stikman.invmon.datalog;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -99,6 +101,19 @@ public class DataLogger extends InvModule {
 				Set<String> xsect = new HashSet<>(oldFieldNames);
 				xsect.retainAll(newFieldNames);
 
+				Map<String, String> copyFields = new HashMap<>();
+				xsect.forEach(s -> copyFields.put(s, s));
+				
+				
+				//
+				// now we'll do some copying of specific fields between database versions
+				//
+				if (oldDb.getModel().getDataVersion() == 1 && newDb.getModel().getDataVersion() == 2) {
+					copyFields.put("BATT_I_1", "INV_1_I");
+					copyFields.put("BATT_I_2", "INV_2_I");
+				}
+							
+
 				long lastT = 0;
 				for (int i = 0; i < oldDb.getRecordCount(); ++i) {
 					if (System.currentTimeMillis() - lastT > 250) {
@@ -111,9 +126,9 @@ public class DataLogger extends InvModule {
 					DBRecord newR = newDb.addRecord();
 					newR.setTimestamp(oldR.getTimestamp());
 
-					for (String f : xsect) {
-						Field newF = newDb.getModel().get(f);
-						Field oldF = oldDb.getModel().get(f);
+					for (Entry<String, String> e : copyFields.entrySet()) {
+						Field newF = newDb.getModel().get(e.getValue());
+						Field oldF = oldDb.getModel().get(e.getKey());
 
 						if (!newF.getType().equals(oldF.getType())) // TODO: i suppose we could convert these?
 							throw new MiniDbException("Cannot convert database as field [" + newF.getId() + "] has changed data type");
@@ -130,6 +145,9 @@ public class DataLogger extends InvModule {
 									break;
 								case STRING:
 									newR.setString(newF, oldR.getString(oldF));
+									break;
+								case FLOAT8:
+									newR.setFloat8(newF, oldR.getFloat8(oldF));
 									break;
 							}
 						}

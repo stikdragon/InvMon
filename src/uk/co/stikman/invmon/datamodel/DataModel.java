@@ -50,18 +50,20 @@ public class DataModel implements Iterable<Field> {
 	private List<Field>				calculatedFields	= Collections.emptyList();
 	private FieldCounts				fieldCounts			= new FieldCounts();
 	private RepeatSettings			repeatSettings		= new RepeatSettings();
+	private int						dataVersion;
 
 	public void loadXML(InputStream str) throws IOException, InvMonException {
 		LOGGER.info("Loading model..");
 		Document doc = InvUtil.loadXML(str);
-		int xmlVersion = Integer.parseInt(InvUtil.getAttrib(doc.getDocumentElement(), "version", "1"));
+		dataVersion = Integer.parseInt(InvUtil.getAttrib(doc.getDocumentElement(), "dataVersion", "1"));
+		int ver = Integer.parseInt(InvUtil.getAttrib(doc.getDocumentElement(), "version", "1"));
 
-		while (xmlVersion < CURRENT_VERSION) {
-			LOGGER.info("Upgrading legacy model from version " + xmlVersion + "...");
-			xmlVersion = convertDocument(xmlVersion, doc);
+		while (ver < CURRENT_VERSION) {
+			LOGGER.info("Upgrading legacy model from version " + ver + "...");
+			ver = convertDocument(ver, doc);
 			LOGGER.info("  done");
 		}
-		
+
 		fieldCounts = new FieldCounts();
 		for (Element el : InvUtil.getElements(doc.getDocumentElement())) {
 			if ("Field".equals(el.getTagName())) {
@@ -137,13 +139,13 @@ public class DataModel implements Iterable<Field> {
 					t = t.replace("$", Integer.toString(repeatIndex));
 				f.setCalculated(t);
 			}
-			
+
 			//
 			// a special case for the VOLT8 type
 			//
 			if (f.getType().name().equalsIgnoreCase("volt8")) {
 				fieldCounts.bytes++;
-			} else {			
+			} else {
 				f.setPosition(fieldCounts.getAndInc(f.getType().getBaseType()));
 			}
 
@@ -454,6 +456,14 @@ public class DataModel implements Iterable<Field> {
 
 	public void setRepeatSettings(RepeatSettings repeatSettings) {
 		this.repeatSettings = repeatSettings;
+	}
+
+	public int getDataVersion() {
+		return dataVersion;
+	}
+
+	public void setDataVersion(int dataVersion) {
+		this.dataVersion = dataVersion;
 	}
 
 }
