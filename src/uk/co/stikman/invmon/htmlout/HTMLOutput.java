@@ -96,7 +96,7 @@ public class HTMLOutput extends InvModule {
 				for (QueryRecord rec : res.getRecords()) {
 					int i = 0;
 					for (StringBuilder sb : arrays) {
-						switch (fields.get(i).getDataType()) {
+						switch (fields.get(i).getType().getBaseType()) {
 							case FLOAT:
 								sb.append(sep).append(rec.getFloat(i));
 								break;

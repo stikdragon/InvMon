@@ -38,18 +38,30 @@ import uk.co.stikman.invmon.datamodel.expr.MulOp;
 import uk.co.stikman.invmon.datamodel.expr.PushFloatOp;
 import uk.co.stikman.invmon.datamodel.expr.SubOp;
 import uk.co.stikman.invmon.inverter.InvUtil;
+import uk.co.stikman.log.StikLog;
 import uk.co.stikman.table.DataRecord;
 import uk.co.stikman.table.DataTable;
 
 public class DataModel implements Iterable<Field> {
-	private Map<String, Field>	fields				= new HashMap<>();
-	private List<Field>			fieldList			= new ArrayList<>();
-	private List<Field>			calculatedFields	= Collections.emptyList();
-	private FieldCounts			fieldCounts			= new FieldCounts();
-	private RepeatSettings		repeatSettings		= new RepeatSettings();
+	private static final StikLog	LOGGER				= StikLog.getLogger(DataModel.class);
+	private static final int		CURRENT_VERSION		= 2;
+	private Map<String, Field>		fields				= new HashMap<>();
+	private List<Field>				fieldList			= new ArrayList<>();
+	private List<Field>				calculatedFields	= Collections.emptyList();
+	private FieldCounts				fieldCounts			= new FieldCounts();
+	private RepeatSettings			repeatSettings		= new RepeatSettings();
 
 	public void loadXML(InputStream str) throws IOException, InvMonException {
+		LOGGER.info("Loading model..");
 		Document doc = InvUtil.loadXML(str);
+		int xmlVersion = Integer.parseInt(InvUtil.getAttrib(doc.getDocumentElement(), "version", "1"));
+
+		while (xmlVersion < CURRENT_VERSION) {
+			LOGGER.info("Upgrading legacy model from version " + xmlVersion + "...");
+			xmlVersion = convertDocument(xmlVersion, doc);
+			LOGGER.info("  done");
+		}
+		
 		fieldCounts = new FieldCounts();
 		for (Element el : InvUtil.getElements(doc.getDocumentElement())) {
 			if ("Field".equals(el.getTagName())) {
@@ -85,6 +97,15 @@ public class DataModel implements Iterable<Field> {
 		compileExpressions();
 	}
 
+	private int convertDocument(int from, Document doc) {
+		switch (from) {
+			case 1:
+				DataModelConversion.convertV1(doc);
+				return from + 1;
+		}
+		throw new IllegalArgumentException("Unknown version: " + from);
+	}
+
 	private void readField(Element el, int repeatIndex) throws InvMonException {
 		String id = InvUtil.getAttrib(el, "id");
 		if (repeatIndex != -1)
@@ -92,42 +113,37 @@ public class DataModel implements Iterable<Field> {
 		Field f = new Field(id);
 		if (find(f.getId()) != null)
 			throw new IllegalArgumentException("Field [" + f.getId() + "] already declared");
-		f.setType(FieldType.valueOf(InvUtil.getAttrib(el, "type").toUpperCase()));
+		f.setType(FieldType.parse(InvUtil.getAttrib(el, "type").toUpperCase()));
 
 		if (f.getType() == FieldType.TIMESTAMP) {
 			//
 			// nothing else to do, this is a special field
 			//
 		} else {
-			if (f.getType() == FieldType.STRING)
-				f.setWidth(Integer.parseInt(InvUtil.getAttrib(el, "width")));
-			else
-				f.setWidth(f.getDataType().getTypeSize());
-
 			if (el.hasAttribute("aggregationMode")) {
 				f.setAggregationMode(AggregationMode.valueOf(el.getAttribute("aggregationMode")));
 			} else {
-				if (f.getType() == FieldType.STRING)
+				if (f.getType().getBaseType() == FieldDataType.STRING)
 					f.setAggregationMode(AggregationMode.FIRST);
 				else
 					f.setAggregationMode(AggregationMode.MEAN);
 			}
 
 			if (el.hasAttribute("calculated")) {
-				if (f.getDataType() != FieldDataType.FLOAT)
+				if (f.getType().getBaseType() != FieldDataType.FLOAT)
 					throw new IllegalArgumentException("Only FLOAT fields can be calculated");
 				String t = el.getAttribute("calculated");
 				if (repeatIndex != -1)
 					t = t.replace("$", Integer.toString(repeatIndex));
 				f.setCalculated(t);
 			}
-			f.setPosition(fieldCounts.getAndInc(f.getDataType()));
+			f.setPosition(fieldCounts.getAndInc(f.getType().getBaseType()));
 
 			if (el.hasAttribute("calculatedRepeat")) {
 				if (repeatIndex != -1)
 					throw new InvMonException("<Field> with calculatedRepeat attribute is only valid outside a <Repeat> element");
-				int repeatCount = repeatSettings.getCountForGroup(InvUtil.getAttrib(el, "repeatGroup")) ;
-				
+				int repeatCount = repeatSettings.getCountForGroup(InvUtil.getAttrib(el, "repeatGroup"));
+
 				String t = el.getAttribute("calculatedRepeat");
 				String[] bits = t.split(",");
 				if (bits.length != 2)
@@ -161,12 +177,11 @@ public class DataModel implements Iterable<Field> {
 			Document doc = bld.newDocument();
 			Element root = doc.createElement("Model");
 			doc.appendChild(root);
+			doc.getDocumentElement().setAttribute("version", Integer.toString(CURRENT_VERSION));
 			fieldList.forEach(f -> {
 				Element el = doc.createElement("Field");
 				el.setAttribute("id", f.getId());
 				el.setAttribute("type", f.getType().name());
-				if (f.getType() == FieldType.STRING)
-					el.setAttribute("width", Integer.toString(f.getWidth()));
 				if (f.getCalculated() != null)
 					el.setAttribute("calculated", f.getCalculated());
 				root.appendChild(el);

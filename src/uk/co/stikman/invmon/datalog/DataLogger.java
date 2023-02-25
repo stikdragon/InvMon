@@ -31,7 +31,6 @@ public class DataLogger extends InvModule {
 	private File					file;
 	private int						blockSize;
 
-	
 	public DataLogger(String id, Env env) {
 		super(id, env);
 	}
@@ -105,7 +104,7 @@ public class DataLogger extends InvModule {
 					if (System.currentTimeMillis() - lastT > 250) {
 						lastT = System.currentTimeMillis();
 						LOGGER.info("Converting record [" + i + "] of [" + oldDb.getRecordCount() + "]...");
-//						LOGGER.info("Open blocks: " + oldDb.getOpenBlocks()  + ",  " + newDb.getOpenBlocks());
+						//						LOGGER.info("Open blocks: " + oldDb.getOpenBlocks()  + ",  " + newDb.getOpenBlocks());
 					}
 
 					DBRecord oldR = oldDb.getRecord(i);
@@ -116,22 +115,22 @@ public class DataLogger extends InvModule {
 						Field newF = newDb.getModel().get(f);
 						Field oldF = oldDb.getModel().get(f);
 
-						if (newF.getDataType() != oldF.getDataType()) // TODO: i suppose we could convert these?
+						if (!newF.getType().equals(oldF.getType())) // TODO: i suppose we could convert these?
 							throw new MiniDbException("Cannot convert database as field [" + newF.getId() + "] has changed data type");
 
 						if (newF.getCalculationMethod() == null) { // can't set calculated fields
 							if (newF.getType() == FieldType.TIMESTAMP) // skip this 
 								continue;
-							switch (newF.getDataType()) {
-							case FLOAT:
-								newR.setFloat(newF, oldR.getFloat(oldF));
-								break;
-							case INT:
-								newR.setInt(newF, oldR.getInt(oldF));
-								break;
-							case STRING:
-								newR.setString(newF, oldR.getString(oldF));
-								break;
+							switch (newF.getType().getBaseType()) {
+								case FLOAT:
+									newR.setFloat(newF, oldR.getFloat(oldF));
+									break;
+								case INT:
+									newR.setInt(newF, oldR.getInt(oldF));
+									break;
+								case STRING:
+									newR.setString(newF, oldR.getString(oldF));
+									break;
 							}
 						}
 					}
@@ -169,22 +168,18 @@ public class DataLogger extends InvModule {
 		rec.setTimestamp(data.getTimestamp());
 		for (DataPoint x : data.getData().values()) {
 			for (Entry<Field, Object> e : x.getValues().entrySet()) {
-				switch (e.getKey().getType()) {
-				case FLOAT:
-				case FREQ:
-				case CURRENT:
-				case POWER:
-				case VOLTAGE:
-					rec.setFloat(e.getKey(), ((Number) e.getValue()).floatValue());
-					break;
-				case STRING:
-					rec.setString(e.getKey(), e.getValue().toString());
-					break;
-				case INT:
-					rec.setInt(e.getKey(), ((Number) e.getValue()).intValue());
-					break;
-				default:
-					throw new IllegalStateException("unsupported field type: " + e.getKey().getType());
+				switch (e.getKey().getType().getBaseType()) {
+					case FLOAT:
+						rec.setFloat(e.getKey(), ((Number) e.getValue()).floatValue());
+						break;
+					case STRING:
+						rec.setString(e.getKey(), e.getValue().toString());
+						break;
+					case INT:
+						rec.setInt(e.getKey(), ((Number) e.getValue()).intValue());
+						break;
+					default:
+						throw new IllegalStateException("unsupported field type: " + e.getKey().getType());
 				}
 			}
 		}
@@ -239,86 +234,84 @@ public class DataLogger extends InvModule {
 				for (int i = 1; i < fields.size(); ++i) { // starts at 1! (skip key field)
 					Field srcfld = fields.get(i);
 
-					switch (srcfld.getType()) {
-					case CURRENT:
-					case FLOAT:
-					case FREQ:
-					case VOLTAGE:
-					case POWER:
-						float f = dbrec.getFloat(srcfld);
-						if (!Float.isFinite(f))
-							f = 0.0f;
+					if (srcfld.getType() == FieldType.TIMESTAMP) {
 						switch (srcfld.getAggregationMode()) {
-						case FIRST:
-							if (outrec.getBaseRecordCount() == 0)
-								outrec.setFloat(i, f);
-							break;
-						case MAX:
-							outrec.setFloat(i, Math.max(f, outrec.getFloat(i)));
-							break;
-						case MIN:
-							outrec.setFloat(i, Math.min(f, outrec.getFloat(i)));
-							break;
-						case MEAN:
-						case SUM:
-							outrec.setFloat(i, f + outrec.getFloat(i));
-							break;
+							case FIRST:
+								if (outrec.getBaseRecordCount() == 0)
+									outrec.setLong(i, dbrec.getTimestamp());
+								break;
+							case MAX:
+								outrec.setLong(i, Math.max(dbrec.getTimestamp(), outrec.getLong(i)));
+								break;
+							case MIN:
+								outrec.setLong(i, Math.min(dbrec.getTimestamp(), outrec.getLong(i)));
+								break;
+							case MEAN:
+							case SUM:
+								outrec.setLong(i, dbrec.getTimestamp() + outrec.getLong(i));
+								break;
 						}
-						break;
-					case STRING:
-						switch (srcfld.getAggregationMode()) {
-						case FIRST:
-							if (outrec.getBaseRecordCount() == 0)
-								outrec.setString(i, dbrec.getString(srcfld));
-							break;
-						case MAX:
-							outrec.setString(i, maxString(dbrec.getString(srcfld), outrec.getString(i)));
-							break;
-						case MIN:
-							outrec.setString(i, minString(dbrec.getString(srcfld), outrec.getString(i)));
-							break;
-						default:
-							throw new MiniDbException("Invalid aggregation mode for string type: " + srcfld.getAggregationMode());
+					} else {
+
+						switch (srcfld.getType().getBaseType()) {
+							case FLOAT:
+								float f = dbrec.getFloat(srcfld);
+								if (!Float.isFinite(f))
+									f = 0.0f;
+								switch (srcfld.getAggregationMode()) {
+									case FIRST:
+										if (outrec.getBaseRecordCount() == 0)
+											outrec.setFloat(i, f);
+										break;
+									case MAX:
+										outrec.setFloat(i, Math.max(f, outrec.getFloat(i)));
+										break;
+									case MIN:
+										outrec.setFloat(i, Math.min(f, outrec.getFloat(i)));
+										break;
+									case MEAN:
+									case SUM:
+										outrec.setFloat(i, f + outrec.getFloat(i));
+										break;
+								}
+								break;
+							case STRING:
+								switch (srcfld.getAggregationMode()) {
+									case FIRST:
+										if (outrec.getBaseRecordCount() == 0)
+											outrec.setString(i, dbrec.getString(srcfld));
+										break;
+									case MAX:
+										outrec.setString(i, maxString(dbrec.getString(srcfld), outrec.getString(i)));
+										break;
+									case MIN:
+										outrec.setString(i, minString(dbrec.getString(srcfld), outrec.getString(i)));
+										break;
+									default:
+										throw new MiniDbException("Invalid aggregation mode for string type: " + srcfld.getAggregationMode());
+								}
+								break;
+							case INT:
+								switch (srcfld.getAggregationMode()) {
+									case FIRST:
+										if (outrec.getBaseRecordCount() == 0)
+											outrec.setInt(i, dbrec.getInt(srcfld));
+										break;
+									case MAX:
+										outrec.setInt(i, Math.max(dbrec.getInt(srcfld), outrec.getInt(i)));
+										break;
+									case MIN:
+										outrec.setInt(i, Math.min(dbrec.getInt(srcfld), outrec.getInt(i)));
+										break;
+									case MEAN:
+									case SUM:
+										outrec.setInt(i, dbrec.getInt(srcfld) + outrec.getInt(i));
+										break;
+								}
+								break;
+							default:
+								throw new MiniDbException("Unsupported type: " + srcfld.getType());
 						}
-						break;
-					case TIMESTAMP:
-						switch (srcfld.getAggregationMode()) {
-						case FIRST:
-							if (outrec.getBaseRecordCount() == 0)
-								outrec.setLong(i, dbrec.getTimestamp());
-							break;
-						case MAX:
-							outrec.setLong(i, Math.max(dbrec.getTimestamp(), outrec.getLong(i)));
-							break;
-						case MIN:
-							outrec.setLong(i, Math.min(dbrec.getTimestamp(), outrec.getLong(i)));
-							break;
-						case MEAN:
-						case SUM:
-							outrec.setLong(i, dbrec.getTimestamp() + outrec.getLong(i));
-							break;
-						}
-						break;
-					case INT:
-						switch (srcfld.getAggregationMode()) {
-						case FIRST:
-							if (outrec.getBaseRecordCount() == 0)
-								outrec.setInt(i, dbrec.getInt(srcfld));
-							break;
-						case MAX:
-							outrec.setInt(i, Math.max(dbrec.getInt(srcfld), outrec.getInt(i)));
-							break;
-						case MIN:
-							outrec.setInt(i, Math.min(dbrec.getInt(srcfld), outrec.getInt(i)));
-							break;
-						case MEAN:
-						case SUM:
-							outrec.setInt(i, dbrec.getInt(srcfld) + outrec.getInt(i));
-							break;
-						}
-						break;
-					default:
-						throw new MiniDbException("Unsupported type: " + srcfld.getType());
 					}
 				}
 				outrec.setBaseRecordCount(outrec.getBaseRecordCount() + 1);
@@ -338,7 +331,7 @@ public class DataLogger extends InvModule {
 
 		res.setStart(tsStart);
 		res.setEnd(tsEnd);
-		
+
 		return res;
 	}
 

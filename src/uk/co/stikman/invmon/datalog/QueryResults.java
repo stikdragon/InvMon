@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import uk.co.stikman.invmon.datamodel.Field;
+import uk.co.stikman.invmon.datamodel.FieldType;
 import uk.co.stikman.table.DataRecord;
 import uk.co.stikman.table.DataTable;
 
@@ -48,25 +49,22 @@ public class QueryResults {
 	public QueryRecord addRecord() {
 		QueryRecord r = new QueryRecord(this);
 		for (Field f : fields) {
-			switch (f.getType()) {
-				case CURRENT:
-				case FLOAT:
-				case FREQ:
-				case POWER:
-				case VOLTAGE:
-					r.add(ZERO_F);
-					break;
-				case STRING:
-					r.add("");
-					break;
-				case INT:
-					r.add(ZERO_I);
-					break;
-				case TIMESTAMP:
-					r.add(ZERO_L);
-					break;
-				default:
-					throw new RuntimeException("Unsupported type (not implemented yet): " + f.getType());
+			if (f.getType() == FieldType.TIMESTAMP) {
+				r.add(ZERO_L);
+			} else {
+				switch (f.getType().getBaseType()) {
+					case FLOAT:
+						r.add(ZERO_F);
+						break;
+					case STRING:
+						r.add("");
+						break;
+					case INT:
+						r.add(ZERO_I);
+						break;
+					default:
+						throw new RuntimeException("Unsupported type (not implemented yet): " + f.getType());
+				}
 			}
 		}
 		records.add(r);

@@ -58,6 +58,14 @@ public class DBRecord {
 		return ints[field.getPosition()];
 	}
 
+	public float getTinyVolt(Field field) {
+	return 0;	
+	}
+	
+	public void setTinyVolt(Field field) {
+		
+	}
+	
 	public long getTimestamp() {
 		return timestamp;
 	}

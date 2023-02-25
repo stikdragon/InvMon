@@ -10,11 +10,9 @@ public class Field {
 	private final String	id;
 	private FieldType		type;
 	private AggregationMode	aggregationMode	= AggregationMode.SUM;
-	private int				width;									// for strings
 	private int				position;
 	private String			calculated;
 	private CalcMethod		calculationMethod;
-	private FieldDataType	dataType;
 
 	public Field(String id) {
 		super();
@@ -37,8 +35,8 @@ public class Field {
 		return type;
 	}
 
-	public int getWidth() {
-		return width;
+	public void setType(FieldType type) {
+		this.type = type;
 	}
 
 	public void setAggregationMode(AggregationMode aggregationMode) {
@@ -54,18 +52,9 @@ public class Field {
 		this.position = position;
 	}
 
-	public void setType(FieldType type) {
-		this.type = type;
-		this.dataType = type.getBaseType();
-	}
-
-	public void setWidth(int width) {
-		this.width = width;
-	}
-
 	@Override
 	public int hashCode() {
-		return Objects.hash(aggregationMode, calculated, id, position, type, width);
+		return Objects.hash(aggregationMode, calculated, id, position, type);
 	}
 
 	@Override
@@ -77,23 +66,19 @@ public class Field {
 		if (getClass() != obj.getClass())
 			return false;
 		Field other = (Field) obj;
-		return aggregationMode == other.aggregationMode && Objects.equals(calculated, other.calculated) && Objects.equals(id, other.id) && position == other.position && type == other.type && width == other.width;
+		return aggregationMode == other.aggregationMode && Objects.equals(calculated, other.calculated) && Objects.equals(id, other.id) && position == other.position && type == other.type;
 	}
 
 	public Object toString(DBRecord r) {
-		switch (this.getType()) {
+		if (this.getType() == FieldType.TIMESTAMP)
+			return r.getTimestamp();
+		switch (this.getType().getBaseType()) {
 			case FLOAT:
-			case FREQ:
-			case CURRENT:
-			case POWER:
-			case VOLTAGE:
 				return Float.valueOf(r.getFloat(this));
 			case STRING:
 				return r.getString(this);
 			case INT:
 				return r.getInt(this);
-			case TIMESTAMP:
-				return r.getTimestamp();
 			default:
 				throw new RuntimeException("Unknown type: " + this.getType());
 		}
@@ -115,17 +100,13 @@ public class Field {
 		return calculationMethod;
 	}
 
-	public FieldDataType getDataType() {
-		return dataType;
-	}
-
 	@Override
 	public String toString() {
 		return id;
 	}
 
 	public float getFloat(QueryRecord rec) {
-		if (this.getDataType() == FieldDataType.FLOAT)
+		if (this.getType().getBaseType() == FieldDataType.FLOAT)
 			return rec.getFloat(position);
 		throw new IllegalArgumentException("Not a float");
 	}

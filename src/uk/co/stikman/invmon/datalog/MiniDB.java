@@ -356,7 +356,7 @@ public class MiniDB {
 		String sep = "";
 		for (Field f : model) {
 			sb.append(sep);
-			switch (f.getDataType()) {
+			switch (f.getType().getBaseType()) {
 				case FLOAT:
 					sb.append(rec.getFloat(f));
 					break;
