@@ -143,7 +143,8 @@ public class JSONSend extends InvModule {
 	@Override
 	public void terminate() {
 		terminated = true;
-		thread.interrupt();
+		if (thread != null)
+			thread.interrupt();
 		super.terminate();
 	}
 

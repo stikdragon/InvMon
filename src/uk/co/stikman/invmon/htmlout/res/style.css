@@ -22,6 +22,28 @@ body {
 	padding: 1px;
 }
 
+#timeselector .controls .sel, .controls .unsel {
+	display: inline-block;
+	padding: 4px;
+}
+
+#timeselector .controls .sel {
+	display: inline-block;
+	padding: 2px;
+	border: 2px solid #aaa;
+	border-radius: 5px;
+	background: #e2e2e2;
+}
+
+#timeselector .divider {
+	width: 2px;
+	height: 10px;
+	background: #00000040;
+	display: inline-block;
+	margin-left: 2px;
+	margin-right: 2px;
+}
+
 .footer {
 	min-height: 20px;
 	font-size: 75%;
@@ -116,20 +138,6 @@ h1 {
 .tiny .b {
 	color: #9c9;
 	display: inline-block;
-}
-
-.controls .sel, .controls .unsel {
-	display: inline-block;
-	padding: 4px;
-	border-right: 2px solid #00000029;
-}
-
-.controls .sel {
-	display: inline-block;
-	padding: 2px;
-	border: 2px solid #aaa;
-	border-radius: 5px;
-	background: #e2e2e2;
 }
 
 .chart {
@@ -308,7 +316,6 @@ table.data .total td {
 	height: 32px;
 }
 
-
 .error {
 	position: absolute;
 	top: 0;
@@ -324,6 +331,5 @@ table.data .total td {
 .error .message {
 	width: 80%;
 	background-color: rgba(255, 255, 255, 80%);
-	padding: 10px;	
+	padding: 10px;
 }
-

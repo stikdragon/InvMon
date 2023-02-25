@@ -132,7 +132,7 @@ public class HTTPServer extends InvModule {
 		QueryResults data = getQueryResults(sesh);
 		if (name.equals("pvChart")) {
 			generator.renderPVPowerChart(html, opts, data);
-			titleBits.add(generator.renderGrp(new HTMLBuilder(), "<div class=\"grp\">Total: [%d]W</div>", (int)data.getLastRecord().getFloat("PV_TOTAL_P")).toString());
+			titleBits.add(generator.renderGrp(new HTMLBuilder(), "<div class=\"grp\">Total: [%d]W</div>", (int) data.getLastRecord().getFloat("PV_TOTAL_P")).toString());
 		} else if (name.equals("loadChart")) {
 			generator.renderLoadChart(html, opts, data);
 			VIFReading vif1 = data.getLastRecord().getVIF("LOAD");
@@ -145,11 +145,18 @@ public class HTTPServer extends InvModule {
 			titleBits.add(generator.renderVIF(new HTMLBuilder(), "Batt", vif1).toString());
 		} else if (name.equals("busChart")) {
 			generator.renderTempChart(html, opts, data);
+			float ftmp1 = data.getLastRecord().getFloat("INV_1_TEMP");
+			float ftmp2 = data.getLastRecord().getFloat("INV_2_TEMP");
+			float busv1 = data.getLastRecord().getFloat("INV_1_BUS_V");
+			float busv2 = data.getLastRecord().getFloat("INV_2_BUS_V");
+			
+			titleBits.add(generator.renderGrp(new HTMLBuilder(), "<div class=\"grp\">Temp1: [%.1f]C  BusV: [%d]V</div>", ftmp1, (int) busv1).toString());
+			titleBits.add(generator.renderGrp(new HTMLBuilder(), "<div class=\"grp\">Temp2: [%.1f]C  BusV: [%d]V</div>", ftmp2, (int) busv2).toString());
 		} else if (name.equals("pvTable")) {
 			generator.renderPVTable(html, opts, data);
 		} else
 			html.append("NOT FOUND");
-		
+
 		JSONArray arr = new JSONArray();
 		titleBits.forEach(arr::put);
 		res.put("titleBits", arr);
@@ -162,9 +169,8 @@ public class HTTPServer extends InvModule {
 			ViewOptions opts = sesh.getData(GLOBAL_VIEW_OPTIONS);
 			QueryResults qr = sesh.getData(LAST_QUERY_RESULTS);
 			if (qr == null) {
-				System.out.println("generate");
 				long end = System.currentTimeMillis();
-				long start = end - (long)opts.getDuration() * 1000 * 60;
+				long start = end - (long) opts.getDuration() * 1000 * 60;
 				FieldNameList flds = new FieldNameList();
 				flds.add("BATT_V, BATT_I, BATT_I_CHG, BATT_I_DIS");
 				flds.add("LOAD_V, LOAD_I, LOAD_F");
@@ -208,7 +214,8 @@ public class HTTPServer extends InvModule {
 
 	@Override
 	public void terminate() {
-		svr.stop();
+		if (svr != null)
+			svr.stop();
 		super.terminate();
 	}
 
@@ -305,7 +312,7 @@ public class HTTPServer extends InvModule {
 		wij.put("x", 0).put("y", 0).put("w", 25).put("h", 1);
 		wij.put("id", "timeselector").put("type", "timesel");
 		arr.put(wij);
-		
+
 		wij = new JSONObject();
 		wij.put("name", "PV Power");
 		wij.put("x", 0).put("y", 1).put("w", 20).put("h", 7);

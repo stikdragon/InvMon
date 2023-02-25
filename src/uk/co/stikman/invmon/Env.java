@@ -48,57 +48,66 @@ public class Env {
 	}
 
 	public void start() throws InvMonException {
-		StikLog.clearTargets();
-		ConsoleLogTarget tgt = new ConsoleLogTarget();
-		tgt.setFormat(new InvMonLogFormatter());
-		tgt.enableLevel(Level.DEBUG, false);
-		StikLog.addTarget(tgt);
-
-		LOGGER.info("Starting InvMon...");
-		listPorts();
-		timer = new Timer();
-		exec = Executors.newFixedThreadPool(4);
-
-		bus.setImmediateMode(true);
-
-		config = new Config();
 		try {
-			config.loadFromFile(Paths.get("config.xml").toFile());
-		} catch (IOException e) {
-			throw new InvMonException("Failed to load config: " + e.getMessage(), e);
-		}
+			StikLog.clearTargets();
+			ConsoleLogTarget tgt = new ConsoleLogTarget();
+			tgt.setFormat(new InvMonLogFormatter());
+			tgt.enableLevel(Level.DEBUG, false);
+			StikLog.addTarget(tgt);
 
-		model = new DataModel();
-		try (InputStream is = getClass().getResourceAsStream("parallelModel.xml")) {
-			RepeatSettings rs = new RepeatSettings();
-			rs.setCountForGroup("inverters", config.getInverterCount());
-			rs.setCountForGroup("batteries", config.getBatteryCount());
-			model.setRepeatSettings(rs);
-			model.loadXML(is);
-		} catch (IOException e) {
-			throw new InvMonException("Failed to load model: " + e.getMessage(), e);
-		}
+			LOGGER.info("Starting InvMon...");
+			listPorts();
+			timer = new Timer();
+			exec = Executors.newFixedThreadPool(4);
+			bus.setImmediateMode(true);
 
-		for (InvModDefinition def : config.getThings()) {
+			config = new Config();
 			try {
-				InvModule part = def.getClazz().getConstructor(String.class, Env.class).newInstance(def.getId(), this);
-				part.configure(def.getConfig());
-				parts.add(part);
-			} catch (Exception e) {
-				throw new InvMonException("Failed to start part [" + def.getId() + "]: " + e.getMessage(), e);
+				config.loadFromFile(Paths.get("config.xml").toFile());
+			} catch (IOException e) {
+				throw new InvMonException("Failed to load config: " + e.getMessage(), e);
 			}
-		}
 
-		LOGGER.info("Config loaded");
-		for (InvModule part : parts) {
-			LOGGER.info("Starting [" + part.getClass().getSimpleName() + "] module with id [" + part.getId() + "]");
-			part.start();
-		}
+			model = new DataModel();
+			try (InputStream is = getClass().getResourceAsStream("parallelModel.xml")) {
+				RepeatSettings rs = new RepeatSettings();
+				rs.setCountForGroup("inverters", config.getInverterCount());
+				rs.setCountForGroup("batteries", config.getBatteryCount());
+				model.setRepeatSettings(rs);
+				model.loadXML(is);
+			} catch (IOException e) {
+				throw new InvMonException("Failed to load model: " + e.getMessage(), e);
+			}
 
-		LOGGER.info("Starting main thread");
-		mainthread = new Thread(this::loop);
-		mainthread.start();
-		LOGGER.info("Ready");
+			for (InvModDefinition def : config.getThings()) {
+				try {
+					InvModule part = def.getClazz().getConstructor(String.class, Env.class).newInstance(def.getId(), this);
+					part.configure(def.getConfig());
+					parts.add(part);
+				} catch (Exception e) {
+					throw new InvMonException("Failed to start part [" + def.getId() + "]: " + e.getMessage(), e);
+				}
+			}
+
+			LOGGER.info("Config loaded");
+			for (InvModule part : parts) {
+				LOGGER.info("Starting [" + part.getClass().getSimpleName() + "] module with id [" + part.getId() + "]");
+				part.start();
+			}
+
+			LOGGER.info("Starting main thread");
+			mainthread = new Thread(this::loop);
+			mainthread.start();
+			LOGGER.info("Ready");
+		} catch (Throwable th) {
+			try {
+				terminate();
+			} catch (Exception e) {
+				System.err.println("Error during shutdown:");
+				e.printStackTrace();
+			}
+			throw th;
+		}
 	}
 
 	public static void listPorts() {
@@ -140,23 +149,31 @@ public class Env {
 
 	public void terminate() {
 		terminated = true;
-		mainthread.interrupt();
+		if (mainthread != null)
+			mainthread.interrupt();
 
-		timer.cancel();
-		exec.shutdown();
-		try {
-			if (!exec.awaitTermination(5000, TimeUnit.MILLISECONDS))
+		if (timer != null)
+			timer.cancel();
+
+		if (exec != null) {
+			exec.shutdown();
+			try {
+				if (!exec.awaitTermination(10, TimeUnit.SECONDS))
+					LOGGER.error("Failed to shut down executor service");
+			} catch (InterruptedException e1) {
 				LOGGER.error("Failed to shut down executor service");
-		} catch (InterruptedException e1) {
+			}
 		}
 
 		for (InvModule part : parts)
 			part.terminate();
 
-		try {
-			mainthread.join();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
+		if (mainthread != null) {
+			try {
+				mainthread.join();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 		mainthread = null;
 	}

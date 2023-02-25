@@ -37,7 +37,6 @@ public class PIP8048MAXParallelGroup extends InvModule {
 	private Field[]							fieldBusVoltage;
 	private Field							fieldLoadPF;
 	private Field							fieldStateOfCharge;
-	private Field							fieldMisc;
 	private Field[]							fieldPvAP;
 	private Field[]							fieldPvBP;
 	private Field							fieldBattV;
@@ -86,7 +85,6 @@ public class PIP8048MAXParallelGroup extends InvModule {
 		out.put(fieldChargeState, first.getString(fieldChargeState));
 		out.put(fieldStateOfCharge, first.getFloat(fieldStateOfCharge));
 		out.put(fieldBattV, first.getFloat(fieldBattV));
-		out.put(fieldMisc, first.getString(fieldMisc));
 		out.put(fieldLoadV, first.getFloat(fieldLoadV));
 		out.put(fieldLoadPF, first.getFloat(fieldLoadPF));
 
@@ -131,7 +129,7 @@ public class PIP8048MAXParallelGroup extends InvModule {
 		fieldBusVoltage = new Field[repeatCount];
 		for (int i = 0; i < repeatCount; ++i) {
 			fieldTemperature[i] = model.get("INV_" + (i + 1) + "_TEMP");
-			fieldBattI[i] = model.get("BATT_I_" + (i + 1));
+			fieldBattI[i] = model.get("INV_" + (i + 1) + "_I");
 			fieldPvA[i] = model.getVIF("PVA_" + (i + 1));
 			fieldPvB[i] = model.getVIF("PVB_" + (i + 1));
 			fieldPvAP[i] = model.get("PVA_" + (i + 1) + "_P");
@@ -141,7 +139,6 @@ public class PIP8048MAXParallelGroup extends InvModule {
 		}
 		fieldLoadPF = model.get("LOAD_PF");
 		fieldStateOfCharge = model.get("BATT_SOC");
-		fieldMisc = model.get("MISC");
 
 		for (InvModDefinition def : childDefs) {
 			try {

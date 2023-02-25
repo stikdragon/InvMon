@@ -33,15 +33,22 @@ function updateChart(id, enableGlass) {
 function buildTimeSel(id) {
 	var cont = $("#" + id + " .content");
 	cont = cont.append("<div class=\"controls\"></div>").children(".controls");
-	cont.append("<a href=\"#\" data-len=\"5\">5 Min</a>");
-	cont.append("<a href=\"#\" data-len=\"30\">30 Min</a>");
-	cont.append("<a href=\"#\" data-len=\"60\">1 Hour</a>");
-	cont.append("<a href=\"#\" data-len=\"120\">2 Hour</a>");
-	cont.append("<a href=\"#\" data-len=\"720\">12 Hour</a>");
-	cont.append("<a href=\"#\" data-len=\"1440\">24 Hour</a>");
-	cont.append("<a href=\"#\" data-len=\"7200\">5 Day</a>");
-	cont.append("<a href=\"#\" data-len=\"43200\">30 Day</a>");
+ 
+	let ranges = [
+		[5, "5 Min"],
+		[30, "30 Min"],
+		[60, "1 Hour"],
+		[120, "2 Hour"],
+		[720, "12 Hour"],
+		[1440, "24 Hour"],
+		[7200, "5 Day"],
+		[43200, "30 Day"],
+	];
 
+	for (const rng of ranges) {
+		cont.append("<a href=\"#\" data-len=\"" + rng[0] + "\">" + rng[1] + "</a>");
+		cont.append("<div class=\"divider\"></div>");
+	}
 	cont.children("a").addClass("unsel").click(function(ev) { setTimeRange($(ev.target).data("len")); });
 }
 
@@ -51,15 +58,21 @@ function setTimeRange(range) {
 			refreshAll(true);
 		}
 	);
+	$(".controls a").each(function(idx) {
+		const x = $(this);
+		x.toggleClass("sel", x.data("len") == range);
+		x.toggleClass("unsel", x.data("len") != range);
+	});
 }
 
 function refreshAll(glass) {
-	for (const wij of layout.widgets) {
-		if (frames[wij.id].update) {
-			frames[wij.id].update(glass);
+	if (layout.widgets) {
+		for (const wij of layout.widgets) {
+			if (frames[wij.id].update) {
+				frames[wij.id].update(glass);
+			}
 		}
 	}
-
 }
 
 function buildPage() {
@@ -89,7 +102,7 @@ function buildPage() {
 	}
 }
 
-$(document).ready(function() {
+$(window).on("load", function() {
 	//
 	// get config from server
 	//
