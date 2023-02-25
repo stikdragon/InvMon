@@ -33,7 +33,7 @@ function updateChart(id, enableGlass) {
 function buildTimeSel(id) {
 	var cont = $("#" + id + " .content");
 	cont = cont.append("<div class=\"controls\"></div>").children(".controls");
- 
+
 	let ranges = [
 		[5, "5 Min"],
 		[30, "30 Min"],
@@ -81,6 +81,10 @@ function buildPage() {
 	for (const wij of layout.widgets) {
 		let frame;
 		switch (wij.type) {
+			case "infobit":
+				frame = $("<div />");
+				frame.build = function() { frame.append(layout["infoBit"]); }
+				break;
 			case "timesel":
 				frame = $("#widgetTemplates #t_timesel").clone();
 				frame.update = null;
@@ -102,6 +106,7 @@ function buildPage() {
 			frame.update(true);
 		frames[wij.id] = frame;
 	}
+
 }
 
 $(window).on("load", function() {

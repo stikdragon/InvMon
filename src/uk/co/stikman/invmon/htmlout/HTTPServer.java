@@ -5,6 +5,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -149,7 +150,7 @@ public class HTTPServer extends InvModule {
 			float ftmp2 = data.getLastRecord().getFloat("INV_2_TEMP");
 			float busv1 = data.getLastRecord().getFloat("INV_1_BUS_V");
 			float busv2 = data.getLastRecord().getFloat("INV_2_BUS_V");
-			
+
 			titleBits.add(generator.renderGrp(new HTMLBuilder(), "<div class=\"grp\">Temp1: [%.1f]C  BusV: [%d]V</div>", ftmp1, (int) busv1).toString());
 			titleBits.add(generator.renderGrp(new HTMLBuilder(), "<div class=\"grp\">Temp2: [%.1f]C  BusV: [%d]V</div>", ftmp2, (int) busv2).toString());
 		} else if (name.equals("pvTable")) {
@@ -342,6 +343,17 @@ public class HTTPServer extends InvModule {
 		wij.put("x", 0).put("y", 22).put("w", 20).put("h", 4);
 		wij.put("id", "busChart").put("type", "busChart");
 		arr.put(wij);
+		
+		wij = new JSONObject();
+		wij.put("name", "infobit");
+		wij.put("x", 0).put("y", 26).put("w", 20).put("h", 2);
+		wij.put("id", "infobit").put("type", "infobit");
+		arr.put(wij);
+
+		HTMLBuilder html = new HTMLBuilder();
+		html.append("<div class=\"tiny\"><div class=\"a\">Local Time: </div><div class=\"b\">").append(new Date().toString()).append("</div></div>");
+		html.append("<div class=\"tiny\"><div class=\"a\">Version: </div><div class=\"b\">").append(Env.getVersion()).append("</div></div>");
+		root.put("infoBit", html.toString());
 
 		return NanoHTTPD.newFixedLengthResponse(root.toString());
 
