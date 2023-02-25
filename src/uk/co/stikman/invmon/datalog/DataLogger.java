@@ -40,6 +40,13 @@ public class DataLogger extends InvModule {
 	public void start() throws InvMonException {
 		super.start();
 		LOGGER.info("Loading database from [" + file.toString() + "]...");
+
+		//
+		// make sure directory exists
+		//
+		if (!file.getParentFile().exists())
+			throw new RuntimeException("Data Directory [" + file.getParentFile().getAbsolutePath() + "] does not exist");
+
 		db = new MiniDB(file, blockSize);
 		db.setModel(getEnv().getModel());
 		try {
@@ -103,8 +110,7 @@ public class DataLogger extends InvModule {
 
 				Map<String, String> copyFields = new HashMap<>();
 				xsect.forEach(s -> copyFields.put(s, s));
-				
-				
+
 				//
 				// now we'll do some copying of specific fields between database versions
 				//
@@ -112,7 +118,6 @@ public class DataLogger extends InvModule {
 					copyFields.put("BATT_I_1", "INV_1_I");
 					copyFields.put("BATT_I_2", "INV_2_I");
 				}
-							
 
 				long lastT = 0;
 				for (int i = 0; i < oldDb.getRecordCount(); ++i) {
