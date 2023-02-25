@@ -125,7 +125,7 @@ public class InverterPIPMAX extends InverterMonitor {
 		fieldMode = model.get("INV_MODE");
 		fieldChargeState = model.get("BATT_MODE");
 		fieldBattV = model.get("BATT_V");
-		fieldBattI = model.get("BATT_I_1");
+		fieldBattI = model.get("INV_1_I");
 		fieldLoadV = model.get("LOAD_V");
 		fieldLoadI = model.get("LOAD_1_I");
 		fieldLoadPF = model.get("LOAD_PF");
@@ -136,7 +136,6 @@ public class InverterPIPMAX extends InverterMonitor {
 		fieldTemperature = model.get("INV_1_TEMP");
 		fieldBusVoltage = model.get("INV_1_BUS_V");
 		fieldStateOfCharge = model.get("BATT_SOC");
-		fieldMisc = model.get("MISC");
 	}
 
 	@Override

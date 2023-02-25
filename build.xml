@@ -1,6 +1,6 @@
 <project default="compile" xmlns:ivy="antlib:org.apache.ivy.ant">
 
-	<property name="version" value="0.9-beta" />
+	<property name="version" value="0.9" />
 
 	<target name="clean">
 		<delete dir="build/classes" />
