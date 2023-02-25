@@ -48,6 +48,7 @@ public class DataLogger extends InvModule {
 		} catch (ModelChangeException e) {
 			try {
 				doConversion(getEnv().getModel());
+				System.gc();
 			} catch (MiniDbException e1) {
 				throw new InvMonException(e1);
 			}
@@ -104,7 +105,7 @@ public class DataLogger extends InvModule {
 					if (System.currentTimeMillis() - lastT > 250) {
 						lastT = System.currentTimeMillis();
 						LOGGER.info("Converting record [" + i + "] of [" + oldDb.getRecordCount() + "]...");
-						LOGGER.info("Open blocks: " + oldDb.getOpenBlocks()  + ",  " + newDb.getOpenBlocks());
+//						LOGGER.info("Open blocks: " + oldDb.getOpenBlocks()  + ",  " + newDb.getOpenBlocks());
 					}
 
 					DBRecord oldR = oldDb.getRecord(i);

@@ -1,49 +1,81 @@
 <Model>
 	<Field id="TIMESTAMP" type="TIMESTAMP" />
-	
+
 	<Field id="INV_MODE" type="string" width="16" />
-	<Field id="INV_TEMP" type="float" />
-	<Field id="INV_BUS_V" type="float" />
+	<Repeat group="inverters">
+		<Field id="INV_$_TEMP" type="float" />
+		<Field id="INV_$_BUS_V" type="float" />
+	</Repeat>
 
-    <Field id="GRID_V" type="voltage" />
-    <Field id="GRID_I" type="current" />
-    <Field id="GRID_F" type="freq" />
-
+	<Field id="GRID_V" type="voltage" />
+	<Field id="GRID_I" type="current" />
+	<Field id="GRID_F" type="freq" />
+	<Field id="LOAD_F" type="freq" />
 	<Field id="BATT_V" type="voltage" />
-	<Field id="BATT_I" type="current" />
-	<Field id="BATT_SOC" type="float" /> 
-	<Field id="BATT_MODE" type="string" width="16" /> 
+	
+	<Repeat group="inverters">
+		<Field id="INV_$_I" type="current" />
+	</Repeat>
+	<Field id="INV_I" type="current" calculatedRepeat="[INV_$_I],sum" repeatGroup="inverters" />
+	<Field id="BATT_SOC" type="float" />
+	<Field id="BATT_MODE" type="string" width="16" />
+
+	<Field id="LOAD_V" type="voltage" />
+	<Repeat group="inverters">
+		<Field id="LOAD_$_I" type="current" />
+		<Field id="LOAD_$_P" type="power" calculated="[LOAD_V], [LOAD_$_I], *" />
+	</Repeat>
+	<Field id="LOAD_PF" type="float" />
+	<Field id="LOAD_P" type="power" calculatedRepeat="[LOAD_$_P],sum" repeatGroup="inverters" />
+	<Field id="LOAD_I" type="current" calculatedRepeat="[LOAD_$_I],sum" repeatGroup="inverters" />
+
+	<Repeat group="inverters">
+		<Field id="PVA_$_V" type="voltage" />
+		<Field id="PVB_$_V" type="voltage" />
+
+		<Field id="PVA_$_I" type="current" />
+		<Field id="PVB_$_I" type="current" />
+
+		<Field id="PVA_$_P" type="power" />
+		<Field id="PVB_$_P" type="power" />
+
+		<Field id="PV_$_P" type="power" calculated="[PVA_$_P], [PVB_$_P], +" />
+	</Repeat>
+
+	<Field id="PV_TOTAL_P" type="power" calculatedRepeat="[PV_$_P],sum" repeatGroup="inverters" />
+
+	<Repeat group="batteries">
+		<Field id="BATT_$_I" type="current" />
+	
+		<Field id="BATT_$_C1" type="voltage" />
+		<Field id="BATT_$_C2" type="voltage" />
+		<Field id="BATT_$_C3" type="voltage" />
+		<Field id="BATT_$_C4" type="voltage" />
+		<Field id="BATT_$_C5" type="voltage" />
+		<Field id="BATT_$_C6" type="voltage" />
+		<Field id="BATT_$_C7" type="voltage" />
+		<Field id="BATT_$_C8" type="voltage" />
+		<Field id="BATT_$_C9" type="voltage" />
+		<Field id="BATT_$_C10" type="voltage" />
+		<Field id="BATT_$_C11" type="voltage" />
+		<Field id="BATT_$_C12" type="voltage" />
+		<Field id="BATT_$_C13" type="voltage" />
+		<Field id="BATT_$_C14" type="voltage" />
+		<Field id="BATT_$_C15" type="voltage" />
+		<Field id="BATT_$_C16" type="voltage" />
+		<Field id="BATT_$_C17" type="voltage" />
+		<Field id="BATT_$_C18" type="voltage" />
+		<Field id="BATT_$_C19" type="voltage" />
+		<Field id="BATT_$_C20" type="voltage" />
+		<Field id="BATT_$_C21" type="voltage" />
+		<Field id="BATT_$_C22" type="voltage" />
+		<Field id="BATT_$_C23" type="voltage" />
+		<Field id="BATT_$_C24" type="voltage" />
+	</Repeat>
+
+<!-- 	<Field id="BATT_I" type="current" calculatedRepeat="[BATT_$_I],sum" repeatGroup="batteries" /> -->
+	<Field id="BATT_I" type="current" calculatedRepeat="[INV_$_I],sum" repeatGroup="inverters" />
+	
 	<Field id="BATT_I_CHG" type="current" calculated="[BATT_I], !invert, 0, !max" />
 	<Field id="BATT_I_DIS" type="current" calculated="[BATT_I], 0, !max" />
-
-
-    <Field id="LOAD_V" type="voltage" />
-    <Field id="LOAD_I" type="current" />
-    <Field id="LOAD_F" type="freq" />
-    <Field id="LOAD_PF" type="float" />
-    <Field id="LOAD_P" type="power" calculated="[LOAD_V], [LOAD_I], *" />
-
-    <Field id="LOAD_HOUSE_I" type="current" parent="LOAD_I" />
-    <Field id="LOAD_HOUSE_P" type="power" parent="LOAD_P" calculated="[LOAD_V], [LOAD_HOUSE_I], *" />
-    <Field id="LOAD_GARAGE_I" type="power" parent="LOAD_I" />
-    <Field id="LOAD_GARAGE_P" type="current" parent="LOAD_P" calculated="[LOAD_V], [LOAD_GARAGE_I], *" />
-
-    <Field id="PV1_V" type="voltage" />
-    <Field id="PV2_V" type="voltage" />
-    <Field id="PV3_V" type="voltage" />
-    <Field id="PV4_V" type="voltage" />
-        
-    <Field id="PV1_I" type="current" />
-    <Field id="PV2_I" type="current" />
-    <Field id="PV3_I" type="current" />
-    <Field id="PV4_I" type="current" />
-    
-    <Field id="PV_TOTAL_P" type="power" calculated="[PV1_P], [PV2_P], [PV3_P], [PV4_P], +, +, +" />
-    <Field id="PV1_P" type="power" parent="PV_TOTAL_P" />
-    <Field id="PV2_P" type="power" parent="PV_TOTAL_P" />
-    <Field id="PV3_P" type="power" parent="PV_TOTAL_P" />
-    <Field id="PV4_P" type="power" parent="PV_TOTAL_P" />
-
-
-	<Field id="MISC" type="string" width="32" />
 </Model>

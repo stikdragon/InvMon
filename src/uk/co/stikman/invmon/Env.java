@@ -69,7 +69,7 @@ public class Env {
 			}
 
 			model = new DataModel();
-			try (InputStream is = getClass().getResourceAsStream("parallelModel.xml")) {
+			try (InputStream is = getClass().getResourceAsStream("model.xml")) {
 				RepeatSettings rs = new RepeatSettings();
 				rs.setCountForGroup("inverters", config.getInverterCount());
 				rs.setCountForGroup("batteries", config.getBatteryCount());

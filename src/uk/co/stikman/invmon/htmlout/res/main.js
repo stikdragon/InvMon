@@ -39,8 +39,10 @@ function buildTimeSel(id) {
 		[30, "30 Min"],
 		[60, "1 Hour"],
 		[120, "2 Hour"],
+		[360, "6 Hour"],
 		[720, "12 Hour"],
 		[1440, "24 Hour"],
+		[2880, "2 Day"],
 		[7200, "5 Day"],
 		[43200, "30 Day"],
 	];
