@@ -31,7 +31,6 @@ public class InverterPIPMAX extends InverterMonitor {
 	private Field					fieldBusVoltage;
 	private Field					fieldLoadPF;
 	private Field					fieldStateOfCharge;
-	private Field					fieldMisc;
 	private Field					fieldPv1P;
 	private Field					fieldPv2P;
 	private Field					fieldLoadV;
@@ -74,7 +73,6 @@ public class InverterPIPMAX extends InverterMonitor {
 		dp.put(fieldBusVoltage, sts.getBusV());
 		dp.put(fieldLoadPF, pf);
 		dp.put(fieldStateOfCharge, (float) sts.getBatteryCapacity() / 100.0f);
-		dp.put(fieldMisc, sts.getDeviceStatus() + " / " + sts.getDeviceStatus2());
 		return dp;
 	}
 

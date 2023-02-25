@@ -1,6 +1,7 @@
 package uk.co.stikman.invmon.htmlout;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -14,6 +15,7 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.Element;
 
@@ -115,7 +117,7 @@ public class HTTPServer extends InvModule {
 
 	private Response fetchSectionData(String url, UserSesh sesh, IHTTPSession session) throws Exception {
 
-		JSONObject jo = new JSONObject(URLDecoder.decode(session.getQueryParameterString(), StandardCharsets.UTF_8));
+		JSONObject jo = new JSONObject(URLDecoder.decode(session.getQueryParameterString(), StandardCharsets.UTF_8.name()));
 		String name = jo.getString("name");
 		if (name == null)
 			throw new NotFoundException("No chart name");
@@ -285,7 +287,12 @@ public class HTTPServer extends InvModule {
 	}
 
 	private Response setParams(String url, UserSesh sesh, IHTTPSession request) {
-		JSONObject jo = new JSONObject(URLDecoder.decode(request.getQueryParameterString(), StandardCharsets.UTF_8));
+		JSONObject jo;
+		try {
+			jo = new JSONObject(URLDecoder.decode(request.getQueryParameterString(), StandardCharsets.UTF_8.name()));
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException("URLDecoded failed: " + e.getMessage(), e);
+		}
 		int dur = jo.getInt("dur");
 		int off = jo.getInt("off");
 		ViewOptions global = sesh.getData(GLOBAL_VIEW_OPTIONS);
@@ -343,7 +350,7 @@ public class HTTPServer extends InvModule {
 		wij.put("x", 0).put("y", 22).put("w", 20).put("h", 4);
 		wij.put("id", "busChart").put("type", "busChart");
 		arr.put(wij);
-		
+
 		wij = new JSONObject();
 		wij.put("name", "infobit");
 		wij.put("x", 0).put("y", 26).put("w", 20).put("h", 2);
