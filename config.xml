@@ -4,10 +4,10 @@
 
     <Modules>
 
-        <!-- <PIP8048MAXParallelGroup id="invertergroup1"> -->
+        <PIP8048MAXParallelGroup id="invertergroup1">
             <FakeInverter id="invA" />
-            <!-- <FakeInverter id="invB" /> -->
-        <!-- </PIP8048MAXParallelGroup> -->
+            <FakeInverter id="invB" />
+        </PIP8048MAXParallelGroup>
     
         <!-- <ConsoleOutput id="console" controlCodes="false" /> -->  
 

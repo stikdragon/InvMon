@@ -115,7 +115,7 @@ public class PIP8048MAXParallelGroup extends InvModule implements ParallelGroup 
 	public void start() throws InvMonException {
 		super.start();
 
-		int repeatCount = getEnv().getConfig().getInverterCount();
+		int repeatCount = getEnv().getModelGenSettings().getCountForGroup("inverters");
 		DataModel model = getEnv().getModel();
 		fieldMode = model.get("INV_MODE");
 		fieldChargeState = model.get("BATT_MODE");
