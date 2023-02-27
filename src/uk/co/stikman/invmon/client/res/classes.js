@@ -7003,57 +7003,6 @@ function jl_Class_createMetadata() {
             returnType : $rt_booleancls(),
             callable : null
         }];
-    jlr_AccessibleObject.$meta.methods = [
-        {
-            name : "<init>",
-            modifiers : 0,
-            accessLevel : 2,
-            parameterTypes : [],
-            returnType : $rt_voidcls(),
-            callable : null
-        }, {
-            name : "setAccessible",
-            modifiers : 512,
-            accessLevel : 3,
-            parameterTypes : [$rt_arraycls(jlr_AccessibleObject), $rt_booleancls()],
-            returnType : $rt_voidcls(),
-            callable : null
-        }, {
-            name : "setAccessible",
-            modifiers : 0,
-            accessLevel : 3,
-            parameterTypes : [$rt_booleancls()],
-            returnType : $rt_voidcls(),
-            callable : null
-        }, {
-            name : "isAccessible",
-            modifiers : 0,
-            accessLevel : 3,
-            parameterTypes : [],
-            returnType : $rt_booleancls(),
-            callable : null
-        }, {
-            name : "getAnnotation",
-            modifiers : 0,
-            accessLevel : 3,
-            parameterTypes : [jl_Class],
-            returnType : jla_Annotation,
-            callable : null
-        }, {
-            name : "getAnnotations",
-            modifiers : 0,
-            accessLevel : 3,
-            parameterTypes : [],
-            returnType : $rt_arraycls(jla_Annotation),
-            callable : null
-        }, {
-            name : "getDeclaredAnnotations",
-            modifiers : 0,
-            accessLevel : 3,
-            parameterTypes : [],
-            returnType : $rt_arraycls(jla_Annotation),
-            callable : null
-        }];
     jl_Object.$meta.methods = [
         {
             name : "monitorEnterSync",
@@ -7355,6 +7304,57 @@ function jl_Class_createMetadata() {
             accessLevel : 1,
             parameterTypes : [jl_Thread, jl_Object, $rt_intcls(), oti_AsyncCallback],
             returnType : $rt_voidcls(),
+            callable : null
+        }];
+    jlr_AccessibleObject.$meta.methods = [
+        {
+            name : "<init>",
+            modifiers : 0,
+            accessLevel : 2,
+            parameterTypes : [],
+            returnType : $rt_voidcls(),
+            callable : null
+        }, {
+            name : "setAccessible",
+            modifiers : 512,
+            accessLevel : 3,
+            parameterTypes : [$rt_arraycls(jlr_AccessibleObject), $rt_booleancls()],
+            returnType : $rt_voidcls(),
+            callable : null
+        }, {
+            name : "setAccessible",
+            modifiers : 0,
+            accessLevel : 3,
+            parameterTypes : [$rt_booleancls()],
+            returnType : $rt_voidcls(),
+            callable : null
+        }, {
+            name : "isAccessible",
+            modifiers : 0,
+            accessLevel : 3,
+            parameterTypes : [],
+            returnType : $rt_booleancls(),
+            callable : null
+        }, {
+            name : "getAnnotation",
+            modifiers : 0,
+            accessLevel : 3,
+            parameterTypes : [jl_Class],
+            returnType : jla_Annotation,
+            callable : null
+        }, {
+            name : "getAnnotations",
+            modifiers : 0,
+            accessLevel : 3,
+            parameterTypes : [],
+            returnType : $rt_arraycls(jla_Annotation),
+            callable : null
+        }, {
+            name : "getDeclaredAnnotations",
+            modifiers : 0,
+            accessLevel : 3,
+            parameterTypes : [],
+            returnType : $rt_arraycls(jla_Annotation),
             callable : null
         }];
     jl_Class.$meta.methods = [
@@ -12570,8 +12570,8 @@ function ucsic_ChartWidget_refresh(var$0) {
     var var$1;
     var$1 = oj_JSONObject__init_1();
     var$1.$put($rt_s(333), var$0.$getId());
-    var$1.$put4($rt_s(65), var$0.$frame.$content.clientWidth);
-    var$1.$put4($rt_s(319), var$0.$frame.$content.clientHeight);
+    var$1.$put4($rt_s(65), var$0.$frame.$content.offsetWidth - 12 | 0);
+    var$1.$put4($rt_s(319), var$0.$frame.$content.offsetHeight - 12 | 0);
     (var$0.$getOwner()).$fetch0($rt_s(334), var$1, ucsic_ChartWidget$refresh$lambda$_1_0__init_(var$0));
 }
 function ucsic_ChartWidget_construct(var$0, var$1) {
