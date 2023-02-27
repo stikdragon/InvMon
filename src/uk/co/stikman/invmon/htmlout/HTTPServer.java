@@ -30,6 +30,7 @@ import uk.co.stikman.invmon.FieldNameList;
 import uk.co.stikman.invmon.InvModule;
 import uk.co.stikman.invmon.InvMonException;
 import uk.co.stikman.invmon.PollData;
+import uk.co.stikman.invmon.client.res.ClientRes;
 import uk.co.stikman.invmon.datalog.DBRecord;
 import uk.co.stikman.invmon.datalog.DataLogger;
 import uk.co.stikman.invmon.datalog.MiniDbException;
@@ -59,16 +60,19 @@ public class HTTPServer extends InvModule {
 	public HTTPServer(String id, Env env) {
 		super(id, env);
 		urlMappings.put("old.html", this::staticPage);
-		urlMappings.put("loading.gif", this::page);
-		urlMappings.put("background.png", this::page);
-		urlMappings.put("style.css", this::page);
-		urlMappings.put("index.html", this::page);
 		urlMappings.put("main.js", this::page);
 		urlMappings.put("util.js", this::page);
+
+		urlMappings.put("loading.gif", this::resource);
+		urlMappings.put("background.png", this::resource);
+		urlMappings.put("style.css", this::resource);
+		urlMappings.put("index.html", this::resource);
+		urlMappings.put("classes.js", this::resource);
 
 		urlMappings.put("getSectData", this::fetchSectionData);
 		urlMappings.put("getConfig", this::getPageConfig);
 		urlMappings.put("setParams", this::setParams);
+		urlMappings.put("getInfoBit", this::getInfoBit);
 
 		env.submitTimerTask(() -> env.submitTask(this::tidySessions), 60000);
 	}
@@ -92,6 +96,11 @@ public class HTTPServer extends InvModule {
 	 */
 	private Response page(String url, UserSesh sesh, IHTTPSession session) throws Exception {
 		Res r = Res.get(url);
+		return NanoHTTPD.newFixedLengthResponse(Status.OK, NanoHTTPD.getMimeTypeForFile(url), r.makeStream(), r.getSize());
+	}
+
+	private Response resource(String url, UserSesh sesh, IHTTPSession session) throws Exception {
+		ClientRes r = ClientRes.get(url);
 		return NanoHTTPD.newFixedLengthResponse(Status.OK, NanoHTTPD.getMimeTypeForFile(url), r.makeStream(), r.getSize());
 	}
 
@@ -123,6 +132,10 @@ public class HTTPServer extends InvModule {
 			throw new NotFoundException("No chart name");
 
 		ViewOptions viewopts = sesh.getData(GLOBAL_VIEW_OPTIONS);
+		if (viewopts == null) {
+			viewopts = new ViewOptions();
+			sesh.putData(GLOBAL_VIEW_OPTIONS, viewopts);
+		}
 		ChartRenderConfig opts = new ChartRenderConfig();
 		opts.setDuration(viewopts.getDuration());
 		opts.setOffset(viewopts.getOffset());
@@ -286,6 +299,13 @@ public class HTTPServer extends InvModule {
 
 	}
 
+	private Response getInfoBit(String url, UserSesh sesh, IHTTPSession request) {
+		HTMLBuilder html = new HTMLBuilder();
+		html.append("<div class=\"tiny\"><div class=\"a\">Local Time: </div><div class=\"b\">").append(new Date().toString()).append("</div></div>");
+		html.append("<div class=\"tiny\"><div class=\"a\">Version: </div><div class=\"b\">").append(Env.getVersion()).append("</div></div>");
+		return NanoHTTPD.newFixedLengthResponse(new JSONObject().put("html", html.toString()).toString());
+	}
+
 	private Response setParams(String url, UserSesh sesh, IHTTPSession request) {
 		JSONObject jo;
 		try {
@@ -311,8 +331,9 @@ public class HTTPServer extends InvModule {
 
 		// TODO: load layouts
 
+		int gs = 40;
 		JSONObject root = new JSONObject();
-		root.put("gridSize", 40);
+		root.put("gridSize", gs);
 		JSONArray arr = new JSONArray();
 		root.put("widgets", arr);
 
@@ -324,31 +345,31 @@ public class HTTPServer extends InvModule {
 		wij = new JSONObject();
 		wij.put("name", "PV Power");
 		wij.put("x", 0).put("y", 1).put("w", 20).put("h", 7);
-		wij.put("id", "pvChart").put("type", "pvChart");
+		wij.put("id", "pvChart").put("type", "chart");
 		arr.put(wij);
 
 		wij = new JSONObject();
 		wij.put("name", "PV Power");
 		wij.put("x", 20).put("y", 1).put("w", 5).put("h", 5);
-		wij.put("id", "pvTable").put("type", "pvTable");
+		wij.put("id", "pvTable").put("type", "chart");
 		arr.put(wij);
 
 		wij = new JSONObject();
 		wij.put("name", "Load");
 		wij.put("x", 0).put("y", 8).put("w", 20).put("h", 7);
-		wij.put("id", "loadChart").put("type", "loadChart");
+		wij.put("id", "loadChart").put("type", "chart");
 		arr.put(wij);
 
 		wij = new JSONObject();
 		wij.put("name", "Battery");
 		wij.put("x", 0).put("y", 15).put("w", 20).put("h", 7);
-		wij.put("id", "batteryChart").put("type", "batteryChart");
+		wij.put("id", "batteryChart").put("type", "chart");
 		arr.put(wij);
 
 		wij = new JSONObject();
 		wij.put("name", "Bus/Temps");
 		wij.put("x", 0).put("y", 22).put("w", 20).put("h", 4);
-		wij.put("id", "busChart").put("type", "busChart");
+		wij.put("id", "busChart").put("type", "chart");
 		arr.put(wij);
 
 		wij = new JSONObject();
@@ -356,6 +377,14 @@ public class HTTPServer extends InvModule {
 		wij.put("x", 0).put("y", 26).put("w", 20).put("h", 2);
 		wij.put("id", "infobit").put("type", "infobit");
 		arr.put(wij);
+
+		for (int i = 0; i < arr.length(); ++i) {
+			JSONObject jo = arr.getJSONObject(i);
+			jo.put("x", jo.getInt("x") * gs);
+			jo.put("y", jo.getInt("y") * gs);
+			jo.put("w", jo.getInt("w") * gs);
+			jo.put("h", jo.getInt("h") * gs);
+		}
 
 		HTMLBuilder html = new HTMLBuilder();
 		html.append("<div class=\"tiny\"><div class=\"a\">Local Time: </div><div class=\"b\">").append(new Date().toString()).append("</div></div>");

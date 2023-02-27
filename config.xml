@@ -4,10 +4,10 @@
 
     <Modules>
 
-        <!-- <PIP8048MAXParallelGroup id="invertergroup1"> -->
+        <PIP8048MAXParallelGroup id="invertergroup1">
             <FakeInverter id="invA" />
-            <!-- <FakeInverter id="invB" /> -->
-        <!-- </PIP8048MAXParallelGroup> -->
+            <FakeInverter id="invB" />
+        </PIP8048MAXParallelGroup>
     
         <!-- <ConsoleOutput id="console" controlCodes="false" /> -->  
 
@@ -15,7 +15,13 @@
 
         <DataLogger id="datalogger" file="data\datalog.db" blockSize="400000" />
 
-        <HTTPServer id="httpserver" port="8083" sourceData="invertergroup1" />
+        <HTTPServer id="httpserver" port="8083" sourceData="invertergroup1">
+        	<Page id="main" default="true">
+        	</Page>
+        
+        
+        
+        </HTTPServer>
 
         <JSONSend id="sender" destination="localhost" port="28347" key="turnips" user="user1___" logger="datalogger" />
     </Modules>

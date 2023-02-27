@@ -33,8 +33,23 @@
 		<echo file="build/classes/uk/co/stikman/invmon/version.txt" append="false">${version}</echo>
 	</target>
 
+	<target name="teavm" >
+		<java failonerror="true" fork="true" classname="org.teavm.cli.TeaVMRunner">
+			<classpath>
+				<path refid="cp" />
+				<pathelement path="build/classes" />
+			</classpath>
 
-	<target name="jar" depends="compile">
+			<jvmarg value="-Xmx4g" />
+			<arg line="-t js" />
+			<arg line="-G" />
+			<arg line="-d src/uk/co/stikman/invmon/client/res" />
+			<arg value="uk.co.stikman.invmon.client.InvMon" />
+		</java>
+
+	</target>
+
+	<target name="jar" depends="compile,teavm">
 		<jar destfile="dist\invmon-${version}.jar" basedir="build/classes">
 			<manifest>
 				<attribute name="Main-Class" value="uk.co.stikman.invmon.InvMon" />

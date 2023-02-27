@@ -1,8 +1,8 @@
 package uk.co.stikman.invmon.htmlout;
 
 public class ViewOptions {
-	private int		duration;
-	private long	offset;
+	private int		duration	= 60;
+	private long	offset		= 0;
 
 	public int getDuration() {
 		return duration;
