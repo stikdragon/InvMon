@@ -12,9 +12,11 @@ import uk.co.stikman.invmon.DataPoint;
 import uk.co.stikman.invmon.Env;
 import uk.co.stikman.invmon.Events;
 import uk.co.stikman.invmon.InvModDefinition;
+import uk.co.stikman.invmon.InvModType;
 import uk.co.stikman.invmon.InvModule;
 import uk.co.stikman.invmon.InvMonException;
 import uk.co.stikman.invmon.InverterMonitor;
+import uk.co.stikman.invmon.ModType;
 import uk.co.stikman.invmon.PollData;
 import uk.co.stikman.invmon.datamodel.AggregationMode;
 import uk.co.stikman.invmon.datamodel.DataModel;
@@ -22,9 +24,11 @@ import uk.co.stikman.invmon.datamodel.Field;
 import uk.co.stikman.invmon.datamodel.FieldVIF;
 import uk.co.stikman.invmon.datamodel.InverterMode;
 import uk.co.stikman.invmon.inverter.InvUtil;
+import uk.co.stikman.invmon.inverter.ParallelGroup;
 import uk.co.stikman.table.DataField;
 
-public class PIP8048MAXParallelGroup extends InvModule {
+@ModType(InvModType.INVERGER_GROUP)
+public class PIP8048MAXParallelGroup extends InvModule implements ParallelGroup {
 
 	private final List<InverterMonitor>		children	= new ArrayList<>();
 	private final List<InvModDefinition>	childDefs	= new ArrayList<>();

@@ -26,4 +26,11 @@ public class InvModDefinition {
 		return id;
 	}
 
+	public InvModType getDeviceType() {
+		ModType x = clazz.getAnnotation(ModType.class);
+		if (x == null)
+			return InvModType.OTHER;
+		return x.value();
+	}
+
 }

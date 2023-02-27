@@ -9,6 +9,7 @@ import uk.co.stikman.invmon.datamodel.InverterMode;
 import uk.co.stikman.invmon.inverter.BatteryChargeStage;
 import uk.co.stikman.log.StikLog;
 
+@ModType(InvModType.INVERTER)
 public class FakeInverterMonitor extends InverterMonitor {
 	private static final StikLog	LOGGER	= StikLog.getLogger(FakeInverterMonitor.class);
 

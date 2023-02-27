@@ -18,29 +18,31 @@ import com.fazecast.jSerialComm.SerialPort;
 import uk.co.stikman.eventbus.StringEventBus;
 import uk.co.stikman.invmon.datamodel.DataModel;
 import uk.co.stikman.invmon.datamodel.FieldType;
-import uk.co.stikman.invmon.datamodel.RepeatSettings;
+import uk.co.stikman.invmon.datamodel.ModelGenerationSettings;
 import uk.co.stikman.invmon.inverter.InvUtil;
+import uk.co.stikman.invmon.inverter.ParallelGroup;
 import uk.co.stikman.log.ConsoleLogTarget;
 import uk.co.stikman.log.Level;
 import uk.co.stikman.log.StikLog;
 import uk.co.stikman.table.DataTable;
 
 public class Env {
-	private static final StikLog	LOGGER		= StikLog.getLogger(Env.class);
+	private static final StikLog	LOGGER			= StikLog.getLogger(Env.class);
 
-	public FieldType DATATYPE_VOLT8 = null;
+	public FieldType				DATATYPE_VOLT8	= null;
 
-	private static String			version		= "dev";
+	private static String			version			= "dev";
 
-	private List<InvModule>			parts		= new ArrayList<>();
-	private long					nextId		= 0;
-	private StringEventBus			bus			= new StringEventBus();
+	private List<InvModule>			parts			= new ArrayList<>();
+	private StringEventBus			bus				= new StringEventBus();
 	private Thread					mainthread;
-	private boolean					terminated	= false;
+	private boolean					terminated		= false;
 	private Config					config;
 	private DataModel				model;
 	private ExecutorService			exec;
 	private Timer					timer;
+
+	private ModelGenerationSettings	modelGenSettings;
 
 	static {
 		try (InputStream is = Env.class.getResourceAsStream("version.txt")) { // ant script writes this
@@ -71,13 +73,18 @@ public class Env {
 				throw new InvMonException("Failed to load config: " + e.getMessage(), e);
 			}
 
+			//
+			// load model and configure it for the combination of devices we've got
+			// enabled in the config file
+			//
 			model = new DataModel();
 			try (InputStream is = getClass().getResourceAsStream("model.xml")) {
-				RepeatSettings rs = new RepeatSettings();
-				rs.setCountForGroup("inverters", config.getInverterCount());
-				rs.setCountForGroup("batteries", config.getBatteryCount());
-				model.setRepeatSettings(rs);
-				model.loadXML(is); 
+				modelGenSettings = new ModelGenerationSettings();
+				determineGenerationSettings(modelGenSettings, config);
+				LOGGER.info("Model generation settings:");
+				modelGenSettings.keys().forEach(k -> LOGGER.info("  " + k + ": " + modelGenSettings.getCountForGroup(k)));
+				model.setRepeatSettings(modelGenSettings);
+				model.loadXML(is);
 			} catch (IOException e) {
 				throw new InvMonException("Failed to load model: " + e.getMessage(), e);
 			}
@@ -110,6 +117,33 @@ public class Env {
 				e.printStackTrace();
 			}
 			throw th;
+		}
+	}
+
+	private void determineGenerationSettings(ModelGenerationSettings result, Config config) {
+		//
+		// count devices
+		//
+		for (InvModDefinition thing : config.getThings()) {
+			String grp = null;
+			int cnt = 1;
+			switch (thing.getDeviceType()) {
+				case BATTERY:
+					grp = "batteries";
+					break;
+				case INVERTER:
+					grp = "inverters";
+					break;
+				case INVERGER_GROUP:
+					// for now i guess just count the elements in here?
+					grp = "inverters";
+					cnt = InvUtil.getElements(thing.getConfig()).size();
+					break;
+				default:
+					break;
+			}
+			if (grp != null)
+				result.setCountForGroup(grp, result.getCountForGroup(grp, 0) + cnt);
 		}
 	}
 
@@ -223,6 +257,10 @@ public class Env {
 			}
 		};
 		timer.scheduleAtFixedRate(tt, 0, period);
+	}
+
+	public ModelGenerationSettings getModelGenSettings() {
+		return modelGenSettings;
 	}
 
 }

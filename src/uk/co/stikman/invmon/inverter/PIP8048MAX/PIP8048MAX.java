@@ -7,6 +7,8 @@ import java.nio.charset.StandardCharsets;
 
 import com.fazecast.jSerialComm.SerialPort;
 
+import uk.co.stikman.invmon.InvModType;
+import uk.co.stikman.invmon.ModType;
 import uk.co.stikman.invmon.inverter.CommunicationError;
 import uk.co.stikman.invmon.inverter.InverterModel;
 import uk.co.stikman.invmon.inverter.Template;

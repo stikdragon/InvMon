@@ -3,10 +3,11 @@ package uk.co.stikman.invmon.datamodel;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 import uk.co.stikman.table.DataTable;
 
-public class RepeatSettings {
+public class ModelGenerationSettings {
 	private Map<String, Integer> counts = new HashMap<>();
 
 	public int getCountForGroup(String name) {
@@ -30,5 +31,9 @@ public class RepeatSettings {
 		dt.addFields("Group", "Count");
 		counts.keySet().stream().sorted().forEach(k -> dt.addRecord(k, counts.get(k).toString()));
 		return dt.toString();
+	}
+	
+	public Set<String> keys() {
+		return counts.keySet();
 	}
 }

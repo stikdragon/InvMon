@@ -49,7 +49,7 @@ public class DataModel implements Iterable<Field> {
 	private List<Field>				fieldList			= new ArrayList<>();
 	private List<Field>				calculatedFields	= Collections.emptyList();
 	private FieldCounts				fieldCounts			= new FieldCounts();
-	private RepeatSettings			repeatSettings		= new RepeatSettings();
+	private ModelGenerationSettings			repeatSettings		= new ModelGenerationSettings();
 	private int						dataVersion;
 
 	public void loadXML(InputStream str) throws IOException, InvMonException {
@@ -70,9 +70,7 @@ public class DataModel implements Iterable<Field> {
 				readField(el, -1);
 			} else if ("Repeat".equals(el.getTagName())) {
 				String grp = InvUtil.getAttrib(el, "group");
-				int cnt = repeatSettings.getCountForGroup(grp, -1);
-				if (cnt == -1)
-					throw new InvMonException("<Repeat> element encountered with group name [" + grp + "] but the repeatCount has not been set in the RepeatSettings object");
+				int cnt = repeatSettings.getCountForGroup(grp, 0);
 				for (Element el2 : InvUtil.getElements(el)) {
 					if (!el2.getTagName().equals("Field"))
 						throw new InvMonException("Can only have <Field> elements in a <Repeat> block");
@@ -450,11 +448,11 @@ public class DataModel implements Iterable<Field> {
 		return fieldList;
 	}
 
-	public RepeatSettings getRepeatSettings() {
+	public ModelGenerationSettings getRepeatSettings() {
 		return repeatSettings;
 	}
 
-	public void setRepeatSettings(RepeatSettings repeatSettings) {
+	public void setRepeatSettings(ModelGenerationSettings repeatSettings) {
 		this.repeatSettings = repeatSettings;
 	}
 

@@ -115,8 +115,9 @@ public class DataLogger extends InvModule {
 				// now we'll do some copying of specific fields between database versions
 				//
 				if (oldDb.getModel().getDataVersion() == 1 && newDb.getModel().getDataVersion() == 2) {
-					copyFields.put("BATT_I_1", "INV_1_I");
-					copyFields.put("BATT_I_2", "INV_2_I");
+					for (int i = 1; i <= 8; ++i)
+						if (newDb.getModel().find("BATT_I_" + i) != null)
+							copyFields.put("BATT_I_" + i, "INV_" + i + "_I");
 				}
 
 				long lastT = 0;

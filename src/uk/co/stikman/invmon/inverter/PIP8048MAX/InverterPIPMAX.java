@@ -8,8 +8,10 @@ import com.fazecast.jSerialComm.SerialPort;
 
 import uk.co.stikman.invmon.DataPoint;
 import uk.co.stikman.invmon.Env;
+import uk.co.stikman.invmon.InvModType;
 import uk.co.stikman.invmon.InvMonException;
 import uk.co.stikman.invmon.InverterMonitor;
+import uk.co.stikman.invmon.ModType;
 import uk.co.stikman.invmon.datamodel.DataModel;
 import uk.co.stikman.invmon.datamodel.Field;
 import uk.co.stikman.invmon.datamodel.FieldVIF;
@@ -18,6 +20,7 @@ import uk.co.stikman.invmon.inverter.InvUtil;
 import uk.co.stikman.log.StikLog;
 import uk.co.stikman.table.DataTable;
 
+@ModType(InvModType.INVERTER)
 public class InverterPIPMAX extends InverterMonitor {
 	private static final StikLog	LOGGER	= StikLog.getLogger(InverterPIPMAX.class);
 	private PIP8048MAX				inv;
