@@ -5,17 +5,15 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.Element;
 
@@ -37,7 +35,6 @@ import uk.co.stikman.invmon.datalog.DataLogger;
 import uk.co.stikman.invmon.datalog.MiniDbException;
 import uk.co.stikman.invmon.datalog.QueryResults;
 import uk.co.stikman.invmon.datamodel.VIFReading;
-import uk.co.stikman.invmon.htmlout.res.Res;
 import uk.co.stikman.invmon.inverter.InvUtil;
 import uk.co.stikman.log.StikLog;
 
@@ -61,8 +58,6 @@ public class HTTPServer extends InvModule {
 	public HTTPServer(String id, Env env) {
 		super(id, env);
 		urlMappings.put("old.html", this::staticPage);
-		urlMappings.put("main.js", this::page);
-		urlMappings.put("util.js", this::page);
 
 		urlMappings.put("loading.gif", this::resource);
 		urlMappings.put("background.png", this::resource);
@@ -95,11 +90,6 @@ public class HTTPServer extends InvModule {
 	 * @param session
 	 * @return
 	 */
-	private Response page(String url, UserSesh sesh, IHTTPSession session) throws Exception {
-		Res r = Res.get(url);
-		return NanoHTTPD.newFixedLengthResponse(Status.OK, NanoHTTPD.getMimeTypeForFile(url), r.makeStream(), r.getSize());
-	}
-
 	private Response resource(String url, UserSesh sesh, IHTTPSession session) throws Exception {
 		ClientRes r = ClientRes.get(url);
 		return NanoHTTPD.newFixedLengthResponse(Status.OK, NanoHTTPD.getMimeTypeForFile(url), r.makeStream(), r.getSize());

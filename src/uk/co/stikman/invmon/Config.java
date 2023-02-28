@@ -16,8 +16,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import uk.co.stikman.invmon.datalog.DataLogger;
-import uk.co.stikman.invmon.htmlout.HTMLOutput;
-import uk.co.stikman.invmon.htmlout.HTMLOutputStatic;
 import uk.co.stikman.invmon.htmlout.HTTPServer;
 import uk.co.stikman.invmon.inverter.PIP8048MAX.InverterPIPMAX;
 import uk.co.stikman.invmon.inverter.PIP8048MAX.PIP8048MAXParallelGroup;
@@ -36,8 +34,6 @@ public class Config {
 		thingtypes.put("PIP8048MAXParallelGroup", PIP8048MAXParallelGroup.class);
 		thingtypes.put("FakeInverter", FakeInverterMonitor.class);
 		thingtypes.put("ConsoleOutput", ConsoleOutput.class);
-		thingtypes.put("TempHTMLOutput", HTMLOutputStatic.class);
-		thingtypes.put("HTMLOutput", HTMLOutput.class);
 		thingtypes.put("DataLogger", DataLogger.class);
 		thingtypes.put("HTTPServer", HTTPServer.class);
 		thingtypes.put("JSONRecv", JSONRecv.class);
