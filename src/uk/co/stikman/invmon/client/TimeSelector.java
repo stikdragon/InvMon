@@ -1,10 +1,21 @@
 package uk.co.stikman.invmon.client;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.teavm.jso.dom.html.HTMLElement;
+
+import uk.co.stikman.invmon.client.TimeSelector.UpdateDataOptionsHandler;
 
 public class TimeSelector extends PageWidget {
 
-	private HTMLElement controlsEl;
+	public interface UpdateDataOptionsHandler {
+		void updateDataOptions(int offset, int duration);
+	}
+
+	private HTMLElement					controlsEl;
+	private List<HTMLElement>			items	= new ArrayList<>();
+	private UpdateDataOptionsHandler	onChange;
 
 	public TimeSelector(ClientPage owner) {
 		super(owner);
@@ -36,7 +47,26 @@ public class TimeSelector extends PageWidget {
 		HTMLElement el = InvMon.element("a", "unsel");
 		el.setInnerText(display);
 		controlsEl.appendChild(el);
+		el.setAttribute("data-len", Integer.toString(n));
 		controlsEl.appendChild(InvMon.div("divider"));
+		el.listenClick(ev -> select(el));
+		items.add(el);
+	}
+
+	private void select(HTMLElement el) {
+		for (HTMLElement x : items)
+			x.setAttribute("class", x == el ? "sel" : "unsel");
+		int n = Integer.parseInt(el.getAttribute("data-len"));
+		if (onChange != null)
+			onChange.updateDataOptions(-1, n);
+	}
+
+	public UpdateDataOptionsHandler getOnChange() {
+		return onChange;
+	}
+
+	public void setOnChange(UpdateDataOptionsHandler onChange) {
+		this.onChange = onChange;
 	}
 
 }

@@ -68,7 +68,9 @@ public abstract class PageWidget {
 	}
 
 	protected StandardFrame createStandardFrame(HTMLElement parent, boolean header, String mainclass) {
-		HTMLElement root = InvMon.div(mainclass);
+		HTMLElement root = InvMon.div();
+		if (mainclass != null)
+			root.getClassList().add(mainclass);
 		parent.appendChild(root);
 		root.getClassList().add("gridframe");
 		doLayout(root);
@@ -81,13 +83,27 @@ public abstract class PageWidget {
 			hdr = InvMon.div("hdr");
 			inner.appendChild(hdr);
 		}
-		
+
 		HTMLElement el2 = InvMon.div("content");
 		inner.appendChild(el2);
+
+		HTMLElement elGlass = InvMon.div("glass");
+		HTMLElement img = InvMon.element("img");
+		img.setAttribute("src", "loading.gif");
+		elGlass.appendChild(img);
+		inner.appendChild(elGlass);
+
+		HTMLElement elError = InvMon.div("error");
+		HTMLElement elMsg = InvMon.div("message");
+		elError.appendChild(elMsg);
+		inner.appendChild(elError);
 
 		StandardFrame a = new StandardFrame();
 		a.header = hdr;
 		a.content = el2;
+		a.glass = elGlass;
+		a.error = elError;
+		a.hideOverlays();
 		return a;
 	}
 

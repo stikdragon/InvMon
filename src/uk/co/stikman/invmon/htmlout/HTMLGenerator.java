@@ -167,9 +167,7 @@ public class HTMLGenerator {
 	}
 
 	public HTMLBuilder renderVIF(HTMLBuilder html, String name, VIFReading vif) {
-		html.append("<div class=\"grp\">");
 		html.append("<span class=\"a\">%s: </span><span class=\"b\">%d</span><span class=\"a\">W (</span><span class=\"b\">%.1f</span><span class=\"a\">V @ </span><span class=\"b\">%.2f</span><span class=\"a\">A)</span>", name, (int) vif.getP(), vif.getV(), vif.getI());
-		html.append("</div>");
 		return html;
 	}
 

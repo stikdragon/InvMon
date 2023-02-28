@@ -13,6 +13,17 @@ public abstract class ClientPage {
 
 	public abstract HTMLElement getElement();
 
+	protected void post(String api, JSONObject args, Consumer<JSONObject> response) {
+		post(api, args, response, e -> {
+			e.printStackTrace();
+			Window.alert("Error from [" + api + "] api: " + e.getMessage());
+		});
+	}
+
+	protected void post(String api, JSONObject args, Consumer<JSONObject> response, Consumer<Exception> onerror) {
+		http("POST", api, args, response, onerror);
+	}
+
 	protected void fetch(String api, JSONObject args, Consumer<JSONObject> response) {
 		fetch(api, args, response, e -> {
 			e.printStackTrace();
@@ -21,6 +32,10 @@ public abstract class ClientPage {
 	}
 
 	protected void fetch(String api, JSONObject args, Consumer<JSONObject> response, Consumer<Exception> onerror) {
+		http("GET", api, args, response, onerror);
+	}
+
+	private void http(String method, String api, JSONObject args, Consumer<JSONObject> response, Consumer<Exception> onerror) {
 		XMLHttpRequest xhr = XMLHttpRequest.create();
 		xhr.onComplete(() -> {
 			if (xhr.getStatus() != 200)

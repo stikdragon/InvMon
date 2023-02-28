@@ -153,7 +153,7 @@ public class MiniDB {
 		//
 		// calculate fields
 		//
-		for (Field f : model.getCalculatedFields()) 
+		for (Field f : model.getCalculatedFields())
 			rec.setFloat(f, f.getCalculationMethod().calc(rec));
 
 		//
@@ -217,7 +217,9 @@ public class MiniDB {
 	 * given an int or a long field it finds a range of records. we look at the
 	 * blocks that contain it and try to load them all. it's possible for this to
 	 * fail if you ask for a range that would span more than
-	 * <code>maxCachedBlocks</code>
+	 * <code>maxCachedBlocks</code>. Will return an invalid {@link IntRange} if the
+	 * start and end are outside the range of the database entirely (will be
+	 * (-1,-1))
 	 * 
 	 * @param field
 	 * @param start
@@ -248,8 +250,8 @@ public class MiniDB {
 					last = blocks.get(blocks.size() - 1);
 			}
 
-			if (first == null || last == null)
-				throw new MiniDbException("Could not identify block range for [" + start + ", " + end + "]");
+			if (first == null && last == null)
+				return res;
 
 			//
 			// now we need to find the index of the specific records in each of those blocks

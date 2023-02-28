@@ -21,6 +21,7 @@ import org.w3c.dom.Element;
 
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoHTTPD.IHTTPSession;
+import fi.iki.elonen.NanoHTTPD.Method;
 import fi.iki.elonen.NanoHTTPD.Response;
 import fi.iki.elonen.NanoHTTPD.Response.Status;
 import uk.co.stikman.eventbus.Subscribe;
@@ -125,7 +126,6 @@ public class HTTPServer extends InvModule {
 	}
 
 	private Response fetchSectionData(String url, UserSesh sesh, IHTTPSession session) throws Exception {
-
 		JSONObject jo = new JSONObject(URLDecoder.decode(session.getQueryParameterString(), StandardCharsets.UTF_8.name()));
 		String name = jo.getString("name");
 		if (name == null)
@@ -148,13 +148,13 @@ public class HTTPServer extends InvModule {
 		QueryResults data = getQueryResults(sesh);
 		if (name.equals("pvChart")) {
 			generator.renderPVPowerChart(html, opts, data);
-			titleBits.add(generator.renderGrp(new HTMLBuilder(), "<div class=\"grp\">Total: [%d]W</div>", (int) data.getLastRecord().getFloat("PV_TOTAL_P")).toString());
+			titleBits.add(generator.renderGrp(new HTMLBuilder(), "Total: [%d]W", (int) data.getLastRecord().getFloat("PV_TOTAL_P")).toString());
 		} else if (name.equals("loadChart")) {
 			generator.renderLoadChart(html, opts, data);
 			VIFReading vif1 = data.getLastRecord().getVIF("LOAD");
-			titleBits.add(generator.renderGrp(new HTMLBuilder(), "<div class=\"grp\">Load: [%d]W ([%.2f]V @ [%.2f]A)</div>", (int) vif1.getP(), vif1.getV(), vif1.getI()).toString());
+			titleBits.add(generator.renderGrp(new HTMLBuilder(), "Load: [%d]W ([%.2f]V @ [%.2f]A)", (int) vif1.getP(), vif1.getV(), vif1.getI()).toString());
 			float pf = data.getLastRecord().getFloat("LOAD_PF");
-			titleBits.add(generator.renderGrp(new HTMLBuilder(), "<div class=\"grp\">PF: [%.2f] (Real Power: [%d]W @ [%.2f]A)</div>", pf, (int) (vif1.getP() * pf), vif1.getI() * pf).toString());
+			titleBits.add(generator.renderGrp(new HTMLBuilder(), "PF: [%.2f] (Real Power: [%d]W @ [%.2f]A)", pf, (int) (vif1.getP() * pf), vif1.getI() * pf).toString());
 		} else if (name.equals("batteryChart")) {
 			generator.renderBatteryChart(html, opts, data);
 			VIFReading vif1 = data.getLastRecord().getVIF("BATT");
@@ -166,8 +166,8 @@ public class HTTPServer extends InvModule {
 			float busv1 = data.getLastRecord().getFloat("INV_1_BUS_V");
 			float busv2 = data.getLastRecord().getFloat("INV_2_BUS_V");
 
-			titleBits.add(generator.renderGrp(new HTMLBuilder(), "<div class=\"grp\">Temp1: [%.1f]C  BusV: [%d]V</div>", ftmp1, (int) busv1).toString());
-			titleBits.add(generator.renderGrp(new HTMLBuilder(), "<div class=\"grp\">Temp2: [%.1f]C  BusV: [%d]V</div>", ftmp2, (int) busv2).toString());
+			titleBits.add(generator.renderGrp(new HTMLBuilder(), "Temp1: [%.1f]C  BusV: [%d]V", ftmp1, (int) busv1).toString());
+			titleBits.add(generator.renderGrp(new HTMLBuilder(), "Temp2: [%.1f]C  BusV: [%d]V", ftmp2, (int) busv2).toString());
 		} else if (name.equals("pvTable")) {
 			generator.renderPVTable(html, opts, data);
 		} else
@@ -242,6 +242,9 @@ public class HTTPServer extends InvModule {
 
 	private Response serve(IHTTPSession httpsession) {
 		try {
+			if (httpsession.getMethod() != Method.GET && httpsession.getMethod() != Method.POST)
+				throw new Exception("Unsupported method");
+			
 			String url = httpsession.getUri();
 			if (url.equals("/"))
 				url = "/index.html";
@@ -321,7 +324,7 @@ public class HTTPServer extends InvModule {
 		global.setDuration(dur);
 		global.setOffset(off);
 		sesh.putData(LAST_QUERY_RESULTS, null);
-		return NanoHTTPD.newFixedLengthResponse("OK");
+		return NanoHTTPD.newFixedLengthResponse(new JSONObject().put("result", "OK").toString());
 	}
 
 	private Response getPageConfig(String url, UserSesh sesh, IHTTPSession request) {
@@ -343,37 +346,37 @@ public class HTTPServer extends InvModule {
 		arr.put(wij);
 
 		wij = new JSONObject();
-		wij.put("name", "PV Power");
+		wij.put("title", "PV Power");
 		wij.put("x", 0).put("y", 1).put("w", 20).put("h", 7);
 		wij.put("id", "pvChart").put("type", "chart");
 		arr.put(wij);
 
 		wij = new JSONObject();
-		wij.put("name", "PV Power");
+		wij.put("title", "PV Power");
 		wij.put("x", 20).put("y", 1).put("w", 5).put("h", 5);
 		wij.put("id", "pvTable").put("type", "chart");
 		arr.put(wij);
 
 		wij = new JSONObject();
-		wij.put("name", "Load");
+		wij.put("title", "Load");
 		wij.put("x", 0).put("y", 8).put("w", 20).put("h", 7);
 		wij.put("id", "loadChart").put("type", "chart");
 		arr.put(wij);
 
 		wij = new JSONObject();
-		wij.put("name", "Battery");
+		wij.put("title", "Battery");
 		wij.put("x", 0).put("y", 15).put("w", 20).put("h", 7);
 		wij.put("id", "batteryChart").put("type", "chart");
 		arr.put(wij);
 
 		wij = new JSONObject();
-		wij.put("name", "Bus/Temps");
+		wij.put("title", "Bus/Temps");
 		wij.put("x", 0).put("y", 22).put("w", 20).put("h", 4);
 		wij.put("id", "busChart").put("type", "chart");
 		arr.put(wij);
 
 		wij = new JSONObject();
-		wij.put("name", "infobit");
+		wij.put("title", "infobit");
 		wij.put("x", 0).put("y", 26).put("w", 20).put("h", 2);
 		wij.put("id", "infobit").put("type", "infobit");
 		arr.put(wij);

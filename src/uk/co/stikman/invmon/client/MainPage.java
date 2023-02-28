@@ -51,6 +51,10 @@ public class MainPage extends ClientPage {
 				w.configure(obj);
 				w.construct(root);
 				widgets.add(w);
+
+				if (w instanceof TimeSelector)
+					((TimeSelector) w).setOnChange(this::setDataRange);
+
 			}
 
 			refresh();
@@ -63,6 +67,13 @@ public class MainPage extends ClientPage {
 
 	public int getGridSize() {
 		return gridSize;
+	}
+
+	public void setDataRange(int offset, int duration) {
+		JSONObject jo = new JSONObject();
+		jo.put("off", offset);
+		jo.put("dur", duration);
+		post("setParams", jo, res -> refresh());
 	}
 
 }

@@ -5,7 +5,16 @@
 <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro&display=swap" rel="stylesheet">
 <link href="style.css" rel="stylesheet">
 <script src="classes.js"></script>
-<script>main();</script>
+<script>
+	(function() {
+		window.addEventListener("error", function(event) {
+			console.error(main.javaException(event.error).$message.toString());
+			return false;
+		});
+	})();
+
+	main();
+</script>
 </head>
 <body>
 	<div id="widgetTemplates" style="display: none">
