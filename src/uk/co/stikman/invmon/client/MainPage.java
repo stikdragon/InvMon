@@ -10,6 +10,9 @@ import java.util.function.Supplier;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.teavm.jso.browser.History;
+import org.teavm.jso.browser.Location;
+import org.teavm.jso.browser.Window;
 import org.teavm.jso.dom.html.HTMLElement;
 
 public class MainPage extends ClientPage {
@@ -52,9 +55,12 @@ public class MainPage extends ClientPage {
 				w.construct(root);
 				widgets.add(w);
 
-				if (w instanceof TimeSelector)
+				if (w instanceof TimeSelector) {
+					String param = ClientUtil.getURLParam("dur", null);
+					if (param != null)
+						((TimeSelector) w).setCurrent(Integer.parseInt(param));
 					((TimeSelector) w).setOnChange(this::setDataRange);
-
+				}
 			}
 
 			refresh();
@@ -70,6 +76,7 @@ public class MainPage extends ClientPage {
 	}
 
 	public void setDataRange(int offset, int duration) {
+		Location.current().setHash("dur=" + duration);
 		JSONObject jo = new JSONObject();
 		jo.put("off", offset);
 		jo.put("dur", duration);

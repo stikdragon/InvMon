@@ -6,6 +6,7 @@ import java.util.List;
 import org.teavm.jso.dom.html.HTMLElement;
 
 import uk.co.stikman.invmon.client.TimeSelector.UpdateDataOptionsHandler;
+import uk.co.stikman.invmon.inverter.InvUtil;
 
 public class TimeSelector extends PageWidget {
 
@@ -67,6 +68,12 @@ public class TimeSelector extends PageWidget {
 
 	public void setOnChange(UpdateDataOptionsHandler onChange) {
 		this.onChange = onChange;
+	}
+
+	public void setCurrent(int n) {
+		for (HTMLElement el : items)
+			if (Integer.parseInt(el.getAttribute("data-len")) == n)
+				select(el);
 	}
 
 }
