@@ -69,6 +69,17 @@ public class InvUtil {
 		throw new NoSuchElementException("Child element called [" + name + "] not found");
 	}
 
+	public static List<Element> getElements(Element root, String name) {
+		List<Element> res = new ArrayList<>();
+		Node n = root.getFirstChild();
+		while (n != null) {
+			if (n instanceof Element && ((Element) n).getTagName().equals(name))
+				res.add((Element) n);
+			n = n.getNextSibling();
+		}
+		return res;
+	}
+
 	public static List<Element> getElements(Element root) {
 		List<Element> res = new ArrayList<>();
 		Node n = root.getFirstChild();
@@ -110,6 +121,7 @@ public class InvUtil {
 
 	/**
 	 * return <code>null</code> if nothing, or the first one if multiple present
+	 * 
 	 * @param request
 	 * @param name
 	 * @return
@@ -119,7 +131,7 @@ public class InvUtil {
 		if (lst == null || lst.isEmpty())
 			return null;
 		return lst.get(0);
-	
+
 	}
 
 }

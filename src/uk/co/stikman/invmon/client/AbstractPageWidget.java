@@ -3,7 +3,7 @@ package uk.co.stikman.invmon.client;
 import org.json.JSONObject;
 import org.teavm.jso.dom.html.HTMLElement;
 
-public abstract class PageWidget {
+public abstract class AbstractPageWidget {
 
 	private final ClientPage	owner;
 	private int					x;
@@ -12,7 +12,7 @@ public abstract class PageWidget {
 	private int					height;
 	private String				id;
 
-	public PageWidget(ClientPage owner) {
+	public AbstractPageWidget(ClientPage owner) {
 		super();
 		this.owner = owner;
 	}

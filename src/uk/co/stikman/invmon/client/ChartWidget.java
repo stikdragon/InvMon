@@ -5,7 +5,7 @@ import org.json.JSONObject;
 import org.teavm.jso.browser.Window;
 import org.teavm.jso.dom.html.HTMLElement;
 
-public class ChartWidget extends PageWidget {
+public class ChartWidget extends AbstractPageWidget {
 
 	private StandardFrame	frame;
 	private String			name;

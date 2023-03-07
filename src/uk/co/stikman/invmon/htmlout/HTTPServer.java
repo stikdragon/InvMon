@@ -54,6 +54,7 @@ public class HTTPServer extends InvModule {
 	private final Map<String, FetchMethod>	urlMappings			= new HashMap<>();
 	private HTMLGenerator					generator;
 	private Map<String, UserSesh>			sessions			= new HashMap<>();
+	private HttpLayoutConfig				layoutConfig;
 
 	public HTTPServer(String id, Env env) {
 		super(id, env);
@@ -203,6 +204,8 @@ public class HTTPServer extends InvModule {
 	@Override
 	public void configure(Element config) {
 		this.port = Integer.parseInt(InvUtil.getAttrib(config, "port"));
+		layoutConfig = new HttpLayoutConfig();
+		layoutConfig.configure(config);
 	}
 
 	@Override
@@ -234,7 +237,7 @@ public class HTTPServer extends InvModule {
 		try {
 			if (httpsession.getMethod() != Method.GET && httpsession.getMethod() != Method.POST)
 				throw new Exception("Unsupported method");
-			
+
 			String url = httpsession.getUri();
 			if (url.equals("/"))
 				url = "/index.html";
@@ -319,56 +322,30 @@ public class HTTPServer extends InvModule {
 
 	private Response getPageConfig(String url, UserSesh sesh, IHTTPSession request) {
 		String name = InvUtil.getParam(request, "layout");
+		PageLayout pg = null;
 		if (name == null)
-			name = "default";
-
-		// TODO: load layouts
+			pg = layoutConfig.getDefaultPage();
+		else
+			pg = layoutConfig.getPage(name);
 
 		int gs = 40;
 		JSONObject root = new JSONObject();
 		root.put("gridSize", gs);
 		JSONArray arr = new JSONArray();
 		root.put("widgets", arr);
+		
+		for (PageWidget w : pg.getWidgets()) {
+			JSONObject wij = new JSONObject();
+			wij.put("x", w.getX()).put("y", w.getY()).put("w", w.getWidth()).put("h", w.getHeight());
+			wij.put("id", w.getId()).put("type", w.getWidgetType());
+			wij.put("title", w.getTitle());
+			arr.put(wij);
+		}
+		
 
 		JSONObject wij = new JSONObject();
 		wij.put("x", 0).put("y", 0).put("w", 25).put("h", 1);
 		wij.put("id", "timeselector").put("type", "timesel");
-		arr.put(wij);
-
-		wij = new JSONObject();
-		wij.put("title", "PV Power");
-		wij.put("x", 0).put("y", 1).put("w", 20).put("h", 7);
-		wij.put("id", "pvChart").put("type", "chart");
-		arr.put(wij);
-
-		wij = new JSONObject();
-		wij.put("title", "PV Power");
-		wij.put("x", 20).put("y", 1).put("w", 5).put("h", 5);
-		wij.put("id", "pvTable").put("type", "chart");
-		arr.put(wij);
-
-		wij = new JSONObject();
-		wij.put("title", "Load");
-		wij.put("x", 0).put("y", 8).put("w", 20).put("h", 7);
-		wij.put("id", "loadChart").put("type", "chart");
-		arr.put(wij);
-
-		wij = new JSONObject();
-		wij.put("title", "Battery");
-		wij.put("x", 0).put("y", 15).put("w", 20).put("h", 7);
-		wij.put("id", "batteryChart").put("type", "chart");
-		arr.put(wij);
-
-		wij = new JSONObject();
-		wij.put("title", "Bus/Temps");
-		wij.put("x", 0).put("y", 22).put("w", 20).put("h", 4);
-		wij.put("id", "busChart").put("type", "chart");
-		arr.put(wij);
-
-		wij = new JSONObject();
-		wij.put("title", "infobit");
-		wij.put("x", 0).put("y", 26).put("w", 20).put("h", 2);
-		wij.put("id", "infobit").put("type", "infobit");
 		arr.put(wij);
 
 		for (int i = 0; i < arr.length(); ++i) {

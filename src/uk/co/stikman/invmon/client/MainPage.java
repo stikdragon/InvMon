@@ -18,9 +18,9 @@ import org.teavm.jso.dom.html.HTMLElement;
 public class MainPage extends ClientPage {
 	private HTMLElement												root;
 
-	private List<PageWidget>										widgets		= new ArrayList<>();
+	private List<AbstractPageWidget>										widgets		= new ArrayList<>();
 	private int														gridSize;
-	private static Map<String, Function<ClientPage, PageWidget>>	pageTypes	= new HashMap<>();
+	private static Map<String, Function<ClientPage, AbstractPageWidget>>	pageTypes	= new HashMap<>();
 
 	static {
 		pageTypes.put("timesel", TimeSelector::new);
@@ -47,10 +47,10 @@ public class MainPage extends ClientPage {
 			JSONArray arr = result.getJSONArray("widgets");
 			for (int i = 0; i < arr.length(); ++i) {
 				JSONObject obj = arr.getJSONObject(i);
-				Function<ClientPage, PageWidget> s = pageTypes.get(obj.getString("type"));
+				Function<ClientPage, AbstractPageWidget> s = pageTypes.get(obj.getString("type"));
 				if (s == null)
 					throw new NoSuchElementException("Unknown widget: " + obj.getString("type"));
-				PageWidget w = s.apply(this);
+				AbstractPageWidget w = s.apply(this);
 				w.configure(obj);
 				w.construct(root);
 				widgets.add(w);

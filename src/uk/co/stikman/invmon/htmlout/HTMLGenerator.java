@@ -232,7 +232,7 @@ public class HTMLGenerator {
 
 	private static final String[] IDS = ",PVA_1,PVB_1,PVA_2,PVB_2".split(",");
 	
-	public void renderPVTable(HTMLBuilder html, ChartRenderConfig opts, QueryResults data) {
+	public static void renderPVTable(HTMLBuilder html, ChartRenderConfig opts, QueryResults data) {
 		QueryRecord rec = data.getRecords().get(data.getRecords().size() - 1);
 		html.append("<table class=\"data\">");
 		html.append("<tr><td></td><th>P</th><th>V</th><th>I</th></tr>");
@@ -259,9 +259,9 @@ public class HTMLGenerator {
 		return Integer.toString((int) f);
 	}
 
-	private SimpleDateFormat sdf = new SimpleDateFormat("yy/MM/dd HH:mm");
+	private static SimpleDateFormat sdf = new SimpleDateFormat("yy/MM/dd HH:mm");
 
-	private void renderChart(HTMLBuilder html, String cssclass, ChartOptions opts, QueryResults res) {
+	public static void renderChart(HTMLBuilder html, String cssclass, ChartOptions opts, QueryResults res) {
 		try {
 			//
 			// this is quite messy i'm afraid

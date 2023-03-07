@@ -2,7 +2,7 @@ package uk.co.stikman.invmon.client;
 
 import org.teavm.jso.dom.html.HTMLElement;
 
-public class InfoBitWidget extends PageWidget {
+public class InfoBitWidget extends AbstractPageWidget {
 
 	private HTMLElement root;
 
