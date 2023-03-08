@@ -22,18 +22,22 @@ public class ChartWidget extends AbstractPageWidget {
 		args.put("h", frame.content.getOffsetHeight() - 20);
 		frame.showGlass();
 		getOwner().fetch("getSectData", args, result -> {
-			frame.content.setInnerHTML(result.getString("contentHtml"));
-			JSONArray arr = result.getJSONArray("titleBits");
+			frame.content.setInnerHTML(result.getString("html"));
+			JSONArray arr = result.optJSONArray("titleBits");
 			frame.header.clear();
 			HTMLElement h1 = InvMon.element("h1", "title");
 			h1.setInnerText(name);
 			frame.header.appendChild(h1);
-			for (int i = 0; i < arr.length(); ++i) {
-				HTMLElement div = InvMon.div("grp");
-				frame.header.appendChild(div);
-				div.setInnerHTML(arr.getString(i));
+			if (arr != null) {
+				for (int i = 0; i < arr.length(); ++i) {
+					HTMLElement div = InvMon.div("grp");
+					frame.header.appendChild(div);
+					div.setInnerHTML(arr.getString(i));
+				}
 			}
 			frame.hideOverlays();
+		}, err -> {
+			frame.showError(err.getMessage());
 		});
 	}
 

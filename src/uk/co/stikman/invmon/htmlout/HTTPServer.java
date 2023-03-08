@@ -34,6 +34,7 @@ import uk.co.stikman.invmon.datalog.DBRecord;
 import uk.co.stikman.invmon.datalog.DataLogger;
 import uk.co.stikman.invmon.datalog.MiniDbException;
 import uk.co.stikman.invmon.datalog.QueryResults;
+import uk.co.stikman.invmon.datamodel.Field;
 import uk.co.stikman.invmon.datamodel.VIFReading;
 import uk.co.stikman.invmon.inverter.InvUtil;
 import uk.co.stikman.log.StikLog;
@@ -137,6 +138,20 @@ public class HTTPServer extends InvModule {
 		HTMLBuilder html = new HTMLBuilder();
 		List<String> titleBits = new ArrayList<>();
 		QueryResults data = getQueryResults(sesh);
+
+		PageLayout layout = viewopts.getLayout();
+		if (layout == null)
+			layout = layoutConfig.getDefaultPage();
+
+		for (PageWidget wij : layout.getWidgets()) {
+			if (wij.getId().equals(name)) {
+				JSONObject result = wij.execute(jo, data);
+				return NanoHTTPD.newFixedLengthResponse(Status.OK, "text/html", result.toString());
+			}
+		}
+		if (1 == 1)
+			throw new RuntimeException("what");
+
 		if (name.equals("pvChart")) {
 			generator.renderPVPowerChart(html, opts, data);
 			titleBits.add(generator.renderGrp(new HTMLBuilder(), "Total: [%d]W", (int) data.getLastRecord().getFloat("PV_TOTAL_P")).toString());
@@ -179,17 +194,24 @@ public class HTTPServer extends InvModule {
 				long end = System.currentTimeMillis();
 				long start = end - (long) opts.getDuration() * 1000 * 60;
 				FieldNameList flds = new FieldNameList();
-				flds.add("BATT_V, BATT_I, BATT_I_CHG, BATT_I_DIS");
-				flds.add("LOAD_V, LOAD_I, LOAD_F");
-				flds.add("LOAD_P, LOAD_1_P, LOAD_2_P");
-				flds.add("PVA_1_V, PVA_1_I, PVA_1_P");
-				flds.add("PVB_1_V, PVB_1_I, PVB_1_P");
-				flds.add("PVA_2_V, PVA_2_I, PVA_2_P");
-				flds.add("PVB_2_V, PVB_2_I, PVB_2_P");
-				flds.add("PV_TOTAL_P");
-				flds.add("INV_1_TEMP,INV_2_TEMP");
-				flds.add("INV_1_BUS_V,INV_2_BUS_V");
-				flds.add("LOAD_PF");
+				//				flds.add("BATT_V, BATT_I, BATT_I_CHG, BATT_I_DIS");
+				//				flds.add("LOAD_V, LOAD_I, LOAD_F");
+				//				flds.add("LOAD_P, LOAD_1_P, LOAD_2_P");
+				//				flds.add("PVA_1_V, PVA_1_I, PVA_1_P");
+				//				flds.add("PVB_1_V, PVB_1_I, PVB_1_P");
+				//				flds.add("PVA_2_V, PVA_2_I, PVA_2_P");
+				//				flds.add("PVB_2_V, PVB_2_I, PVB_2_P");
+				//				flds.add("PV_TOTAL_P");
+				//				flds.add("INV_1_TEMP,INV_2_TEMP");
+				//				flds.add("INV_1_BUS_V,INV_2_BUS_V");
+				//				flds.add("LOAD_PF");
+				//
+				// add everything except timestamp, i guess
+				//
+				for (Field f : getEnv().getModel())
+					if (!f.getId().equals("TIMESTAMP"))
+						flds.add(f.getId());
+
 				try {
 					qr = datalogger.query(start, end, 100, flds.asList());
 				} catch (MiniDbException e) {
@@ -316,6 +338,7 @@ public class HTTPServer extends InvModule {
 			sesh.putData(GLOBAL_VIEW_OPTIONS, global = new ViewOptions());
 		global.setDuration(dur);
 		global.setOffset(off);
+		global.setLayout(this.layoutConfig.getPage(jo.optString("page", null)));
 		sesh.putData(LAST_QUERY_RESULTS, null);
 		return NanoHTTPD.newFixedLengthResponse(new JSONObject().put("result", "OK").toString());
 	}
@@ -333,7 +356,7 @@ public class HTTPServer extends InvModule {
 		root.put("gridSize", gs);
 		JSONArray arr = new JSONArray();
 		root.put("widgets", arr);
-		
+
 		for (PageWidget w : pg.getWidgets()) {
 			JSONObject wij = new JSONObject();
 			wij.put("x", w.getX()).put("y", w.getY()).put("w", w.getWidth()).put("h", w.getHeight());
@@ -341,7 +364,6 @@ public class HTTPServer extends InvModule {
 			wij.put("title", w.getTitle());
 			arr.put(wij);
 		}
-		
 
 		JSONObject wij = new JSONObject();
 		wij.put("x", 0).put("y", 0).put("w", 25).put("h", 1);

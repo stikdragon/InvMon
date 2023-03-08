@@ -231,7 +231,7 @@ public class HTMLGenerator {
 	}
 
 	private static final String[] IDS = ",PVA_1,PVB_1,PVA_2,PVB_2".split(",");
-	
+
 	public static void renderPVTable(HTMLBuilder html, ChartRenderConfig opts, QueryResults data) {
 		QueryRecord rec = data.getRecords().get(data.getRecords().size() - 1);
 		html.append("<table class=\"data\">");
@@ -244,8 +244,8 @@ public class HTMLGenerator {
 			html.append(String.format("<td><span class=\"b\">%.1f</span>A</td>", rec.getFloat(IDS[i] + "_I")));
 			html.append("</tr>");
 		}
-		
-		html.append("<tr class=\"total\"><th>Total</th><td colspan=\"3\"><span class=\"b\">").append((int)rec.getFloat("PV_TOTAL_P")).append("</span>W</td></tr>");
+
+		html.append("<tr class=\"total\"><th>Total</th><td colspan=\"3\"><span class=\"b\">").append((int) rec.getFloat("PV_TOTAL_P")).append("</span>W</td></tr>");
 		html.append("</table>");
 	}
 
@@ -271,7 +271,8 @@ public class HTMLGenerator {
 			List<String> fields = new ArrayList<>();
 			for (Series s : opts.getSeries()) {
 				fields.add(s.getField());
-				fields.addAll(s.getSubfields());
+				if (s.getSubfields() != null)
+					fields.addAll(s.getSubfields());
 			}
 
 			long tsStart = res.getStart();

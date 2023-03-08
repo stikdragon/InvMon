@@ -35,6 +35,8 @@ public class ChartOptions {
 
 	public Series addSeries(String field, List<String> subfields) {
 		Series s = new Series(field);
+		if (subfields == null)
+			subfields = new ArrayList<>();
 		s.setSubfields(subfields);
 		s.setYAxis(axisY1);
 		series.add(s);

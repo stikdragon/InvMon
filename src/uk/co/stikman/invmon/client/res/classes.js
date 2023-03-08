@@ -4446,6 +4446,11 @@ function oj_JSONObject_numberToString($number) {
 function oj_JSONObject_opt($this, $key) {
     return $key === null ? null : $this.$map.$get1($key);
 }
+function oj_JSONObject_optJSONArray($this, $key) {
+    var $o;
+    $o = $this.$opt($key);
+    return !($o instanceof oj_JSONArray) ? null : $o;
+}
 function oj_JSONObject_populateMap($this, $bean) {
     var $klass, $includeSuperClass, $methods, var$5, var$6, var$7, $method, $modifiers, $key, $result, $$je;
     $klass = jl_Object_getClass($bean);
@@ -11153,6 +11158,25 @@ function ucsic_ChartWidget$refresh$lambda$_1_0_accept(var$0, var$1) {
 function ucsic_ChartWidget$refresh$lambda$_1_0_accept0(var$0, var$1) {
     ucsic_ChartWidget_lambda$refresh$0(var$0.$_03, var$1);
 }
+function ucsic_ChartWidget$refresh$lambda$_1_1() {
+    jl_Object.call(this);
+    this.$_04 = null;
+}
+function ucsic_ChartWidget$refresh$lambda$_1_1__init_(var_0) {
+    var var_1 = new ucsic_ChartWidget$refresh$lambda$_1_1();
+    ucsic_ChartWidget$refresh$lambda$_1_1__init_0(var_1, var_0);
+    return var_1;
+}
+function ucsic_ChartWidget$refresh$lambda$_1_1__init_0(var$0, var$1) {
+    jl_Object__init_0(var$0);
+    var$0.$_04 = var$1;
+}
+function ucsic_ChartWidget$refresh$lambda$_1_1_accept(var$0, var$1) {
+    ucsic_ChartWidget$refresh$lambda$_1_1_accept0(var$0, var$1);
+}
+function ucsic_ChartWidget$refresh$lambda$_1_1_accept0(var$0, var$1) {
+    ucsic_ChartWidget_lambda$refresh$1(var$0.$_04, var$1);
+}
 function jur_AbstractCharClass$LazyJavaDigit$1() {
     jur_AbstractCharClass.call(this);
     this.$this$015 = null;
@@ -11179,7 +11203,81 @@ function jl_NoSuchMethodException__init_0($this) {
     jl_ReflectiveOperationException__init_0($this);
 }
 var otcir_Converter = $rt_classWithoutFields();
-function ucsic_PageWidget() {
+var jl_NullPointerException = $rt_classWithoutFields(jl_RuntimeException);
+function jl_NullPointerException__init_0(var_0) {
+    var var_1 = new jl_NullPointerException();
+    jl_NullPointerException__init_1(var_1, var_0);
+    return var_1;
+}
+function jl_NullPointerException__init_() {
+    var var_0 = new jl_NullPointerException();
+    jl_NullPointerException__init_2(var_0);
+    return var_0;
+}
+function jl_NullPointerException__init_1($this, $message) {
+    jl_RuntimeException__init_4($this, $message);
+}
+function jl_NullPointerException__init_2($this) {
+    jl_RuntimeException__init_1($this);
+}
+function otja_XMLHttpRequest$onComplete$static$lambda$_27_0() {
+    var a = this; jl_Object.call(a);
+    a.$_05 = null;
+    a.$_11 = null;
+}
+function otja_XMLHttpRequest$onComplete$static$lambda$_27_0__init_(var_0, var_1) {
+    var var_2 = new otja_XMLHttpRequest$onComplete$static$lambda$_27_0();
+    otja_XMLHttpRequest$onComplete$static$lambda$_27_0__init_0(var_2, var_0, var_1);
+    return var_2;
+}
+function otja_XMLHttpRequest$onComplete$static$lambda$_27_0__init_0(var$0, var$1, var$2) {
+    jl_Object__init_0(var$0);
+    var$0.$_05 = var$1;
+    var$0.$_11 = var$2;
+}
+function otja_XMLHttpRequest$onComplete$static$lambda$_27_0_stateChanged(var$0) {
+    otja_XMLHttpRequest_lambda$onComplete$0$static(var$0.$_05, var$0.$_11);
+}
+function otja_XMLHttpRequest$onComplete$static$lambda$_27_0_stateChanged$exported$0(var$0) {
+    var$0.$stateChanged();
+}
+function jur_AbstractCharClass$LazyJavaSpaceChar$1() {
+    jur_AbstractCharClass.call(this);
+    this.$this$016 = null;
+}
+function jur_AbstractCharClass$LazyJavaSpaceChar$1__init_(var_0) {
+    var var_1 = new jur_AbstractCharClass$LazyJavaSpaceChar$1();
+    jur_AbstractCharClass$LazyJavaSpaceChar$1__init_0(var_1, var_0);
+    return var_1;
+}
+function jur_AbstractCharClass$LazyJavaSpaceChar$1__init_0($this, $this$0) {
+    $this.$this$016 = $this$0;
+    jur_AbstractCharClass__init_($this);
+}
+function jur_AbstractCharClass$LazyJavaSpaceChar$1_contains($this, $ch) {
+    return jl_Character_isSpaceChar($ch);
+}
+function ucsic_ClientPage$http$lambda$_6_0() {
+    var a = this; jl_Object.call(a);
+    a.$_06 = null;
+    a.$_12 = null;
+    a.$_20 = null;
+}
+function ucsic_ClientPage$http$lambda$_6_0__init_(var_0, var_1, var_2) {
+    var var_3 = new ucsic_ClientPage$http$lambda$_6_0();
+    ucsic_ClientPage$http$lambda$_6_0__init_0(var_3, var_0, var_1, var_2);
+    return var_3;
+}
+function ucsic_ClientPage$http$lambda$_6_0__init_0(var$0, var$1, var$2, var$3) {
+    jl_Object__init_0(var$0);
+    var$0.$_06 = var$1;
+    var$0.$_12 = var$2;
+    var$0.$_20 = var$3;
+}
+function ucsic_ClientPage$http$lambda$_6_0_run(var$0) {
+    ucsic_ClientPage_lambda$http$2(var$0.$_06, var$0.$_12, var$0.$_20);
+}
+function ucsic_AbstractPageWidget() {
     var a = this; jl_Object.call(a);
     a.$owner0 = null;
     a.$x = 0;
@@ -11188,24 +11286,24 @@ function ucsic_PageWidget() {
     a.$height = 0;
     a.$id0 = null;
 }
-function ucsic_PageWidget__init_(var$0, var$1) {
+function ucsic_AbstractPageWidget__init_(var$0, var$1) {
     jl_Object__init_0(var$0);
     var$0.$owner0 = var$1;
 }
-function ucsic_PageWidget_configure(var$0, var$1) {
+function ucsic_AbstractPageWidget_configure(var$0, var$1) {
     var$0.$x = var$1.$getInt($rt_s(319));
     var$0.$y = var$1.$getInt($rt_s(320));
     var$0.$width = var$1.$getInt($rt_s(67));
     var$0.$height = var$1.$getInt($rt_s(321));
     var$0.$id0 = var$1.$getString0($rt_s(322));
 }
-function ucsic_PageWidget_getId(var$0) {
+function ucsic_AbstractPageWidget_getId(var$0) {
     return var$0.$id0;
 }
-function ucsic_PageWidget_toString(var$0) {
+function ucsic_AbstractPageWidget_toString(var$0) {
     return var$0.$id0;
 }
-function ucsic_PageWidget_doLayout(var$0, var$1) {
+function ucsic_AbstractPageWidget_doLayout(var$0, var$1) {
     var var$2, var$3, var$4, var$5;
     var$1.style.setProperty("display", "inline-block");
     var$1.style.setProperty("position", "absolute");
@@ -11222,10 +11320,10 @@ function ucsic_PageWidget_doLayout(var$0, var$1) {
     var$5 = (((jl_StringBuilder__init_()).$append(jl_Integer_toString0(var$0.$height))).$append($rt_s(323))).$toString();
     var$4.setProperty("height", $rt_ustr(var$5));
 }
-function ucsic_PageWidget_getOwner(var$0) {
+function ucsic_AbstractPageWidget_getOwner(var$0) {
     return var$0.$owner0;
 }
-function ucsic_PageWidget_createStandardFrame(var$0, var$1, var$2, var$3) {
+function ucsic_AbstractPageWidget_createStandardFrame(var$0, var$1, var$2, var$3) {
     var var$4, var$5, var$6, var$7, var$8, var$9;
     var$4 = ucsic_InvMon_div($rt_createArray(jl_String, 0));
     if (var$3 !== null)
@@ -11271,80 +11369,6 @@ function ucsic_PageWidget_createStandardFrame(var$0, var$1, var$2, var$3) {
     var$1.$hideOverlays();
     return var$1;
 }
-var jl_NullPointerException = $rt_classWithoutFields(jl_RuntimeException);
-function jl_NullPointerException__init_0(var_0) {
-    var var_1 = new jl_NullPointerException();
-    jl_NullPointerException__init_1(var_1, var_0);
-    return var_1;
-}
-function jl_NullPointerException__init_() {
-    var var_0 = new jl_NullPointerException();
-    jl_NullPointerException__init_2(var_0);
-    return var_0;
-}
-function jl_NullPointerException__init_1($this, $message) {
-    jl_RuntimeException__init_4($this, $message);
-}
-function jl_NullPointerException__init_2($this) {
-    jl_RuntimeException__init_1($this);
-}
-function otja_XMLHttpRequest$onComplete$static$lambda$_27_0() {
-    var a = this; jl_Object.call(a);
-    a.$_04 = null;
-    a.$_11 = null;
-}
-function otja_XMLHttpRequest$onComplete$static$lambda$_27_0__init_(var_0, var_1) {
-    var var_2 = new otja_XMLHttpRequest$onComplete$static$lambda$_27_0();
-    otja_XMLHttpRequest$onComplete$static$lambda$_27_0__init_0(var_2, var_0, var_1);
-    return var_2;
-}
-function otja_XMLHttpRequest$onComplete$static$lambda$_27_0__init_0(var$0, var$1, var$2) {
-    jl_Object__init_0(var$0);
-    var$0.$_04 = var$1;
-    var$0.$_11 = var$2;
-}
-function otja_XMLHttpRequest$onComplete$static$lambda$_27_0_stateChanged(var$0) {
-    otja_XMLHttpRequest_lambda$onComplete$0$static(var$0.$_04, var$0.$_11);
-}
-function otja_XMLHttpRequest$onComplete$static$lambda$_27_0_stateChanged$exported$0(var$0) {
-    var$0.$stateChanged();
-}
-function jur_AbstractCharClass$LazyJavaSpaceChar$1() {
-    jur_AbstractCharClass.call(this);
-    this.$this$016 = null;
-}
-function jur_AbstractCharClass$LazyJavaSpaceChar$1__init_(var_0) {
-    var var_1 = new jur_AbstractCharClass$LazyJavaSpaceChar$1();
-    jur_AbstractCharClass$LazyJavaSpaceChar$1__init_0(var_1, var_0);
-    return var_1;
-}
-function jur_AbstractCharClass$LazyJavaSpaceChar$1__init_0($this, $this$0) {
-    $this.$this$016 = $this$0;
-    jur_AbstractCharClass__init_($this);
-}
-function jur_AbstractCharClass$LazyJavaSpaceChar$1_contains($this, $ch) {
-    return jl_Character_isSpaceChar($ch);
-}
-function ucsic_ClientPage$http$lambda$_6_0() {
-    var a = this; jl_Object.call(a);
-    a.$_05 = null;
-    a.$_12 = null;
-    a.$_20 = null;
-}
-function ucsic_ClientPage$http$lambda$_6_0__init_(var_0, var_1, var_2) {
-    var var_3 = new ucsic_ClientPage$http$lambda$_6_0();
-    ucsic_ClientPage$http$lambda$_6_0__init_0(var_3, var_0, var_1, var_2);
-    return var_3;
-}
-function ucsic_ClientPage$http$lambda$_6_0__init_0(var$0, var$1, var$2, var$3) {
-    jl_Object__init_0(var$0);
-    var$0.$_05 = var$1;
-    var$0.$_12 = var$2;
-    var$0.$_20 = var$3;
-}
-function ucsic_ClientPage$http$lambda$_6_0_run(var$0) {
-    ucsic_ClientPage_lambda$http$2(var$0.$_05, var$0.$_12, var$0.$_20);
-}
 function jl_Object$Monitor() {
     var a = this; jl_Object.call(a);
     a.$enteringThreads = null;
@@ -11374,7 +11398,7 @@ function jl_Math_max($a, $b) {
 }
 function ucsic_MainPage$setDataRange$lambda$_5_0() {
     jl_Object.call(this);
-    this.$_06 = null;
+    this.$_07 = null;
 }
 function ucsic_MainPage$setDataRange$lambda$_5_0__init_(var_0) {
     var var_1 = new ucsic_MainPage$setDataRange$lambda$_5_0();
@@ -11383,13 +11407,13 @@ function ucsic_MainPage$setDataRange$lambda$_5_0__init_(var_0) {
 }
 function ucsic_MainPage$setDataRange$lambda$_5_0__init_0(var$0, var$1) {
     jl_Object__init_0(var$0);
-    var$0.$_06 = var$1;
+    var$0.$_07 = var$1;
 }
 function ucsic_MainPage$setDataRange$lambda$_5_0_accept(var$0, var$1) {
     ucsic_MainPage$setDataRange$lambda$_5_0_accept0(var$0, var$1);
 }
 function ucsic_MainPage$setDataRange$lambda$_5_0_accept0(var$0, var$1) {
-    ucsic_MainPage_lambda$setDataRange$2(var$0.$_06, var$1);
+    ucsic_MainPage_lambda$setDataRange$2(var$0.$_07, var$1);
 }
 var jur_AbstractCharClass$LazyJavaUnicodeIdentifierPart = $rt_classWithoutFields(jur_AbstractCharClass$LazyCharClass);
 function jur_AbstractCharClass$LazyJavaUnicodeIdentifierPart__init_() {
@@ -11458,7 +11482,7 @@ function ucsic_ClientUtil_getURLParam(var$1, var$2) {
     return var$2;
 }
 function ucsic_InfoBitWidget() {
-    ucsic_PageWidget.call(this);
+    ucsic_AbstractPageWidget.call(this);
     this.$root = null;
 }
 function ucsic_InfoBitWidget__init_(var_0) {
@@ -11467,7 +11491,7 @@ function ucsic_InfoBitWidget__init_(var_0) {
     return var_1;
 }
 function ucsic_InfoBitWidget__init_0(var$0, var$1) {
-    ucsic_PageWidget__init_(var$0, var$1);
+    ucsic_AbstractPageWidget__init_(var$0, var$1);
 }
 function ucsic_InfoBitWidget_construct(var$0, var$1) {
     var var$2;
@@ -12925,7 +12949,7 @@ function jn_BufferUnderflowException__init_0($this) {
     jl_RuntimeException__init_1($this);
 }
 function ucsic_ChartWidget() {
-    var a = this; ucsic_PageWidget.call(a);
+    var a = this; ucsic_AbstractPageWidget.call(a);
     a.$frame = null;
     a.$name6 = null;
 }
@@ -12935,7 +12959,7 @@ function ucsic_ChartWidget__init_(var_0) {
     return var_1;
 }
 function ucsic_ChartWidget__init_0(var$0, var$1) {
-    ucsic_PageWidget__init_(var$0, var$1);
+    ucsic_AbstractPageWidget__init_(var$0, var$1);
 }
 function ucsic_ChartWidget_refresh(var$0) {
     var var$1;
@@ -12944,37 +12968,46 @@ function ucsic_ChartWidget_refresh(var$0) {
     var$1.$put4($rt_s(67), var$0.$frame.$content.offsetWidth - 20 | 0);
     var$1.$put4($rt_s(321), var$0.$frame.$content.offsetHeight - 20 | 0);
     var$0.$frame.$showGlass();
-    (var$0.$getOwner()).$fetch0($rt_s(341), var$1, ucsic_ChartWidget$refresh$lambda$_1_0__init_(var$0));
+    (var$0.$getOwner()).$fetch($rt_s(341), var$1, ucsic_ChartWidget$refresh$lambda$_1_0__init_(var$0), ucsic_ChartWidget$refresh$lambda$_1_1__init_(var$0));
 }
 function ucsic_ChartWidget_construct(var$0, var$1) {
     var$0.$frame = var$0.$createStandardFrame(var$1, 1, null);
 }
 function ucsic_ChartWidget_configure(var$0, var$1) {
-    ucsic_PageWidget_configure(var$0, var$1);
+    ucsic_AbstractPageWidget_configure(var$0, var$1);
     var$0.$name6 = var$1.$getString0($rt_s(342));
+}
+function ucsic_ChartWidget_lambda$refresh$1(var$0, var$1) {
+    var$0.$frame.$showError(var$1.$getMessage());
 }
 function ucsic_ChartWidget_lambda$refresh$0(var$0, var$1) {
     var var$2, var$3, var$4, var$5;
-    var$2 = var$0.$frame.$content;
-    var$3 = $rt_ustr(var$1.$getString0($rt_s(343)));
-    var$2.innerHTML = var$3;
-    var$3 = var$1.$getJSONArray($rt_s(344));
-    otjdh_HTMLElement_clear$static(var$0.$frame.$header);
-    var$4 = $rt_createArray(jl_String, 1);
-    var$4.data[0] = $rt_s(342);
-    var$1 = ucsic_InvMon_element($rt_s(345), var$4);
-    var$2 = $rt_ustr(var$0.$name6);
-    var$1.innerText = var$2;
-    var$0.$frame.$header.appendChild(var$1);
-    var$5 = 0;
-    while (var$5 < var$3.$length()) {
+    a: {
+        var$2 = var$0.$frame.$content;
+        var$3 = $rt_ustr(var$1.$getString0($rt_s(334)));
+        var$2.innerHTML = var$3;
+        var$3 = var$1.$optJSONArray($rt_s(343));
+        otjdh_HTMLElement_clear$static(var$0.$frame.$header);
         var$4 = $rt_createArray(jl_String, 1);
-        var$4.data[0] = $rt_s(346);
-        var$1 = ucsic_InvMon_div(var$4);
+        var$4.data[0] = $rt_s(342);
+        var$1 = ucsic_InvMon_element($rt_s(344), var$4);
+        var$2 = $rt_ustr(var$0.$name6);
+        var$1.innerText = var$2;
         var$0.$frame.$header.appendChild(var$1);
-        var$2 = $rt_ustr(var$3.$getString1(var$5));
-        var$1.innerHTML = var$2;
-        var$5 = var$5 + 1 | 0;
+        if (var$3 !== null) {
+            var$5 = 0;
+            while (true) {
+                if (var$5 >= var$3.$length())
+                    break a;
+                var$4 = $rt_createArray(jl_String, 1);
+                var$4.data[0] = $rt_s(345);
+                var$1 = ucsic_InvMon_div(var$4);
+                var$0.$frame.$header.appendChild(var$1);
+                var$2 = $rt_ustr(var$3.$getString1(var$5));
+                var$1.innerHTML = var$2;
+                var$5 = var$5 + 1 | 0;
+            }
+        }
     }
     var$0.$frame.$hideOverlays();
 }
@@ -13027,7 +13060,7 @@ function jnc_MalformedInputException__init_0($this, $length) {
     $this.$length3 = $length;
 }
 function jnc_MalformedInputException_getMessage($this) {
-    return (((jl_StringBuilder__init_()).$append($rt_s(347))).$append1($this.$length3)).$toString();
+    return (((jl_StringBuilder__init_()).$append($rt_s(346))).$append1($this.$length3)).$toString();
 }
 var jur_AbstractCharClass$LazyJavaJavaIdentifierStart = $rt_classWithoutFields(jur_AbstractCharClass$LazyCharClass);
 function jur_AbstractCharClass$LazyJavaJavaIdentifierStart__init_() {
@@ -13562,7 +13595,7 @@ function jur_UCISequenceSet_accepts($this, $strIndex, $testString) {
     return (-1);
 }
 function jur_UCISequenceSet_getName($this) {
-    return (((jl_StringBuilder__init_()).$append($rt_s(348))).$append($this.$string3)).$toString();
+    return (((jl_StringBuilder__init_()).$append($rt_s(347))).$append($this.$string3)).$toString();
 }
 function jur_CharClass$16() {
     var a = this; jur_AbstractCharClass.call(a);
@@ -13814,7 +13847,7 @@ function jur_CompositeRangeSet_setNext($this, $next) {
     $this.$withoutSurrogates.$setNext($next);
 }
 function jur_CompositeRangeSet_getName($this) {
-    return (((((jl_StringBuilder__init_()).$append($rt_s(349))).$append10($this.$withoutSurrogates)).$append($rt_s(350))).$append10($this.$withSurrogates)).$toString();
+    return (((((jl_StringBuilder__init_()).$append($rt_s(348))).$append10($this.$withoutSurrogates)).$append($rt_s(349))).$append10($this.$withSurrogates)).$toString();
 }
 function jur_CompositeRangeSet_hasConsumed($this, $matchResult) {
     return 1;
@@ -13833,7 +13866,7 @@ function ju_ConcurrentModificationException__init_0($this) {
 }
 function ucsic_MainPage$load$lambda$_2_0() {
     jl_Object.call(this);
-    this.$_07 = null;
+    this.$_08 = null;
 }
 function ucsic_MainPage$load$lambda$_2_0__init_(var_0) {
     var var_1 = new ucsic_MainPage$load$lambda$_2_0();
@@ -13842,13 +13875,13 @@ function ucsic_MainPage$load$lambda$_2_0__init_(var_0) {
 }
 function ucsic_MainPage$load$lambda$_2_0__init_0(var$0, var$1) {
     jl_Object__init_0(var$0);
-    var$0.$_07 = var$1;
+    var$0.$_08 = var$1;
 }
 function ucsic_MainPage$load$lambda$_2_0_accept(var$0, var$1) {
     ucsic_MainPage$load$lambda$_2_0_accept0(var$0, var$1);
 }
 function ucsic_MainPage$load$lambda$_2_0_accept0(var$0, var$1) {
-    ucsic_MainPage_lambda$load$0(var$0.$_07, var$1);
+    ucsic_MainPage_lambda$load$0(var$0.$_08, var$1);
 }
 var jur_FinalSet = $rt_classWithoutFields(jur_FSet);
 function jur_FinalSet__init_() {
@@ -13867,7 +13900,7 @@ function jur_FinalSet_matches($this, $stringIndex, $testString, $matchResult) {
     return $stringIndex;
 }
 function jur_FinalSet_getName($this) {
-    return $rt_s(351);
+    return $rt_s(350);
 }
 function ucsic_StandardFrame() {
     var a = this; jl_Object.call(a);
@@ -13883,6 +13916,15 @@ function ucsic_StandardFrame__init_() {
 }
 function ucsic_StandardFrame__init_0(var$0) {
     jl_Object__init_0(var$0);
+}
+function ucsic_StandardFrame_showError(var$0, var$1) {
+    var var$2;
+    if (var$0.$error0 === null)
+        return;
+    var$0.$error0.style.removeProperty("display");
+    var$2 = var$0.$error0.firstChild;
+    var$1 = $rt_ustr(var$1);
+    var$2.textContent = var$1;
 }
 function ucsic_StandardFrame_hideOverlays(var$0) {
     if (var$0.$glass !== null)
@@ -13956,7 +13998,7 @@ function jur_EmptySet_findBack($this, $stringIndex, $startSearch, $testString, $
     return $startSearch;
 }
 function jur_EmptySet_getName($this) {
-    return $rt_s(352);
+    return $rt_s(351);
 }
 function jur_EmptySet_hasConsumed($this, $mr) {
     return 0;
@@ -14051,7 +14093,7 @@ function jur_Quantifier_max($this) {
     return $this.$max1;
 }
 function jur_Quantifier_toString($this) {
-    return ((((((jl_StringBuilder__init_()).$append($rt_s(353))).$append1($this.$min1)).$append($rt_s(354))).$append($this.$max1 == 2147483647 ? $rt_s(37) : (jl_Integer__init_($this.$max1)).$toString())).$append($rt_s(355))).$toString();
+    return ((((((jl_StringBuilder__init_()).$append($rt_s(352))).$append1($this.$min1)).$append($rt_s(353))).$append($this.$max1 == 2147483647 ? $rt_s(37) : (jl_Integer__init_($this.$max1)).$toString())).$append($rt_s(354))).$toString();
 }
 function jur_AbstractCharClass$LazyJavaUpperCase$1() {
     jur_AbstractCharClass.call(this);
@@ -14070,7 +14112,7 @@ function jur_AbstractCharClass$LazyJavaUpperCase$1_contains($this, $ch) {
     return jl_Character_isUpperCase0($ch);
 }
 function ucsic_TimeSelector() {
-    var a = this; ucsic_PageWidget.call(a);
+    var a = this; ucsic_AbstractPageWidget.call(a);
     a.$controlsEl = null;
     a.$items = null;
     a.$onChange = null;
@@ -14081,35 +14123,35 @@ function ucsic_TimeSelector__init_(var_0) {
     return var_1;
 }
 function ucsic_TimeSelector__init_0(var$0, var$1) {
-    ucsic_PageWidget__init_(var$0, var$1);
+    ucsic_AbstractPageWidget__init_(var$0, var$1);
     var$0.$items = ju_ArrayList__init_();
 }
 function ucsic_TimeSelector_refresh(var$0) {}
 function ucsic_TimeSelector_construct(var$0, var$1) {
     var var$2, var$3;
-    var$2 = var$0.$createStandardFrame(var$1, 0, $rt_s(356));
+    var$2 = var$0.$createStandardFrame(var$1, 0, $rt_s(355));
     var$3 = $rt_createArray(jl_String, 1);
-    var$3.data[0] = $rt_s(357);
+    var$3.data[0] = $rt_s(356);
     var$0.$controlsEl = ucsic_InvMon_div(var$3);
     var$1 = var$2.$content;
     var$2 = var$0.$controlsEl;
     var$1.appendChild(var$2);
-    ucsic_TimeSelector_addRange(var$0, 5, $rt_s(358));
-    ucsic_TimeSelector_addRange(var$0, 30, $rt_s(359));
-    ucsic_TimeSelector_addRange(var$0, 60, $rt_s(360));
-    ucsic_TimeSelector_addRange(var$0, 120, $rt_s(361));
-    ucsic_TimeSelector_addRange(var$0, 360, $rt_s(362));
-    ucsic_TimeSelector_addRange(var$0, 720, $rt_s(363));
-    ucsic_TimeSelector_addRange(var$0, 1440, $rt_s(364));
-    ucsic_TimeSelector_addRange(var$0, 2880, $rt_s(365));
-    ucsic_TimeSelector_addRange(var$0, 7200, $rt_s(366));
-    ucsic_TimeSelector_addRange(var$0, 43200, $rt_s(367));
+    ucsic_TimeSelector_addRange(var$0, 5, $rt_s(357));
+    ucsic_TimeSelector_addRange(var$0, 30, $rt_s(358));
+    ucsic_TimeSelector_addRange(var$0, 60, $rt_s(359));
+    ucsic_TimeSelector_addRange(var$0, 120, $rt_s(360));
+    ucsic_TimeSelector_addRange(var$0, 360, $rt_s(361));
+    ucsic_TimeSelector_addRange(var$0, 720, $rt_s(362));
+    ucsic_TimeSelector_addRange(var$0, 1440, $rt_s(363));
+    ucsic_TimeSelector_addRange(var$0, 2880, $rt_s(364));
+    ucsic_TimeSelector_addRange(var$0, 7200, $rt_s(365));
+    ucsic_TimeSelector_addRange(var$0, 43200, $rt_s(366));
 }
 function ucsic_TimeSelector_addRange(var$0, var$1, var$2) {
     var var$3, var$4, var$5, var$6;
     var$3 = $rt_createArray(jl_String, 1);
-    var$3.data[0] = $rt_s(368);
-    var$4 = ucsic_InvMon_element($rt_s(369), var$3);
+    var$3.data[0] = $rt_s(367);
+    var$4 = ucsic_InvMon_element($rt_s(368), var$3);
     var$2 = $rt_ustr(var$2);
     var$4.innerText = var$2;
     var$0.$controlsEl.appendChild(var$4);
@@ -14117,7 +14159,7 @@ function ucsic_TimeSelector_addRange(var$0, var$1, var$2) {
     var$4.setAttribute("data-len", $rt_ustr(var$5));
     var$6 = var$0.$controlsEl;
     var$3 = $rt_createArray(jl_String, 1);
-    var$3.data[0] = $rt_s(370);
+    var$3.data[0] = $rt_s(369);
     var$5 = ucsic_InvMon_div(var$3);
     var$6.appendChild(var$5);
     otjde_MouseEventTarget_listenClick$static(var$4, ucsic_TimeSelector$addRange$lambda$_3_0__init_(var$0, var$4));
@@ -14128,7 +14170,7 @@ function ucsic_TimeSelector_select(var$0, var$1) {
     var$2 = var$0.$items.$iterator();
     while (var$2.$hasNext()) {
         var$3 = var$2.$next0();
-        var$4 = var$3 !== var$1 ? $rt_s(368) : $rt_s(371);
+        var$4 = var$3 !== var$1 ? $rt_s(367) : $rt_s(370);
         var$3.setAttribute("class", $rt_ustr(var$4));
     }
     var$5 = jl_Integer_parseInt0($rt_str(var$1.getAttribute("data-len")));
@@ -14241,27 +14283,27 @@ function ju_Locale__init_2($this, $language, $country, $variant) {
 }
 function ju_Locale__clinit_() {
     var $localeName, $countryIndex;
-    ju_Locale_CANADA = ju_Locale__init_($rt_s(372), $rt_s(373));
-    ju_Locale_CANADA_FRENCH = ju_Locale__init_($rt_s(374), $rt_s(373));
-    ju_Locale_CHINA = ju_Locale__init_($rt_s(375), $rt_s(376));
-    ju_Locale_CHINESE = ju_Locale__init_($rt_s(375), $rt_s(37));
-    ju_Locale_ENGLISH = ju_Locale__init_($rt_s(372), $rt_s(37));
-    ju_Locale_FRANCE = ju_Locale__init_($rt_s(374), $rt_s(377));
-    ju_Locale_FRENCH = ju_Locale__init_($rt_s(374), $rt_s(37));
-    ju_Locale_GERMAN = ju_Locale__init_($rt_s(378), $rt_s(37));
-    ju_Locale_GERMANY = ju_Locale__init_($rt_s(378), $rt_s(379));
-    ju_Locale_ITALIAN = ju_Locale__init_($rt_s(380), $rt_s(37));
-    ju_Locale_ITALY = ju_Locale__init_($rt_s(380), $rt_s(381));
-    ju_Locale_JAPAN = ju_Locale__init_($rt_s(382), $rt_s(383));
-    ju_Locale_JAPANESE = ju_Locale__init_($rt_s(382), $rt_s(37));
-    ju_Locale_KOREA = ju_Locale__init_($rt_s(384), $rt_s(385));
-    ju_Locale_KOREAN = ju_Locale__init_($rt_s(384), $rt_s(37));
-    ju_Locale_PRC = ju_Locale__init_($rt_s(375), $rt_s(376));
-    ju_Locale_SIMPLIFIED_CHINESE = ju_Locale__init_($rt_s(375), $rt_s(376));
-    ju_Locale_TAIWAN = ju_Locale__init_($rt_s(375), $rt_s(386));
-    ju_Locale_TRADITIONAL_CHINESE = ju_Locale__init_($rt_s(375), $rt_s(386));
-    ju_Locale_UK = ju_Locale__init_($rt_s(372), $rt_s(387));
-    ju_Locale_US = ju_Locale__init_($rt_s(372), $rt_s(388));
+    ju_Locale_CANADA = ju_Locale__init_($rt_s(371), $rt_s(372));
+    ju_Locale_CANADA_FRENCH = ju_Locale__init_($rt_s(373), $rt_s(372));
+    ju_Locale_CHINA = ju_Locale__init_($rt_s(374), $rt_s(375));
+    ju_Locale_CHINESE = ju_Locale__init_($rt_s(374), $rt_s(37));
+    ju_Locale_ENGLISH = ju_Locale__init_($rt_s(371), $rt_s(37));
+    ju_Locale_FRANCE = ju_Locale__init_($rt_s(373), $rt_s(376));
+    ju_Locale_FRENCH = ju_Locale__init_($rt_s(373), $rt_s(37));
+    ju_Locale_GERMAN = ju_Locale__init_($rt_s(377), $rt_s(37));
+    ju_Locale_GERMANY = ju_Locale__init_($rt_s(377), $rt_s(378));
+    ju_Locale_ITALIAN = ju_Locale__init_($rt_s(379), $rt_s(37));
+    ju_Locale_ITALY = ju_Locale__init_($rt_s(379), $rt_s(380));
+    ju_Locale_JAPAN = ju_Locale__init_($rt_s(381), $rt_s(382));
+    ju_Locale_JAPANESE = ju_Locale__init_($rt_s(381), $rt_s(37));
+    ju_Locale_KOREA = ju_Locale__init_($rt_s(383), $rt_s(384));
+    ju_Locale_KOREAN = ju_Locale__init_($rt_s(383), $rt_s(37));
+    ju_Locale_PRC = ju_Locale__init_($rt_s(374), $rt_s(375));
+    ju_Locale_SIMPLIFIED_CHINESE = ju_Locale__init_($rt_s(374), $rt_s(375));
+    ju_Locale_TAIWAN = ju_Locale__init_($rt_s(374), $rt_s(385));
+    ju_Locale_TRADITIONAL_CHINESE = ju_Locale__init_($rt_s(374), $rt_s(385));
+    ju_Locale_UK = ju_Locale__init_($rt_s(371), $rt_s(386));
+    ju_Locale_US = ju_Locale__init_($rt_s(371), $rt_s(387));
     ju_Locale_ROOT = ju_Locale__init_($rt_s(37), $rt_s(37));
     $localeName = ((otciu_CLDRHelper_getDefaultLocale()).value !== null ? $rt_str((otciu_CLDRHelper_getDefaultLocale()).value) : null);
     $countryIndex = $localeName.$indexOf(95);
@@ -14336,7 +14378,7 @@ function jur_ReluctantQuantifierSet_matches($this, $stringIndex, $testString, $m
 }
 function ucsic_ClientPage$fetch$lambda$_4_0() {
     jl_Object.call(this);
-    this.$_08 = null;
+    this.$_09 = null;
 }
 function ucsic_ClientPage$fetch$lambda$_4_0__init_(var_0) {
     var var_1 = new ucsic_ClientPage$fetch$lambda$_4_0();
@@ -14345,13 +14387,13 @@ function ucsic_ClientPage$fetch$lambda$_4_0__init_(var_0) {
 }
 function ucsic_ClientPage$fetch$lambda$_4_0__init_0(var$0, var$1) {
     jl_Object__init_0(var$0);
-    var$0.$_08 = var$1;
+    var$0.$_09 = var$1;
 }
 function ucsic_ClientPage$fetch$lambda$_4_0_accept(var$0, var$1) {
     ucsic_ClientPage$fetch$lambda$_4_0_accept0(var$0, var$1);
 }
 function ucsic_ClientPage$fetch$lambda$_4_0_accept0(var$0, var$1) {
-    ucsic_ClientPage_lambda$post$0(var$0.$_08, var$1);
+    ucsic_ClientPage_lambda$post$0(var$0.$_09, var$1);
 }
 var ju_Map$Entry = $rt_classWithoutFields(0);
 function ju_MapEntry() {
@@ -14411,7 +14453,7 @@ function jur_EOISet_hasConsumed($this, $matchResult) {
     return 0;
 }
 function jur_EOISet_getName($this) {
-    return $rt_s(389);
+    return $rt_s(388);
 }
 var jur_AbstractCharClass$LazyUpper = $rt_classWithoutFields(jur_AbstractCharClass$LazyCharClass);
 function jur_AbstractCharClass$LazyUpper__init_() {
@@ -14443,7 +14485,7 @@ function jn_ByteBuffer__init_($this, $start, $capacity, $array, $position, $limi
 function jn_ByteBuffer_allocate($capacity) {
     if ($capacity >= 0)
         return jn_ByteBufferImpl__init_($capacity, 0);
-    $rt_throw(jl_IllegalArgumentException__init_((((jl_StringBuilder__init_()).$append($rt_s(390))).$append1($capacity)).$toString()));
+    $rt_throw(jl_IllegalArgumentException__init_((((jl_StringBuilder__init_()).$append($rt_s(389))).$append1($capacity)).$toString()));
 }
 function jn_ByteBuffer_wrap0($array, $offset, $length) {
     return jn_ByteBufferImpl__init_0(0, $array.data.length, $array, $offset, $offset + $length | 0, 0, 0);
@@ -14459,7 +14501,7 @@ function jn_ByteBuffer_get($this, $dst, $offset, $length) {
         if ($offset < var$5) {
             var$6 = $offset + $length | 0;
             if (var$6 > var$5)
-                $rt_throw(jl_IndexOutOfBoundsException__init_1((((((jl_StringBuilder__init_()).$append($rt_s(391))).$append1(var$6)).$append($rt_s(304))).$append1(var$5)).$toString()));
+                $rt_throw(jl_IndexOutOfBoundsException__init_1((((((jl_StringBuilder__init_()).$append($rt_s(390))).$append1(var$6)).$append($rt_s(304))).$append1(var$5)).$toString()));
             if (jn_Buffer_remaining($this) < $length)
                 $rt_throw(jn_BufferUnderflowException__init_());
             if ($length < 0)
@@ -14499,7 +14541,7 @@ function jn_ByteBuffer_put0($this, $src, $offset, $length) {
         if ($offset < var$5) {
             var$6 = $offset + $length | 0;
             if (var$6 > var$5)
-                $rt_throw(jl_IndexOutOfBoundsException__init_1((((((jl_StringBuilder__init_()).$append($rt_s(392))).$append1(var$6)).$append($rt_s(304))).$append1(var$5)).$toString()));
+                $rt_throw(jl_IndexOutOfBoundsException__init_1((((((jl_StringBuilder__init_()).$append($rt_s(391))).$append1(var$6)).$append($rt_s(304))).$append1(var$5)).$toString()));
             if ($length < 0)
                 $rt_throw(jl_IndexOutOfBoundsException__init_1(((((jl_StringBuilder__init_()).$append($rt_s(305))).$append1($length)).$append($rt_s(306))).$toString()));
             $pos = $this.$position + $this.$start4 | 0;
@@ -14611,7 +14653,7 @@ function jur_MultiLineSOLSet_hasConsumed($this, $matchResult) {
     return 0;
 }
 function jur_MultiLineSOLSet_getName($this) {
-    return $rt_s(393);
+    return $rt_s(392);
 }
 var otjc_JSString = $rt_classWithoutFields();
 var jur_AbstractCharClass$LazyLower = $rt_classWithoutFields(jur_AbstractCharClass$LazyCharClass);
@@ -14674,7 +14716,7 @@ function jur_PreviousMatch_hasConsumed($this, $matchResult) {
     return 0;
 }
 function jur_PreviousMatch_getName($this) {
-    return $rt_s(394);
+    return $rt_s(393);
 }
 var jur_NonCapFSet = $rt_classWithoutFields(jur_FSet);
 function jur_NonCapFSet__init_0(var_0) {
@@ -14692,7 +14734,7 @@ function jur_NonCapFSet_matches($this, $stringIndex, $testString, $matchResult) 
     return $this.$next.$matches($stringIndex, $testString, $matchResult);
 }
 function jur_NonCapFSet_getName($this) {
-    return $rt_s(395);
+    return $rt_s(394);
 }
 function jur_NonCapFSet_hasConsumed($this, $mr) {
     return 0;
@@ -14729,10 +14771,10 @@ function oj_JSONArray__init_4($this, $x) {
     var $nextChar, var$3, var$4;
     oj_JSONArray__init_3($this);
     if ($x.$nextClean() != 91)
-        $rt_throw($x.$syntaxError($rt_s(396)));
+        $rt_throw($x.$syntaxError($rt_s(395)));
     $nextChar = $x.$nextClean();
     if (!$nextChar)
-        $rt_throw($x.$syntaxError($rt_s(397)));
+        $rt_throw($x.$syntaxError($rt_s(396)));
     if ($nextChar == 93)
         return;
     $x.$back();
@@ -14748,17 +14790,17 @@ function oj_JSONArray__init_4($this, $x) {
         }
         switch ($x.$nextClean()) {
             case 0:
-                $rt_throw($x.$syntaxError($rt_s(397)));
+                $rt_throw($x.$syntaxError($rt_s(396)));
             case 44:
                 break;
             case 93:
                 return;
             default:
-                $rt_throw($x.$syntaxError($rt_s(397)));
+                $rt_throw($x.$syntaxError($rt_s(396)));
         }
         var$4 = $x.$nextClean();
         if (!var$4)
-            $rt_throw($x.$syntaxError($rt_s(397)));
+            $rt_throw($x.$syntaxError($rt_s(396)));
         if (var$4 == 93)
             break;
         $x.$back();
@@ -14786,7 +14828,7 @@ function oj_JSONArray__init_6($this, $array) {
     var $length, $i;
     oj_JSONArray__init_3($this);
     if (!(jl_Object_getClass($array)).$isArray())
-        $rt_throw(oj_JSONException__init_($rt_s(398)));
+        $rt_throw(oj_JSONException__init_($rt_s(397)));
     $length = jlr_Array_getLength($array);
     $this.$myArrayList.$ensureCapacity($length);
     $i = 0;
@@ -14800,21 +14842,21 @@ function oj_JSONArray_get($this, $index) {
     $object = $this.$opt0($index);
     if ($object !== null)
         return $object;
-    $rt_throw(oj_JSONException__init_(((((jl_StringBuilder__init_()).$append($rt_s(399))).$append1($index)).$append($rt_s(254))).$toString()));
+    $rt_throw(oj_JSONException__init_(((((jl_StringBuilder__init_()).$append($rt_s(398))).$append1($index)).$append($rt_s(254))).$toString()));
 }
 function oj_JSONArray_getJSONObject($this, $index) {
     var $object;
     $object = $this.$get($index);
     if ($object instanceof oj_JSONObject)
         return $object;
-    $rt_throw(oj_JSONArray_wrongValueFormatException($index, $rt_s(400), null));
+    $rt_throw(oj_JSONArray_wrongValueFormatException($index, $rt_s(399), null));
 }
 function oj_JSONArray_getString($this, $index) {
     var $object;
     $object = $this.$get($index);
     if ($object instanceof jl_String)
         return $object;
-    $rt_throw(oj_JSONArray_wrongValueFormatException($index, $rt_s(401), null));
+    $rt_throw(oj_JSONArray_wrongValueFormatException($index, $rt_s(400), null));
 }
 function oj_JSONArray_length($this) {
     return $this.$myArrayList.$size();
@@ -14891,7 +14933,7 @@ function oj_JSONArray_write($this, $writer, $indentFactor, $indent) {
                                 throw $$e;
                             }
                         }
-                        $rt_throw(oj_JSONException__init_1($rt_s(402), $e));
+                        $rt_throw(oj_JSONException__init_1($rt_s(401), $e));
                     }
                 else if ($length) {
                     $newIndent = $indent + $indentFactor | 0;
@@ -14922,7 +14964,7 @@ function oj_JSONArray_write($this, $writer, $indentFactor, $indent) {
                         $needsComma = 1;
                         $i = $i + 1 | 0;
                     }
-                    $rt_throw(oj_JSONException__init_1((((jl_StringBuilder__init_()).$append($rt_s(403))).$append1($i)).$toString(), $e));
+                    $rt_throw(oj_JSONException__init_1((((jl_StringBuilder__init_()).$append($rt_s(402))).$append1($i)).$toString(), $e));
                 }
             }
             $writer.$write(93);
@@ -14940,7 +14982,7 @@ function oj_JSONArray_write($this, $writer, $indentFactor, $indent) {
     $rt_throw(oj_JSONException__init_3($e));
 }
 function oj_JSONArray_wrongValueFormatException($idx, $valueType, $cause) {
-    return oj_JSONException__init_1(((((((jl_StringBuilder__init_()).$append($rt_s(399))).$append1($idx)).$append($rt_s(280))).$append($valueType)).$append($rt_s(260))).$toString(), $cause);
+    return oj_JSONException__init_1(((((((jl_StringBuilder__init_()).$append($rt_s(398))).$append1($idx)).$append($rt_s(280))).$append($valueType)).$append($rt_s(260))).$toString(), $cause);
 }
 function jur_UCISupplCharSet() {
     jur_LeafSet.call(this);
@@ -15028,7 +15070,7 @@ function jl_System_arraycopy($src, $srcPos, $dest, $destPos, $length) {
         }
         $rt_throw(jl_IndexOutOfBoundsException__init_());
     }
-    $rt_throw(jl_NullPointerException__init_0($rt_s(404)));
+    $rt_throw(jl_NullPointerException__init_0($rt_s(403)));
 }
 function jl_System_doArrayCopy(var$1, var$2, var$3, var$4, var$5) {
     if (var$1 !== var$3 || var$4 < var$2) {
@@ -15209,7 +15251,7 @@ function jur_DotAllSet_matches($this, $stringIndex, $testString, $matchResult) {
     return $this.$next.$matches(var$5, $testString, $matchResult);
 }
 function jur_DotAllSet_getName($this) {
-    return $rt_s(405);
+    return $rt_s(404);
 }
 function jur_DotAllSet_setNext($this, $next) {
     $this.$next = $next;
@@ -15238,7 +15280,7 @@ function jur_AbstractCharClass$LazyJavaLowerCase$1_contains($this, $ch) {
 }
 function jl_Object$monitorExit$lambda$_8_0() {
     jl_Object.call(this);
-    this.$_09 = null;
+    this.$_010 = null;
 }
 function jl_Object$monitorExit$lambda$_8_0__init_(var_0) {
     var var_1 = new jl_Object$monitorExit$lambda$_8_0();
@@ -15247,10 +15289,10 @@ function jl_Object$monitorExit$lambda$_8_0__init_(var_0) {
 }
 function jl_Object$monitorExit$lambda$_8_0__init_0(var$0, var$1) {
     jl_Object__init_0(var$0);
-    var$0.$_09 = var$1;
+    var$0.$_010 = var$1;
 }
 function jl_Object$monitorExit$lambda$_8_0_run(var$0) {
-    jl_Object_lambda$monitorExit$2(var$0.$_09);
+    jl_Object_lambda$monitorExit$2(var$0.$_010);
 }
 var jur_UCISupplRangeSet = $rt_classWithoutFields(jur_SupplRangeSet);
 function jur_UCISupplRangeSet__init_(var_0) {
@@ -15347,7 +15389,7 @@ function jur_HangulDecomposedCharSet_getDecomposedChar($this) {
     return $this.$decomposedCharUTF160;
 }
 function jur_HangulDecomposedCharSet_getName($this) {
-    return (((jl_StringBuilder__init_()).$append($rt_s(406))).$append(jur_HangulDecomposedCharSet_getDecomposedChar($this))).$toString();
+    return (((jl_StringBuilder__init_()).$append($rt_s(405))).$append(jur_HangulDecomposedCharSet_getDecomposedChar($this))).$toString();
 }
 function jur_HangulDecomposedCharSet_matches($this, $strIndex, $testString, $matchResult) {
     var $rightBound, $syllIndex, $decompSyllable, $vIndex, $tIndex, var$9, $curSymb, $decompCurSymb, var$12, $i, var$14, $lIndex, var$16, var$17;
@@ -15464,7 +15506,7 @@ function jur_WordBoundary_hasConsumed($this, $matchResult) {
     return 0;
 }
 function jur_WordBoundary_getName($this) {
-    return $rt_s(407);
+    return $rt_s(406);
 }
 function jur_WordBoundary_isSpace($this, $ch, $index, $leftBound, $testString) {
     var var$5;
@@ -15799,7 +15841,7 @@ function jur_AbstractCharClass$LazyJavaWhitespace_computeValue($this) {
 }
 function ucsic_MainPage$lambda$load$0$lambda$_8_0() {
     jl_Object.call(this);
-    this.$_010 = null;
+    this.$_011 = null;
 }
 function ucsic_MainPage$lambda$load$0$lambda$_8_0__init_(var_0) {
     var var_1 = new ucsic_MainPage$lambda$load$0$lambda$_8_0();
@@ -15808,10 +15850,10 @@ function ucsic_MainPage$lambda$load$0$lambda$_8_0__init_(var_0) {
 }
 function ucsic_MainPage$lambda$load$0$lambda$_8_0__init_0(var$0, var$1) {
     jl_Object__init_0(var$0);
-    var$0.$_010 = var$1;
+    var$0.$_011 = var$1;
 }
 function ucsic_MainPage$lambda$load$0$lambda$_8_0_updateDataOptions(var$0, var$1, var$2) {
-    var$0.$_010.$setDataRange(var$1, var$2);
+    var$0.$_011.$setDataRange(var$1, var$2);
 }
 var jl_NumberFormatException = $rt_classWithoutFields(jl_IllegalArgumentException);
 function jl_NumberFormatException__init_() {
@@ -15896,7 +15938,7 @@ function ucsic_InvMon_main(var$1) {
 }
 function ucsic_InvMon_div(var$1) {
     ucsic_InvMon_$callClinit();
-    return ucsic_InvMon_element($rt_s(408), var$1);
+    return ucsic_InvMon_element($rt_s(407), var$1);
 }
 function ucsic_InvMon_element(var$1, var$2) {
     var var$3, var$4, var$5;
@@ -16144,7 +16186,7 @@ function jur_SOLSet_hasConsumed($this, $matchResult) {
     return 0;
 }
 function jur_SOLSet_getName($this) {
-    return $rt_s(409);
+    return $rt_s(408);
 }
 function otpp_AsyncCallbackWrapper() {
     jl_Object.call(this);
@@ -16208,14 +16250,14 @@ function ucsic_MainPage__init_0(var$0) {
     ucsic_ClientPage__init_(var$0);
     var$0.$widgets = ju_ArrayList__init_();
     var$1 = $rt_createArray(jl_String, 1);
-    var$1.data[0] = $rt_s(410);
+    var$1.data[0] = $rt_s(409);
     var$0.$root0 = ucsic_InvMon_div(var$1);
 }
 function ucsic_MainPage_getElement(var$0) {
     return var$0.$root0;
 }
 function ucsic_MainPage_load(var$0) {
-    var$0.$fetch0($rt_s(411), oj_JSONObject__init_1(), ucsic_MainPage$load$lambda$_2_0__init_(var$0));
+    var$0.$fetch0($rt_s(410), oj_JSONObject__init_1(), ucsic_MainPage$load$lambda$_2_0__init_(var$0));
 }
 function ucsic_MainPage_refresh(var$0) {
     var$0.$widgets.$forEach(ucsic_MainPage$refresh$lambda$_3_0__init_());
@@ -16223,12 +16265,12 @@ function ucsic_MainPage_refresh(var$0) {
 function ucsic_MainPage_setDataRange(var$0, var$1, var$2) {
     var var$3, var$4, var$5;
     var$3 = otjb_Location_current();
-    var$4 = $rt_ustr((((jl_StringBuilder__init_()).$append($rt_s(412))).$append1(var$2)).$toString());
+    var$4 = $rt_ustr((((jl_StringBuilder__init_()).$append($rt_s(411))).$append1(var$2)).$toString());
     var$3.hash = var$4;
     var$5 = oj_JSONObject__init_1();
-    var$5.$put4($rt_s(413), var$1);
-    var$5.$put4($rt_s(414), var$2);
-    var$0.$post0($rt_s(415), var$5, ucsic_MainPage$setDataRange$lambda$_5_0__init_(var$0));
+    var$5.$put4($rt_s(412), var$1);
+    var$5.$put4($rt_s(413), var$2);
+    var$0.$post0($rt_s(414), var$5, ucsic_MainPage$setDataRange$lambda$_5_0__init_(var$0));
 }
 function ucsic_MainPage_lambda$setDataRange$2(var$0, var$1) {
     ucsic_MainPage_refresh(var$0);
@@ -16239,21 +16281,21 @@ function ucsic_MainPage_lambda$refresh$1(var$1) {
 }
 function ucsic_MainPage_lambda$load$0(var$0, var$1) {
     var var$2, var$3, var$4, var$5;
-    var$0.$gridSize = var$1.$getInt($rt_s(416));
-    var$1 = var$1.$getJSONArray($rt_s(417));
+    var$0.$gridSize = var$1.$getInt($rt_s(415));
+    var$1 = var$1.$getJSONArray($rt_s(416));
     var$2 = 0;
     while (var$2 < var$1.$length()) {
         var$3 = var$1.$getJSONObject(var$2);
         ucsic_MainPage_$callClinit();
-        var$4 = ucsic_MainPage_pageTypes.$get1(var$3.$getString0($rt_s(418)));
+        var$4 = ucsic_MainPage_pageTypes.$get1(var$3.$getString0($rt_s(417)));
         if (var$4 === null)
-            $rt_throw(ju_NoSuchElementException__init_1((((jl_StringBuilder__init_()).$append($rt_s(419))).$append(var$3.$getString0($rt_s(418)))).$toString()));
+            $rt_throw(ju_NoSuchElementException__init_1((((jl_StringBuilder__init_()).$append($rt_s(418))).$append(var$3.$getString0($rt_s(417)))).$toString()));
         var$4 = var$4.$apply0(var$0);
         var$4.$configure(var$3);
         var$4.$construct(var$0.$root0);
         var$0.$widgets.$add2(var$4);
         if (var$4 instanceof ucsic_TimeSelector) {
-            var$5 = ucsic_ClientUtil_getURLParam($rt_s(414), null);
+            var$5 = ucsic_ClientUtil_getURLParam($rt_s(413), null);
             if (var$5 !== null)
                 var$4.$setCurrent(jl_Integer_parseInt0(var$5));
             var$4.$setOnChange(ucsic_MainPage$lambda$load$0$lambda$_8_0__init_(var$0));
@@ -16264,9 +16306,9 @@ function ucsic_MainPage_lambda$load$0(var$0, var$1) {
 }
 function ucsic_MainPage__clinit_() {
     ucsic_MainPage_pageTypes = ju_HashMap__init_();
-    ucsic_MainPage_pageTypes.$put0($rt_s(420), ucsic_MainPage$_clinit_$lambda$_9_0__init_());
-    ucsic_MainPage_pageTypes.$put0($rt_s(421), ucsic_MainPage$_clinit_$lambda$_9_1__init_());
-    ucsic_MainPage_pageTypes.$put0($rt_s(422), ucsic_MainPage$_clinit_$lambda$_9_2__init_());
+    ucsic_MainPage_pageTypes.$put0($rt_s(419), ucsic_MainPage$_clinit_$lambda$_9_0__init_());
+    ucsic_MainPage_pageTypes.$put0($rt_s(420), ucsic_MainPage$_clinit_$lambda$_9_1__init_());
+    ucsic_MainPage_pageTypes.$put0($rt_s(421), ucsic_MainPage$_clinit_$lambda$_9_2__init_());
 }
 var otcir_JSCallable = $rt_classWithoutFields(0);
 var jl_IllegalAccessException = $rt_classWithoutFields(jl_ReflectiveOperationException);
@@ -16317,7 +16359,7 @@ function jlr_Modifier_toString($mod) {
 function jlr_Modifier_getModifierNames() {
     jlr_Modifier_$callClinit();
     if (jlr_Modifier_modifierNames === null)
-        jlr_Modifier_modifierNames = $rt_createArrayFromData(jl_String, [$rt_s(423), $rt_s(424), $rt_s(425), $rt_s(426), $rt_s(427), $rt_s(428), $rt_s(429), $rt_s(430), $rt_s(431), $rt_s(432), $rt_s(433), $rt_s(434)]);
+        jlr_Modifier_modifierNames = $rt_createArrayFromData(jl_String, [$rt_s(422), $rt_s(423), $rt_s(424), $rt_s(425), $rt_s(426), $rt_s(427), $rt_s(428), $rt_s(429), $rt_s(430), $rt_s(431), $rt_s(432), $rt_s(433)]);
     return jlr_Modifier_modifierNames;
 }
 function jlr_Modifier__clinit_() {
@@ -16598,7 +16640,7 @@ function jur_UMultiLineEOLSet_hasConsumed($this, $matchResult) {
     return $res;
 }
 function jur_UMultiLineEOLSet_getName($this) {
-    return $rt_s(435);
+    return $rt_s(434);
 }
 function jnc_CoderResult() {
     var a = this; jl_Object.call(a);
@@ -17334,7 +17376,7 @@ function jur_Lexer_parseCharClassName($this) {
     $sb = jl_StringBuilder__init_0(10);
     if ($this.$index6 < ($this.$pattern1.data.length - 2 | 0)) {
         if ($this.$pattern1.data[$this.$index6] != 123)
-            return (((jl_StringBuilder__init_()).$append($rt_s(436))).$append(jl_String__init_0($this.$pattern1, jur_Lexer_nextIndex($this), 1))).$toString();
+            return (((jl_StringBuilder__init_()).$append($rt_s(435))).$append(jl_String__init_0($this.$pattern1, jur_Lexer_nextIndex($this), 1))).$toString();
         jur_Lexer_nextIndex($this);
         $ch = 0;
         a: {
@@ -17352,13 +17394,13 @@ function jur_Lexer_parseCharClassName($this) {
         $rt_throw(jur_PatternSyntaxException__init_($rt_s(37), $this.$toString(), $this.$index6));
     $res = $sb.$toString();
     if ($res.$length() == 1)
-        return (((jl_StringBuilder__init_()).$append($rt_s(436))).$append($res)).$toString();
+        return (((jl_StringBuilder__init_()).$append($rt_s(435))).$append($res)).$toString();
     b: {
         c: {
             if ($res.$length() > 3) {
-                if ($res.$startsWith($rt_s(436)))
+                if ($res.$startsWith($rt_s(435)))
                     break c;
-                if ($res.$startsWith($rt_s(437)))
+                if ($res.$startsWith($rt_s(436)))
                     break c;
             }
             break b;
@@ -17806,7 +17848,8 @@ jl_Iterable, 0, jl_Object, [], 3, 3, 0, 0, 0]);
 $rt_metadata([ju_Collection, 0, jl_Object, [jl_Iterable], 3, 3, 0, 0, 0,
 ju_AbstractCollection, 0, jl_Object, [ju_Collection], 1, 3, 0, 0, ["$_init_0", $rt_wrapFunction0(ju_AbstractCollection__init_), "$toArray", $rt_wrapFunction1(ju_AbstractCollection_toArray)],
 oj_JSONObject, "JSONObject", 18, jl_Object, [], 0, 3, 0, oj_JSONObject_$callClinit, ["$_init_0", $rt_wrapFunction0(oj_JSONObject__init_2), "$_init_23", $rt_wrapFunction1(oj_JSONObject__init_3), "$_init_27", $rt_wrapFunction1(oj_JSONObject__init_5), "$_init_2", $rt_wrapFunction1(oj_JSONObject__init_7), "$_init_", $rt_wrapFunction1(oj_JSONObject__init_8), "$get0", $rt_wrapFunction1(oj_JSONObject_get), "$getInt", $rt_wrapFunction1(oj_JSONObject_getInt), "$getJSONArray", $rt_wrapFunction1(oj_JSONObject_getJSONArray),
-"$getString0", $rt_wrapFunction1(oj_JSONObject_getString), "$entrySet", $rt_wrapFunction0(oj_JSONObject_entrySet), "$length", $rt_wrapFunction0(oj_JSONObject_length), "$opt", $rt_wrapFunction1(oj_JSONObject_opt), "$put4", $rt_wrapFunction2(oj_JSONObject_put), "$put", $rt_wrapFunction2(oj_JSONObject_put0), "$remove0", $rt_wrapFunction1(oj_JSONObject_remove), "$toString", $rt_wrapFunction0(oj_JSONObject_toString), "$toString1", $rt_wrapFunction1(oj_JSONObject_toString0), "$write2", $rt_wrapFunction3(oj_JSONObject_write)],
+"$getString0", $rt_wrapFunction1(oj_JSONObject_getString), "$entrySet", $rt_wrapFunction0(oj_JSONObject_entrySet), "$length", $rt_wrapFunction0(oj_JSONObject_length), "$opt", $rt_wrapFunction1(oj_JSONObject_opt), "$optJSONArray", $rt_wrapFunction1(oj_JSONObject_optJSONArray), "$put4", $rt_wrapFunction2(oj_JSONObject_put), "$put", $rt_wrapFunction2(oj_JSONObject_put0), "$remove0", $rt_wrapFunction1(oj_JSONObject_remove), "$toString", $rt_wrapFunction0(oj_JSONObject_toString), "$toString1", $rt_wrapFunction1(oj_JSONObject_toString0),
+"$write2", $rt_wrapFunction3(oj_JSONObject_write)],
 otci_IntegerUtil, 0, jl_Object, [], 4, 3, 0, 0, 0,
 jur_LeafQuantifierSet, "LeafQuantifierSet", 2, jur_QuantifierSet, [], 0, 0, 0, 0, ["$_init_29", $rt_wrapFunction3(jur_LeafQuantifierSet__init_0), "$matches", $rt_wrapFunction3(jur_LeafQuantifierSet_matches), "$getName", $rt_wrapFunction0(jur_LeafQuantifierSet_getName)],
 jur_AltQuantifierSet, "AltQuantifierSet", 2, jur_LeafQuantifierSet, [], 0, 0, 0, 0, ["$_init_29", $rt_wrapFunction3(jur_AltQuantifierSet__init_0), "$matches", $rt_wrapFunction3(jur_AltQuantifierSet_matches), "$setNext", $rt_wrapFunction1(jur_AltQuantifierSet_setNext)],
@@ -17941,21 +17984,22 @@ jnci_UTF8Charset, 0, jnc_Charset, [], 0, 3, 0, jnci_UTF8Charset_$callClinit, ["$
 jur_MultiLineEOLSet, "MultiLineEOLSet", 2, jur_AbstractSet, [], 0, 0, 0, 0, ["$_init_3", $rt_wrapFunction1(jur_MultiLineEOLSet__init_0), "$matches", $rt_wrapFunction3(jur_MultiLineEOLSet_matches), "$hasConsumed", $rt_wrapFunction1(jur_MultiLineEOLSet_hasConsumed), "$getName", $rt_wrapFunction0(jur_MultiLineEOLSet_getName)],
 ji_BufferedReader, 0, ji_Reader, [], 0, 3, 0, 0, ["$_init_50", $rt_wrapFunction2(ji_BufferedReader__init_1), "$_init_21", $rt_wrapFunction1(ji_BufferedReader__init_2), "$read", $rt_wrapFunction0(ji_BufferedReader_read)],
 ucsic_ChartWidget$refresh$lambda$_1_0, 0, jl_Object, [juf_Consumer], 0, 3, 0, 0, ["$_init_76", $rt_wrapFunction1(ucsic_ChartWidget$refresh$lambda$_1_0__init_0), "$accept", $rt_wrapFunction1(ucsic_ChartWidget$refresh$lambda$_1_0_accept), "$accept2", $rt_wrapFunction1(ucsic_ChartWidget$refresh$lambda$_1_0_accept0)],
+ucsic_ChartWidget$refresh$lambda$_1_1, 0, jl_Object, [juf_Consumer], 0, 3, 0, 0, ["$_init_76", $rt_wrapFunction1(ucsic_ChartWidget$refresh$lambda$_1_1__init_0), "$accept", $rt_wrapFunction1(ucsic_ChartWidget$refresh$lambda$_1_1_accept), "$accept1", $rt_wrapFunction1(ucsic_ChartWidget$refresh$lambda$_1_1_accept0)],
 jur_AbstractCharClass$LazyJavaDigit$1, "AbstractCharClass$LazyJavaDigit$1", 2, jur_AbstractCharClass, [], 0, 0, 0, 0, ["$_init_25", $rt_wrapFunction1(jur_AbstractCharClass$LazyJavaDigit$1__init_0), "$contains", $rt_wrapFunction1(jur_AbstractCharClass$LazyJavaDigit$1_contains)],
 jl_NoSuchMethodException, "NoSuchMethodException", 6, jl_ReflectiveOperationException, [], 0, 3, 0, 0, ["$_init_0", $rt_wrapFunction0(jl_NoSuchMethodException__init_0)],
 otcir_Converter, 0, jl_Object, [], 4, 3, 0, 0, 0,
-ucsic_PageWidget, 0, jl_Object, [], 1, 3, 0, 0, ["$_init_52", $rt_wrapFunction1(ucsic_PageWidget__init_), "$configure", $rt_wrapFunction1(ucsic_PageWidget_configure), "$getId", $rt_wrapFunction0(ucsic_PageWidget_getId), "$toString", $rt_wrapFunction0(ucsic_PageWidget_toString), "$doLayout", $rt_wrapFunction1(ucsic_PageWidget_doLayout), "$getOwner", $rt_wrapFunction0(ucsic_PageWidget_getOwner), "$createStandardFrame", $rt_wrapFunction3(ucsic_PageWidget_createStandardFrame)],
 jl_NullPointerException, "NullPointerException", 6, jl_RuntimeException, [], 0, 3, 0, 0, ["$_init_", $rt_wrapFunction1(jl_NullPointerException__init_1), "$_init_0", $rt_wrapFunction0(jl_NullPointerException__init_2)],
 otja_XMLHttpRequest$onComplete$static$lambda$_27_0, 0, jl_Object, [otja_ReadyStateChangeHandler], 0, 3, 0, 0, ["$_init_86", $rt_wrapFunction2(otja_XMLHttpRequest$onComplete$static$lambda$_27_0__init_0), "$stateChanged", $rt_wrapFunction0(otja_XMLHttpRequest$onComplete$static$lambda$_27_0_stateChanged), "$stateChanged$exported$0", $rt_wrapFunction0(otja_XMLHttpRequest$onComplete$static$lambda$_27_0_stateChanged$exported$0)],
 jur_AbstractCharClass$LazyJavaSpaceChar$1, "AbstractCharClass$LazyJavaSpaceChar$1", 2, jur_AbstractCharClass, [], 0, 0, 0, 0, ["$_init_32", $rt_wrapFunction1(jur_AbstractCharClass$LazyJavaSpaceChar$1__init_0), "$contains", $rt_wrapFunction1(jur_AbstractCharClass$LazyJavaSpaceChar$1_contains)],
 ucsic_ClientPage$http$lambda$_6_0, 0, jl_Object, [jl_Runnable], 0, 3, 0, 0, ["$_init_6", $rt_wrapFunction3(ucsic_ClientPage$http$lambda$_6_0__init_0), "$run", $rt_wrapFunction0(ucsic_ClientPage$http$lambda$_6_0_run)],
+ucsic_AbstractPageWidget, 0, jl_Object, [], 1, 3, 0, 0, ["$_init_52", $rt_wrapFunction1(ucsic_AbstractPageWidget__init_), "$configure", $rt_wrapFunction1(ucsic_AbstractPageWidget_configure), "$getId", $rt_wrapFunction0(ucsic_AbstractPageWidget_getId), "$toString", $rt_wrapFunction0(ucsic_AbstractPageWidget_toString), "$doLayout", $rt_wrapFunction1(ucsic_AbstractPageWidget_doLayout), "$getOwner", $rt_wrapFunction0(ucsic_AbstractPageWidget_getOwner), "$createStandardFrame", $rt_wrapFunction3(ucsic_AbstractPageWidget_createStandardFrame)],
 jl_Object$Monitor, 0, jl_Object, [], 0, 0, 0, 0, ["$_init_0", $rt_wrapFunction0(jl_Object$Monitor__init_0)],
 jl_Math, 0, jl_Object, [], 4, 3, 0, 0, 0,
 ucsic_MainPage$setDataRange$lambda$_5_0, 0, jl_Object, [juf_Consumer], 0, 3, 0, 0, ["$_init_96", $rt_wrapFunction1(ucsic_MainPage$setDataRange$lambda$_5_0__init_0), "$accept", $rt_wrapFunction1(ucsic_MainPage$setDataRange$lambda$_5_0_accept), "$accept2", $rt_wrapFunction1(ucsic_MainPage$setDataRange$lambda$_5_0_accept0)],
 jur_AbstractCharClass$LazyJavaUnicodeIdentifierPart, 0, jur_AbstractCharClass$LazyCharClass, [], 0, 0, 0, 0, ["$_init_0", $rt_wrapFunction0(jur_AbstractCharClass$LazyJavaUnicodeIdentifierPart__init_0), "$computeValue", $rt_wrapFunction0(jur_AbstractCharClass$LazyJavaUnicodeIdentifierPart_computeValue)],
 jur_PatternSyntaxException, "PatternSyntaxException", 2, jl_IllegalArgumentException, [], 0, 3, 0, 0, ["$_init_57", $rt_wrapFunction3(jur_PatternSyntaxException__init_0), "$getMessage", $rt_wrapFunction0(jur_PatternSyntaxException_getMessage)],
 ucsic_ClientUtil, 0, jl_Object, [], 0, 3, 0, 0, 0,
-ucsic_InfoBitWidget, "InfoBitWidget", 23, ucsic_PageWidget, [], 0, 3, 0, 0, ["$_init_52", $rt_wrapFunction1(ucsic_InfoBitWidget__init_0), "$construct", $rt_wrapFunction1(ucsic_InfoBitWidget_construct), "$refresh", $rt_wrapFunction0(ucsic_InfoBitWidget_refresh)],
+ucsic_InfoBitWidget, "InfoBitWidget", 23, ucsic_AbstractPageWidget, [], 0, 3, 0, 0, ["$_init_52", $rt_wrapFunction1(ucsic_InfoBitWidget__init_0), "$construct", $rt_wrapFunction1(ucsic_InfoBitWidget_construct), "$refresh", $rt_wrapFunction0(ucsic_InfoBitWidget_refresh)],
 jur_AbstractCharClass$LazyJavaDefined, 0, jur_AbstractCharClass$LazyCharClass, [], 0, 0, 0, 0, ["$_init_0", $rt_wrapFunction0(jur_AbstractCharClass$LazyJavaDefined__init_0), "$computeValue", $rt_wrapFunction0(jur_AbstractCharClass$LazyJavaDefined_computeValue)],
 jur_Pattern, 0, jl_Object, [ji_Serializable], 4, 3, 0, 0, ["$matcher", $rt_wrapFunction1(jur_Pattern_matcher), "$split1", $rt_wrapFunction2(jur_Pattern_split0), "$split", $rt_wrapFunction1(jur_Pattern_split), "$pattern0", $rt_wrapFunction0(jur_Pattern_pattern), "$groupCount0", $rt_wrapFunction0(jur_Pattern_groupCount), "$compCount0", $rt_wrapFunction0(jur_Pattern_compCount), "$consCount0", $rt_wrapFunction0(jur_Pattern_consCount)],
 jur_PosAltGroupQuantifierSet, "PosAltGroupQuantifierSet", 2, jur_AltGroupQuantifierSet, [], 0, 0, 0, 0, ["$_init_12", $rt_wrapFunction3(jur_PosAltGroupQuantifierSet__init_0), "$matches", $rt_wrapFunction3(jur_PosAltGroupQuantifierSet_matches), "$setNext", $rt_wrapFunction1(jur_PosAltGroupQuantifierSet_setNext)],
@@ -17965,9 +18009,9 @@ ju_AbstractSet, 0, ju_AbstractCollection, [ju_Set], 1, 3, 0, 0, ["$_init_0", $rt
 jur_AbstractCharClass$LazyJavaLetterOrDigit, 0, jur_AbstractCharClass$LazyCharClass, [], 0, 0, 0, 0, ["$_init_0", $rt_wrapFunction0(jur_AbstractCharClass$LazyJavaLetterOrDigit__init_0), "$computeValue", $rt_wrapFunction0(jur_AbstractCharClass$LazyJavaLetterOrDigit_computeValue)],
 otciu_UnicodeHelper$Range, "UnicodeHelper$Range", 15, jl_Object, [], 0, 3, 0, 0, ["$_init_31", $rt_wrapFunction3(otciu_UnicodeHelper$Range__init_0)],
 jur_AbstractLineTerminator$2, 0, jur_AbstractLineTerminator, [], 0, 0, 0, 0, ["$_init_0", $rt_wrapFunction0(jur_AbstractLineTerminator$2__init_0), "$isLineTerminator", $rt_wrapFunction1(jur_AbstractLineTerminator$2_isLineTerminator), "$isAfterLineTerminator", $rt_wrapFunction2(jur_AbstractLineTerminator$2_isAfterLineTerminator)],
-jur_AbstractLineTerminator$1, 0, jur_AbstractLineTerminator, [], 0, 0, 0, 0, ["$_init_0", $rt_wrapFunction0(jur_AbstractLineTerminator$1__init_0), "$isLineTerminator", $rt_wrapFunction1(jur_AbstractLineTerminator$1_isLineTerminator), "$isAfterLineTerminator", $rt_wrapFunction2(jur_AbstractLineTerminator$1_isAfterLineTerminator)],
-jl_NoClassDefFoundError, 0, jl_LinkageError, [], 0, 3, 0, 0, 0]);
-$rt_metadata([jur_AbstractCharClass$LazyJavaUnicodeIdentifierStart, 0, jur_AbstractCharClass$LazyCharClass, [], 0, 0, 0, 0, ["$_init_0", $rt_wrapFunction0(jur_AbstractCharClass$LazyJavaUnicodeIdentifierStart__init_0), "$computeValue", $rt_wrapFunction0(jur_AbstractCharClass$LazyJavaUnicodeIdentifierStart_computeValue)],
+jur_AbstractLineTerminator$1, 0, jur_AbstractLineTerminator, [], 0, 0, 0, 0, ["$_init_0", $rt_wrapFunction0(jur_AbstractLineTerminator$1__init_0), "$isLineTerminator", $rt_wrapFunction1(jur_AbstractLineTerminator$1_isLineTerminator), "$isAfterLineTerminator", $rt_wrapFunction2(jur_AbstractLineTerminator$1_isAfterLineTerminator)]]);
+$rt_metadata([jl_NoClassDefFoundError, 0, jl_LinkageError, [], 0, 3, 0, 0, 0,
+jur_AbstractCharClass$LazyJavaUnicodeIdentifierStart, 0, jur_AbstractCharClass$LazyCharClass, [], 0, 0, 0, 0, ["$_init_0", $rt_wrapFunction0(jur_AbstractCharClass$LazyJavaUnicodeIdentifierStart__init_0), "$computeValue", $rt_wrapFunction0(jur_AbstractCharClass$LazyJavaUnicodeIdentifierStart_computeValue)],
 otci_CharFlow, 0, jl_Object, [], 0, 3, 0, 0, ["$_init_22", $rt_wrapFunction1(otci_CharFlow__init_0)],
 jur_RangeSet, "RangeSet", 2, jur_LeafSet, [], 0, 0, 0, 0, ["$_init_67", $rt_wrapFunction1(jur_RangeSet__init_0), "$accepts", $rt_wrapFunction2(jur_RangeSet_accepts), "$getName", $rt_wrapFunction0(jur_RangeSet_getName), "$first", $rt_wrapFunction1(jur_RangeSet_first), "$getChars0", $rt_wrapFunction0(jur_RangeSet_getChars)],
 jur_UnicodeCategory, "UnicodeCategory", 2, jur_AbstractCharClass, [], 0, 0, 0, 0, ["$_init_3", $rt_wrapFunction1(jur_UnicodeCategory__init_0), "$contains", $rt_wrapFunction1(jur_UnicodeCategory_contains)],
@@ -17978,7 +18022,7 @@ jnc_UnmappableCharacterException, "UnmappableCharacterException", 4, jnc_Charact
 jur_CharClass, "CharClass", 2, jur_AbstractCharClass, [], 0, 0, 0, 0, ["$_init_0", $rt_wrapFunction0(jur_CharClass__init_2), "$_init_58", $rt_wrapFunction2(jur_CharClass__init_3), "$_init_66", $rt_wrapFunction3(jur_CharClass__init_4), "$add", $rt_wrapFunction1(jur_CharClass_add), "$add3", $rt_wrapFunction1(jur_CharClass_add0), "$add0", $rt_wrapFunction2(jur_CharClass_add1), "$union", $rt_wrapFunction1(jur_CharClass_union), "$intersection", $rt_wrapFunction1(jur_CharClass_intersection), "$contains", $rt_wrapFunction1(jur_CharClass_contains),
 "$getBits", $rt_wrapFunction0(jur_CharClass_getBits), "$getLowHighSurrogates", $rt_wrapFunction0(jur_CharClass_getLowHighSurrogates), "$getInstance", $rt_wrapFunction0(jur_CharClass_getInstance), "$toString", $rt_wrapFunction0(jur_CharClass_toString), "$hasUCI", $rt_wrapFunction0(jur_CharClass_hasUCI)],
 jn_BufferUnderflowException, "BufferUnderflowException", 3, jl_RuntimeException, [], 0, 3, 0, 0, ["$_init_0", $rt_wrapFunction0(jn_BufferUnderflowException__init_0)],
-ucsic_ChartWidget, "ChartWidget", 23, ucsic_PageWidget, [], 0, 3, 0, 0, ["$_init_52", $rt_wrapFunction1(ucsic_ChartWidget__init_0), "$refresh", $rt_wrapFunction0(ucsic_ChartWidget_refresh), "$construct", $rt_wrapFunction1(ucsic_ChartWidget_construct), "$configure", $rt_wrapFunction1(ucsic_ChartWidget_configure)],
+ucsic_ChartWidget, "ChartWidget", 23, ucsic_AbstractPageWidget, [], 0, 3, 0, 0, ["$_init_52", $rt_wrapFunction1(ucsic_ChartWidget__init_0), "$refresh", $rt_wrapFunction0(ucsic_ChartWidget_refresh), "$construct", $rt_wrapFunction1(ucsic_ChartWidget_construct), "$configure", $rt_wrapFunction1(ucsic_ChartWidget_configure)],
 otcit_FloatAnalyzer$Result, 0, jl_Object, [], 0, 3, 0, 0, ["$_init_0", $rt_wrapFunction0(otcit_FloatAnalyzer$Result__init_0)],
 jur_UCIDecomposedCharSet, "UCIDecomposedCharSet", 2, jur_DecomposedCharSet, [], 0, 0, 0, 0, ["$_init_20", $rt_wrapFunction2(jur_UCIDecomposedCharSet__init_0)],
 ji_InputStream, "InputStream", 5, jl_Object, [ji_Closeable], 1, 3, 0, 0, 0,
@@ -18019,16 +18063,16 @@ jur_CompositeRangeSet, "CompositeRangeSet", 2, jur_JointSet, [], 0, 0, 0, 0, ["$
 ju_ConcurrentModificationException, "ConcurrentModificationException", 1, jl_RuntimeException, [], 0, 3, 0, 0, ["$_init_0", $rt_wrapFunction0(ju_ConcurrentModificationException__init_0)],
 ucsic_MainPage$load$lambda$_2_0, 0, jl_Object, [juf_Consumer], 0, 3, 0, 0, ["$_init_96", $rt_wrapFunction1(ucsic_MainPage$load$lambda$_2_0__init_0), "$accept", $rt_wrapFunction1(ucsic_MainPage$load$lambda$_2_0_accept), "$accept2", $rt_wrapFunction1(ucsic_MainPage$load$lambda$_2_0_accept0)],
 jur_FinalSet, "FinalSet", 2, jur_FSet, [], 0, 0, 0, 0, ["$_init_0", $rt_wrapFunction0(jur_FinalSet__init_0), "$matches", $rt_wrapFunction3(jur_FinalSet_matches), "$getName", $rt_wrapFunction0(jur_FinalSet_getName)],
-ucsic_StandardFrame, 0, jl_Object, [], 0, 3, 0, 0, ["$_init_0", $rt_wrapFunction0(ucsic_StandardFrame__init_0), "$hideOverlays", $rt_wrapFunction0(ucsic_StandardFrame_hideOverlays), "$showGlass", $rt_wrapFunction0(ucsic_StandardFrame_showGlass)],
-jur_EmptySet, "EmptySet", 2, jur_LeafSet, [], 0, 0, 0, 0, ["$_init_9", $rt_wrapFunction1(jur_EmptySet__init_0), "$accepts", $rt_wrapFunction2(jur_EmptySet_accepts), "$find", $rt_wrapFunction3(jur_EmptySet_find), "$findBack", $rt_wrapFunction4(jur_EmptySet_findBack), "$getName", $rt_wrapFunction0(jur_EmptySet_getName), "$hasConsumed", $rt_wrapFunction1(jur_EmptySet_hasConsumed)]]);
-$rt_metadata([jl_NoSuchMethodError, 0, jl_IncompatibleClassChangeError, [], 0, 3, 0, 0, ["$_init_", $rt_wrapFunction1(jl_NoSuchMethodError__init_0)],
+ucsic_StandardFrame, 0, jl_Object, [], 0, 3, 0, 0, ["$_init_0", $rt_wrapFunction0(ucsic_StandardFrame__init_0), "$showError", $rt_wrapFunction1(ucsic_StandardFrame_showError), "$hideOverlays", $rt_wrapFunction0(ucsic_StandardFrame_hideOverlays), "$showGlass", $rt_wrapFunction0(ucsic_StandardFrame_showGlass)]]);
+$rt_metadata([jur_EmptySet, "EmptySet", 2, jur_LeafSet, [], 0, 0, 0, 0, ["$_init_9", $rt_wrapFunction1(jur_EmptySet__init_0), "$accepts", $rt_wrapFunction2(jur_EmptySet_accepts), "$find", $rt_wrapFunction3(jur_EmptySet_find), "$findBack", $rt_wrapFunction4(jur_EmptySet_findBack), "$getName", $rt_wrapFunction0(jur_EmptySet_getName), "$hasConsumed", $rt_wrapFunction1(jur_EmptySet_hasConsumed)],
+jl_NoSuchMethodError, 0, jl_IncompatibleClassChangeError, [], 0, 3, 0, 0, ["$_init_", $rt_wrapFunction1(jl_NoSuchMethodError__init_0)],
 jur_AbstractCharClass$LazyASCII, 0, jur_AbstractCharClass$LazyCharClass, [], 0, 0, 0, 0, ["$_init_0", $rt_wrapFunction0(jur_AbstractCharClass$LazyASCII__init_0), "$computeValue", $rt_wrapFunction0(jur_AbstractCharClass$LazyASCII_computeValue)],
 jl_ArrayIndexOutOfBoundsException, "ArrayIndexOutOfBoundsException", 6, jl_IndexOutOfBoundsException, [], 0, 3, 0, 0, ["$_init_0", $rt_wrapFunction0(jl_ArrayIndexOutOfBoundsException__init_0)],
 jlr_Field, "Field", 8, jlr_AccessibleObject, [jlr_Member], 0, 3, 0, 0, ["$isAnnotationPresent", $rt_wrapFunction1(jlr_AnnotatedElement_isAnnotationPresent)],
 ju_AbstractList$1, 0, jl_Object, [ju_Iterator], 0, 0, 0, 0, ["$_init_45", $rt_wrapFunction1(ju_AbstractList$1__init_0), "$hasNext", $rt_wrapFunction0(ju_AbstractList$1_hasNext), "$next0", $rt_wrapFunction0(ju_AbstractList$1_next)],
 jur_Quantifier, "Quantifier", 2, jur_SpecialToken, [jl_Cloneable], 0, 0, 0, 0, ["$_init_11", $rt_wrapFunction2(jur_Quantifier__init_0), "$min0", $rt_wrapFunction0(jur_Quantifier_min), "$max0", $rt_wrapFunction0(jur_Quantifier_max), "$toString", $rt_wrapFunction0(jur_Quantifier_toString)],
 jur_AbstractCharClass$LazyJavaUpperCase$1, "AbstractCharClass$LazyJavaUpperCase$1", 2, jur_AbstractCharClass, [], 0, 0, 0, 0, ["$_init_90", $rt_wrapFunction1(jur_AbstractCharClass$LazyJavaUpperCase$1__init_0), "$contains", $rt_wrapFunction1(jur_AbstractCharClass$LazyJavaUpperCase$1_contains)],
-ucsic_TimeSelector, "TimeSelector", 23, ucsic_PageWidget, [], 0, 3, 0, 0, ["$_init_52", $rt_wrapFunction1(ucsic_TimeSelector__init_0), "$refresh", $rt_wrapFunction0(ucsic_TimeSelector_refresh), "$construct", $rt_wrapFunction1(ucsic_TimeSelector_construct), "$setOnChange", $rt_wrapFunction1(ucsic_TimeSelector_setOnChange), "$setCurrent", $rt_wrapFunction1(ucsic_TimeSelector_setCurrent)],
+ucsic_TimeSelector, "TimeSelector", 23, ucsic_AbstractPageWidget, [], 0, 3, 0, 0, ["$_init_52", $rt_wrapFunction1(ucsic_TimeSelector__init_0), "$refresh", $rt_wrapFunction0(ucsic_TimeSelector_refresh), "$construct", $rt_wrapFunction1(ucsic_TimeSelector_construct), "$setOnChange", $rt_wrapFunction1(ucsic_TimeSelector_setOnChange), "$setCurrent", $rt_wrapFunction1(ucsic_TimeSelector_setCurrent)],
 otpp_ResourceAccessor, 0, jl_Object, [], 4, 0, 0, 0, 0,
 jur_PossessiveQuantifierSet, "PossessiveQuantifierSet", 2, jur_LeafQuantifierSet, [], 0, 0, 0, 0, ["$_init_29", $rt_wrapFunction3(jur_PossessiveQuantifierSet__init_0), "$matches", $rt_wrapFunction3(jur_PossessiveQuantifierSet_matches)],
 jl_Short, 0, jl_Number, [jl_Comparable], 0, 3, 0, 0, 0,
@@ -18071,9 +18115,9 @@ jur_AbstractCharClass$LazyJavaLowerCase$1, "AbstractCharClass$LazyJavaLowerCase$
 jl_Object$monitorExit$lambda$_8_0, 0, jl_Object, [otp_PlatformRunnable], 0, 3, 0, 0, ["$_init_2", $rt_wrapFunction1(jl_Object$monitorExit$lambda$_8_0__init_0), "$run", $rt_wrapFunction0(jl_Object$monitorExit$lambda$_8_0_run)],
 jur_UCISupplRangeSet, "UCISupplRangeSet", 2, jur_SupplRangeSet, [], 0, 0, 0, 0, ["$_init_67", $rt_wrapFunction1(jur_UCISupplRangeSet__init_0), "$contains", $rt_wrapFunction1(jur_UCISupplRangeSet_contains), "$getName", $rt_wrapFunction0(jur_UCISupplRangeSet_getName)],
 jur_AbstractCharClass$LazyJavaUpperCase, 0, jur_AbstractCharClass$LazyCharClass, [], 0, 0, 0, 0, ["$_init_0", $rt_wrapFunction0(jur_AbstractCharClass$LazyJavaUpperCase__init_0), "$computeValue", $rt_wrapFunction0(jur_AbstractCharClass$LazyJavaUpperCase_computeValue)],
-jl_Class$MethodSignature, 0, jl_Object, [], 4, 0, 0, 0, ["$_init_40", $rt_wrapFunction3(jl_Class$MethodSignature__init_), "$equals", $rt_wrapFunction1(jl_Class$MethodSignature_equals), "$hashCode0", $rt_wrapFunction0(jl_Class$MethodSignature_hashCode)],
-jur_HangulDecomposedCharSet, "HangulDecomposedCharSet", 2, jur_JointSet, [], 0, 0, 0, 0, ["$_init_60", $rt_wrapFunction2(jur_HangulDecomposedCharSet__init_0), "$setNext", $rt_wrapFunction1(jur_HangulDecomposedCharSet_setNext), "$getName", $rt_wrapFunction0(jur_HangulDecomposedCharSet_getName), "$matches", $rt_wrapFunction3(jur_HangulDecomposedCharSet_matches), "$first", $rt_wrapFunction1(jur_HangulDecomposedCharSet_first), "$hasConsumed", $rt_wrapFunction1(jur_HangulDecomposedCharSet_hasConsumed)]]);
-$rt_metadata([jur_AbstractCharClass$LazyPunct, 0, jur_AbstractCharClass$LazyCharClass, [], 0, 0, 0, 0, ["$_init_0", $rt_wrapFunction0(jur_AbstractCharClass$LazyPunct__init_0), "$computeValue", $rt_wrapFunction0(jur_AbstractCharClass$LazyPunct_computeValue)],
+jl_Class$MethodSignature, 0, jl_Object, [], 4, 0, 0, 0, ["$_init_40", $rt_wrapFunction3(jl_Class$MethodSignature__init_), "$equals", $rt_wrapFunction1(jl_Class$MethodSignature_equals), "$hashCode0", $rt_wrapFunction0(jl_Class$MethodSignature_hashCode)]]);
+$rt_metadata([jur_HangulDecomposedCharSet, "HangulDecomposedCharSet", 2, jur_JointSet, [], 0, 0, 0, 0, ["$_init_60", $rt_wrapFunction2(jur_HangulDecomposedCharSet__init_0), "$setNext", $rt_wrapFunction1(jur_HangulDecomposedCharSet_setNext), "$getName", $rt_wrapFunction0(jur_HangulDecomposedCharSet_getName), "$matches", $rt_wrapFunction3(jur_HangulDecomposedCharSet_matches), "$first", $rt_wrapFunction1(jur_HangulDecomposedCharSet_first), "$hasConsumed", $rt_wrapFunction1(jur_HangulDecomposedCharSet_hasConsumed)],
+jur_AbstractCharClass$LazyPunct, 0, jur_AbstractCharClass$LazyCharClass, [], 0, 0, 0, 0, ["$_init_0", $rt_wrapFunction0(jur_AbstractCharClass$LazyPunct__init_0), "$computeValue", $rt_wrapFunction0(jur_AbstractCharClass$LazyPunct_computeValue)],
 otcic_Console, 0, jl_Object, [], 4, 3, 0, 0, 0,
 jlr_InvocationTargetException, 0, jl_ReflectiveOperationException, [], 0, 3, 0, 0, 0,
 otp_PlatformClass, "PlatformClass", 17, jl_Object, [otj_JSObject], 3, 3, 0, 0, 0,
@@ -18169,9 +18213,9 @@ $rt_stringPool(["Can\'t enter monitor from another thread synchronously", "@", "
 "Substring bounds error", "Unterminated string", "Illegal escape.", ",:]}/\\\"[{;=#", "Missing value", " at ", " [character ", " line ", "NonCapJointSet", "PosLookaheadJointSet", "NegLookaheadJointSet", "A JSONObject text must begin with \'{\'", "A JSONObject text must end with \'}\'", "Expected a \':\' after a key", "Duplicate key \"", "\"", "Expected a \',\' or \'}\'", "Null key.", "JSONObject[", "] not found.", "int", "JSONArray", "string", "Null pointer", "0", ".", "getClass", "getDeclaringClass", "get",
 "is", "\\t", "\\n", "\\f", "\\r", "\\u", "0000", "\\b", "\"\"", "-0", "true", "false", "JSON does not allow non-finite numbers.", "java.", "javax.", "Unable to write JSONObject value for key: ", "] is not a ", "-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?", "<Quant>", "Should never been thrown", "PosBehindJointSet", "sequence: ", "Replacement preconditions do not hold", "Action must be non-null", "US-ASCII", "UCI range:", "IGNORE", "REPLACE", "REPORT", "NegBehindJointSet", "back reference: ", "<DotQuant>",
 "interface ", "class ", "<init>", "<clinit>", " .-*_", "0123456789ABCDEF", "CI ", "The last char in dst ", " is outside of array of size ", "Length ", " must be non-negative", "Offset ", ")", "UTF-16", "UTF-16BE", "UTF-16LE", "<EOL>", "UCI ", "ISO-8859-1", "AtomicFSet", "posFSet", "UTF-8", "<MultiLine $>", "x", "y", "h", "id", "px", "gridframeinner", "hdr", "content", "glass", "img", "error", "message", ", ", "&", "getInfoBit", "html", "Patter is null", "\\Q", "\\E", "\\\\E\\Q", "Unmappable characters of length ",
-"name", "getSectData", "title", "contentHtml", "titleBits", "h1", "grp", "Malformed input of length ", "UCI sequence: ", "CompositeRangeSet:  <nonsurrogate> ", " <surrogate> ", "FinalSet", "<Empty set>", "{", ",", "}", "timeselector", "controls", "5 Min", "30 Min", "1 Hour", "2 Hour", "6 Hour", "12 Hour", "24 Hour", "2 Day", "5 Day", "30 Day", "unsel", "a", "divider", "sel", "en", "CA", "fr", "zh", "CN", "FR", "de", "DE", "it", "IT", "ja", "JP", "ko", "KR", "TW", "GB", "US", "EOI", "Capacity is negative: ",
-"The last byte in dst ", "The last byte in src ", "^", "PreviousMatch", "NonCapFSet", "A JSONArray text must start with \'[\'", "Expected a \',\' or \']\'", "JSONArray initial value should be a string or collection or array.", "JSONArray[", "JSONObject", "String", "Unable to write JSONArray value at index: 0", "Unable to write JSONArray value at index: ", "Either src or dest is null", "DotAll", "decomposed Hangul syllable:", "WordBoundary", "div", "<SOL>", "mainpage", "getConfig", "dur=", "off", "dur", "setParams",
-"gridSize", "widgets", "type", "Unknown widget: ", "timesel", "infobit", "chart", "public", "protected", "private", "abstract", "static", "final", "transient", "volatile", "synchronized", "native", "strictfp", "interface", "<Unix MultiLine $>", "Is", "In"]);
+"name", "getSectData", "title", "titleBits", "h1", "grp", "Malformed input of length ", "UCI sequence: ", "CompositeRangeSet:  <nonsurrogate> ", " <surrogate> ", "FinalSet", "<Empty set>", "{", ",", "}", "timeselector", "controls", "5 Min", "30 Min", "1 Hour", "2 Hour", "6 Hour", "12 Hour", "24 Hour", "2 Day", "5 Day", "30 Day", "unsel", "a", "divider", "sel", "en", "CA", "fr", "zh", "CN", "FR", "de", "DE", "it", "IT", "ja", "JP", "ko", "KR", "TW", "GB", "US", "EOI", "Capacity is negative: ", "The last byte in dst ",
+"The last byte in src ", "^", "PreviousMatch", "NonCapFSet", "A JSONArray text must start with \'[\'", "Expected a \',\' or \']\'", "JSONArray initial value should be a string or collection or array.", "JSONArray[", "JSONObject", "String", "Unable to write JSONArray value at index: 0", "Unable to write JSONArray value at index: ", "Either src or dest is null", "DotAll", "decomposed Hangul syllable:", "WordBoundary", "div", "<SOL>", "mainpage", "getConfig", "dur=", "off", "dur", "setParams", "gridSize", "widgets",
+"type", "Unknown widget: ", "timesel", "infobit", "chart", "public", "protected", "private", "abstract", "static", "final", "transient", "volatile", "synchronized", "native", "strictfp", "interface", "<Unix MultiLine $>", "Is", "In"]);
 jl_String.prototype.toString = function() {
     return $rt_ustr(this);
 };

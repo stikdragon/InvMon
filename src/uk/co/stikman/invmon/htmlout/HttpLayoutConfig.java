@@ -34,6 +34,8 @@ public class HttpLayoutConfig {
 	}
 
 	public PageLayout getPage(String name) {
+		if (name == null)
+			return defaultPage;
 		for (PageLayout x : pages)
 			if (name.equals(x.getId()))
 				return x;

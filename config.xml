@@ -4,10 +4,10 @@
 
     <Modules>
 
-        <PIP8048MAXParallelGroup id="invertergroup1">
+        <!-- <PIP8048MAXParallelGroup id="invertergroup1"> -->
             <FakeInverter id="invA" />
-            <FakeInverter id="invB" />
-        </PIP8048MAXParallelGroup>
+            <!-- <FakeInverter id="invB" /> -->
+        <!-- </PIP8048MAXParallelGroup> -->
     
         <!-- <ConsoleOutput id="console" controlCodes="false" /> -->  
 
@@ -16,7 +16,7 @@
         <DataLogger id="datalogger" file="data\datalog.db" blockSize="400000" />
 
         <HTTPServer id="httpserver" port="8083" sourceData="invertergroup1">
-        	<Page id="main" default="true">
+        	<Pxage id="main" default="false">
                 <Widget id="timeselector" class="timesel" layout="0, 0, 25, 1" />
                 <Widget id="pvChart" class="chart" title="PV Power" layout="0, 1, 20, 7" cssClass="pv">
                     <Series field="PV_TOTAL_P" subfields="PVA_1_P, PVB_1_P, PVA_2_P, PVB_2_P" axis="y1" />
@@ -43,14 +43,40 @@
                     <Series field="INV_2_TEMP" />
                     <Series field="INV_1_BUS_V" axis="y2" />      
                 </Widget>
-                <Widget id="infobit" class="infobit" layout="0, 26, 20, 2">
+                <Widget id="infobit" class="infobit" layout="0, 26, 20, 2" /> 
+        	</Pxage>
+        
 
+        	<Page id="single" default="true">
+                <Widget id="timeselector" class="timesel" layout="0, 0, 25, 1" />
+                <Widget id="pvChart" class="chart" title="PV Power" layout="0, 1, 20, 7" cssClass="pv">
+                    <Series field="PV_TOTAL_P" subfields="PVA_1_P, PVB_1_P" axis="y1" />
+                    <Axis id="y1" min="0" formatter="%d W" />
                 </Widget>
-
-
-
+                <Widget id="pvTable" class="table" title="PV Power" layout="20, 1, 5, 5">
+                    todo...
+                </Widget>
+                <Widget id="loadChart" class="chart" title="Load" layout="0, 8, 20, 7">
+                    <Axis id="y1" min="0" formatter="%d W" />
+                    <Series field="LOAD_P" />
+                </Widget>
+                <Widget id="batteryChart" class="chart" title="Battery" layout="0, 15, 20, 7">
+                    <Axis id="y1" min="0" formatter="%.1f A" />
+                    <Axis id="y2" min="35" max="65" formatter="%.1f V" />
+                    <Series field="BATT_I_CHG" />
+                    <Series field="BATT_I_DIS" />
+                    <Series field="BATT_SOC" min="0" max="100" axis="y2" />                    
+                </Widget>   
+                <Widget id="busChart" class="chart" title="Bus/Temps" layout="0, 22, 20, 4">
+                    <Axis id="y1" min="0" formatter="%.1f C" />
+                    <Axis id="y2" min="0" formatter="%d V" />
+                    <Series field="INV_1_TEMP" />
+                    <Series field="INV_1_BUS_V" axis="y2" />      
+                </Widget>
+                <Widget id="infobit" class="infobit" layout="0, 26, 20, 2" /> 
         	</Page>
         
+
         
         
         </HTTPServer>
