@@ -11,7 +11,7 @@ import org.json.JSONObject;
 import org.w3c.dom.Element;
 
 import uk.co.stikman.invmon.datalog.QueryResults;
-import uk.co.stikman.invmon.inverter.InvUtil;
+import uk.co.stikman.invmon.inverter.util.InvUtil;
 
 public class PageLayout {
 
@@ -23,9 +23,10 @@ public class PageLayout {
 
 	static {
 		TYPES.put("chart", ChartWidget::new);
-		TYPES.put("table", TableWidget::new);
+		TYPES.put("table-pv", PVTableWidget::new);
 		TYPES.put("infobit", InfoBitWidget::new);
 		TYPES.put("timesel", TimeSelPageWidget::new);
+		TYPES.put("controls", ControlsWidget::new);
 	}
 
 	public void configure(Element root) {

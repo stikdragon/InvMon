@@ -1,8 +1,8 @@
 package uk.co.stikman.invmon.inverter.PIP8048MAX;
 
 import uk.co.stikman.invmon.inverter.BatteryChargeStage;
-import uk.co.stikman.invmon.inverter.InvUtil;
 import uk.co.stikman.invmon.inverter.TemplateResult;
+import uk.co.stikman.invmon.inverter.util.InvUtil;
 
 public class DeviceStatus {
 	private float	gridV;

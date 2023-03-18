@@ -7,7 +7,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
-import uk.co.stikman.invmon.inverter.InvUtil;
+import uk.co.stikman.invmon.inverter.util.InvUtil;
 
 public class DataModelConversion {
 

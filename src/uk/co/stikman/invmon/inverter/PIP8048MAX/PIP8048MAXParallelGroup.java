@@ -23,8 +23,8 @@ import uk.co.stikman.invmon.datamodel.DataModel;
 import uk.co.stikman.invmon.datamodel.Field;
 import uk.co.stikman.invmon.datamodel.FieldVIF;
 import uk.co.stikman.invmon.datamodel.InverterMode;
-import uk.co.stikman.invmon.inverter.InvUtil;
 import uk.co.stikman.invmon.inverter.ParallelGroup;
+import uk.co.stikman.invmon.inverter.util.InvUtil;
 import uk.co.stikman.table.DataField;
 
 @ModType(InvModType.INVERGER_GROUP)

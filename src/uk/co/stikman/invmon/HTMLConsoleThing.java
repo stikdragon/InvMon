@@ -5,7 +5,7 @@ import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.util.Scanner;
 
-import uk.co.stikman.invmon.inverter.InvUtil;
+import uk.co.stikman.invmon.inverter.util.InvUtil;
 import uk.co.stikman.log.StikLog;
 
 public class HTMLConsoleThing {

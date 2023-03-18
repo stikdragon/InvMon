@@ -6,7 +6,7 @@ import java.util.NoSuchElementException;
 
 import org.w3c.dom.Element;
 
-import uk.co.stikman.invmon.inverter.InvUtil;
+import uk.co.stikman.invmon.inverter.util.InvUtil;
 
 public class HttpLayoutConfig {
 	private List<PageLayout>	pages	= new ArrayList<>();

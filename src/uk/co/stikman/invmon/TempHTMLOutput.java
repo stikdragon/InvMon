@@ -16,7 +16,7 @@ import uk.co.stikman.invmon.datamodel.FieldVIF;
 import uk.co.stikman.invmon.datamodel.InverterMode;
 import uk.co.stikman.invmon.datamodel.VIFReading;
 import uk.co.stikman.invmon.inverter.BatteryChargeStage;
-import uk.co.stikman.invmon.inverter.InvUtil;
+import uk.co.stikman.invmon.inverter.util.InvUtil;
 import uk.co.stikman.log.StikLog;
 
 public class TempHTMLOutput extends InvModule {

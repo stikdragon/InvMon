@@ -37,7 +37,7 @@ import uk.co.stikman.invmon.datamodel.expr.MaxOp;
 import uk.co.stikman.invmon.datamodel.expr.MulOp;
 import uk.co.stikman.invmon.datamodel.expr.PushFloatOp;
 import uk.co.stikman.invmon.datamodel.expr.SubOp;
-import uk.co.stikman.invmon.inverter.InvUtil;
+import uk.co.stikman.invmon.inverter.util.InvUtil;
 import uk.co.stikman.log.StikLog;
 import uk.co.stikman.table.DataRecord;
 import uk.co.stikman.table.DataTable;

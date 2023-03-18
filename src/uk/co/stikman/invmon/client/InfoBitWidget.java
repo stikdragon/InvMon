@@ -8,7 +8,6 @@ public class InfoBitWidget extends AbstractPageWidget {
 
 	public InfoBitWidget(ClientPage owner) {
 		super(owner);
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override

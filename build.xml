@@ -24,7 +24,9 @@
 
 	<target name="compile" depends="clean">
 		<mkdir dir="build/classes" />
-		<javac target="1.8" source="1.8" srcdir="src" destdir="build/classes" classpathref="cp" includeantruntime="false" />
+		<javac target="1.8" source="1.8" srcdir="src" destdir="build/classes" classpathref="cp" includeantruntime="false">
+			<exclude name="**/uk/co/stikman/invmon/junk/dischargemonitor/*.java" />
+		</javac>
 		<copy todir="build/classes">
 			<fileset dir="src">
 				<exclude name="**/*.java" />
@@ -33,7 +35,7 @@
 		<echo file="build/classes/uk/co/stikman/invmon/version.txt" append="false">${version}</echo>
 	</target>
 
-	<target name="teavm" >
+	<target name="teavm">
 		<java failonerror="true" fork="true" classname="org.teavm.cli.TeaVMRunner">
 			<classpath>
 				<path refid="cp" />

@@ -16,16 +16,17 @@ import org.teavm.jso.browser.Window;
 import org.teavm.jso.dom.html.HTMLElement;
 
 public class MainPage extends ClientPage {
-	private HTMLElement												root;
+	private HTMLElement														root;
 
 	private List<AbstractPageWidget>										widgets		= new ArrayList<>();
-	private int														gridSize;
+	private int																gridSize;
 	private static Map<String, Function<ClientPage, AbstractPageWidget>>	pageTypes	= new HashMap<>();
 
 	static {
 		pageTypes.put("timesel", TimeSelector::new);
 		pageTypes.put("infobit", InfoBitWidget::new);
 		pageTypes.put("chart", ChartWidget::new);
+		pageTypes.put("controls", ControlsWidget::new);
 	}
 
 	public MainPage() {
@@ -67,7 +68,7 @@ public class MainPage extends ClientPage {
 		});
 	}
 
-	private void refresh() {
+	public void refresh() {
 		widgets.forEach(w -> w.refresh());
 	}
 

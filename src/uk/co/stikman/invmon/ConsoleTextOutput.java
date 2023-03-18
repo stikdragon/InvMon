@@ -6,7 +6,7 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 
-import uk.co.stikman.invmon.inverter.InvUtil;
+import uk.co.stikman.invmon.inverter.util.InvUtil;
 
 public class ConsoleTextOutput {
 	public static final String		RESET				= "\u001B[0m";

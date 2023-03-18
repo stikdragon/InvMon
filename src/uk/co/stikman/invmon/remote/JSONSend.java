@@ -17,7 +17,7 @@ import uk.co.stikman.invmon.InvModule;
 import uk.co.stikman.invmon.InvMonException;
 import uk.co.stikman.invmon.datalog.DBRecord;
 import uk.co.stikman.invmon.datalog.DataLogger;
-import uk.co.stikman.invmon.inverter.InvUtil;
+import uk.co.stikman.invmon.inverter.util.InvUtil;
 import uk.co.stikman.log.StikLog;
 
 public class JSONSend extends InvModule {

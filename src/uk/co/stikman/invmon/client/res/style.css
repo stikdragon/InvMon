@@ -17,10 +17,31 @@ body {
 	flex: 1;
 }
 
-.gridframeinner .content {
+.gridframeinner > .content {
 	flex: 1;
 	overflow: hidden;
 	padding: 10px;
+}
+
+.button {
+	cursor: pointer;
+	padding: 5px;
+	border: 2px solid rgba(0, 0, 0, 0.2);
+	border-radius: 5px;
+	background: linear-gradient(0deg, rgba(0, 0, 0, 0.1) 0%,
+		rgba(255, 255, 255, 0.1) 100%);
+	display: grid;
+	justify-content: center;
+	align-content: center;
+}
+
+.controlswidget {
+	display: flex;
+	justify-content: center;
+}
+
+.controlswidget #refresh {
+	height: 32px;
 }
 
 .timeselector .content {
@@ -197,7 +218,7 @@ h1 {
 
 .chart.load .series1_fill {
 	stroke: none;
-	fill: none;
+	fill: #ff9000;
 }
 
 .chart.load .series1_1 {

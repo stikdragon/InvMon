@@ -7,7 +7,8 @@ import org.json.JSONObject;
 import org.w3c.dom.Element;
 
 import uk.co.stikman.invmon.datalog.QueryResults;
-import uk.co.stikman.invmon.inverter.InvUtil;
+import uk.co.stikman.invmon.inverter.util.Format;
+import uk.co.stikman.invmon.inverter.util.InvUtil;
 
 public class ChartWidget extends PageWidget {
 
@@ -47,8 +48,10 @@ public class ChartWidget extends PageWidget {
 					ax = opts.getAxisY2();
 				else
 					throw new IllegalArgumentException("Unknown axis: " + id);
-				if (el.hasAttribute("formatter"))
-					ax.setFormatter(n -> String.format(el.getAttribute("formatter"), n));
+				if (el.hasAttribute("formatter")) {
+					Format fmt = new Format(el.getAttribute("formatter"));
+					ax.setFormatter(n -> fmt.format(n));
+				}
 				if (el.hasAttribute("min"))
 					ax.setForceMin(Float.parseFloat(el.getAttribute("min")));
 				ax.setEnabled(true);

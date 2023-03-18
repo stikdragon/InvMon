@@ -6,6 +6,8 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="lib/src/jfreechart-1.5.2/src/main/resources"/>
+	<classpathentry kind="src" path="lib/src/jfreechart-1.5.2/src/main/java"/>
 	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="lib" path="lib/ivy/commons-io-2.7.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/json-20200518.jar" sourcepath="lib/ivy/json-sources-20200518.jar"/>
