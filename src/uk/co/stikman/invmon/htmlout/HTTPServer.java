@@ -53,7 +53,6 @@ public class HTTPServer extends InvModule {
 	private Svr								svr;
 	private PollData						lastData;
 	private final Map<String, FetchMethod>	urlMappings			= new HashMap<>();
-	private HTMLGenerator					generator;
 	private Map<String, UserSesh>			sessions			= new HashMap<>();
 	private HttpLayoutConfig				layoutConfig;
 
@@ -63,6 +62,8 @@ public class HTTPServer extends InvModule {
 
 		urlMappings.put("loading.gif", this::resource);
 		urlMappings.put("background.png", this::resource);
+		urlMappings.put("ticked.png", this::resource);
+		urlMappings.put("unticked.png", this::resource);
 		urlMappings.put("style.css", this::resource);
 		urlMappings.put("index.html", this::resource);
 		urlMappings.put("classes.js", this::resource);
@@ -203,7 +204,6 @@ public class HTTPServer extends InvModule {
 	public void start() throws InvMonException {
 		super.start();
 		this.datalogger = getEnv().getModule("datalogger");
-		generator = new HTMLGenerator(datalogger);
 		svr = new Svr(port, this);
 		try {
 			svr.start();

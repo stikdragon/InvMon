@@ -3,6 +3,8 @@ package uk.co.stikman.invmon.client;
 import org.json.JSONObject;
 import org.teavm.jso.dom.html.HTMLElement;
 
+import uk.co.stikman.invmon.Events;
+
 public class ControlsWidget extends AbstractPageWidget {
 
 	private StandardFrame	frame;
@@ -22,8 +24,15 @@ public class ControlsWidget extends AbstractPageWidget {
 
 		Button btn = new Button("Refresh");
 		btn.setId("refresh");
-		btn.setOnClick(b -> ((MainPage)getOwner()).refresh());
+		btn.setOnClick(b -> ((MainPage) getOwner()).refresh());
 		frame.content.appendChild(btn.getElement());
+
+		ToggleButton tog = new ToggleButton("Auto Refresh", "unticked.png", "ticked.png");
+		tog.setId("auto");
+		frame.content.appendChild(tog.getElement());
+		tog.setOnClick(b -> {
+			getOwner().getBus().fire(Events.AUTOREFRESH_CHANGED, Boolean.valueOf(tog.getState()));
+		});
 	}
 
 	@Override

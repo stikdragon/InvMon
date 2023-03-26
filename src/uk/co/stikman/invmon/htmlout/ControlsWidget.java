@@ -5,6 +5,7 @@ import org.json.JSONObject;
 import uk.co.stikman.invmon.datalog.QueryResults;
 
 public class ControlsWidget extends PageWidget {
+	
 	@Override
 	public JSONObject execute(JSONObject params, QueryResults data) {
 		HTMLBuilder html = new HTMLBuilder();

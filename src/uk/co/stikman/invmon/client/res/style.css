@@ -23,17 +23,32 @@ body {
 	padding: 10px;
 }
 
-.button {
+.button, .togglebutton {
 	cursor: pointer;
 	padding: 5px;
 	border: 2px solid rgba(0, 0, 0, 0.2);
 	border-radius: 5px;
 	background: linear-gradient(0deg, rgba(0, 0, 0, 0.1) 0%,
 		rgba(255, 255, 255, 0.1) 100%);
-	display: grid;
+	display: flex;
 	justify-content: center;
 	align-content: center;
 	user-select: none;
+}
+
+.togglebutton.selected {
+	background: linear-gradient(0deg, rgba(127, 127, 127, 0.3) 0%,
+		rgba(0, 0, 0, 0.2) 100%);
+}
+
+.togglebutton>img {
+	flex: 0; width : 24px;
+	height: 24px;
+	width: 24px;
+}
+
+.togglebutton>.content {
+	flex: 1;
 }
 
 .controlswidget {
@@ -43,6 +58,16 @@ body {
 
 .controlswidget #refresh {
 	height: 32px;
+}
+
+.controlswidget #auto {
+	height: 32px;
+}
+
+.controlswidget .content {
+	display: flex;
+	flex-direction: column;
+	row-gap: 10px;
 }
 
 .timeselector .content {

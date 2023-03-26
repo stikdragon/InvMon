@@ -10,17 +10,21 @@ import java.util.function.Function;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.teavm.jso.browser.Location;
+import org.teavm.jso.browser.TimerHandler;
 import org.teavm.jso.browser.Window;
 import org.teavm.jso.dom.html.HTMLElement;
 
+import uk.co.stikman.invmon.Events;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
 
 public class MainPage extends ClientPage {
 	private HTMLElement														root;
 
-	private List<AbstractPageWidget>										widgets		= new ArrayList<>();
+	private List<AbstractPageWidget>										widgets			= new ArrayList<>();
 	private int																gridSize;
-	private static Map<String, Function<ClientPage, AbstractPageWidget>>	pageTypes	= new HashMap<>();
+
+	private Boolean															doAutoRefresh	= false;
+	private static Map<String, Function<ClientPage, AbstractPageWidget>>	pageTypes		= new HashMap<>();
 
 	static {
 		pageTypes.put("timesel", TimeSelector::new);
@@ -32,6 +36,14 @@ public class MainPage extends ClientPage {
 	public MainPage() {
 		super();
 		root = InvMon.div("mainpage");
+		getBus().subscribe(Events.AUTOREFRESH_CHANGED, data -> {
+			doAutoRefresh = (Boolean) data;
+		});
+
+		Window.setInterval(() -> {
+			if (doAutoRefresh)
+				refresh();
+		}, 5000);
 	}
 
 	@Override

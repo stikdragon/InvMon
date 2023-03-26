@@ -30,11 +30,12 @@ public class InvMon {
 		return element("div", classes);
 	}
 
-	public static HTMLElement element(String type, String... classes) {
+	@SuppressWarnings("unchecked")
+	public static <T extends HTMLElement> T element(String type, String... classes) {
 		HTMLElement el = getDocument().createElement(type);
 		for (String s : classes)
 			el.getClassList().add(s);
-		return el;
+		return (T) el;
 	}
 
 	public static HTMLDocument getDocument() {

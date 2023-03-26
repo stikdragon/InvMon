@@ -9,6 +9,7 @@ import org.teavm.jso.ajax.XMLHttpRequest;
 import org.teavm.jso.dom.html.HTMLElement;
 
 public abstract class ClientPage {
+	private ReallySimpleEventBus bus = new ReallySimpleEventBus();
 
 	public abstract HTMLElement getElement();
 
@@ -45,6 +46,10 @@ public abstract class ClientPage {
 		else
 			xhr.open("GET", api);
 		xhr.send();
+	}
+
+	public ReallySimpleEventBus getBus() {
+		return bus;
 	}
 
 }
