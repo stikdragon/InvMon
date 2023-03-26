@@ -19,7 +19,6 @@ import uk.co.stikman.eventbus.StringEventBus;
 import uk.co.stikman.invmon.datamodel.DataModel;
 import uk.co.stikman.invmon.datamodel.FieldType;
 import uk.co.stikman.invmon.datamodel.ModelGenerationSettings;
-import uk.co.stikman.invmon.inverter.ParallelGroup;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
 import uk.co.stikman.log.ConsoleLogTarget;
 import uk.co.stikman.log.Level;

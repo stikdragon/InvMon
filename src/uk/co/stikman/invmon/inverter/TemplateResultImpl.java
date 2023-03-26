@@ -2,7 +2,6 @@ package uk.co.stikman.invmon.inverter;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 
 import uk.co.stikman.table.DataTable;

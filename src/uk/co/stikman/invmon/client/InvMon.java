@@ -11,6 +11,8 @@ public class InvMon {
 	private static Window		browserWindow;
 	private static HTMLDocument	doc;
 
+	private static ErrorPopup	errorPopup;
+
 	//
 	// just a couple of shortcuts
 	//
@@ -34,7 +36,7 @@ public class InvMon {
 			el.getClassList().add(s);
 		return el;
 	}
-	
+
 	public static HTMLDocument getDocument() {
 		return doc;
 	}
@@ -43,5 +45,11 @@ public class InvMon {
 		MainPage mainpage = new MainPage();
 		getDocument().getDocumentElement().appendChild(mainpage.getElement());
 		mainpage.load();
+	}
+
+	public static ErrorPopup getErrorPopup() {
+		if (errorPopup == null)
+			errorPopup = new ErrorPopup();
+		return errorPopup;
 	}
 }

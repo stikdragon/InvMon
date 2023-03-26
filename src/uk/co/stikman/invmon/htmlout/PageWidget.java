@@ -1,7 +1,5 @@
 package uk.co.stikman.invmon.htmlout;
 
-import java.util.Collection;
-
 import org.json.JSONObject;
 import org.w3c.dom.Element;
 

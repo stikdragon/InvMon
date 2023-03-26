@@ -2,7 +2,6 @@ package uk.co.stikman.invmon.inverter.PIP8048MAX;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map.Entry;
 
 import org.w3c.dom.Element;
 
@@ -18,14 +17,11 @@ import uk.co.stikman.invmon.InvMonException;
 import uk.co.stikman.invmon.InverterMonitor;
 import uk.co.stikman.invmon.ModType;
 import uk.co.stikman.invmon.PollData;
-import uk.co.stikman.invmon.datamodel.AggregationMode;
 import uk.co.stikman.invmon.datamodel.DataModel;
 import uk.co.stikman.invmon.datamodel.Field;
 import uk.co.stikman.invmon.datamodel.FieldVIF;
-import uk.co.stikman.invmon.datamodel.InverterMode;
 import uk.co.stikman.invmon.inverter.ParallelGroup;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
-import uk.co.stikman.table.DataField;
 
 @ModType(InvModType.INVERGER_GROUP)
 public class PIP8048MAXParallelGroup extends InvModule implements ParallelGroup {

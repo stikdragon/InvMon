@@ -2,7 +2,6 @@ package uk.co.stikman.invmon.client;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.teavm.jso.browser.Window;
 import org.teavm.jso.dom.html.HTMLElement;
 
 public class ChartWidget extends AbstractPageWidget {

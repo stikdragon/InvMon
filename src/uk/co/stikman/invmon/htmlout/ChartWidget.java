@@ -3,6 +3,7 @@ package uk.co.stikman.invmon.htmlout;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.w3c.dom.Element;
 
@@ -12,8 +13,9 @@ import uk.co.stikman.invmon.inverter.util.InvUtil;
 
 public class ChartWidget extends PageWidget {
 
-	private ChartOptions	opts;
-	private String			cssClass;
+	private ChartOptions		opts;
+	private String				cssClass;
+	private List<HeaderBitDef>	headerBits	= new ArrayList<>();
 
 	@Override
 	public void configure(Element root) {
@@ -55,6 +57,18 @@ public class ChartWidget extends PageWidget {
 				if (el.hasAttribute("min"))
 					ax.setForceMin(Float.parseFloat(el.getAttribute("min")));
 				ax.setEnabled(true);
+			} else if ("HeaderBit".equals(el.getTagName())) {
+				String special = InvUtil.getAttrib(el, "special", null);
+				if (special != null) {
+					if (special.equals("powerfactor"))
+						headerBits.add(new HeaderBitPF());
+					else
+						throw new IllegalArgumentException("Unknown special HeaderBit type: " + special);
+				} else {
+					HeaderBitDef hb = new HeaderBitDef();
+					hb.configure(el);
+					headerBits.add(hb);
+				}
 			} else
 				throw new IllegalArgumentException("Unexpected element in Widget: " + el.getTagName());
 		}
@@ -66,12 +80,24 @@ public class ChartWidget extends PageWidget {
 		opts.setSize(params.getInt("w"), params.getInt("h"));
 		HTMLBuilder html = new HTMLBuilder();
 		HTMLGenerator.renderChart(html, cssClass, opts, qr);
-		return new JSONObject().put("html", html.toString());
+
+		JSONArray jarr = new JSONArray();
+		for (HeaderBitDef hb : headerBits)
+			jarr.put(hb.execute(qr));
+
+		JSONObject jo = new JSONObject();
+		jo.put("html", html.toString());
+		jo.put("titleBits", jarr);
+		return jo;
 	}
 
 	@Override
 	public String getWidgetType() {
 		return "chart";
+	}
+
+	public List<HeaderBitDef> getHeaderBits() {
+		return headerBits;
 	}
 
 }

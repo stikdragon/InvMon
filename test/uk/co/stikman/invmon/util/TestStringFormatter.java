@@ -26,12 +26,18 @@ public class TestStringFormatter {
 
 		f = new Format("%d %d %d");
 		assertEquals("-1 2 3", f.format(-1, 2, 3));
-		
+
 		f = new Format("%3d %d %d");
 		assertEquals(" -1 2 3", f.format(-1, 2, 3));
-		
+
 		f = new Format("%3.2f %d %d");
 		assertEquals(" -1.00 2 3", f.format(-1, 2, 3));
+	}
+
+	@Test
+	public void testFormat2() {
+//		new Format("%.2fV %.2A)");
+		new Format("[%d]W ([%.2f]V @ [%.2f]A)");
 
 	}
 }

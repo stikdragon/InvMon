@@ -6,7 +6,6 @@ import java.util.function.Consumer;
 import org.json.JSONObject;
 import org.teavm.classlib.java.net.TURLEncoder;
 import org.teavm.jso.ajax.XMLHttpRequest;
-import org.teavm.jso.browser.Window;
 import org.teavm.jso.dom.html.HTMLElement;
 
 public abstract class ClientPage {
@@ -15,8 +14,7 @@ public abstract class ClientPage {
 
 	protected void post(String api, JSONObject args, Consumer<JSONObject> response) {
 		post(api, args, response, e -> {
-			e.printStackTrace();
-			Window.alert("Error from [" + api + "] api: " + e.getMessage());
+			ClientUtil.handleError(e);
 		});
 	}
 
@@ -26,8 +24,7 @@ public abstract class ClientPage {
 
 	protected void fetch(String api, JSONObject args, Consumer<JSONObject> response) {
 		fetch(api, args, response, e -> {
-			e.printStackTrace();
-			Window.alert("Error from [" + api + "] api: " + e.getMessage());
+			ClientUtil.handleError(e);
 		});
 	}
 

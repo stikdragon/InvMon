@@ -1,7 +1,5 @@
 package uk.co.stikman.invmon.datamodel.expr;
 
-import java.util.Arrays;
-
 public class FloatStack {
 	private float[]	stack	= new float[64];
 	private int		size;

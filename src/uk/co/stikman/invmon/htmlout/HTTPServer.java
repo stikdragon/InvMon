@@ -68,9 +68,10 @@ public class HTTPServer extends InvModule {
 		urlMappings.put("classes.js", this::resource);
 
 		urlMappings.put("getSectData", this::fetchSectionData);
-		urlMappings.put("getConfig", this::getPageConfig);
+		urlMappings.put("getConfig", this::getConfig);
 		urlMappings.put("setParams", this::setParams);
 		urlMappings.put("getInfoBit", this::getInfoBit);
+		urlMappings.put("invalidateResults", this::invalidateResults);
 
 		env.submitTimerTask(() -> env.submitTask(this::tidySessions), 60000);
 	}
@@ -134,9 +135,6 @@ public class HTTPServer extends InvModule {
 		opts.setWidth(jo.optInt("w", 700));
 		opts.setHeight(jo.optInt("h", 300));
 
-		JSONObject res = new JSONObject();
-		HTMLBuilder html = new HTMLBuilder();
-		List<String> titleBits = new ArrayList<>();
 		QueryResults data = getQueryResults(sesh);
 
 		PageLayout layout = viewopts.getLayout();
@@ -149,39 +147,10 @@ public class HTTPServer extends InvModule {
 				return NanoHTTPD.newFixedLengthResponse(Status.OK, "text/html", result.toString());
 			}
 		}
-		if (1 == 1)
-			throw new RuntimeException("what");
 
-		if (name.equals("pvChart")) {
-			generator.renderPVPowerChart(html, opts, data);
-			titleBits.add(generator.renderGrp(new HTMLBuilder(), "Total: [%d]W", (int) data.getLastRecord().getFloat("PV_TOTAL_P")).toString());
-		} else if (name.equals("loadChart")) {
-			generator.renderLoadChart(html, opts, data);
-			VIFReading vif1 = data.getLastRecord().getVIF("LOAD");
-			titleBits.add(generator.renderGrp(new HTMLBuilder(), "Load: [%d]W ([%.2f]V @ [%.2f]A)", (int) vif1.getP(), vif1.getV(), vif1.getI()).toString());
-			float pf = data.getLastRecord().getFloat("LOAD_PF");
-			titleBits.add(generator.renderGrp(new HTMLBuilder(), "PF: [%.2f] (Real Power: [%d]W @ [%.2f]A)", pf, (int) (vif1.getP() * pf), vif1.getI() * pf).toString());
-		} else if (name.equals("batteryChart")) {
-			generator.renderBatteryChart(html, opts, data);
-			VIFReading vif1 = data.getLastRecord().getVIF("BATT");
-			titleBits.add(generator.renderVIF(new HTMLBuilder(), "Batt", vif1).toString());
-		} else if (name.equals("busChart")) {
-			generator.renderTempChart(html, opts, data);
-			float ftmp1 = data.getLastRecord().getFloat("INV_1_TEMP");
-			float ftmp2 = data.getLastRecord().getFloat("INV_2_TEMP");
-			float busv1 = data.getLastRecord().getFloat("INV_1_BUS_V");
-			float busv2 = data.getLastRecord().getFloat("INV_2_BUS_V");
-
-			titleBits.add(generator.renderGrp(new HTMLBuilder(), "Temp1: [%.1f]C  BusV: [%d]V", ftmp1, (int) busv1).toString());
-			titleBits.add(generator.renderGrp(new HTMLBuilder(), "Temp2: [%.1f]C  BusV: [%d]V", ftmp2, (int) busv2).toString());
-		} else if (name.equals("pvTable")) {
-			generator.renderPVTable(html, opts, data);
-		} else
-			html.append("NOT FOUND");
-
-		JSONArray arr = new JSONArray();
-		titleBits.forEach(arr::put);
-		res.put("titleBits", arr);
+		JSONObject res = new JSONObject();
+		HTMLBuilder html = new HTMLBuilder();
+		html.append("Widget [" + name + "] not found");
 		res.put("contentHtml", html.toString());
 		return NanoHTTPD.newFixedLengthResponse(Status.OK, "text/html", res.toString());
 	}
@@ -325,12 +294,7 @@ public class HTTPServer extends InvModule {
 	}
 
 	private Response setParams(String url, UserSesh sesh, IHTTPSession request) {
-		JSONObject jo;
-		try {
-			jo = new JSONObject(URLDecoder.decode(request.getQueryParameterString(), StandardCharsets.UTF_8.name()));
-		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException("URLDecoded failed: " + e.getMessage(), e);
-		}
+		JSONObject jo = decodeQueryParams(request);
 		int dur = jo.getInt("dur");
 		int off = jo.getInt("off");
 		ViewOptions global = sesh.getData(GLOBAL_VIEW_OPTIONS);
@@ -343,8 +307,23 @@ public class HTTPServer extends InvModule {
 		return NanoHTTPD.newFixedLengthResponse(new JSONObject().put("result", "OK").toString());
 	}
 
-	private Response getPageConfig(String url, UserSesh sesh, IHTTPSession request) {
-		String name = InvUtil.getParam(request, "layout");
+	private static JSONObject decodeQueryParams(IHTTPSession request) {
+		try {
+			JSONObject jo = new JSONObject(URLDecoder.decode(request.getQueryParameterString(), StandardCharsets.UTF_8.name()));
+			return jo;
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException("URLDecoded failed: " + e.getMessage(), e);
+		}
+	}
+
+	private Response invalidateResults(String url, UserSesh sesh, IHTTPSession request) {
+		sesh.putData(LAST_QUERY_RESULTS, null);
+		return NanoHTTPD.newFixedLengthResponse(new JSONObject().put("result", "OK").toString());
+	}
+
+	private Response getConfig(String url, UserSesh sesh, IHTTPSession request) {
+		JSONObject opts = decodeQueryParams(request);
+		String name = opts.optString("page", null);
 		PageLayout pg = null;
 		if (name == null)
 			pg = layoutConfig.getDefaultPage();

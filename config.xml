@@ -4,11 +4,9 @@
 
 	<Modules>
 
-		<PIP8048MAXParallelGroup id="invertergroup1">
-			<FakeInverter id="invA" />
-			<FakeInverter id="invB" />
-		</PIP8048MAXParallelGroup>
+		<FakeInverter id="invA" />
 
+		<!-- <PIP8048MAXParallelGroup id="invertergroup1"> <FakeInverter id="invA" /> <FakeInverter id="invB" /> </PIP8048MAXParallelGroup> -->
 		<!-- <ConsoleOutput id="console" controlCodes="false" /> -->
 
 		<!-- <TempHTMLOutput id="htmlout" target="junk\inv.html" /> -->
@@ -21,11 +19,14 @@
 				<Widget id="pvChart" class="chart" title="PV Power" layout="0, 1, 20, 7" cssClass="pv">
 					<Series field="PV_TOTAL_P" subfields="PVA_1_P, PVB_1_P, PVA_2_P, PVB_2_P" axis="y1" />
 					<Axis id="y1" min="0" formatter="%d W" />
+					<HeaderBit text="Total: [%d]W" fields="PV_TOTAL_P" />
 				</Widget>
 				<Widget id="pvTable" class="table-pv" title="PV Power" layout="20, 1, 5, 5" fields="PVA_1:Roof,PVB_1:Lawn,PVA_2:Shed" />
 				<Widget id="loadChart" class="chart" title="Load" layout="0, 8, 20, 7" cssClass="load">
 					<Axis id="y1" min="0" formatter="%d W" />
 					<Series field="LOAD_P" subfields="LOAD_1_P, LOAD_2_P" />
+					<HeaderBit text="Load: [%d]W ([%.2f]V @ [%.2f]A)" fields="LOAD_P, LOAD_V, LOAD_I" />
+					<HeaderBit special="powerfactor" />
 				</Widget>
 				<Widget id="batteryChart" class="chart" title="Battery" layout="0, 15, 20, 7" cssClass="battery">
 					<Axis id="y1" min="0" formatter="%.1f A" />
@@ -33,6 +34,7 @@
 					<Series field="BATT_I_CHG" />
 					<Series field="BATT_I_DIS" />
 					<Series field="BATT_V" axis="y2" />
+					<HeaderBit text="Battery: [%d]W ([%.2f]V @ [%.2f]A)" fields="BATT_P, BATT_V, BATT_I" />
 				</Widget>
 				<Widget id="busChart" class="chart" title="Bus/Temps" layout="0, 22, 20, 4" cssClass="temperature">
 					<Axis id="y1" min="0" formatter="%.1f C" />
@@ -40,6 +42,7 @@
 					<Series field="INV_1_TEMP" />
 					<Series field="INV_2_TEMP" />
 					<Series field="INV_1_BUS_V" axis="y2" />
+					<HeaderBit text="Battery: [%d]W ([%.2f]V @ [%.2f]A)" fields="BATT_P, BATT_V, BATT_I" />
 				</Widget>
 				<Widget id="infobit" class="infobit" layout="0, 26, 20, 2" />
 				<Widget id="refresh" class="controls" title="Control" layout="20, 6, 5, 7" />
@@ -51,9 +54,12 @@
 				<Widget id="pvChart" class="chart" title="PV Power" layout="0, 1, 20, 7" cssClass="pv">
 					<Series field="PV_TOTAL_P" subfields="PVA_1_P, PVB_1_P" axis="y1" />
 					<Axis id="y1" min="0" formatter="%d W" />
+					<HeaderBit text="Total: [%d]W" fields="PV_TOTAL_P" />
 				</Widget>
 				<Widget id="pvTable" class="table-pv" title="PV Power" layout="20, 1, 5, 5" fields="PVA_1,PVB_1" />
 				<Widget id="loadChart" class="chart" title="Load" layout="0, 8, 20, 7" cssClass="load">
+					<HeaderBit text="Load: [%d]W ([%.2f]V @ [%.2f]A)" fields="LOAD_P, LOAD_V, LOAD_I" />
+					<HeaderBit special="powerfactor" />
 					<Axis id="y1" min="0" formatter="%d W" />
 					<Series field="LOAD_P" />
 				</Widget>
@@ -63,14 +69,17 @@
 					<Series field="BATT_I_CHG" />
 					<Series field="BATT_I_DIS" />
 					<Series field="BATT_SOC" min="0" max="100" axis="y2" />
+					<HeaderBit text="Battery: [%d]W ([%.2f]V @ [%.2f]A)" fields="BATT_P, BATT_V, BATT_I" />
 				</Widget>
 				<Widget id="busChart" class="chart" title="Bus/Temps" layout="0, 22, 20, 4" cssClass="temperature">
 					<Axis id="y1" min="0" formatter="%.1f C" />
 					<Axis id="y2" min="0" formatter="%d V" />
 					<Series field="INV_1_TEMP" />
 					<Series field="INV_1_BUS_V" axis="y2" />
+					<HeaderBit text="Battery: [%d]W ([%.2f]V @ [%.2f]A)" fields="BATT_P, BATT_V, BATT_I" />
 				</Widget>
 				<Widget id="infobit" class="infobit" layout="0, 26, 20, 2" />
+				<Widget id="refresh" class="controls" title="Control" layout="20, 6, 5, 7" />
 			</Page>
 
 

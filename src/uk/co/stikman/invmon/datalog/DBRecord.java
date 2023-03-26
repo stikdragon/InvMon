@@ -5,11 +5,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-import javax.management.RuntimeErrorException;
-
 import uk.co.stikman.invmon.datamodel.Field;
 import uk.co.stikman.invmon.datamodel.FieldCounts;
-import uk.co.stikman.invmon.datamodel.FieldDataType;
 import uk.co.stikman.invmon.datamodel.FieldType;
 import uk.co.stikman.invmon.datamodel.FieldVIF;
 import uk.co.stikman.invmon.datamodel.VIFReading;

@@ -5,9 +5,6 @@ import java.util.List;
 
 import org.teavm.jso.dom.html.HTMLElement;
 
-import uk.co.stikman.invmon.client.TimeSelector.UpdateDataOptionsHandler;
-import uk.co.stikman.invmon.inverter.util.InvUtil;
-
 public class TimeSelector extends AbstractPageWidget {
 
 	public interface UpdateDataOptionsHandler {

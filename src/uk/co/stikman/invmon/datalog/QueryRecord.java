@@ -3,8 +3,6 @@ package uk.co.stikman.invmon.datalog;
 import java.util.ArrayList;
 import java.util.List;
 
-import uk.co.stikman.invmon.datamodel.Field;
-import uk.co.stikman.invmon.datamodel.FieldVIF;
 import uk.co.stikman.invmon.datamodel.VIFReading;
 
 public class QueryRecord {
@@ -82,6 +80,13 @@ public class QueryRecord {
 
 	public int getInt(String field) {
 		return getInt(owner.getFieldIndex(field));
+	}
+
+	public Number getNumber(String field) {
+		Object o = values.get(owner.getFieldIndex(field));
+		if (o instanceof Number)
+			return (Number) o;
+		throw new ClassCastException("Field [" + field + "] is not a Number");
 	}
 
 }

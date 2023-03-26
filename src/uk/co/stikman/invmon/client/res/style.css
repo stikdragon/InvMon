@@ -17,7 +17,7 @@ body {
 	flex: 1;
 }
 
-.gridframeinner > .content {
+.gridframeinner>.content {
 	flex: 1;
 	overflow: hidden;
 	padding: 10px;
@@ -33,6 +33,7 @@ body {
 	display: grid;
 	justify-content: center;
 	align-content: center;
+	user-select: none;
 }
 
 .controlswidget {
@@ -359,4 +360,26 @@ table.data .total td {
 	width: 80%;
 	background-color: rgba(255, 255, 255, 80%);
 	padding: 10px;
+}
+
+.errorpopup {
+	position: absolute;
+	right: 10;
+	bottom: 10;
+	width: 400px;
+	height: 400px;
+	background-color: #ffdddd;
+	display: flex;
+	flex-direction: column;
+}
+
+.errorpopup>.title {
+	font-size: 150%;
+	font-weight: bold;
+	flex: 0;
+}
+
+.errorpopup>.content {
+	flex: 1;
+	overflow: auto;
 }

@@ -6,14 +6,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.teavm.jso.browser.History;
 import org.teavm.jso.browser.Location;
 import org.teavm.jso.browser.Window;
 import org.teavm.jso.dom.html.HTMLElement;
+
+import uk.co.stikman.invmon.inverter.util.InvUtil;
 
 public class MainPage extends ClientPage {
 	private HTMLElement														root;
@@ -40,10 +40,16 @@ public class MainPage extends ClientPage {
 	}
 
 	public void load() {
+		Map<String, String> hashparams = InvUtil.getLocationParameters(Window.current().getLocation().getHash());
+		setDataRange(hashparams.containsKey("off") ? Integer.parseInt(hashparams.get("off")) : 0, hashparams.containsKey("dur") ? Integer.parseInt(hashparams.get("dur")) : 60);
+
 		//
 		// query server for layout
 		//
-		fetch("getConfig", new JSONObject(), result -> {
+		Map<String, String> urlparams = InvUtil.getLocationParameters(Window.current().getLocation().getSearch());
+		JSONObject jo = new JSONObject();
+		jo.put("page", urlparams.get("layout"));
+		fetch("getConfig", jo, result -> {
 			gridSize = result.getInt("gridSize");
 			JSONArray arr = result.getJSONArray("widgets");
 			for (int i = 0; i < arr.length(); ++i) {
@@ -69,7 +75,7 @@ public class MainPage extends ClientPage {
 	}
 
 	public void refresh() {
-		widgets.forEach(w -> w.refresh());
+		post("invalidateResults", new JSONObject(), res -> widgets.forEach(w -> w.refresh()));
 	}
 
 	public int getGridSize() {
@@ -77,11 +83,13 @@ public class MainPage extends ClientPage {
 	}
 
 	public void setDataRange(int offset, int duration) {
-		Location.current().setHash("dur=" + duration);
+		Map<String, String> lc = InvUtil.getLocationParameters(Window.current().getLocation().getSearch());
+		Location.current().setHash("dur=" + duration + "&offset=" + offset);
 		JSONObject jo = new JSONObject();
 		jo.put("off", offset);
 		jo.put("dur", duration);
-		post("setParams", jo, res -> refresh());
+		jo.put("page", lc.get("layout"));
+		post("setParams", jo, res -> widgets.forEach(w -> w.refresh()));
 	}
 
 }

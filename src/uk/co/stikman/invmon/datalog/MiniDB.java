@@ -2,7 +2,7 @@ package uk.co.stikman.invmon.datalog;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -14,6 +14,7 @@ import java.util.Set;
 import uk.co.stikman.invmon.InvMonException;
 import uk.co.stikman.invmon.datamodel.DataModel;
 import uk.co.stikman.invmon.datamodel.Field;
+import uk.co.stikman.invmon.inverter.util.InvUtil;
 import uk.co.stikman.log.StikLog;
 import uk.co.stikman.table.DataRecord;
 import uk.co.stikman.table.DataTable;
@@ -240,6 +241,9 @@ public class MiniDB {
 				if (last != null && first != null)
 					break;
 			}
+			
+			if (first == null && last == null)
+				return res;
 
 			if (first == null) {
 				if (blocks.get(0).getInfo().getStartTS() > start)
@@ -250,8 +254,6 @@ public class MiniDB {
 					last = blocks.get(blocks.size() - 1);
 			}
 
-			if (first == null && last == null)
-				return res;
 
 			//
 			// now we need to find the index of the specific records in each of those blocks
@@ -414,12 +416,30 @@ public class MiniDB {
 			close();
 		}
 
-		for (Entry<File, File> pair : pairs.entrySet())
-			pair.getKey().renameTo(pair.getValue());
+		for (Entry<File, File> pair : pairs.entrySet()) {
+			for (int attempt = 0;; ++attempt) {
+				try {
+					if (pair.getValue().exists())
+						throw new IOException("Destination file exists");
+					Files.move(pair.getKey().toPath(), pair.getValue().toPath());
+					break;
+				} catch (Exception e) {
+					if (attempt > 5)
+						throw new IOException("Failed to rename file: " + pair.getKey());
+					InvUtil.sleep(500);
+					LOGGER.warn("Having trouble renaming [" + pair.getKey() + "] to [" + pair.getValue() + "] because: [" + e.getMessage() + "], trying again...");
+				}
+			}
+		}
 	}
 
 	public int getOpenBlocks() {
 		return open.size();
+	}
+
+	@Override
+	public String toString() {
+		return indexFile.toString();
 	}
 
 }

@@ -6,7 +6,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -133,5 +136,36 @@ public class InvUtil {
 		return lst.get(0);
 
 	}
+
+	public static void sleep(int i) {
+		try {
+			Thread.sleep(i);
+		} catch (InterruptedException e) {
+		}
+	}
+
+	/**
+	 * return the
+	 * 
+	 * @param loc
+	 * @return
+	 */
+	public static Map<String, String> getLocationParameters(String s) {
+		if (s == null || s.isEmpty())
+			return Collections.emptyMap();
+		if (s.startsWith("#") || s.startsWith("?")) {
+			s = s.substring(1);
+			Map<String, String> res = new HashMap<>();
+			for (String bit : s.split("&")) {
+				String[] x = bit.split("=");
+				if (x.length == 2)
+					res.put(x[0], x[1]);
+			}
+			return res;
+		}
+		return Collections.emptyMap();
+	}
+
+
 
 }

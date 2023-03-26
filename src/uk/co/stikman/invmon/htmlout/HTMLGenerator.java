@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.function.Function;
 
 import uk.co.stikman.invmon.Env;
-import uk.co.stikman.invmon.PollData;
 import uk.co.stikman.invmon.datalog.DBRecord;
 import uk.co.stikman.invmon.datalog.DataLogger;
 import uk.co.stikman.invmon.datalog.MiniDbException;
