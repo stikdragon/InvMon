@@ -32,17 +32,24 @@ body {
 		rgba(255, 255, 255, 0.1) 100%);
 	display: flex;
 	justify-content: center;
-	align-content: center;
+	align-items: center;
 	user-select: none;
+	column-gap: 10px;
 }
 
 .togglebutton.selected {
 	background: linear-gradient(0deg, rgba(127, 127, 127, 0.3) 0%,
 		rgba(0, 0, 0, 0.2) 100%);
+	padding-top: 7px;
+	padding-left: 7px;
+	padding-bottom: 3px;
+	padding-right: 3px;
+	box-shadow: inset 1px 1px 2px 0px black;
 }
 
 .togglebutton>img {
-	flex: 0; width : 24px;
+	flex: 0;
+	width: 24px;
 	height: 24px;
 	width: 24px;
 }
@@ -321,6 +328,36 @@ h1 {
 .chart.temperature .series3_fill {
 	stroke: none;
 	fill: none;
+}
+
+.graphhover .crosshair {
+	stroke: rgba(0, 0, 0, 25%);
+	stroke-width: 3px;
+	stroke-dasharray: 5;
+}
+
+.graphhover .hovertext {
+	font-size: 12px;
+	pointer-events: none;
+	background: rgba(255, 255, 255, 50%);
+	padding: 4px;
+	border: 1px solid rgba(0, 0, 0, 20%);
+}
+
+.graphhover .hovertext .row {
+	display: flex;
+}
+
+.graphhover .hovertext .row .k {
+	color: #444;
+}
+
+.graphhover .hovertext .row .v {
+	font-weight: bold;
+}
+
+.graphhover svg, .graphhover .hovertext {
+	pointer-events: none;
 }
 
 table.data {

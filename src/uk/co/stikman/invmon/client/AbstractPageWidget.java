@@ -59,7 +59,7 @@ public abstract class AbstractPageWidget {
 		el.getStyle().setProperty("height", Integer.toString(height) + "px");
 	}
 
-	protected abstract void refresh();
+	protected abstract void refresh(boolean nomask);
 
 	protected abstract void construct(HTMLElement parent);
 

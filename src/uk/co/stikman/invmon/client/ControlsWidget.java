@@ -15,7 +15,7 @@ public class ControlsWidget extends AbstractPageWidget {
 	}
 
 	@Override
-	protected void refresh() {
+	protected void refresh(boolean nomask) {
 	}
 
 	@Override
@@ -24,7 +24,7 @@ public class ControlsWidget extends AbstractPageWidget {
 
 		Button btn = new Button("Refresh");
 		btn.setId("refresh");
-		btn.setOnClick(b -> ((MainPage) getOwner()).refresh());
+		btn.setOnClick(b -> getOwner().getBus().fire(Events.REFRESH_NOW, null)); 
 		frame.content.appendChild(btn.getElement());
 
 		ToggleButton tog = new ToggleButton("Auto Refresh", "unticked.png", "ticked.png");

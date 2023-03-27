@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -35,7 +34,6 @@ import uk.co.stikman.invmon.datalog.DataLogger;
 import uk.co.stikman.invmon.datalog.MiniDbException;
 import uk.co.stikman.invmon.datalog.QueryResults;
 import uk.co.stikman.invmon.datamodel.Field;
-import uk.co.stikman.invmon.datamodel.VIFReading;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
 import uk.co.stikman.log.StikLog;
 
@@ -58,8 +56,6 @@ public class HTTPServer extends InvModule {
 
 	public HTTPServer(String id, Env env) {
 		super(id, env);
-		urlMappings.put("old.html", this::staticPage);
-
 		urlMappings.put("loading.gif", this::resource);
 		urlMappings.put("background.png", this::resource);
 		urlMappings.put("ticked.png", this::resource);
@@ -68,7 +64,7 @@ public class HTTPServer extends InvModule {
 		urlMappings.put("index.html", this::resource);
 		urlMappings.put("classes.js", this::resource);
 
-		urlMappings.put("getSectData", this::fetchSectionData);
+		urlMappings.put("executeChart", this::executeChart);
 		urlMappings.put("getConfig", this::getConfig);
 		urlMappings.put("setParams", this::setParams);
 		urlMappings.put("getInfoBit", this::getInfoBit);
@@ -99,27 +95,7 @@ public class HTTPServer extends InvModule {
 		return NanoHTTPD.newFixedLengthResponse(Status.OK, NanoHTTPD.getMimeTypeForFile(url), r.makeStream(), r.getSize());
 	}
 
-	/**
-	 * the original static page logic
-	 * 
-	 * @param session
-	 * @return
-	 * @throws NotFoundException
-	 */
-	private Response staticPage(String url, UserSesh sesh, IHTTPSession session) throws Exception {
-		String offset = getParam(session, "off");
-		String duration = getParam(session, "dur");
-
-		ChartRenderConfig opts = new ChartRenderConfig();
-		opts.setDuration(duration == null ? 60 * 10 : Long.parseLong(duration));
-		opts.setOffset(offset == null ? 0 : Long.parseLong(offset));
-
-		HTMLBuilder html = new HTMLBuilder();
-		new HTMLGenerator(datalogger).render(html, opts);
-		return NanoHTTPD.newFixedLengthResponse(Status.OK, "text/html", html.toString());
-	}
-
-	private Response fetchSectionData(String url, UserSesh sesh, IHTTPSession session) throws Exception {
+	private Response executeChart(String url, UserSesh sesh, IHTTPSession session) throws Exception {
 		JSONObject jo = new JSONObject(URLDecoder.decode(session.getQueryParameterString(), StandardCharsets.UTF_8.name()));
 		String name = jo.getString("name");
 		if (name == null)
@@ -249,6 +225,7 @@ public class HTTPServer extends InvModule {
 					setSeshCookie = true;
 				}
 			}
+			sesh.touch();
 
 			Response res = m.fetch(url, sesh, httpsession);
 			if (setSeshCookie)

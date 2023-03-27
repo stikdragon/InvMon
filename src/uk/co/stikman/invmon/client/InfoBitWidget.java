@@ -18,7 +18,7 @@ public class InfoBitWidget extends AbstractPageWidget {
 	}
 
 	@Override
-	protected void refresh() {
+	protected void refresh(boolean nomask) {
 		getOwner().fetch("getInfoBit", null, result -> root.setInnerHTML(result.getString("html")));
 	}
 

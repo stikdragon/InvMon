@@ -20,7 +20,7 @@ public class TimeSelector extends AbstractPageWidget {
 	}
 
 	@Override
-	protected void refresh() {
+	protected void refresh(boolean nomask) {
 	}
 
 	@Override

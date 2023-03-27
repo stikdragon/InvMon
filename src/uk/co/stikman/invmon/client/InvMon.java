@@ -3,6 +3,7 @@ package uk.co.stikman.invmon.client;
 import org.teavm.jso.browser.Window;
 import org.teavm.jso.dom.html.HTMLDocument;
 import org.teavm.jso.dom.html.HTMLElement;
+import org.teavm.jso.dom.xml.Element;
 
 public class InvMon {
 
@@ -44,7 +45,7 @@ public class InvMon {
 
 	public void go() {
 		MainPage mainpage = new MainPage();
-		getDocument().getDocumentElement().appendChild(mainpage.getElement());
+		getDocument().getBody().appendChild(mainpage.getElement());
 		mainpage.load();
 	}
 
@@ -52,5 +53,9 @@ public class InvMon {
 		if (errorPopup == null)
 			errorPopup = new ErrorPopup();
 		return errorPopup;
+	}
+
+	public static Element createSvgElement(String type) {
+		return getDocument().createElementNS("http://www.w3.org/2000/svg", type);
 	}
 }

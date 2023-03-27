@@ -2,6 +2,10 @@ package uk.co.stikman.invmon.htmlout;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class ChartOptions {
 	private Axis<Long>		axisX1	= new Axis<>(0);
@@ -12,9 +16,48 @@ public class ChartOptions {
 	private int				height	= 300;
 
 	public ChartOptions() {
-		axisX1.setEnabled(true);
-		axisY1.setEnabled(true);
-		axisY2.setEnabled(false); // defaults to off
+		setAxisDefault(axisX1, true, 22, "Time");
+		setAxisDefault(axisY1, true, 55, "Y");
+		setAxisDefault(axisY2, false, 5, "Y2"); // defaults to off 
+	}
+
+	private void setAxisDefault(Axis<?> ax, boolean enabled, int size, String name) {
+		ax.setEnabled(enabled);
+		ax.setSize(size);
+		ax.setName(name);
+	}
+
+	public void fromJSON(JSONObject root) {
+		width = root.getInt("width");
+		height = root.getInt("height");
+		JSONArray arr = root.getJSONArray("series");
+		for (int i = 0; i < arr.length(); ++i) {
+			Series s = new Series(null);
+			s.fromJSON(arr.getJSONObject(i));
+			series.add(s);
+		}
+
+		axisX1 = new Axis<>(0);
+		axisY1 = new Axis<>(0);
+		axisY2 = new Axis<>(0);
+		axisX1.fromJSON(root.getJSONObject("axisX1"));
+		axisY1.fromJSON(root.getJSONObject("axisY1"));
+		axisY2.fromJSON(root.getJSONObject("axisY2"));
+	}
+
+	public JSONObject toJSON() {
+		JSONObject root = new JSONObject();
+		root.put("axisX1", axisX1.toJSON());
+		root.put("axisY1", axisY1.toJSON());
+		root.put("axisY2", axisY2.toJSON());
+		JSONArray arr = new JSONArray();
+		for (Series s : series)
+			arr.put(s.toJSON());
+		root.put("series", arr);
+		root.put("width", width);
+		root.put("height", height);
+
+		return root;
 	}
 
 	public Axis<Long> getAxisX1() {
@@ -69,6 +112,16 @@ public class ChartOptions {
 	public void setSize(int w, int h) {
 		this.width = w;
 		this.height = h;
+	}
+
+	public Axis<?> getAxis(int id) {
+		if (axisX1.getId() == id)
+			return axisX1;
+		if (axisY1.getId() == id)
+			return axisY1;
+		if (axisY2.getId() == id)
+			return axisY2;
+		throw new NoSuchElementException("Axis " + id + " not known");
 	}
 
 }

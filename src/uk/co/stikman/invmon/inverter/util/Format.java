@@ -1,6 +1,8 @@
 package uk.co.stikman.invmon.inverter.util;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -12,6 +14,7 @@ import java.util.List;
  *
  */
 public class Format {
+
 	private List<Inst> instructions = new ArrayList<>();
 
 	private static abstract class Inst {
@@ -35,7 +38,7 @@ public class Format {
 			} else
 				lit.append(iter.next());
 		}
-		if (!lit.getValue().isEmpty())
+		if (!lit.getValue().toString().isEmpty())
 			instructions.add(lit);
 	}
 
@@ -72,6 +75,20 @@ public class Format {
 				if (hasPrecision)
 					throw new IllegalArgumentException("%d cannot specify a precision\n" + iter.toString());
 				in = new DecimalInstruction(hasWidth ? width : -1);
+				break;
+			} else if (ch == 'Y') {
+				if (hasPrecision || hasWidth)
+					throw new IllegalArgumentException("%t/%T cannot specify a precision or width\n" + iter.toString());
+				in = new TimeInstruction("yyy-MM-dd HH:mm");
+				break;
+			} else if (ch == 't' || ch == 'T') {
+				if (hasPrecision || hasWidth)
+					throw new IllegalArgumentException("%t/%T cannot specify a precision or width\n" + iter.toString());
+				if (ch == 't')
+					in = new TimeInstruction("HH:mm");
+				else
+					in = new TimeInstruction("yyyy-MM-dd");
+
 				break;
 			} else
 				throw new IllegalArgumentException("Unexpected format string:\n" + iter.toString());
@@ -140,6 +157,30 @@ public class Format {
 					out[i] = '0';
 			}
 			return s + "." + new String(out);
+		}
+
+		@Override
+		public boolean acceptsArg() {
+			return true;
+		}
+
+	}
+
+	public class TimeInstruction extends Inst {
+		private SimpleDateFormat sdf;
+
+		public TimeInstruction(String fmt) {
+			sdf = new SimpleDateFormat(fmt);
+		}
+
+		@Override
+		public String render(Object arg) {
+			Date d;
+			if (arg instanceof Long)
+				d = new Date((Long) arg);
+			else
+				d = (Date) arg;
+			return sdf.format(d);
 		}
 
 		@Override

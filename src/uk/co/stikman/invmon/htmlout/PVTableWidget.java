@@ -38,7 +38,7 @@ public class PVTableWidget extends PageWidget {
 
 	@Override
 	public String getWidgetType() {
-		return "chart";
+		return "misc";
 	}
 
 	@Override

@@ -10,7 +10,6 @@ import java.util.function.Function;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.teavm.jso.browser.Location;
-import org.teavm.jso.browser.TimerHandler;
 import org.teavm.jso.browser.Window;
 import org.teavm.jso.dom.html.HTMLElement;
 
@@ -30,19 +29,19 @@ public class MainPage extends ClientPage {
 		pageTypes.put("timesel", TimeSelector::new);
 		pageTypes.put("infobit", InfoBitWidget::new);
 		pageTypes.put("chart", ChartWidget::new);
+		pageTypes.put("misc", MiscWidget::new);
 		pageTypes.put("controls", ControlsWidget::new);
 	}
 
 	public MainPage() {
 		super();
 		root = InvMon.div("mainpage");
-		getBus().subscribe(Events.AUTOREFRESH_CHANGED, data -> {
-			doAutoRefresh = (Boolean) data;
-		});
+		getBus().subscribe(Events.AUTOREFRESH_CHANGED, data -> doAutoRefresh = (Boolean) data);
+		getBus().subscribe(Events.REFRESH_NOW, data -> refresh(false));
 
 		Window.setInterval(() -> {
 			if (doAutoRefresh)
-				refresh();
+				refresh(true);
 		}, 5000);
 	}
 
@@ -61,7 +60,7 @@ public class MainPage extends ClientPage {
 		Map<String, String> urlparams = InvUtil.getLocationParameters(Window.current().getLocation().getSearch());
 		JSONObject jo = new JSONObject();
 		jo.put("page", urlparams.get("layout"));
-		fetch("getConfig", jo, result -> {
+		fetch("getConfig", jo, result  -> {
 			gridSize = result.getInt("gridSize");
 			JSONArray arr = result.getJSONArray("widgets");
 			for (int i = 0; i < arr.length(); ++i) {
@@ -82,12 +81,12 @@ public class MainPage extends ClientPage {
 				}
 			}
 
-			refresh();
+			refresh(false);
 		});
 	}
 
-	public void refresh() {
-		post("invalidateResults", new JSONObject(), res -> widgets.forEach(w -> w.refresh()));
+	public void refresh(boolean nomask) {
+		post("invalidateResults", new JSONObject(), res -> widgets.forEach(w -> w.refresh(nomask)));
 	}
 
 	public int getGridSize() {
@@ -101,7 +100,7 @@ public class MainPage extends ClientPage {
 		jo.put("off", offset);
 		jo.put("dur", duration);
 		jo.put("page", lc.get("layout"));
-		post("setParams", jo, res -> widgets.forEach(w -> w.refresh()));
+		post("setParams", jo, res -> widgets.forEach(w -> w.refresh(false)));
 	}
 
 }

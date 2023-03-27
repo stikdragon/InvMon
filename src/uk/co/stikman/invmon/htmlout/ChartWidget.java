@@ -51,8 +51,7 @@ public class ChartWidget extends PageWidget {
 				else
 					throw new IllegalArgumentException("Unknown axis: " + id);
 				if (el.hasAttribute("formatter")) {
-					Format fmt = new Format(el.getAttribute("formatter"));
-					ax.setFormatter(n -> fmt.format(n));
+					ax.setFormat(el.getAttribute("formatter"));
 				}
 				if (el.hasAttribute("min"))
 					ax.setForceMin(Float.parseFloat(el.getAttribute("min")));
@@ -88,6 +87,7 @@ public class ChartWidget extends PageWidget {
 		JSONObject jo = new JSONObject();
 		jo.put("html", html.toString());
 		jo.put("titleBits", jarr);
+		jo.put("config", opts.toJSON());
 		return jo;
 	}
 

@@ -2,21 +2,56 @@ package uk.co.stikman.invmon.htmlout;
 
 import java.util.function.Function;
 
+import org.json.JSONObject;
+
+import uk.co.stikman.invmon.inverter.util.Format;
+
 public class Axis<T extends Number> {
 
-	private final int			id;
-	private float				min;
-	private float				max;
-	private float				minmax;
-	private int					intervals;
-	private Function<T, String>	formatter	= f -> f.toString();
-	private boolean				enabled;
-	private Float				forceMin	= null;
-	private Float				forceMax	= null;
+	private int								id;
+	private float							min;
+	private float							max;
+	private transient float					minmax;
+	private int								intervals;
+	private transient Function<T, String>	formatter	= f -> f.toString();
+	private boolean							enabled;
+	private Float							forceMin	= null;
+	private Float							forceMax	= null;
+	private String							format;
+	private int								size		= 50;
+	private String							name;
 
 	public Axis(int id) {
 		super();
 		this.id = id;
+	}
+
+	public JSONObject toJSON() {
+		JSONObject jo = new JSONObject();
+		jo.put("id", id);
+		jo.put("min", min);
+		jo.put("max", max);
+		jo.put("intervals", intervals);
+		jo.put("enabled", enabled);
+		jo.put("forceMin", forceMin == null ? null : forceMin.floatValue());
+		jo.put("forceMax", forceMax == null ? null : forceMax.floatValue());
+		jo.put("format", format);
+		jo.put("size", size);
+		jo.put("name", name);
+		return jo;
+	}
+
+	public void fromJSON(JSONObject root) {
+		id = root.getInt("id");
+		min = root.getFloat("min");
+		max = root.getFloat("max");
+		intervals = root.getInt("intervals");
+		enabled = root.getBoolean("enabled");
+		forceMax = root.has("forceMax") ? Float.valueOf(root.getFloat("forceMax")) : null;
+		forceMin = root.has("forceMin") ? Float.valueOf(root.getFloat("forceMin")) : null;
+		setFormat(root.optString("format", null));
+		size = root.getInt("size");
+		name = root.getString("name");
 	}
 
 	public float getMin() {
@@ -53,10 +88,6 @@ public class Axis<T extends Number> {
 
 	public Function<T, String> getFormatter() {
 		return formatter;
-	}
-
-	public void setFormatter(Function<T, String> formatter) {
-		this.formatter = formatter;
 	}
 
 	public boolean isEnabled() {
@@ -117,6 +148,46 @@ public class Axis<T extends Number> {
 	@Override
 	public String toString() {
 		return "Axis [min=" + min + ", max=" + max + ", enabled=" + enabled + "]";
+	}
+
+	public void setFormat(String s) {
+		this.format = s;
+		if (s == null) {
+			formatter = f -> f.toString();
+		} else {
+			final Format f = new Format(s);
+			formatter = n -> f.format(n);
+		}
+	}
+
+	public String getFormat() {
+		return format;
+	}
+
+	public int getSize() {
+		return size;
+	}
+
+	public void setSize(int size) {
+		this.size = size;
+	}
+
+	/**
+	 * return 0 if disabled
+	 * 
+	 * @param x
+	 * @return
+	 */
+	public int axisSize() {
+		return isEnabled() ? getSize() : 0;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 }
