@@ -176,8 +176,8 @@ public class Format {
 		@Override
 		public String render(Object arg) {
 			Date d;
-			if (arg instanceof Long)
-				d = new Date((Long) arg);
+			if (arg instanceof Number)
+				d = new Date(((Number) arg).longValue());
 			else
 				d = (Date) arg;
 			return sdf.format(d);

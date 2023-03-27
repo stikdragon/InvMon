@@ -2052,6 +2052,16 @@ function jt_DateFormatElement$Year__init_0($this, $field) {
     jt_DateFormatElement__init_($this);
     $this.$field = $field;
 }
+function jt_DateFormatElement$Year_format($this, $date, $buffer) {
+    var $number;
+    $number = $date.$get0($this.$field);
+    if ($number < 10)
+        $buffer.$append2($number);
+    else {
+        $buffer.$append3(((($number % 100 | 0) / 10 | 0) + 48 | 0) & 65535);
+        $buffer.$append3((($number % 10 | 0) + 48 | 0) & 65535);
+    }
+}
 function jt_DateFormatElement$Year_equals($this, $o) {
     var $year;
     if ($this === $o)
@@ -2296,6 +2306,7 @@ var otciu_CLDRHelper_$$metadata$$3 = null;
 var otciu_CLDRHelper_$$metadata$$4 = null;
 var otciu_CLDRHelper_$$metadata$$5 = null;
 var otciu_CLDRHelper_$$metadata$$6 = null;
+var otciu_CLDRHelper_$$metadata$$7 = null;
 var otciu_CLDRHelper_$$metadata$$10 = null;
 var otciu_CLDRHelper_$$metadata$$12 = null;
 var otciu_CLDRHelper_$$metadata$$13 = null;
@@ -2390,6 +2401,32 @@ function otciu_CLDRHelper_resolveDateFormatSymbols($map, $language, $country) {
         $i = $i + 1 | 0;
     }
     return $result;
+}
+function otciu_CLDRHelper_getTimeZoneName($language, $country, $id) {
+    var $locale, $localization, $separator, $area, $territory, $timeZones, var$10;
+    $locale = otciu_CLDRHelper_getCode($language, $country);
+    if ((otciu_CLDRHelper_getTimeZoneLocalizationMap()).hasOwnProperty($rt_ustr($locale)))
+        $language = $locale;
+    if (!(otciu_CLDRHelper_getTimeZoneLocalizationMap()).hasOwnProperty($rt_ustr($language)))
+        return null;
+    $localization = (otciu_CLDRHelper_getTimeZoneLocalizationMap())[$rt_ustr($language)];
+    $separator = $id.$indexOf(47);
+    if ($separator < 0)
+        return null;
+    $area = $id.$substring0(0, $separator);
+    $territory = $id.$substring($separator + 1 | 0);
+    if (!$localization.timeZones.hasOwnProperty($rt_ustr($area)))
+        return null;
+    $timeZones = $localization.timeZones[$rt_ustr($area)];
+    if (!$timeZones.hasOwnProperty($rt_ustr($territory)))
+        return null;
+    var$10 = ($timeZones[$rt_ustr($territory)].value !== null ? $rt_str($timeZones[$rt_ustr($territory)].value) : null);
+    return var$10;
+}
+function otciu_CLDRHelper_getTimeZoneLocalizationMap() {
+    if (otciu_CLDRHelper_$$metadata$$7 === null)
+        otciu_CLDRHelper_$$metadata$$7 = otciu_CLDRHelper_getTimeZoneLocalizationMap$$create();
+    return otciu_CLDRHelper_$$metadata$$7;
 }
 function otciu_CLDRHelper_getDefaultLocale() {
     if (otciu_CLDRHelper_$$metadata$$10 === null)
@@ -2577,6 +2614,65 @@ function otciu_CLDRHelper_getWeekdayMap$$create() {
 }
 function otciu_CLDRHelper_getShortWeekdayMap$$create() {
     return {"root": [{"value" : "Sun"}, {"value" : "Mon"}, {"value" : "Tue"}, {"value" : "Wed"}, {"value" : "Thu"}, {"value" : "Fri"}, {"value" : "Sat"}], "en": [{"value" : "Sun"}, {"value" : "Mon"}, {"value" : "Tue"}, {"value" : "Wed"}, {"value" : "Thu"}, {"value" : "Fri"}, {"value" : "Sat"}]};
+}
+function otciu_CLDRHelper_getTimeZoneLocalizationMap$$create() {
+    return {"root": {"timeZones" : {"Asia": {"Gaza": {"value" : "Gaza"}, "Makassar": {"value" : "Makassar"}, "Ulaanbaatar": {"value" : "Ulaanbaatar"}, "Vladivostok": {"value" : "Vladivostok"}, "Tashkent": {"value" : "Tashkent"}, "Beirut": {"value" : "Beirut"}, "Qyzylorda": {"value" : "Qyzylorda"}, "Hong_Kong": {"value" : "Hong Kong"}, "Phnom_Penh": {"value" : "Phnom Penh"}, "Kabul": {"value" : "Kabul"}, "Riyadh": {"value" : "Riyadh"}, "Ashgabat": {"value" : "Ashgabat"}, "Chita": {"value" : "Chita"}, "Aqtau":
+    {"value" : "Aqtau"}, "Tokyo": {"value" : "Tokyo"}, "Baku": {"value" : "Baku"}, "Aqtobe": {"value" : "Aqtobe"}, "Novosibirsk": {"value" : "Novosibirsk"}, "Kamchatka": {"value" : "Kamchatka"}, "Nicosia": {"value" : "Nicosia"}, "Pontianak": {"value" : "Pontianak"}, "Qostanay": {"value" : "Qostanay"}, "Barnaul": {"value" : "Barnaul"}, "Jerusalem": {"value" : "Jerusalem"}, "Kuala_Lumpur": {"value" : "Kuala Lumpur"}, "Novokuznetsk": {"value" : "Novokuznetsk"}, "Bahrain": {"value" : "Bahrain"}, "Kuching": {"value"
+    : "Kuching"}, "Bangkok": {"value" : "Bangkok"}, "Srednekolymsk": {"value" : "Srednekolymsk"}, "Karachi": {"value" : "Karachi"}, "Aden": {"value" : "Aden"}, "Irkutsk": {"value" : "Irkutsk"}, "Hovd": {"value" : "Hovd"}, "Katmandu": {"value" : "Kathmandu"}, "Baghdad": {"value" : "Baghdad"}, "Samarkand": {"value" : "Samarkand"}, "Thimphu": {"value" : "Thimphu"}, "Dhaka": {"value" : "Dhaka"}, "Yerevan": {"value" : "Yerevan"}, "Muscat": {"value" : "Muscat"}, "Saigon": {"value" : "Ho Chi Minh"}, "Dili": {"value"
+    : "Dili"}, "Singapore": {"value" : "Singapore"}, "Rangoon": {"value" : "Yangon"}, "Damascus": {"value" : "Damascus"}, "Taipei": {"value" : "Taipei"}, "Amman": {"value" : "Amman"}, "Choibalsan": {"value" : "Choibalsan"}, "Macau": {"value" : "Macao"}, "Jayapura": {"value" : "Jayapura"}, "Manila": {"value" : "Manila"}, "Oral": {"value" : "Oral"}, "Dubai": {"value" : "Dubai"}, "Yakutsk": {"value" : "Yakutsk"}, "Seoul": {"value" : "Seoul"}, "Hebron": {"value" : "Hebron"}, "Qatar": {"value" : "Qatar"}, "Bishkek":
+    {"value" : "Bishkek"}, "Tomsk": {"value" : "Tomsk"}, "Colombo": {"value" : "Colombo"}, "Khandyga": {"value" : "Khandyga"}, "Yekaterinburg": {"value" : "Yekaterinburg"}, "Dushanbe": {"value" : "Dushanbe"}, "Famagusta": {"value" : "Famagusta"}, "Kuwait": {"value" : "Kuwait"}, "Magadan": {"value" : "Magadan"}, "Pyongyang": {"value" : "Pyongyang"}, "Tehran": {"value" : "Tehran"}, "Sakhalin": {"value" : "Sakhalin"}, "Calcutta": {"value" : "Kolkata"}, "Urumqi": {"value" : "Urumqi"}, "Shanghai": {"value" : "Shanghai"}
+    , "Atyrau": {"value" : "Atyrau"}, "Almaty": {"value" : "Almaty"}, "Tbilisi": {"value" : "Tbilisi"}, "Anadyr": {"value" : "Anadyr"}, "Brunei": {"value" : "Brunei"}, "Krasnoyarsk": {"value" : "Krasnoyarsk"}, "Vientiane": {"value" : "Vientiane"}, "Omsk": {"value" : "Omsk"}, "Jakarta": {"value" : "Jakarta"}, "Ust-Nera": {"value" : "Ust-Nera"}}, "Pacific": {"Easter": {"value" : "Easter"}, "Fiji": {"value" : "Fiji"}, "Port_Moresby": {"value" : "Port Moresby"}, "Kiritimati": {"value" : "Kiritimati"}, "Kosrae":
+    {"value" : "Kosrae"}, "Kwajalein": {"value" : "Kwajalein"}, "Auckland": {"value" : "Auckland"}, "Efate": {"value" : "Efate"}, "Johnston": {"value" : "Johnston"}, "Niue": {"value" : "Niue"}, "Majuro": {"value" : "Majuro"}, "Truk": {"value" : "Chuuk"}, "Ponape": {"value" : "Pohnpei"}, "Guadalcanal": {"value" : "Guadalcanal"}, "Guam": {"value" : "Guam"}, "Chatham": {"value" : "Chatham"}, "Midway": {"value" : "Midway"}, "Tahiti": {"value" : "Tahiti"}, "Pago_Pago": {"value" : "Pago Pago"}, "Galapagos": {"value"
+    : "Galapagos"}, "Funafuti": {"value" : "Funafuti"}, "Marquesas": {"value" : "Marquesas"}, "Rarotonga": {"value" : "Rarotonga"}, "Tarawa": {"value" : "Tarawa"}, "Saipan": {"value" : "Saipan"}, "Gambier": {"value" : "Gambier"}, "Tongatapu": {"value" : "Tongatapu"}, "Wallis": {"value" : "Wallis"}, "Fakaofo": {"value" : "Fakaofo"}, "Wake": {"value" : "Wake"}, "Enderbury": {"value" : "Enderbury"}, "Pitcairn": {"value" : "Pitcairn"}, "Apia": {"value" : "Apia"}, "Noumea": {"value" : "Noumea"}, "Palau": {"value"
+    : "Palau"}, "Nauru": {"value" : "Nauru"}, "Bougainville": {"value" : "Bougainville"}, "Norfolk": {"value" : "Norfolk"}}, "Etc": {"Unknown": {"value" : "Unknown"}}, "Europe": {"Belgrade": {"value" : "Belgrade"}, "Saratov": {"value" : "Saratov"}, "Gibraltar": {"value" : "Gibraltar"}, "Bucharest": {"value" : "Bucharest"}, "Dublin": {"value" : "Dublin"}, "Zaporozhye": {"value" : "Zaporozhye"}, "Kiev": {"value" : "Kiev"}, "Zurich": {"value" : "Zurich"}, "Copenhagen": {"value" : "Copenhagen"}, "Rome": {"value"
+    : "Rome"}, "Zagreb": {"value" : "Zagreb"}, "Monaco": {"value" : "Monaco"}, "Luxembourg": {"value" : "Luxembourg"}, "Jersey": {"value" : "Jersey"}, "Istanbul": {"value" : "Istanbul"}, "Ulyanovsk": {"value" : "Ulyanovsk"}, "Samara": {"value" : "Samara"}, "Sarajevo": {"value" : "Sarajevo"}, "Chisinau": {"value" : "Chisinau"}, "Vatican": {"value" : "Vatican"}, "Brussels": {"value" : "Brussels"}, "Oslo": {"value" : "Oslo"}, "Warsaw": {"value" : "Warsaw"}, "Berlin": {"value" : "Berlin"}, "Lisbon": {"value" : "Lisbon"}
+    , "Athens": {"value" : "Athens"}, "Podgorica": {"value" : "Podgorica"}, "San_Marino": {"value" : "San Marino"}, "Simferopol": {"value" : "Simferopol"}, "Bratislava": {"value" : "Bratislava"}, "Stockholm": {"value" : "Stockholm"}, "Prague": {"value" : "Prague"}, "Uzhgorod": {"value" : "Uzhgorod"}, "Astrakhan": {"value" : "Astrakhan"}, "Budapest": {"value" : "Budapest"}, "Madrid": {"value" : "Madrid"}, "Vaduz": {"value" : "Vaduz"}, "London": {"value" : "London"}, "Vilnius": {"value" : "Vilnius"}, "Isle_of_Man":
+    {"value" : "Isle of Man"}, "Sofia": {"value" : "Sofia"}, "Kirov": {"value" : "Kirov"}, "Tallinn": {"value" : "Tallinn"}, "Moscow": {"value" : "Moscow"}, "Malta": {"value" : "Malta"}, "Busingen": {"value" : "Busingen"}, "Amsterdam": {"value" : "Amsterdam"}, "Andorra": {"value" : "Andorra"}, "Riga": {"value" : "Riga"}, "Vienna": {"value" : "Vienna"}, "Helsinki": {"value" : "Helsinki"}, "Minsk": {"value" : "Minsk"}, "Kaliningrad": {"value" : "Kaliningrad"}, "Ljubljana": {"value" : "Ljubljana"}, "Mariehamn":
+    {"value" : "Mariehamn"}, "Skopje": {"value" : "Skopje"}, "Tirane": {"value" : "Tirane"}, "Guernsey": {"value" : "Guernsey"}, "Volgograd": {"value" : "Volgograd"}, "Paris": {"value" : "Paris"}}, "America": {"Belem": {"value" : "Belem"}, "Guayaquil": {"value" : "Guayaquil"}, "Costa_Rica": {"value" : "Costa Rica"}, "Hermosillo": {"value" : "Hermosillo"}, "Punta_Arenas": {"value" : "Punta Arenas"}, "Iqaluit": {"value" : "Iqaluit"}, "Godthab": {"value" : "Nuuk"}, "Jujuy": {"value" : "Jujuy"}, "El_Salvador": {"value"
+    : "El Salvador"}, "Monterrey": {"value" : "Monterrey"}, "Bahia": {"value" : "Bahia"}, "Sao_Paulo": {"value" : "Sao Paulo"}, "Grenada": {"value" : "Grenada"}, "Grand_Turk": {"value" : "Grand Turk"}, "Montserrat": {"value" : "Montserrat"}, "Guadeloupe": {"value" : "Guadeloupe"}, "Panama": {"value" : "Panama"}, "Guatemala": {"value" : "Guatemala"}, "Guyana": {"value" : "Guyana"}, "Swift_Current": {"value" : "Swift Current"}, "Puerto_Rico": {"value" : "Puerto Rico"}, "Moncton": {"value" : "Moncton"}, "Danmarkshavn":
+    {"value" : "Danmarkshavn"}, "Nome": {"value" : "Nome"}, "Porto_Velho": {"value" : "Porto Velho"}, "Cuiaba": {"value" : "Cuiaba"}, "Pangnirtung": {"value" : "Pangnirtung"}, "Kralendijk": {"value" : "Kralendijk"}, "Belize": {"value" : "Belize"}, "Anguilla": {"value" : "Anguilla"}, "Santiago": {"value" : "Santiago"}, "Boise": {"value" : "Boise"}, "Creston": {"value" : "Creston"}, "Miquelon": {"value" : "Miquelon"}, "Jamaica": {"value" : "Jamaica"}, "Buenos_Aires": {"value" : "Buenos Aires"}, "Rankin_Inlet":
+    {"value" : "Rankin Inlet"}, "Toronto": {"value" : "Toronto"}, "Eirunepe": {"value" : "Eirunepe"}, "Dawson": {"value" : "Dawson"}, "Nassau": {"value" : "Nassau"}, "Vancouver": {"value" : "Vancouver"}, "Noronha": {"value" : "Noronha"}, "Regina": {"value" : "Regina"}, "St_Vincent": {"value" : "St. Vincent"}, "Scoresbysund": {"value" : "Ittoqqortoormiit"}, "Louisville": {"value" : "Louisville"}, "Aruba": {"value" : "Aruba"}, "Thule": {"value" : "Thule"}, "Rio_Branco": {"value" : "Rio Branco"}, "Los_Angeles":
+    {"value" : "Los Angeles"}, "St_Thomas": {"value" : "St. Thomas"}, "Cordoba": {"value" : "Cordoba"}, "Cancun": {"value" : "Cancun"}, "Coral_Harbour": {"value" : "Atikokan"}, "Maceio": {"value" : "Maceio"}, "Sitka": {"value" : "Sitka"}, "Denver": {"value" : "Denver"}, "Cayman": {"value" : "Cayman"}, "Nipigon": {"value" : "Nipigon"}, "Thunder_Bay": {"value" : "Thunder Bay"}, "Havana": {"value" : "Havana"}, "Campo_Grande": {"value" : "Campo Grande"}, "Cambridge_Bay": {"value" : "Cambridge Bay"}, "Fortaleza":
+    {"value" : "Fortaleza"}, "Managua": {"value" : "Managua"}, "Menominee": {"value" : "Menominee"}, "Halifax": {"value" : "Halifax"}, "Ojinaga": {"value" : "Ojinaga"}, "Glace_Bay": {"value" : "Glace Bay"}, "Lower_Princes": {"value" : "Lower Princeâ€™s Quarter"}, "Mendoza": {"value" : "Mendoza"}, "Yakutat": {"value" : "Yakutat"}, "Detroit": {"value" : "Detroit"}, "Merida": {"value" : "Merida"}, "Bahia_Banderas": {"value" : "Bahia Banderas"}, "Matamoros": {"value" : "Matamoros"}, "St_Barthelemy": {"value" : "St. Barthelemy"}
+    , "Boa_Vista": {"value" : "Boa Vista"}, "Metlakatla": {"value" : "Metlakatla"}, "Tortola": {"value" : "Tortola"}, "Inuvik": {"value" : "Inuvik"}, "Port_of_Spain": {"value" : "Port of Spain"}, "New_York": {"value" : "New York"}, "Paramaribo": {"value" : "Paramaribo"}, "Manaus": {"value" : "Manaus"}, "Resolute": {"value" : "Resolute"}, "Curacao": {"value" : "Curacao"}, "Bogota": {"value" : "Bogota"}, "Adak": {"value" : "Adak"}, "Caracas": {"value" : "Caracas"}, "Mazatlan": {"value" : "Mazatlan"}, "St_Kitts":
+    {"value" : "St. Kitts"}, "Mexico_City": {"value" : "Mexico City"}, "Edmonton": {"value" : "Edmonton"}, "Araguaina": {"value" : "Araguaina"}, "Santo_Domingo": {"value" : "Santo Domingo"}, "Indianapolis": {"value" : "Indianapolis"}, "Whitehorse": {"value" : "Whitehorse"}, "Yellowknife": {"value" : "Yellowknife"}, "Asuncion": {"value" : "Asuncion"}, "Santarem": {"value" : "Santarem"}, "Antigua": {"value" : "Antigua"}, "Winnipeg": {"value" : "Winnipeg"}, "Recife": {"value" : "Recife"}, "Lima": {"value" : "Lima"}
+    , "Martinique": {"value" : "Martinique"}, "Phoenix": {"value" : "Phoenix"}, "Goose_Bay": {"value" : "Goose Bay"}, "St_Johns": {"value" : "St. Johnâ€™s"}, "Montevideo": {"value" : "Montevideo"}, "St_Lucia": {"value" : "St. Lucia"}, "Chicago": {"value" : "Chicago"}, "Chihuahua": {"value" : "Chihuahua"}, "La_Paz": {"value" : "La Paz"}, "Blanc-Sablon": {"value" : "Blanc-Sablon"}, "Catamarca": {"value" : "Catamarca"}, "Tijuana": {"value" : "Tijuana"}, "Barbados": {"value" : "Barbados"}, "Anchorage": {"value"
+    : "Anchorage"}, "Port-au-Prince": {"value" : "Port-au-Prince"}, "Rainy_River": {"value" : "Rainy River"}, "Cayenne": {"value" : "Cayenne"}, "Tegucigalpa": {"value" : "Tegucigalpa"}, "Juneau": {"value" : "Juneau"}, "Marigot": {"value" : "Marigot"}, "Dawson_Creek": {"value" : "Dawson Creek"}, "Dominica": {"value" : "Dominica"}, "Fort_Nelson": {"value" : "Fort Nelson"}}, "Africa": {"Tunis": {"value" : "Tunis"}, "Maputo": {"value" : "Maputo"}, "Casablanca": {"value" : "Casablanca"}, "Johannesburg": {"value"
+    : "Johannesburg"}, "Addis_Ababa": {"value" : "Addis Ababa"}, "Lagos": {"value" : "Lagos"}, "Accra": {"value" : "Accra"}, "Nairobi": {"value" : "Nairobi"}, "Brazzaville": {"value" : "Brazzaville"}, "Lubumbashi": {"value" : "Lubumbashi"}, "Banjul": {"value" : "Banjul"}, "Porto-Novo": {"value" : "Porto-Novo"}, "Lusaka": {"value" : "Lusaka"}, "Kigali": {"value" : "Kigali"}, "Ouagadougou": {"value" : "Ouagadougou"}, "Freetown": {"value" : "Freetown"}, "Ndjamena": {"value" : "Ndjamena"}, "Conakry": {"value" :
+    "Conakry"}, "Niamey": {"value" : "Niamey"}, "Maseru": {"value" : "Maseru"}, "El_Aaiun": {"value" : "El Aaiun"}, "Sao_Tome": {"value" : "Sao Tome"}, "Ceuta": {"value" : "Ceuta"}, "Khartoum": {"value" : "Khartoum"}, "Algiers": {"value" : "Algiers"}, "Bangui": {"value" : "Bangui"}, "Bujumbura": {"value" : "Bujumbura"}, "Gaborone": {"value" : "Gaborone"}, "Juba": {"value" : "Juba"}, "Dar_es_Salaam": {"value" : "Dar es Salaam"}, "Windhoek": {"value" : "Windhoek"}, "Harare": {"value" : "Harare"}, "Tripoli": {"value"
+    : "Tripoli"}, "Libreville": {"value" : "Libreville"}, "Malabo": {"value" : "Malabo"}, "Abidjan": {"value" : "Abidjan"}, "Luanda": {"value" : "Luanda"}, "Lome": {"value" : "Lome"}, "Nouakchott": {"value" : "Nouakchott"}, "Bissau": {"value" : "Bissau"}, "Kinshasa": {"value" : "Kinshasa"}, "Asmera": {"value" : "Asmara"}, "Mogadishu": {"value" : "Mogadishu"}, "Djibouti": {"value" : "Djibouti"}, "Douala": {"value" : "Douala"}, "Kampala": {"value" : "Kampala"}, "Dakar": {"value" : "Dakar"}, "Cairo": {"value" :
+    "Cairo"}, "Blantyre": {"value" : "Blantyre"}, "Monrovia": {"value" : "Monrovia"}, "Mbabane": {"value" : "Mbabane"}, "Bamako": {"value" : "Bamako"}}, "Indian": {"Reunion": {"value" : "Reunion"}, "Maldives": {"value" : "Maldives"}, "Christmas": {"value" : "Christmas"}, "Antananarivo": {"value" : "Antananarivo"}, "Chagos": {"value" : "Chagos"}, "Mahe": {"value" : "Mahe"}, "Mayotte": {"value" : "Mayotte"}, "Kerguelen": {"value" : "Kerguelen"}, "Mauritius": {"value" : "Mauritius"}, "Cocos": {"value" : "Cocos"}
+    , "Comoro": {"value" : "Comoro"}}, "Antarctica": {"Macquarie": {"value" : "Macquarie"}, "Palmer": {"value" : "Palmer"}, "Casey": {"value" : "Casey"}, "Troll": {"value" : "Troll"}, "Vostok": {"value" : "Vostok"}, "DumontDUrville": {"value" : "Dumont dâ€™Urville"}, "Syowa": {"value" : "Syowa"}, "Mawson": {"value" : "Mawson"}, "McMurdo": {"value" : "McMurdo"}, "Davis": {"value" : "Davis"}, "Rothera": {"value" : "Rothera"}}, "Australia": {"Broken_Hill": {"value" : "Broken Hill"}, "Darwin": {"value" : "Darwin"}
+    , "Brisbane": {"value" : "Brisbane"}, "Lord_Howe": {"value" : "Lord Howe"}, "Lindeman": {"value" : "Lindeman"}, "Adelaide": {"value" : "Adelaide"}, "Perth": {"value" : "Perth"}, "Eucla": {"value" : "Eucla"}, "Melbourne": {"value" : "Melbourne"}, "Sydney": {"value" : "Sydney"}, "Hobart": {"value" : "Hobart"}}, "Arctic": {"Longyearbyen": {"value" : "Longyearbyen"}}, "Atlantic": {"St_Helena": {"value" : "St. Helena"}, "Reykjavik": {"value" : "Reykjavik"}, "Stanley": {"value" : "Stanley"}, "Madeira": {"value"
+    : "Madeira"}, "Canary": {"value" : "Canary"}, "Faeroe": {"value" : "Faroe"}, "Bermuda": {"value" : "Bermuda"}, "Azores": {"value" : "Azores"}, "South_Georgia": {"value" : "South Georgia"}, "Cape_Verde": {"value" : "Cape Verde"}}}}, "en": {"timeZones" : {"Asia": {"Gaza": {"value" : "Gaza"}, "Makassar": {"value" : "Makassar"}, "Ulaanbaatar": {"value" : "Ulaanbaatar"}, "Vladivostok": {"value" : "Vladivostok"}, "Tashkent": {"value" : "Tashkent"}, "Beirut": {"value" : "Beirut"}, "Qyzylorda": {"value" : "Qyzylorda"}
+    , "Hong_Kong": {"value" : "Hong Kong"}, "Phnom_Penh": {"value" : "Phnom Penh"}, "Kabul": {"value" : "Kabul"}, "Riyadh": {"value" : "Riyadh"}, "Ashgabat": {"value" : "Ashgabat"}, "Chita": {"value" : "Chita"}, "Aqtau": {"value" : "Aqtau"}, "Tokyo": {"value" : "Tokyo"}, "Baku": {"value" : "Baku"}, "Aqtobe": {"value" : "Aqtobe"}, "Novosibirsk": {"value" : "Novosibirsk"}, "Kamchatka": {"value" : "Kamchatka"}, "Nicosia": {"value" : "Nicosia"}, "Pontianak": {"value" : "Pontianak"}, "Qostanay": {"value" : "Kostanay"}
+    , "Barnaul": {"value" : "Barnaul"}, "Jerusalem": {"value" : "Jerusalem"}, "Kuala_Lumpur": {"value" : "Kuala Lumpur"}, "Novokuznetsk": {"value" : "Novokuznetsk"}, "Bahrain": {"value" : "Bahrain"}, "Kuching": {"value" : "Kuching"}, "Bangkok": {"value" : "Bangkok"}, "Srednekolymsk": {"value" : "Srednekolymsk"}, "Karachi": {"value" : "Karachi"}, "Aden": {"value" : "Aden"}, "Irkutsk": {"value" : "Irkutsk"}, "Hovd": {"value" : "Hovd"}, "Katmandu": {"value" : "Kathmandu"}, "Baghdad": {"value" : "Baghdad"}, "Samarkand":
+    {"value" : "Samarkand"}, "Thimphu": {"value" : "Thimphu"}, "Dhaka": {"value" : "Dhaka"}, "Yerevan": {"value" : "Yerevan"}, "Muscat": {"value" : "Muscat"}, "Saigon": {"value" : "Ho Chi Minh City"}, "Dili": {"value" : "Dili"}, "Singapore": {"value" : "Singapore"}, "Rangoon": {"value" : "Yangon"}, "Damascus": {"value" : "Damascus"}, "Taipei": {"value" : "Taipei"}, "Amman": {"value" : "Amman"}, "Choibalsan": {"value" : "Choibalsan"}, "Macau": {"value" : "Macao"}, "Jayapura": {"value" : "Jayapura"}, "Manila":
+    {"value" : "Manila"}, "Oral": {"value" : "Oral"}, "Dubai": {"value" : "Dubai"}, "Yakutsk": {"value" : "Yakutsk"}, "Seoul": {"value" : "Seoul"}, "Hebron": {"value" : "Hebron"}, "Qatar": {"value" : "Qatar"}, "Bishkek": {"value" : "Bishkek"}, "Tomsk": {"value" : "Tomsk"}, "Colombo": {"value" : "Colombo"}, "Khandyga": {"value" : "Khandyga"}, "Yekaterinburg": {"value" : "Yekaterinburg"}, "Dushanbe": {"value" : "Dushanbe"}, "Famagusta": {"value" : "Famagusta"}, "Kuwait": {"value" : "Kuwait"}, "Magadan": {"value"
+    : "Magadan"}, "Pyongyang": {"value" : "Pyongyang"}, "Tehran": {"value" : "Tehran"}, "Sakhalin": {"value" : "Sakhalin"}, "Calcutta": {"value" : "Kolkata"}, "Urumqi": {"value" : "Urumqi"}, "Shanghai": {"value" : "Shanghai"}, "Atyrau": {"value" : "Atyrau"}, "Almaty": {"value" : "Almaty"}, "Tbilisi": {"value" : "Tbilisi"}, "Anadyr": {"value" : "Anadyr"}, "Brunei": {"value" : "Brunei"}, "Krasnoyarsk": {"value" : "Krasnoyarsk"}, "Vientiane": {"value" : "Vientiane"}, "Omsk": {"value" : "Omsk"}, "Jakarta": {"value"
+    : "Jakarta"}, "Ust-Nera": {"value" : "Ust-Nera"}}, "Pacific": {"Easter": {"value" : "Easter"}, "Fiji": {"value" : "Fiji"}, "Port_Moresby": {"value" : "Port Moresby"}, "Kiritimati": {"value" : "Kiritimati"}, "Kosrae": {"value" : "Kosrae"}, "Kwajalein": {"value" : "Kwajalein"}, "Auckland": {"value" : "Auckland"}, "Efate": {"value" : "Efate"}, "Johnston": {"value" : "Johnston"}, "Niue": {"value" : "Niue"}, "Majuro": {"value" : "Majuro"}, "Truk": {"value" : "Chuuk"}, "Ponape": {"value" : "Pohnpei"}, "Guadalcanal":
+    {"value" : "Guadalcanal"}, "Guam": {"value" : "Guam"}, "Chatham": {"value" : "Chatham"}, "Midway": {"value" : "Midway"}, "Tahiti": {"value" : "Tahiti"}, "Pago_Pago": {"value" : "Pago Pago"}, "Galapagos": {"value" : "Galapagos"}, "Funafuti": {"value" : "Funafuti"}, "Marquesas": {"value" : "Marquesas"}, "Rarotonga": {"value" : "Rarotonga"}, "Tarawa": {"value" : "Tarawa"}, "Saipan": {"value" : "Saipan"}, "Gambier": {"value" : "Gambier"}, "Tongatapu": {"value" : "Tongatapu"}, "Wallis": {"value" : "Wallis"},
+    "Fakaofo": {"value" : "Fakaofo"}, "Wake": {"value" : "Wake"}, "Enderbury": {"value" : "Enderbury"}, "Pitcairn": {"value" : "Pitcairn"}, "Apia": {"value" : "Apia"}, "Noumea": {"value" : "Noumea"}, "Palau": {"value" : "Palau"}, "Nauru": {"value" : "Nauru"}, "Bougainville": {"value" : "Bougainville"}, "Norfolk": {"value" : "Norfolk"}}, "Etc": {"Unknown": {"value" : "Unknown City"}}, "Europe": {"Belgrade": {"value" : "Belgrade"}, "Saratov": {"value" : "Saratov"}, "Gibraltar": {"value" : "Gibraltar"}, "Bucharest":
+    {"value" : "Bucharest"}, "Dublin": {"value" : "Dublin"}, "Zaporozhye": {"value" : "Zaporozhye"}, "Kiev": {"value" : "Kiev"}, "Zurich": {"value" : "Zurich"}, "Copenhagen": {"value" : "Copenhagen"}, "Rome": {"value" : "Rome"}, "Zagreb": {"value" : "Zagreb"}, "Monaco": {"value" : "Monaco"}, "Luxembourg": {"value" : "Luxembourg"}, "Jersey": {"value" : "Jersey"}, "Istanbul": {"value" : "Istanbul"}, "Ulyanovsk": {"value" : "Ulyanovsk"}, "Samara": {"value" : "Samara"}, "Sarajevo": {"value" : "Sarajevo"}, "Chisinau":
+    {"value" : "Chisinau"}, "Vatican": {"value" : "Vatican"}, "Brussels": {"value" : "Brussels"}, "Oslo": {"value" : "Oslo"}, "Warsaw": {"value" : "Warsaw"}, "Berlin": {"value" : "Berlin"}, "Lisbon": {"value" : "Lisbon"}, "Athens": {"value" : "Athens"}, "Podgorica": {"value" : "Podgorica"}, "San_Marino": {"value" : "San Marino"}, "Simferopol": {"value" : "Simferopol"}, "Bratislava": {"value" : "Bratislava"}, "Stockholm": {"value" : "Stockholm"}, "Prague": {"value" : "Prague"}, "Uzhgorod": {"value" : "Uzhhorod"}
+    , "Astrakhan": {"value" : "Astrakhan"}, "Budapest": {"value" : "Budapest"}, "Madrid": {"value" : "Madrid"}, "Vaduz": {"value" : "Vaduz"}, "London": {"value" : "London"}, "Vilnius": {"value" : "Vilnius"}, "Isle_of_Man": {"value" : "Isle of Man"}, "Sofia": {"value" : "Sofia"}, "Kirov": {"value" : "Kirov"}, "Tallinn": {"value" : "Tallinn"}, "Moscow": {"value" : "Moscow"}, "Malta": {"value" : "Malta"}, "Busingen": {"value" : "Busingen"}, "Amsterdam": {"value" : "Amsterdam"}, "Andorra": {"value" : "Andorra"}
+    , "Riga": {"value" : "Riga"}, "Vienna": {"value" : "Vienna"}, "Helsinki": {"value" : "Helsinki"}, "Minsk": {"value" : "Minsk"}, "Kaliningrad": {"value" : "Kaliningrad"}, "Ljubljana": {"value" : "Ljubljana"}, "Mariehamn": {"value" : "Mariehamn"}, "Skopje": {"value" : "Skopje"}, "Tirane": {"value" : "Tirane"}, "Guernsey": {"value" : "Guernsey"}, "Volgograd": {"value" : "Volgograd"}, "Paris": {"value" : "Paris"}}, "America": {"Belem": {"value" : "Belem"}, "Guayaquil": {"value" : "Guayaquil"}, "Costa_Rica":
+    {"value" : "Costa Rica"}, "Hermosillo": {"value" : "Hermosillo"}, "Punta_Arenas": {"value" : "Punta Arenas"}, "Iqaluit": {"value" : "Iqaluit"}, "Godthab": {"value" : "Nuuk"}, "Jujuy": {"value" : "Jujuy"}, "El_Salvador": {"value" : "El Salvador"}, "Monterrey": {"value" : "Monterrey"}, "Bahia": {"value" : "Bahia"}, "Sao_Paulo": {"value" : "Sao Paulo"}, "Grenada": {"value" : "Grenada"}, "Grand_Turk": {"value" : "Grand Turk"}, "Montserrat": {"value" : "Montserrat"}, "Guadeloupe": {"value" : "Guadeloupe"}, "Panama":
+    {"value" : "Panama"}, "Guatemala": {"value" : "Guatemala"}, "Guyana": {"value" : "Guyana"}, "Swift_Current": {"value" : "Swift Current"}, "Puerto_Rico": {"value" : "Puerto Rico"}, "Moncton": {"value" : "Moncton"}, "Danmarkshavn": {"value" : "Danmarkshavn"}, "Nome": {"value" : "Nome"}, "Porto_Velho": {"value" : "Porto Velho"}, "Cuiaba": {"value" : "Cuiaba"}, "Pangnirtung": {"value" : "Pangnirtung"}, "Kralendijk": {"value" : "Kralendijk"}, "Belize": {"value" : "Belize"}, "Anguilla": {"value" : "Anguilla"}
+    , "Santiago": {"value" : "Santiago"}, "Boise": {"value" : "Boise"}, "Creston": {"value" : "Creston"}, "Miquelon": {"value" : "Miquelon"}, "Jamaica": {"value" : "Jamaica"}, "Buenos_Aires": {"value" : "Buenos Aires"}, "Rankin_Inlet": {"value" : "Rankin Inlet"}, "Toronto": {"value" : "Toronto"}, "Eirunepe": {"value" : "Eirunepe"}, "Dawson": {"value" : "Dawson"}, "Nassau": {"value" : "Nassau"}, "Vancouver": {"value" : "Vancouver"}, "Noronha": {"value" : "Noronha"}, "Regina": {"value" : "Regina"}, "St_Vincent":
+    {"value" : "St. Vincent"}, "Scoresbysund": {"value" : "Ittoqqortoormiit"}, "Louisville": {"value" : "Louisville"}, "Aruba": {"value" : "Aruba"}, "Thule": {"value" : "Thule"}, "Rio_Branco": {"value" : "Rio Branco"}, "Los_Angeles": {"value" : "Los Angeles"}, "St_Thomas": {"value" : "St. Thomas"}, "Cordoba": {"value" : "Cordoba"}, "Cancun": {"value" : "Cancun"}, "Coral_Harbour": {"value" : "Atikokan"}, "Maceio": {"value" : "Maceio"}, "Sitka": {"value" : "Sitka"}, "Denver": {"value" : "Denver"}, "Cayman": {"value"
+    : "Cayman"}, "Nipigon": {"value" : "Nipigon"}, "Thunder_Bay": {"value" : "Thunder Bay"}, "Havana": {"value" : "Havana"}, "Campo_Grande": {"value" : "Campo Grande"}, "Cambridge_Bay": {"value" : "Cambridge Bay"}, "Fortaleza": {"value" : "Fortaleza"}, "Managua": {"value" : "Managua"}, "Menominee": {"value" : "Menominee"}, "Halifax": {"value" : "Halifax"}, "Ojinaga": {"value" : "Ojinaga"}, "Glace_Bay": {"value" : "Glace Bay"}, "Lower_Princes": {"value" : "Lower Princeâ€™s Quarter"}, "Mendoza": {"value" : "Mendoza"}
+    , "Yakutat": {"value" : "Yakutat"}, "Detroit": {"value" : "Detroit"}, "Merida": {"value" : "Merida"}, "Bahia_Banderas": {"value" : "Bahia Banderas"}, "Matamoros": {"value" : "Matamoros"}, "St_Barthelemy": {"value" : "St. BarthÃ©lemy"}, "Boa_Vista": {"value" : "Boa Vista"}, "Metlakatla": {"value" : "Metlakatla"}, "Tortola": {"value" : "Tortola"}, "Inuvik": {"value" : "Inuvik"}, "Port_of_Spain": {"value" : "Port of Spain"}, "New_York": {"value" : "New York"}, "Paramaribo": {"value" : "Paramaribo"}, "Manaus":
+    {"value" : "Manaus"}, "Resolute": {"value" : "Resolute"}, "Curacao": {"value" : "CuraÃ§ao"}, "Bogota": {"value" : "Bogota"}, "Adak": {"value" : "Adak"}, "Caracas": {"value" : "Caracas"}, "Mazatlan": {"value" : "Mazatlan"}, "St_Kitts": {"value" : "St. Kitts"}, "Mexico_City": {"value" : "Mexico City"}, "Edmonton": {"value" : "Edmonton"}, "Araguaina": {"value" : "Araguaina"}, "Santo_Domingo": {"value" : "Santo Domingo"}, "Indianapolis": {"value" : "Indianapolis"}, "Whitehorse": {"value" : "Whitehorse"}, "Yellowknife":
+    {"value" : "Yellowknife"}, "Asuncion": {"value" : "AsunciÃ³n"}, "Santarem": {"value" : "Santarem"}, "Antigua": {"value" : "Antigua"}, "Winnipeg": {"value" : "Winnipeg"}, "Recife": {"value" : "Recife"}, "Lima": {"value" : "Lima"}, "Martinique": {"value" : "Martinique"}, "Phoenix": {"value" : "Phoenix"}, "Goose_Bay": {"value" : "Goose Bay"}, "St_Johns": {"value" : "St. Johnâ€™s"}, "Montevideo": {"value" : "Montevideo"}, "St_Lucia": {"value" : "St. Lucia"}, "Chicago": {"value" : "Chicago"}, "Chihuahua": {"value"
+    : "Chihuahua"}, "La_Paz": {"value" : "La Paz"}, "Blanc-Sablon": {"value" : "Blanc-Sablon"}, "Catamarca": {"value" : "Catamarca"}, "Tijuana": {"value" : "Tijuana"}, "Barbados": {"value" : "Barbados"}, "Anchorage": {"value" : "Anchorage"}, "Port-au-Prince": {"value" : "Port-au-Prince"}, "Rainy_River": {"value" : "Rainy River"}, "Cayenne": {"value" : "Cayenne"}, "Tegucigalpa": {"value" : "Tegucigalpa"}, "Juneau": {"value" : "Juneau"}, "Marigot": {"value" : "Marigot"}, "Dawson_Creek": {"value" : "Dawson Creek"}
+    , "Dominica": {"value" : "Dominica"}, "Fort_Nelson": {"value" : "Fort Nelson"}}, "Africa": {"Tunis": {"value" : "Tunis"}, "Maputo": {"value" : "Maputo"}, "Casablanca": {"value" : "Casablanca"}, "Johannesburg": {"value" : "Johannesburg"}, "Addis_Ababa": {"value" : "Addis Ababa"}, "Lagos": {"value" : "Lagos"}, "Accra": {"value" : "Accra"}, "Nairobi": {"value" : "Nairobi"}, "Brazzaville": {"value" : "Brazzaville"}, "Lubumbashi": {"value" : "Lubumbashi"}, "Banjul": {"value" : "Banjul"}, "Porto-Novo": {"value"
+    : "Porto-Novo"}, "Lusaka": {"value" : "Lusaka"}, "Kigali": {"value" : "Kigali"}, "Ouagadougou": {"value" : "Ouagadougou"}, "Freetown": {"value" : "Freetown"}, "Ndjamena": {"value" : "Ndjamena"}, "Conakry": {"value" : "Conakry"}, "Niamey": {"value" : "Niamey"}, "Maseru": {"value" : "Maseru"}, "El_Aaiun": {"value" : "El Aaiun"}, "Sao_Tome": {"value" : "SÃ£o TomÃ©"}, "Ceuta": {"value" : "Ceuta"}, "Khartoum": {"value" : "Khartoum"}, "Algiers": {"value" : "Algiers"}, "Bangui": {"value" : "Bangui"}, "Bujumbura":
+    {"value" : "Bujumbura"}, "Gaborone": {"value" : "Gaborone"}, "Juba": {"value" : "Juba"}, "Dar_es_Salaam": {"value" : "Dar es Salaam"}, "Windhoek": {"value" : "Windhoek"}, "Harare": {"value" : "Harare"}, "Tripoli": {"value" : "Tripoli"}, "Libreville": {"value" : "Libreville"}, "Malabo": {"value" : "Malabo"}, "Abidjan": {"value" : "Abidjan"}, "Luanda": {"value" : "Luanda"}, "Lome": {"value" : "Lome"}, "Nouakchott": {"value" : "Nouakchott"}, "Bissau": {"value" : "Bissau"}, "Kinshasa": {"value" : "Kinshasa"}
+    , "Asmera": {"value" : "Asmara"}, "Mogadishu": {"value" : "Mogadishu"}, "Djibouti": {"value" : "Djibouti"}, "Douala": {"value" : "Douala"}, "Kampala": {"value" : "Kampala"}, "Dakar": {"value" : "Dakar"}, "Cairo": {"value" : "Cairo"}, "Blantyre": {"value" : "Blantyre"}, "Monrovia": {"value" : "Monrovia"}, "Mbabane": {"value" : "Mbabane"}, "Bamako": {"value" : "Bamako"}}, "Indian": {"Reunion": {"value" : "RÃ©union"}, "Maldives": {"value" : "Maldives"}, "Christmas": {"value" : "Christmas"}, "Antananarivo":
+    {"value" : "Antananarivo"}, "Chagos": {"value" : "Chagos"}, "Mahe": {"value" : "Mahe"}, "Mayotte": {"value" : "Mayotte"}, "Kerguelen": {"value" : "Kerguelen"}, "Mauritius": {"value" : "Mauritius"}, "Cocos": {"value" : "Cocos"}, "Comoro": {"value" : "Comoro"}}, "Antarctica": {"Macquarie": {"value" : "Macquarie"}, "Palmer": {"value" : "Palmer"}, "Casey": {"value" : "Casey"}, "Troll": {"value" : "Troll"}, "Vostok": {"value" : "Vostok"}, "DumontDUrville": {"value" : "Dumont dâ€™Urville"}, "Syowa": {"value" :
+    "Syowa"}, "Mawson": {"value" : "Mawson"}, "McMurdo": {"value" : "McMurdo"}, "Davis": {"value" : "Davis"}, "Rothera": {"value" : "Rothera"}}, "Australia": {"Broken_Hill": {"value" : "Broken Hill"}, "Darwin": {"value" : "Darwin"}, "Brisbane": {"value" : "Brisbane"}, "Lord_Howe": {"value" : "Lord Howe"}, "Lindeman": {"value" : "Lindeman"}, "Adelaide": {"value" : "Adelaide"}, "Perth": {"value" : "Perth"}, "Eucla": {"value" : "Eucla"}, "Melbourne": {"value" : "Melbourne"}, "Sydney": {"value" : "Sydney"}, "Hobart":
+    {"value" : "Hobart"}}, "Arctic": {"Longyearbyen": {"value" : "Longyearbyen"}}, "Atlantic": {"St_Helena": {"value" : "St. Helena"}, "Reykjavik": {"value" : "Reykjavik"}, "Stanley": {"value" : "Stanley"}, "Madeira": {"value" : "Madeira"}, "Canary": {"value" : "Canary"}, "Faeroe": {"value" : "Faroe"}, "Bermuda": {"value" : "Bermuda"}, "Azores": {"value" : "Azores"}, "South_Georgia": {"value" : "South Georgia"}, "Cape_Verde": {"value" : "Cape Verde"}}}}};
 }
 function otciu_CLDRHelper_getDefaultLocale$$create() {
     return {"value" : "en_GB"};
@@ -3121,8 +3217,8 @@ function ucsic_GraphHoverThing__init_0(var$0, var$1, var$2, var$3, var$4, var$5)
 }
 function ucsic_GraphHoverThing_doAx(var$0, var$1, var$2, var$3, var$4) {
     var$2 = var$2 / var$3 * (var$1.$getMax() - var$1.$getMin()) + var$1.$getMin();
-    (((var$4.$div0($rt_s(36))).$div0($rt_s(37))).$append2(var$1.$getName())).$append2($rt_s(38));
-    ((var$4.$div0($rt_s(39))).$append2(jl_Float_toString(var$2))).$append2($rt_s(40));
+    (((var$4.$div0($rt_s(36))).$div0($rt_s(37))).$append4(var$1.$getName())).$append4($rt_s(38));
+    ((var$4.$div0($rt_s(39))).$append4((var$1.$getFormatter()).$apply(jl_Float_valueOf(var$2)))).$append4($rt_s(40));
 }
 function ucsic_GraphHoverThing_getElement(var$0) {
     return var$0.$root0;
@@ -3138,11 +3234,11 @@ function ucsic_GraphHoverThing_lambda$new$0(var$0, var$1, var$2, var$3, var$4) {
     var$4 = ucsih_HTMLBuilder__init_();
     ucsic_GraphHoverThing_doAx(var$0, var$1.$getAxisX1(), var$6, var$2, var$4);
     var$5 = var$1.$getAxisY1();
-    var$8 = var$7;
+    var$8 = var$3 - var$7 | 0;
     var$9 = var$3;
     ucsic_GraphHoverThing_doAx(var$0, var$5, var$8, var$9, var$4);
     if (var$1.$getAxisY2() !== null)
-        ucsic_GraphHoverThing_doAx(var$0, var$1.$getAxisY2(), var$8, var$9, var$4);
+        ucsic_GraphHoverThing_doAx(var$0, var$1.$getAxisY2(), var$7, var$9, var$4);
     var$0.$hoverMarker.$setXY(var$6, var$7, var$4.$toString());
 }
 function ucsic_GraphHoverThing_access$000(var$1) {
@@ -3198,7 +3294,7 @@ function ju_Currency_getInstance($currencyCode) {
     if ($currencyCode === null)
         $rt_throw(jl_NullPointerException__init_());
     ju_Currency_initCurrencies();
-    $currency = ju_Currency_currencies.$get0($currencyCode);
+    $currency = ju_Currency_currencies.$get1($currencyCode);
     if ($currency !== null)
         return $currency;
     $rt_throw(jl_IllegalArgumentException__init_((((jl_StringBuilder__init_()).$append($rt_s(41))).$append($currencyCode)).$toString()));
@@ -3346,6 +3442,10 @@ function ju_Calendar_complete($this) {
         $this.$areFieldsSet = 1;
     }
 }
+function ju_Calendar_get($this, $field) {
+    $this.$complete0();
+    return $this.$fields.data[$field];
+}
 function ju_Calendar_getFirstDayOfWeek($this) {
     return $this.$firstDayOfWeek;
 }
@@ -3355,6 +3455,13 @@ function ju_Calendar_getInstance() {
 }
 function ju_Calendar_getMinimalDaysInFirstWeek($this) {
     return $this.$minimalDaysInFirstWeek;
+}
+function ju_Calendar_getTimeInMillis($this) {
+    if (!$this.$isTimeSet) {
+        $this.$computeTime();
+        $this.$isTimeSet = 1;
+    }
+    return $this.$time;
 }
 function ju_Calendar_getTimeZone($this) {
     return $this.$zone;
@@ -3374,6 +3481,9 @@ function ju_Calendar_setLenient($this, $value) {
 }
 function ju_Calendar_setMinimalDaysInFirstWeek($this, $value) {
     $this.$minimalDaysInFirstWeek = $value;
+}
+function ju_Calendar_setTime($this, $date) {
+    $this.$setTimeInMillis($date.$getTime());
 }
 function ju_Calendar_setTimeInMillis($this, $milliseconds) {
     if (!($this.$isTimeSet && $this.$areFieldsSet && Long_eq($this.$time, $milliseconds))) {
@@ -3999,7 +4109,7 @@ function jl_AbstractStringBuilder_insert7($this, $index, $s, $i, $end) {
     $rt_throw(jl_IndexOutOfBoundsException__init_());
 }
 function jl_AbstractStringBuilder_append8($this, $s) {
-    return $this.$append3($s, 0, $s.$length());
+    return $this.$append5($s, 0, $s.$length());
 }
 function jl_AbstractStringBuilder_append9($this, $chars, $offset, $len) {
     return $this.$insert8($this.$length0, $chars, $offset, $len);
@@ -4020,7 +4130,7 @@ function jl_AbstractStringBuilder_insert8($this, $index, $chars, $offset, $len) 
     return $this;
 }
 function jl_AbstractStringBuilder_append10($this, $chars) {
-    return $this.$append4($chars, 0, $chars.data.length);
+    return $this.$append6($chars, 0, $chars.data.length);
 }
 function jl_AbstractStringBuilder_setLength($this, $newLength) {
     $this.$length0 = $newLength;
@@ -4096,15 +4206,19 @@ function jl_StringBuffer_append($this, $string) {
     jl_AbstractStringBuilder_append0($this, $string);
     return $this;
 }
-function jl_StringBuffer_append0($this, $c) {
+function jl_StringBuffer_append0($this, $value) {
+    jl_AbstractStringBuilder_append1($this, $value);
+    return $this;
+}
+function jl_StringBuffer_append1($this, $c) {
     jl_AbstractStringBuilder_append6($this, $c);
     return $this;
 }
-function jl_StringBuffer_append1($this, $chars, $offset, $len) {
+function jl_StringBuffer_append2($this, $chars, $offset, $len) {
     jl_AbstractStringBuilder_append9($this, $chars, $offset, $len);
     return $this;
 }
-function jl_StringBuffer_append2($this, $chars) {
+function jl_StringBuffer_append3($this, $chars) {
     jl_AbstractStringBuilder_append10($this, $chars);
     return $this;
 }
@@ -4123,8 +4237,8 @@ function jl_StringBuffer_insert1($this, $index, $string) {
 function jl_StringBuffer_insert2($this, var$1, var$2, var$3, var$4) {
     return $this.$insert9(var$1, var$2, var$3, var$4);
 }
-function jl_StringBuffer_append3($this, var$1, var$2, var$3) {
-    return $this.$append8(var$1, var$2, var$3);
+function jl_StringBuffer_append4($this, var$1, var$2, var$3) {
+    return $this.$append11(var$1, var$2, var$3);
 }
 function jl_StringBuffer_charAt($this, var$1) {
     return jl_AbstractStringBuilder_charAt($this, var$1);
@@ -4560,7 +4674,7 @@ function jur_DecomposedCharSet_getDecomposedChar($this) {
         $strBuff = jl_StringBuilder__init_();
         $i = 0;
         while ($i < $this.$decomposedCharLength) {
-            $strBuff.$append9(jl_Character_toChars($this.$decomposedChar.data[$i]));
+            $strBuff.$append12(jl_Character_toChars($this.$decomposedChar.data[$i]));
             $i = $i + 1 | 0;
         }
         $this.$decomposedCharUTF16 = $strBuff.$toString();
@@ -4772,7 +4886,7 @@ function oj_JSONTokener_nextString($this, $quote) {
             }
             if ($c == $quote)
                 break a;
-            $sb.$append10($c);
+            $sb.$append13($c);
             continue a;
         }
         var$4 = $this.$next1();
@@ -4783,23 +4897,23 @@ function oj_JSONTokener_nextString($this, $quote) {
             case 92:
                 break;
             case 98:
-                $sb.$append10(8);
+                $sb.$append13(8);
                 continue a;
             case 102:
-                $sb.$append10(12);
+                $sb.$append13(12);
                 continue a;
             case 110:
-                $sb.$append10(10);
+                $sb.$append13(10);
                 continue a;
             case 114:
-                $sb.$append10(13);
+                $sb.$append13(13);
                 continue a;
             case 116:
-                $sb.$append10(9);
+                $sb.$append13(9);
                 continue a;
             case 117:
                 try {
-                    $sb.$append10(jl_Integer_parseInt($this.$next2(4), 16) & 65535);
+                    $sb.$append13(jl_Integer_parseInt($this.$next2(4), 16) & 65535);
                     continue a;
                 } catch ($$e) {
                     $$je = $rt_wrapException($$e);
@@ -4813,7 +4927,7 @@ function oj_JSONTokener_nextString($this, $quote) {
             default:
                 $rt_throw($this.$syntaxError($rt_s(265)));
         }
-        $sb.$append10(var$4);
+        $sb.$append13(var$4);
     }
     return $sb.$toString();
 }
@@ -4833,7 +4947,7 @@ function oj_JSONTokener_nextValue($this) {
         default:
             $sb = jl_StringBuilder__init_();
             while ($c >= 32 && $rt_s(266).$indexOf($c) < 0) {
-                $sb.$append10($c);
+                $sb.$append13($c);
                 $c = $this.$next1();
             }
             if (!$this.$eof)
@@ -4852,7 +4966,7 @@ function oj_JSONTokener_syntaxError0($this, $message, $causedBy) {
     return oj_JSONException__init_1((((jl_StringBuilder__init_()).$append($message)).$append($this.$toString())).$toString(), $causedBy);
 }
 function oj_JSONTokener_toString($this) {
-    return ((((((((jl_StringBuilder__init_()).$append($rt_s(268))).$append11($this.$index0)).$append($rt_s(269))).$append11($this.$character)).$append($rt_s(270))).$append11($this.$line)).$append($rt_s(62))).$toString();
+    return ((((((((jl_StringBuilder__init_()).$append($rt_s(268))).$append14($this.$index0)).$append($rt_s(269))).$append14($this.$character)).$append($rt_s(270))).$append14($this.$line)).$append($rt_s(62))).$toString();
 }
 var jur_NonCapJointSet = $rt_classWithoutFields(jur_JointSet);
 function jur_NonCapJointSet__init_(var_0, var_1) {
@@ -5280,8 +5394,14 @@ function ucsiiu_Format$InstLit__init_0(var$0) {
     ucsiiu_Format$Inst__init_0(var$0, null);
     var$0.$value0 = jl_StringBuilder__init_();
 }
+function ucsiiu_Format$InstLit_render(var$0, var$1) {
+    return (var$0.$getValue0()).$toString();
+}
 function ucsiiu_Format$InstLit_append(var$0, var$1) {
-    (var$0.$getValue0()).$append10(var$1);
+    (var$0.$getValue0()).$append13(var$1);
+}
+function ucsiiu_Format$InstLit_acceptsArg(var$0) {
+    return 0;
 }
 function ucsiiu_Format$InstLit_getValue(var$0) {
     return var$0.$value0;
@@ -5475,7 +5595,7 @@ function oj_JSONObject_get($this, $key) {
 function oj_JSONObject_getBoolean($this, $key) {
     var $object, var$3, var$4;
     a: {
-        $object = $this.$get1($key);
+        $object = $this.$get2($key);
         jl_Boolean_$callClinit();
         if (!$object.$equals(jl_Boolean_FALSE)) {
             var$3 = $object instanceof jl_String;
@@ -5501,7 +5621,7 @@ function oj_JSONObject_getBoolean($this, $key) {
 }
 function oj_JSONObject_getFloat($this, $key) {
     var $object, var$3, $e, $$je;
-    $object = $this.$get1($key);
+    $object = $this.$get2($key);
     if ($object instanceof jl_Number)
         return $object.$floatValue();
     a: {
@@ -5522,7 +5642,7 @@ function oj_JSONObject_getFloat($this, $key) {
 }
 function oj_JSONObject_getInt($this, $key) {
     var $object, var$3, $e, $$je;
-    $object = $this.$get1($key);
+    $object = $this.$get2($key);
     if ($object instanceof jl_Number)
         return $object.$intValue();
     a: {
@@ -5543,21 +5663,21 @@ function oj_JSONObject_getInt($this, $key) {
 }
 function oj_JSONObject_getJSONArray($this, $key) {
     var $object;
-    $object = $this.$get1($key);
+    $object = $this.$get2($key);
     if ($object instanceof oj_JSONArray)
         return $object;
     $rt_throw(oj_JSONObject_wrongValueFormatException($key, $rt_s(288), null));
 }
 function oj_JSONObject_getJSONObject($this, $key) {
     var $object;
-    $object = $this.$get1($key);
+    $object = $this.$get2($key);
     if ($object instanceof oj_JSONObject)
         return $object;
     $rt_throw(oj_JSONObject_wrongValueFormatException($key, $rt_s(289), null));
 }
 function oj_JSONObject_getString($this, $key) {
     var $object;
-    $object = $this.$get1($key);
+    $object = $this.$get2($key);
     if ($object instanceof jl_String)
         return $object;
     $rt_throw(oj_JSONObject_wrongValueFormatException($key, $rt_s(290), null));
@@ -5588,7 +5708,7 @@ function oj_JSONObject_numberToString($number) {
     return $string;
 }
 function oj_JSONObject_opt($this, $key) {
-    return $key === null ? null : $this.$map.$get0($key);
+    return $key === null ? null : $this.$map.$get1($key);
 }
 function oj_JSONObject_optJSONArray($this, $key) {
     var $o;
@@ -6591,9 +6711,9 @@ function ucsih_HTMLBuilder_append(var$0, var$1) {
     return var$0;
 }
 function ucsih_HTMLBuilder_div(var$0, var$1) {
-    var$0.$append2($rt_s(314));
-    var$0.$append2(var$1);
-    var$0.$append2($rt_s(315));
+    var$0.$append4($rt_s(314));
+    var$0.$append4(var$1);
+    var$0.$append4($rt_s(315));
     return var$0;
 }
 function jlr_Method() {
@@ -6641,11 +6761,11 @@ function jlr_Method_toString($this) {
     $sb = jl_StringBuilder__init_();
     $sb.$append(jlr_Modifier_toString($this.$getModifiers()));
     if ($sb.$length() > 0)
-        $sb.$append10(32);
+        $sb.$append13(32);
     a: {
-        var$2 = ((($sb.$append(($this.$getReturnType()).$getName())).$append10(32)).$append($this.$declaringClass.$getName())).$append10(46);
+        var$2 = ((($sb.$append(($this.$getReturnType()).$getName())).$append13(32)).$append($this.$declaringClass.$getName())).$append13(46);
         var$3 = $this.$name2;
-        (var$2.$append(var$3)).$append10(40);
+        (var$2.$append(var$3)).$append13(40);
         $parameterTypes = $this.$getParameterTypes();
         var$5 = $parameterTypes.data;
         var$6 = var$5.length;
@@ -6655,12 +6775,12 @@ function jlr_Method_toString($this) {
             while (true) {
                 if ($i >= var$6)
                     break a;
-                ($sb.$append10(44)).$append(var$5[$i].$getName());
+                ($sb.$append13(44)).$append(var$5[$i].$getName());
                 $i = $i + 1 | 0;
             }
         }
     }
-    $sb.$append10(41);
+    $sb.$append13(41);
     return $sb.$toString();
 }
 function jlr_Method_invoke($this, $obj, $args) {
@@ -7194,7 +7314,7 @@ function jur_SequenceSet_indexOf($this, $str, $i, $to) {
         $ch = $str.$charAt(($i + $this.$charCount | 0) - 1 | 0);
         if ($ch == $last && $this.$startsWith0($str, $i))
             break;
-        $i = $i + $this.$leftToRight.$get2($ch) | 0;
+        $i = $i + $this.$leftToRight.$get0($ch) | 0;
     }
     return $i;
 }
@@ -7211,7 +7331,7 @@ function jur_SequenceSet_lastIndexOf($this, $str, $to, $i) {
         $ch = $str.$charAt($i);
         if ($ch == $first && $this.$startsWith0($str, $i))
             break;
-        $i = $i - $this.$rightToLeft.$get2($ch) | 0;
+        $i = $i - $this.$rightToLeft.$get0($ch) | 0;
     }
     return $i;
 }
@@ -7905,7 +8025,7 @@ function jl_Package_getName($this) {
 function jl_Package_getPackage($name) {
     var $pkg;
     jl_Package_$callClinit();
-    $pkg = jl_Package_packages.$get0($name);
+    $pkg = jl_Package_packages.$get1($name);
     if ($pkg === null) {
         $pkg = jl_Package__init_($name);
         jl_Package_packages.$put($name, $pkg);
@@ -8182,7 +8302,7 @@ function jt_DecimalFormat_applyPattern($this, $pattern) {
     var $parser;
     $parser = jt_DecimalFormatParser__init_();
     $parser.$parse($pattern);
-    $parser.$apply0($this);
+    $parser.$apply1($this);
     $this.$pattern = $pattern;
 }
 function jt_DecimalFormat_setMultiplier($this, $newValue) {
@@ -8649,6 +8769,57 @@ function jl_Class_createMetadata() {
             returnType : $rt_booleancls(),
             callable : null
         }];
+    jlr_AccessibleObject.$meta.methods = [
+        {
+            name : "<init>",
+            modifiers : 0,
+            accessLevel : 2,
+            parameterTypes : [],
+            returnType : $rt_voidcls(),
+            callable : null
+        }, {
+            name : "setAccessible",
+            modifiers : 512,
+            accessLevel : 3,
+            parameterTypes : [$rt_arraycls(jlr_AccessibleObject), $rt_booleancls()],
+            returnType : $rt_voidcls(),
+            callable : null
+        }, {
+            name : "setAccessible",
+            modifiers : 0,
+            accessLevel : 3,
+            parameterTypes : [$rt_booleancls()],
+            returnType : $rt_voidcls(),
+            callable : null
+        }, {
+            name : "isAccessible",
+            modifiers : 0,
+            accessLevel : 3,
+            parameterTypes : [],
+            returnType : $rt_booleancls(),
+            callable : null
+        }, {
+            name : "getAnnotation",
+            modifiers : 0,
+            accessLevel : 3,
+            parameterTypes : [jl_Class],
+            returnType : jla_Annotation,
+            callable : null
+        }, {
+            name : "getAnnotations",
+            modifiers : 0,
+            accessLevel : 3,
+            parameterTypes : [],
+            returnType : $rt_arraycls(jla_Annotation),
+            callable : null
+        }, {
+            name : "getDeclaredAnnotations",
+            modifiers : 0,
+            accessLevel : 3,
+            parameterTypes : [],
+            returnType : $rt_arraycls(jla_Annotation),
+            callable : null
+        }];
     jl_Object.$meta.methods = [
         {
             name : "monitorEnterSync",
@@ -8950,57 +9121,6 @@ function jl_Class_createMetadata() {
             accessLevel : 1,
             parameterTypes : [jl_Thread, jl_Object, $rt_intcls(), oti_AsyncCallback],
             returnType : $rt_voidcls(),
-            callable : null
-        }];
-    jlr_AccessibleObject.$meta.methods = [
-        {
-            name : "<init>",
-            modifiers : 0,
-            accessLevel : 2,
-            parameterTypes : [],
-            returnType : $rt_voidcls(),
-            callable : null
-        }, {
-            name : "setAccessible",
-            modifiers : 512,
-            accessLevel : 3,
-            parameterTypes : [$rt_arraycls(jlr_AccessibleObject), $rt_booleancls()],
-            returnType : $rt_voidcls(),
-            callable : null
-        }, {
-            name : "setAccessible",
-            modifiers : 0,
-            accessLevel : 3,
-            parameterTypes : [$rt_booleancls()],
-            returnType : $rt_voidcls(),
-            callable : null
-        }, {
-            name : "isAccessible",
-            modifiers : 0,
-            accessLevel : 3,
-            parameterTypes : [],
-            returnType : $rt_booleancls(),
-            callable : null
-        }, {
-            name : "getAnnotation",
-            modifiers : 0,
-            accessLevel : 3,
-            parameterTypes : [jl_Class],
-            returnType : jla_Annotation,
-            callable : null
-        }, {
-            name : "getAnnotations",
-            modifiers : 0,
-            accessLevel : 3,
-            parameterTypes : [],
-            returnType : $rt_arraycls(jla_Annotation),
-            callable : null
-        }, {
-            name : "getDeclaredAnnotations",
-            modifiers : 0,
-            accessLevel : 3,
-            parameterTypes : [],
-            returnType : $rt_arraycls(jla_Annotation),
             callable : null
         }];
     jl_Class.$meta.methods = [
@@ -10166,7 +10286,7 @@ function jl_Class_createMetadata() {
             returnType : $rt_intcls(),
             callable : null
         }];
-    jt_DecimalFormat$CurrencyField.$meta.methods = [
+    jt_DecimalFormat$PercentField.$meta.methods = [
         {
             name : "<init>",
             modifiers : 0,
@@ -10226,7 +10346,7 @@ function jl_Class_createMetadata() {
             returnType : $rt_intcls(),
             callable : null
         }];
-    jt_DecimalFormat$PercentField.$meta.methods = [
+    jt_DecimalFormat$CurrencyField.$meta.methods = [
         {
             name : "<init>",
             modifiers : 0,
@@ -10675,9 +10795,9 @@ function otcjn_TURLEncoder_encode($s, $enc) {
                 $start = (-1);
             }
             if ($ch != 32)
-                $buf.$append12($ch);
+                $buf.$append3($ch);
             else
-                $buf.$append12(43);
+                $buf.$append3(43);
         } else if ($start < 0)
             $start = $i;
         $i = $i + 1 | 0;
@@ -10694,9 +10814,9 @@ function otcjn_TURLEncoder_convert($s, $buf, $enc) {
         var$6 = $bytes.data;
         if ($j >= var$6.length)
             break;
-        $buf.$append12(37);
-        $buf.$append12($rt_s(339).$charAt((var$6[$j] & 240) >> 4));
-        $buf.$append12($rt_s(339).$charAt(var$6[$j] & 15));
+        $buf.$append3(37);
+        $buf.$append3($rt_s(339).$charAt((var$6[$j] & 240) >> 4));
+        $buf.$append3($rt_s(339).$charAt(var$6[$j] & 15));
         $j = $j + 1 | 0;
     }
 }
@@ -10720,13 +10840,25 @@ function jl_Float__init_0($this, $value) {
     jl_Number__init_($this);
     $this.$value4 = $value;
 }
+function jl_Float_intValue($this) {
+    return $this.$value4 | 0;
+}
+function jl_Float_longValue($this) {
+    return Long_fromNumber($this.$value4);
+}
+function jl_Float_floatValue($this) {
+    return $this.$value4;
+}
 function jl_Float_valueOf($d) {
     jl_Float_$callClinit();
     return jl_Float__init_($d);
 }
 function jl_Float_toString($d) {
     jl_Float_$callClinit();
-    return ((jl_StringBuilder__init_()).$append13($d)).$toString();
+    return ((jl_StringBuilder__init_()).$append15($d)).$toString();
+}
+function jl_Float_toString0($this) {
+    return jl_Float_toString($this.$value4);
 }
 function jl_Float_parseFloat($string) {
     var $start, $end, $negative, $c, $mantissa, $exp, $hasOneDigit, var$9, var$10, $negativeExp, $numExp, var$13;
@@ -11081,7 +11213,7 @@ function jur_CharSet_findBack($this, $strIndex, $lastIndex, $testString, $matchR
     return (-1);
 }
 function jur_CharSet_getName($this) {
-    return (((jl_StringBuilder__init_()).$append($rt_s(20))).$append10($this.$ch)).$toString();
+    return (((jl_StringBuilder__init_()).$append($rt_s(20))).$append13($this.$ch)).$toString();
 }
 function jur_CharSet_getChar($this) {
     return $this.$ch;
@@ -11941,7 +12073,7 @@ function jur_CICharSet_accepts($this, $strIndex, $testString) {
     return $this.$ch0 != $testString.$charAt($strIndex) && $this.$supplement != $testString.$charAt($strIndex) ? (-1) : 1;
 }
 function jur_CICharSet_getName($this) {
-    return (((jl_StringBuilder__init_()).$append($rt_s(340))).$append10($this.$ch0)).$toString();
+    return (((jl_StringBuilder__init_()).$append($rt_s(340))).$append13($this.$ch0)).$toString();
 }
 function jur_SupplCharSet() {
     var a = this; jur_LeafSet.call(a);
@@ -12015,7 +12147,7 @@ function jur_SupplCharSet_findBack($this, $strIndex, $lastIndex, $testString, $m
     return (-1);
 }
 function jur_SupplCharSet_getName($this) {
-    return ((((jl_StringBuilder__init_()).$append($rt_s(20))).$append10($this.$high)).$append10($this.$low)).$toString();
+    return ((((jl_StringBuilder__init_()).$append($rt_s(20))).$append13($this.$high)).$append13($this.$low)).$toString();
 }
 function jur_SupplCharSet_getCodePoint($this) {
     return $this.$ch1;
@@ -12271,6 +12403,16 @@ function ucsiiu_Format$DecimalInstruction__init_0(var$0, var$1) {
     ucsiiu_Format$Inst__init_0(var$0, null);
     var$0.$width = var$1;
 }
+function ucsiiu_Format$DecimalInstruction_render(var$0, var$1) {
+    var var$2;
+    var$2 = var$1.$intValue();
+    if (var$0.$width == (-1))
+        return jl_Integer_toString0(var$2);
+    return ucsiiu_InvUtil_padLeft(jl_Integer_toString0(var$2), var$0.$width);
+}
+function ucsiiu_Format$DecimalInstruction_acceptsArg(var$0) {
+    return 1;
+}
 var otjb_Location = $rt_classWithoutFields(0);
 function otjb_Location_current() {
     return window.location;
@@ -12343,7 +12485,7 @@ function jur_UCICharSet_accepts($this, $strIndex, $testString) {
     return $this.$ch2 != jl_Character_toLowerCase(jl_Character_toUpperCase($testString.$charAt($strIndex))) ? (-1) : 1;
 }
 function jur_UCICharSet_getName($this) {
-    return (((jl_StringBuilder__init_()).$append($rt_s(351))).$append10($this.$ch2)).$toString();
+    return (((jl_StringBuilder__init_()).$append($rt_s(351))).$append13($this.$ch2)).$toString();
 }
 var jnci_Iso8859Charset = $rt_classWithoutFields(jnc_Charset);
 function jnci_Iso8859Charset__init_() {
@@ -12467,7 +12609,7 @@ function jur_LowSurrogateCharSet_findBack($this, $strIndex, $lastIndex, $testStr
     return (-1);
 }
 function jur_LowSurrogateCharSet_getName($this) {
-    return (((jl_StringBuilder__init_()).$append($rt_s(20))).$append10($this.$low0)).$toString();
+    return (((jl_StringBuilder__init_()).$append($rt_s(20))).$append13($this.$low0)).$toString();
 }
 function jur_LowSurrogateCharSet_first($this, $set) {
     if ($set instanceof jur_CharSet)
@@ -12498,7 +12640,7 @@ function ju_FormatFlagsConversionMismatchException__init_(var_0, var_1) {
     return var_2;
 }
 function ju_FormatFlagsConversionMismatchException__init_0($this, $flags, $conversion) {
-    ju_IllegalFormatException__init_0($this, (((((jl_StringBuilder__init_()).$append($rt_s(354))).$append($flags)).$append($rt_s(355))).$append10($conversion)).$toString());
+    ju_IllegalFormatException__init_0($this, (((((jl_StringBuilder__init_()).$append($rt_s(354))).$append($flags)).$append($rt_s(355))).$append13($conversion)).$toString());
     $this.$flags0 = $flags;
     $this.$conversion0 = $conversion;
 }
@@ -13093,6 +13235,30 @@ function jl_String_substring0($this, $beginIndex) {
 function jl_String_subSequence($this, $beginIndex, $endIndex) {
     return $this.$substring0($beginIndex, $endIndex);
 }
+function jl_String_concat($this, $str) {
+    var $buffer, $index, $i, var$5, var$6;
+    if ($str.$isEmpty())
+        return $this;
+    $buffer = $rt_createCharArray($this.$length() + $str.$length() | 0);
+    $index = 0;
+    $i = 0;
+    while ($i < $this.$length()) {
+        var$5 = $buffer.data;
+        var$6 = $index + 1 | 0;
+        var$5[$index] = $this.$charAt($i);
+        $i = $i + 1 | 0;
+        $index = var$6;
+    }
+    $i = 0;
+    while ($i < $str.$length()) {
+        var$5 = $buffer.data;
+        var$6 = $index + 1 | 0;
+        var$5[$index] = $str.$charAt($i);
+        $i = $i + 1 | 0;
+        $index = var$6;
+    }
+    return jl_String__init_($buffer);
+}
 function jl_String_trim($this) {
     var $lower, $upper;
     $lower = 0;
@@ -13490,15 +13656,15 @@ function ji_StringWriter_toString($this) {
     return $this.$buf.$toString();
 }
 function ji_StringWriter_write($this, $oneChar) {
-    $this.$buf.$append12($oneChar & 65535);
+    $this.$buf.$append3($oneChar & 65535);
 }
 function ji_StringWriter_write0($this, $str) {
-    $this.$buf.$append14($str);
+    $this.$buf.$append16($str);
 }
 function ji_StringWriter_write1($this, $str, $offset, $count) {
     var $sub;
     $sub = $str.$substring0($offset, $offset + $count | 0);
-    $this.$buf.$append14($sub);
+    $this.$buf.$append16($sub);
 }
 var jur_PosCompositeGroupQuantifierSet = $rt_classWithoutFields(jur_CompositeGroupQuantifierSet);
 function jur_PosCompositeGroupQuantifierSet__init_(var_0, var_1, var_2, var_3, var_4) {
@@ -14239,6 +14405,9 @@ function jt_DateFormat__init_($this) {
     jt_Format__init_($this);
     $this.$calendar = ju_Calendar_getInstance();
 }
+function jt_DateFormat_format($this, $date) {
+    return ($this.$format2($date, jl_StringBuffer__init_1(), jt_FieldPosition__init_(0))).$toString();
+}
 var jur_AbstractCharClass$LazyJavaUnicodeIdentifierPart = $rt_classWithoutFields(jur_AbstractCharClass$LazyCharClass);
 function jur_AbstractCharClass$LazyJavaUnicodeIdentifierPart__init_() {
     var var_0 = new jur_AbstractCharClass$LazyJavaUnicodeIdentifierPart();
@@ -14451,7 +14620,7 @@ function jt_DecimalFormatParser_parseText($this, $suffix, $end) {
                             if ($next < 0)
                                 $rt_throw(jl_IllegalArgumentException__init_((((((jl_StringBuilder__init_()).$append($rt_s(381))).$append1($this.$index5)).$append($rt_s(382))).$append($this.$string3)).$toString()));
                             if ($next == $this.$index5)
-                                $sb.$append10(39);
+                                $sb.$append13(39);
                             else
                                 $sb.$append($this.$string3.$substring0($this.$index5, $next));
                             $this.$index5 = $next + 1 | 0;
@@ -14488,7 +14657,7 @@ function jt_DecimalFormatParser_parseText($this, $suffix, $end) {
                             break d;
                         default:
                     }
-                    $sb.$append10($c);
+                    $sb.$append13($c);
                     $this.$index5 = $this.$index5 + 1 | 0;
                 }
             }
@@ -14866,9 +15035,9 @@ function jur_Pattern_processSequence($this) {
         }
         $ch = $this.$lexemes.$next4();
         if (!jl_Character_isSupplementaryCodePoint($ch))
-            $substring.$append12($ch & 65535);
+            $substring.$append3($ch & 65535);
         else
-            $substring.$append15(jl_Character_toChars($ch));
+            $substring.$append17(jl_Character_toChars($ch));
     }
     if (!jur_Pattern_hasFlag($this, 2))
         return jur_SequenceSet__init_($substring);
@@ -15614,6 +15783,12 @@ function ucsih_Axis$setFormat$lambda$_20_1__init_() {
 function ucsih_Axis$setFormat$lambda$_20_1__init_0(var$0) {
     jl_Object__init_0(var$0);
 }
+function ucsih_Axis$setFormat$lambda$_20_1_apply(var$0, var$1) {
+    return ucsih_Axis$setFormat$lambda$_20_1_apply0(var$0, var$1);
+}
+function ucsih_Axis$setFormat$lambda$_20_1_apply0(var$0, var$1) {
+    return ucsih_Axis_lambda$new$0(var$1);
+}
 function ucsih_Axis$setFormat$lambda$_20_0() {
     jl_Object.call(this);
     this.$_014 = null;
@@ -15626,6 +15801,12 @@ function ucsih_Axis$setFormat$lambda$_20_0__init_(var_0) {
 function ucsih_Axis$setFormat$lambda$_20_0__init_0(var$0, var$1) {
     jl_Object__init_0(var$0);
     var$0.$_014 = var$1;
+}
+function ucsih_Axis$setFormat$lambda$_20_0_apply(var$0, var$1) {
+    return ucsih_Axis$setFormat$lambda$_20_0_apply0(var$0, var$1);
+}
+function ucsih_Axis$setFormat$lambda$_20_0_apply0(var$0, var$1) {
+    return ucsih_Axis_lambda$setFormat$2(var$0.$_014, var$1);
 }
 var jur_AbstractLineTerminator$1 = $rt_classWithoutFields(jur_AbstractLineTerminator);
 function jur_AbstractLineTerminator$1__init_() {
@@ -16051,8 +16232,8 @@ function jur_CharClass_toString($this) {
     $temp = jl_StringBuilder__init_();
     $i = $this.$bits.$nextSetBit(0);
     while ($i >= 0) {
-        $temp.$append9(jl_Character_toChars($i));
-        $temp.$append10(124);
+        $temp.$append12(jl_Character_toChars($i));
+        $temp.$append13(124);
         $i = $this.$bits.$nextSetBit($i + 1 | 0);
     }
     if ($temp.$length() > 0)
@@ -16289,6 +16470,11 @@ function jt_DateFormatElement$AmPmText__init_0($this, $symbols) {
     jt_DateFormatElement__init_($this);
     $this.$ampms0 = $symbols.$getAmPmStrings();
 }
+function jt_DateFormatElement$AmPmText_format($this, $date, $buffer) {
+    var $ampm;
+    $ampm = $date.$get0(9);
+    $buffer.$append16($this.$ampms0.data[$ampm]);
+}
 function jt_DateFormatElement$AmPmText_equals($this, $o) {
     var $amPmText;
     if ($this === $o)
@@ -16326,6 +16512,20 @@ function jt_DateFormatElement$Rfc822Timezone__init_(var_0) {
 }
 function jt_DateFormatElement$Rfc822Timezone__init_0($this, $locale) {
     jt_DateFormatElement$BaseTimezone__init_($this, $locale);
+}
+function jt_DateFormatElement$Rfc822Timezone_format($this, $date, $buffer) {
+    var $tz, $minutes, $hours, var$6;
+    $tz = $date.$getTimeZone();
+    $minutes = $tz.$getOffset($date.$getTimeInMillis()) / 60000 | 0;
+    if ($minutes >= 0)
+        $buffer.$append3(43);
+    else {
+        $minutes =  -$minutes | 0;
+        $buffer.$append3(45);
+    }
+    $hours = $minutes / 60 | 0;
+    var$6 = $minutes % 60 | 0;
+    ((($buffer.$append2($hours / 10 | 0)).$append2($hours % 10 | 0)).$append2(var$6 / 10 | 0)).$append2(var$6 % 10 | 0);
 }
 var ji_InputStream = $rt_classWithoutFields();
 function jur_AbstractCharClass$LazyJavaWhitespace$1() {
@@ -16543,7 +16743,7 @@ function jl_Long_floatValue($this) {
 }
 function jl_Long_toString($value) {
     jl_Long_$callClinit();
-    return ((jl_StringBuilder__init_()).$append11($value)).$toString();
+    return ((jl_StringBuilder__init_()).$append14($value)).$toString();
 }
 function jl_Long_toString0($this) {
     return jl_Long_toString($this.$value5);
@@ -17320,6 +17520,9 @@ function jt_DateFormatElement$ConstantText__init_0($this, $textConstant) {
     jt_DateFormatElement__init_($this);
     $this.$textConstant = $textConstant;
 }
+function jt_DateFormatElement$ConstantText_format($this, $date, $buffer) {
+    $buffer.$append16($this.$textConstant);
+}
 function jt_DateFormatElement$ConstantText_equals($this, $o) {
     var $that;
     if ($this === $o)
@@ -17347,6 +17550,20 @@ function jt_DateFormatElement$Numeric__init_0($this, $field, $length, $maxLength
     $this.$length4 = $length;
     $this.$maxLength = jl_Math_max($length, $maxLength);
 }
+function jt_DateFormatElement$Numeric_format($this, $date, $buffer) {
+    var $number, $str, $i;
+    $number = $this.$processBeforeFormat($date.$get0($this.$field0));
+    $str = jl_Integer_toString0($number);
+    $i = $str.$length();
+    while ($i < $this.$length4) {
+        $buffer.$append3(48);
+        $i = $i + 1 | 0;
+    }
+    $buffer.$append16($str);
+}
+function jt_DateFormatElement$Numeric_processBeforeFormat($this, $num) {
+    return $num;
+}
 function jt_DateFormatElement$Numeric_equals($this, $o) {
     var $numeric;
     if ($this === $o)
@@ -17365,6 +17582,9 @@ function jt_DateFormatElement$NumericMonth__init_(var_0) {
 }
 function jt_DateFormatElement$NumericMonth__init_0($this, $length) {
     jt_DateFormatElement$Numeric__init_0($this, 2, $length, 2);
+}
+function jt_DateFormatElement$NumericMonth_processBeforeFormat($this, $num) {
+    return $num + 1 | 0;
 }
 function jur_AbstractCharClass$LazyJavaLetterOrDigit$1() {
     jur_AbstractCharClass.call(this);
@@ -17405,8 +17625,8 @@ function jur_CharClass$18_toString($this) {
     $temp = jl_StringBuilder__init_();
     $i = $this.$val$bs.$nextSetBit(0);
     while ($i >= 0) {
-        $temp.$append9(jl_Character_toChars($i));
-        $temp.$append10(124);
+        $temp.$append12(jl_Character_toChars($i));
+        $temp.$append13(124);
         $i = $this.$val$bs.$nextSetBit($i + 1 | 0);
     }
     if ($temp.$length() > 0)
@@ -17647,7 +17867,7 @@ function jur_UCISequenceSet__init_0($this, $substring) {
     $res = jl_StringBuilder__init_();
     $i = 0;
     while ($i < $substring.$length()) {
-        $res.$append10(jl_Character_toLowerCase(jl_Character_toUpperCase($substring.$charAt($i))));
+        $res.$append13(jl_Character_toLowerCase(jl_Character_toUpperCase($substring.$charAt($i))));
         $i = $i + 1 | 0;
     }
     $this.$string4 = $res.$toString();
@@ -17854,13 +18074,13 @@ function jl_StringBuilder_insert7($this, var$1, var$2, var$3, var$4) {
     return $this.$insert12(var$1, var$2, var$3, var$4);
 }
 function jl_StringBuilder_append10($this, var$1, var$2, var$3) {
-    return $this.$append22(var$1, var$2, var$3);
+    return $this.$append23(var$1, var$2, var$3);
 }
 function jl_StringBuilder_insert8($this, var$1, var$2, var$3, var$4) {
     return $this.$insert13(var$1, var$2, var$3, var$4);
 }
 function jl_StringBuilder_append11($this, var$1, var$2, var$3) {
-    return $this.$append23(var$1, var$2, var$3);
+    return $this.$append24(var$1, var$2, var$3);
 }
 function jl_StringBuilder_charAt($this, var$1) {
     return jl_AbstractStringBuilder_charAt($this, var$1);
@@ -17893,7 +18113,7 @@ function jl_StringBuilder_insert14($this, var$1, var$2) {
     return $this.$insert19(var$1, var$2);
 }
 function jl_StringBuilder_append12($this, var$1) {
-    return $this.$append24(var$1);
+    return $this.$append25(var$1);
 }
 function jl_ClassLoader() {
     jl_Object.call(this);
@@ -17950,7 +18170,7 @@ function jur_CompositeRangeSet_setNext($this, $next) {
     $this.$withoutSurrogates.$setNext($next);
 }
 function jur_CompositeRangeSet_getName($this) {
-    return (((((jl_StringBuilder__init_()).$append($rt_s(404))).$append25($this.$withoutSurrogates)).$append($rt_s(405))).$append25($this.$withSurrogates)).$toString();
+    return (((((jl_StringBuilder__init_()).$append($rt_s(404))).$append26($this.$withoutSurrogates)).$append($rt_s(405))).$append26($this.$withSurrogates)).$toString();
 }
 function jur_CompositeRangeSet_hasConsumed($this, $matchResult) {
     return 1;
@@ -18123,6 +18343,11 @@ function jt_DateFormatElement$MonthText__init_0($this, $symbols, $abbreviated) {
     $this.$shortMonths0 = $symbols.$getShortMonths();
     $this.$abbreviated = $abbreviated;
 }
+function jt_DateFormatElement$MonthText_format($this, $date, $buffer) {
+    var $month;
+    $month = $date.$get0(2);
+    $buffer.$append16(!$this.$abbreviated ? $this.$months0.data[$month] : $this.$shortMonths0.data[$month]);
+}
 function jt_DateFormatElement$MonthText_equals($this, $o) {
     var $monthText, var$3, var$4, var$5;
     if ($this === $o)
@@ -18186,6 +18411,9 @@ function jt_DateFormatElement$NumericWeekday__init_(var_0) {
 }
 function jt_DateFormatElement$NumericWeekday__init_0($this, $length) {
     jt_DateFormatElement$Numeric__init_0($this, 7, $length, 1);
+}
+function jt_DateFormatElement$NumericWeekday_processBeforeFormat($this, $num) {
+    return $num == 1 ? 7 : $num - 1 | 0;
 }
 var jlr_Field = $rt_classWithoutFields(jlr_AccessibleObject);
 function ju_AbstractList$1() {
@@ -18309,6 +18537,28 @@ function jur_AbstractCharClass$LazyJavaUpperCase$1__init_0($this, $this$0) {
 function jur_AbstractCharClass$LazyJavaUpperCase$1_contains($this, $ch) {
     return jl_Character_isUpperCase0($ch);
 }
+function ju_Date() {
+    jl_Object.call(this);
+    this.$value6 = Long_ZERO;
+}
+function ju_Date_$callClinit() {
+    ju_Date_$callClinit = $rt_eraseClinit(ju_Date);
+    ju_Date__clinit_();
+}
+function ju_Date__init_(var_0) {
+    var var_1 = new ju_Date();
+    ju_Date__init_0(var_1, var_0);
+    return var_1;
+}
+function ju_Date__init_0($this, $date) {
+    ju_Date_$callClinit();
+    jl_Object__init_0($this);
+    $this.$value6 = $date;
+}
+function ju_Date_getTime($this) {
+    return $this.$value6;
+}
+function ju_Date__clinit_() {}
 function ucsic_TimeSelector() {
     var a = this; ucsic_AbstractPageWidget.call(a);
     a.$controlsEl = null;
@@ -18404,6 +18654,29 @@ function ucsiiu_Format$FloatInstruction__init_0(var$0, var$1, var$2) {
     ucsiiu_Format$Inst__init_0(var$0, null);
     var$0.$width1 = var$1;
     var$0.$precision0 = var$2;
+}
+function ucsiiu_Format$FloatInstruction_render(var$0, var$1) {
+    var var$2, var$3, var$4;
+    var$1 = var$1;
+    var$2 = jl_Integer_toString0(var$1.$intValue());
+    if (var$0.$width1 != (-1))
+        var$2 = ucsiiu_InvUtil_padLeft(var$2, var$0.$width1);
+    var$1 = (jl_Float_toString(var$1.$floatValue() - var$1.$intValue())).$substring(2);
+    if (var$0.$precision0 == (-1))
+        return ((((jl_StringBuilder__init_()).$append(var$2)).$append($rt_s(293))).$append(var$1)).$toString();
+    var$3 = $rt_createCharArray(var$0.$precision0);
+    var$4 = 0;
+    while (var$4 < var$0.$precision0) {
+        if (var$4 >= var$1.$length())
+            var$3.data[var$4] = 48;
+        else
+            var$3.data[var$4] = var$1.$charAt(var$4);
+        var$4 = var$4 + 1 | 0;
+    }
+    return ((((jl_StringBuilder__init_()).$append(var$2)).$append($rt_s(293))).$append(jl_String__init_(var$3))).$toString();
+}
+function ucsiiu_Format$FloatInstruction_acceptsArg(var$0) {
+    return 1;
 }
 function ucsic_ControlsWidget() {
     var a = this; ucsic_AbstractPageWidget.call(a);
@@ -18643,7 +18916,7 @@ function ucsiiu_Format__init_0(var$0, var$1) {
     var$1 = ucsiiu_Format$InstLit__init_1(null);
     while (var$2.$hasNext()) {
         if (var$2.$peek0() != 37)
-            var$1.$append26(var$2.$next1());
+            var$1.$append27(var$2.$next1());
         else {
             var$0.$instructions.$add1(var$1);
             var$2.$next1();
@@ -18721,6 +18994,24 @@ function ucsiiu_Format_parseInstruction(var$0, var$1) {
 }
 function ucsiiu_Format_isDigit(var$1) {
     return var$1 >= 48 && var$1 <= 57 ? 1 : 0;
+}
+function ucsiiu_Format_format(var$0, var$1) {
+    var var$2, var$3, var$4, var$5, var$6, var$7;
+    var$2 = jl_StringBuilder__init_();
+    var$3 = 0;
+    var$4 = var$0.$instructions.$iterator();
+    while (var$4.$hasNext()) {
+        var$5 = var$4.$next();
+        if (!var$5.$acceptsArg())
+            var$2.$append(var$5.$render(null));
+        else {
+            var$6 = var$1.data;
+            var$7 = var$3 + 1 | 0;
+            var$2.$append(var$5.$render(var$6[var$3]));
+            var$3 = var$7;
+        }
+    }
+    return var$2.$toString();
 }
 var oj_JSONPropertyIgnore = $rt_classWithoutFields(0);
 function jur_AbstractCharClass$LazyJavaLetter$1() {
@@ -18808,6 +19099,19 @@ function ju_TimeZone_detectTimezone() {
     ju_TimeZone_$callClinit();
     return null;
 }
+function ju_TimeZone_getDisplayName($this, $locale) {
+    return $this.$getDisplayName(0, 1, $locale);
+}
+function ju_TimeZone_getDisplayName0($this, $daylightTime, $style, $locale) {
+    var $name;
+    $name = otciu_CLDRHelper_getTimeZoneName(ju_Locale_getLanguage($locale), ju_Locale_getCountry($locale), $this.$id1);
+    if ($name === null)
+        $name = $this.$id1;
+    return $name;
+}
+function ju_TimeZone_getID($this) {
+    return $this.$id1;
+}
 function ju_TimeZone__clinit_() {
     ju_TimeZone_GMT = ju_IANATimeZone__init_(otcit_FixedDateTimeZone__init_($rt_s(459), 0, 0));
 }
@@ -18830,6 +19134,9 @@ function ju_IANATimeZone__init_0($this, $underlyingZone) {
 }
 function ju_IANATimeZone_getOffset($this, $time) {
     return ($this.$rawOffset + $this.$diff | 0) + $this.$underlyingZone.$getOffset($time) | 0;
+}
+function ju_IANATimeZone_getRawOffset($this) {
+    return $this.$rawOffset;
 }
 function ju_IANATimeZone_clone($this) {
     var $copy;
@@ -19088,6 +19395,25 @@ function jt_DateFormatElement$GeneralTimezone__init_(var_0) {
 function jt_DateFormatElement$GeneralTimezone__init_0($this, $locale) {
     jt_DateFormatElement$BaseTimezone__init_($this, $locale);
 }
+function jt_DateFormatElement$GeneralTimezone_format($this, $date, $buffer) {
+    var $tz, $minutes, $hours, var$6;
+    $tz = $date.$getTimeZone();
+    if (!($tz.$getID()).$startsWith($rt_s(459)))
+        $buffer.$append16(ju_TimeZone_getDisplayName($tz, $this.$locale2));
+    else {
+        $minutes = $tz.$getRawOffset() / 60000 | 0;
+        $buffer.$append16($rt_s(459));
+        if ($minutes >= 0)
+            $buffer.$append3(43);
+        else {
+            $minutes =  -$minutes | 0;
+            $buffer.$append3(45);
+        }
+        $hours = $minutes / 60 | 0;
+        var$6 = $minutes % 60 | 0;
+        (((($buffer.$append2($hours / 10 | 0)).$append2($hours % 10 | 0)).$append3(58)).$append2(var$6 / 10 | 0)).$append2(var$6 % 10 | 0);
+    }
+}
 function jt_DateFormatElement$WeekdayText() {
     var a = this; jt_DateFormatElement.call(a);
     a.$weeks = null;
@@ -19104,6 +19430,11 @@ function jt_DateFormatElement$WeekdayText__init_0($this, $symbols, $abbreviated)
     $this.$weeks = $symbols.$getWeekdays();
     $this.$shortWeeks = $symbols.$getShortWeekdays();
     $this.$abbreviated0 = $abbreviated;
+}
+function jt_DateFormatElement$WeekdayText_format($this, $date, $buffer) {
+    var $weekday;
+    $weekday = $date.$get0(7);
+    $buffer.$append16(!$this.$abbreviated0 ? $this.$weeks.data[$weekday] : $this.$shortWeeks.data[$weekday]);
 }
 function jt_DateFormatElement$WeekdayText_equals($this, $o) {
     var $that, var$3, var$4, var$5;
@@ -19249,7 +19580,7 @@ function ucsih_ChartOptions__init_0(var$0) {
     var$0.$height0 = 300;
     ucsih_ChartOptions_setAxisDefault(var$0, var$0.$axisX1, 1, 22, $rt_s(468));
     ucsih_ChartOptions_setAxisDefault(var$0, var$0.$axisY1, 1, 55, $rt_s(469));
-    ucsih_ChartOptions_setAxisDefault(var$0, var$0.$axisY2, 0, 5, $rt_s(470));
+    ucsih_ChartOptions_setAxisDefault(var$0, var$0.$axisY2, 0, 55, $rt_s(470));
 }
 function ucsih_ChartOptions_setAxisDefault(var$0, var$1, var$2, var$3, var$4) {
     var$1.$setEnabled(var$2);
@@ -19318,7 +19649,7 @@ function ju_IllegalFormatConversionException__init_(var_0, var_1) {
     return var_2;
 }
 function ju_IllegalFormatConversionException__init_0($this, $conversion, $argumentClass) {
-    ju_IllegalFormatException__init_0($this, ((((((jl_StringBuilder__init_()).$append($rt_s(477))).$append25($argumentClass)).$append($rt_s(478))).$append10($conversion)).$append($rt_s(479))).$toString());
+    ju_IllegalFormatException__init_0($this, ((((((jl_StringBuilder__init_()).$append($rt_s(477))).$append26($argumentClass)).$append($rt_s(478))).$append13($conversion)).$append($rt_s(479))).$toString());
     $this.$conversion1 = $conversion;
     $this.$argumentClass = $argumentClass;
 }
@@ -19675,6 +20006,23 @@ function oj_JSONArray_wrongValueFormatException($idx, $valueType, $cause) {
     return oj_JSONException__init_1(((((((jl_StringBuilder__init_()).$append($rt_s(485))).$append1($idx)).$append($rt_s(311))).$append($valueType)).$append($rt_s(293))).$toString(), $cause);
 }
 var ucsiiu_InvUtil = $rt_classWithoutFields();
+function ucsiiu_InvUtil_padLeft(var$1, var$2) {
+    var var$3, var$4;
+    if (var$1 === null)
+        var$1 = $rt_s(20);
+    if (var$1.$length() >= var$2)
+        return var$1;
+    var$3 = $rt_createCharArray(var$2 - var$1.$length() | 0);
+    var$2 = 0;
+    while (true) {
+        var$4 = var$3.data;
+        if (var$2 >= var$4.length)
+            break;
+        var$4[var$2] = 32;
+        var$2 = var$2 + 1 | 0;
+    }
+    return (jl_String__init_(var$3)).$concat(var$1);
+}
 function ucsiiu_InvUtil_getLocationParameters(var$1) {
     var var$2, var$3, var$4, var$5, var$6;
     if (var$1 !== null && !var$1.$isEmpty()) {
@@ -19961,6 +20309,19 @@ function jur_DotAllSet_getType($this) {
 }
 function jur_DotAllSet_hasConsumed($this, $matchResult) {
     return 1;
+}
+function jt_FieldPosition() {
+    jl_Object.call(this);
+    this.$myField = 0;
+}
+function jt_FieldPosition__init_(var_0) {
+    var var_1 = new jt_FieldPosition();
+    jt_FieldPosition__init_0(var_1, var_0);
+    return var_1;
+}
+function jt_FieldPosition__init_0($this, $field) {
+    jl_Object__init_0($this);
+    $this.$myField = $field;
 }
 function jur_AbstractCharClass$LazyJavaLowerCase$1() {
     jur_AbstractCharClass.call(this);
@@ -20351,7 +20712,7 @@ function ju_HashMap$2_iterator($this) {
 }
 function jl_Double() {
     jl_Number.call(this);
-    this.$value6 = 0.0;
+    this.$value7 = 0.0;
 }
 var jl_Double_NaN = 0.0;
 var jl_Double_TYPE = null;
@@ -20367,13 +20728,13 @@ function jl_Double__init_(var_0) {
 function jl_Double__init_0($this, $value) {
     jl_Double_$callClinit();
     jl_Number__init_($this);
-    $this.$value6 = $value;
+    $this.$value7 = $value;
 }
 function jl_Double_intValue($this) {
-    return $this.$value6 | 0;
+    return $this.$value7 | 0;
 }
 function jl_Double_floatValue($this) {
-    return $this.$value6;
+    return $this.$value7;
 }
 function jl_Double_valueOf($d) {
     jl_Double_$callClinit();
@@ -20381,7 +20742,7 @@ function jl_Double_valueOf($d) {
 }
 function jl_Double_toString($d) {
     jl_Double_$callClinit();
-    return ((jl_StringBuilder__init_()).$append27($d)).$toString();
+    return ((jl_StringBuilder__init_()).$append28($d)).$toString();
 }
 function jl_Double_valueOf0($string) {
     jl_Double_$callClinit();
@@ -20534,18 +20895,18 @@ function jl_Double_decimalExponent($n) {
     return $result;
 }
 function jl_Double_toString0($this) {
-    return jl_Double_toString($this.$value6);
+    return jl_Double_toString($this.$value7);
 }
 function jl_Double_equals($this, $other) {
     if ($this === $other)
         return 1;
-    return $other instanceof jl_Double && $other.$value6 === $this.$value6 ? 1 : 0;
+    return $other instanceof jl_Double && $other.$value7 === $this.$value7 ? 1 : 0;
 }
 function jl_Double_isNaN($this) {
-    return isNaN($this.$value6) ? 1 : 0;
+    return isNaN($this.$value7) ? 1 : 0;
 }
 function jl_Double_isInfinite($this) {
-    return !isFinite($this.$value6) ? 1 : 0;
+    return !isFinite($this.$value7) ? 1 : 0;
 }
 function jl_Double__clinit_() {
     jl_Double_NaN = NaN;
@@ -20586,6 +20947,21 @@ function jt_SimpleDateFormat__init_4($this, $pattern, $dateFormatSymbols) {
     $this.$locale3 = ju_Locale_getDefault();
     $this.$applyPattern($pattern);
 }
+function jt_SimpleDateFormat_format($this, $date, $buffer, $field) {
+    var $calendar, var$5, var$6, var$7, $element;
+    $calendar = ju_GregorianCalendar__init_1($this.$locale3);
+    ju_Calendar_setTime($calendar, $date);
+    $calendar.$setTimeZone($this.$calendar.$getTimeZone());
+    var$5 = $this.$elements.data;
+    var$6 = var$5.length;
+    var$7 = 0;
+    while (var$7 < var$6) {
+        $element = var$5[var$7];
+        $element.$format3($calendar, $buffer);
+        var$7 = var$7 + 1 | 0;
+    }
+    return $buffer;
+}
 function jt_SimpleDateFormat_applyPattern($this, $pattern) {
     $this.$pattern2 = $pattern;
     jt_SimpleDateFormat_reparsePattern($this);
@@ -20620,6 +20996,14 @@ function ucsiiu_Format$TimeInstruction__init_0(var$0, var$1, var$2) {
     var$0.$this$040 = var$1;
     ucsiiu_Format$Inst__init_0(var$0, null);
     var$0.$sdf = jt_SimpleDateFormat__init_(var$2);
+}
+function ucsiiu_Format$TimeInstruction_render(var$0, var$1) {
+    var var$2;
+    var$2 = !(var$1 instanceof jl_Number) ? var$1 : ju_Date__init_(var$1.$longValue());
+    return jt_DateFormat_format(var$0.$sdf, var$2);
+}
+function ucsiiu_Format$TimeInstruction_acceptsArg(var$0) {
+    return 1;
 }
 var otjb_StorageProvider = $rt_classWithoutFields(0);
 var otjc_JSArrayReader = $rt_classWithoutFields(0);
@@ -20799,6 +21183,11 @@ function jt_DateFormatElement$NumericHour__init_(var_0, var_1, var_2) {
 function jt_DateFormatElement$NumericHour__init_0($this, $field, $length, $limit) {
     jt_DateFormatElement$Numeric__init_0($this, $field, $length, 2);
     $this.$limit1 = $limit;
+}
+function jt_DateFormatElement$NumericHour_processBeforeFormat($this, $num) {
+    if (!$num)
+        $num = $this.$limit1;
+    return $num;
 }
 function jt_DateFormatElement$NumericHour_equals($this, $o) {
     var $that;
@@ -20990,7 +21379,7 @@ function jur_HighSurrogateCharSet_findBack($this, $strIndex, $lastIndex, $testSt
     return (-1);
 }
 function jur_HighSurrogateCharSet_getName($this) {
-    return (((jl_StringBuilder__init_()).$append($rt_s(20))).$append10($this.$high0)).$toString();
+    return (((jl_StringBuilder__init_()).$append($rt_s(20))).$append13($this.$high0)).$toString();
 }
 function jur_HighSurrogateCharSet_first($this, $set) {
     if ($set instanceof jur_CharSet)
@@ -21015,7 +21404,7 @@ function ju_Formatter$FormatWriter() {
     a.$formatter = null;
     a.$out1 = null;
     a.$locale4 = null;
-    a.$format2 = null;
+    a.$format5 = null;
     a.$args = null;
     a.$index7 = 0;
     a.$formatSpecifierStart = 0;
@@ -21036,23 +21425,23 @@ function ju_Formatter$FormatWriter__init_0($this, $formatter, $out, $locale, $fo
     $this.$formatter = $formatter;
     $this.$out1 = $out;
     $this.$locale4 = $locale;
-    $this.$format2 = $format;
+    $this.$format5 = $format;
     $this.$args = $args;
 }
 function ju_Formatter$FormatWriter_write($this) {
     var $next, $specifier;
     while (true) {
-        $next = $this.$format2.$indexOf2(37, $this.$index7);
+        $next = $this.$format5.$indexOf2(37, $this.$index7);
         if ($next < 0)
             break;
-        $this.$out1.$append28($this.$format2.$substring0($this.$index7, $next));
+        $this.$out1.$append29($this.$format5.$substring0($this.$index7, $next));
         $this.$index7 = $next + 1 | 0;
         $this.$formatSpecifierStart = $this.$index7;
         $specifier = ju_Formatter$FormatWriter_parseFormatSpecifier($this);
         ju_Formatter$FormatWriter_configureFormat($this);
         ju_Formatter$FormatWriter_formatValue($this, $specifier);
     }
-    $this.$out1.$append28($this.$format2.$substring($this.$index7));
+    $this.$out1.$append29($this.$format5.$substring($this.$index7));
 }
 function ju_Formatter$FormatWriter_formatValue($this, $specifier) {
     a: {
@@ -21223,17 +21612,17 @@ function ju_Formatter$FormatWriter_formatDecimalInt($this, $specifier, $upperCas
     $sb = jl_StringBuilder__init_();
     if ($negative) {
         if (!($this.$flags3 & 128)) {
-            $sb.$append10(45);
+            $sb.$append13(45);
             $additionalSymbols = 1;
         } else {
-            $sb.$append10(40);
+            $sb.$append13(40);
             $additionalSymbols = 2;
         }
     } else if ($this.$flags3 & 8) {
-        $sb.$append10(43);
+        $sb.$append13(43);
         $additionalSymbols = 1;
     } else if ($this.$flags3 & 16) {
-        $sb.$append10(32);
+        $sb.$append13(32);
         $additionalSymbols = 1;
     }
     $valueSb = jl_StringBuilder__init_();
@@ -21248,7 +21637,7 @@ function ju_Formatter$FormatWriter_formatDecimalInt($this, $specifier, $upperCas
         $prev = 0;
         while ($i < $str.$length()) {
             $valueSb.$append($str.$substring0($prev, $i));
-            $valueSb.$append10($separator);
+            $valueSb.$append13($separator);
             $i_0 = $i + $size | 0;
             $prev = $i;
             $i = $i_0;
@@ -21261,14 +21650,14 @@ function ju_Formatter$FormatWriter_formatDecimalInt($this, $specifier, $upperCas
             while (true) {
                 if ($i >= $this.$width3)
                     break a;
-                $sb.$append10(jl_Character_forDigit(0, 10));
+                $sb.$append13(jl_Character_forDigit(0, 10));
                 $i = $i + 1 | 0;
             }
         }
     }
-    $sb.$append24($valueSb);
+    $sb.$append25($valueSb);
     if ($negative && $this.$flags3 & 128)
-        $sb.$append10(41);
+        $sb.$append13(41);
     ju_Formatter$FormatWriter_formatGivenString($this, $upperCase, $sb.$toString());
 }
 function ju_Formatter$FormatWriter_formatRadixInt($this, $specifier, $radixLog2, $upperCase) {
@@ -21298,7 +21687,7 @@ function ju_Formatter$FormatWriter_formatRadixInt($this, $specifier, $radixLog2,
             while (true) {
                 if ($i >= $this.$width3)
                     break a;
-                $sb.$append10(jl_Character_forDigit(0, 10));
+                $sb.$append13(jl_Character_forDigit(0, 10));
                 $i = $i + 1 | 0;
             }
         }
@@ -21314,7 +21703,7 @@ function ju_Formatter$FormatWriter_verifyIntFlags($this) {
     if ($this.$precision1 >= 0)
         $rt_throw(ju_IllegalFormatPrecisionException__init_($this.$precision1));
     if ($this.$flags3 & 1 && $this.$width3 < 0)
-        $rt_throw(ju_MissingFormatWidthException__init_($this.$format2.$substring0($this.$formatSpecifierStart, $this.$index7)));
+        $rt_throw(ju_MissingFormatWidthException__init_($this.$format5.$substring0($this.$formatSpecifierStart, $this.$index7)));
 }
 function ju_Formatter$FormatWriter_formatGivenString($this, $upperCase, $str) {
     if ($this.$precision1 > 0)
@@ -21323,9 +21712,9 @@ function ju_Formatter$FormatWriter_formatGivenString($this, $upperCase, $str) {
         $str = $str.$toUpperCase1();
     if (!($this.$flags3 & 1)) {
         ju_Formatter$FormatWriter_mayBeAppendSpaces($this, $str);
-        $this.$out1.$append28($str);
+        $this.$out1.$append29($str);
     } else {
-        $this.$out1.$append28($str);
+        $this.$out1.$append29($str);
         ju_Formatter$FormatWriter_mayBeAppendSpaces($this, $str);
     }
 }
@@ -21349,10 +21738,10 @@ function ju_Formatter$FormatWriter_mayBeAppendSpaces($this, $str) {
         $sb = jl_StringBuilder__init_0($diff);
         $i = 0;
         while ($i < $diff) {
-            $sb.$append10(32);
+            $sb.$append13(32);
             $i = $i + 1 | 0;
         }
-        $this.$out1.$append28($sb);
+        $this.$out1.$append29($sb);
     }
 }
 function ju_Formatter$FormatWriter_configureFormat($this) {
@@ -21372,39 +21761,39 @@ function ju_Formatter$FormatWriter_parseFormatSpecifier($this) {
     $this.$argumentIndex = (-1);
     $this.$width3 = (-1);
     $this.$precision1 = (-1);
-    $c = $this.$format2.$charAt($this.$index7);
+    $c = $this.$format5.$charAt($this.$index7);
     if ($c != 48 && ju_Formatter$FormatWriter_isDigit($c)) {
         $n = ju_Formatter$FormatWriter_readInt($this);
-        if ($this.$index7 < $this.$format2.$length() && $this.$format2.$charAt($this.$index7) == 36) {
+        if ($this.$index7 < $this.$format5.$length() && $this.$format5.$charAt($this.$index7) == 36) {
             $this.$index7 = $this.$index7 + 1 | 0;
             $this.$argumentIndex = $n - 1 | 0;
         } else
             $this.$width3 = $n;
     }
     ju_Formatter$FormatWriter_parseFlags($this);
-    if ($this.$width3 < 0 && $this.$index7 < $this.$format2.$length() && ju_Formatter$FormatWriter_isDigit($this.$format2.$charAt($this.$index7)))
+    if ($this.$width3 < 0 && $this.$index7 < $this.$format5.$length() && ju_Formatter$FormatWriter_isDigit($this.$format5.$charAt($this.$index7)))
         $this.$width3 = ju_Formatter$FormatWriter_readInt($this);
-    if ($this.$index7 < $this.$format2.$length() && $this.$format2.$charAt($this.$index7) == 46) {
+    if ($this.$index7 < $this.$format5.$length() && $this.$format5.$charAt($this.$index7) == 46) {
         $this.$index7 = $this.$index7 + 1 | 0;
-        if ($this.$index7 < $this.$format2.$length() && ju_Formatter$FormatWriter_isDigit($this.$format2.$charAt($this.$index7)))
+        if ($this.$index7 < $this.$format5.$length() && ju_Formatter$FormatWriter_isDigit($this.$format5.$charAt($this.$index7)))
             $this.$precision1 = ju_Formatter$FormatWriter_readInt($this);
         else
-            $rt_throw(ju_UnknownFormatConversionException__init_(jl_String_valueOf1($this.$format2.$charAt($this.$index7 - 1 | 0))));
+            $rt_throw(ju_UnknownFormatConversionException__init_(jl_String_valueOf1($this.$format5.$charAt($this.$index7 - 1 | 0))));
     }
-    if ($this.$index7 < $this.$format2.$length()) {
-        var$3 = $this.$format2;
+    if ($this.$index7 < $this.$format5.$length()) {
+        var$3 = $this.$format5;
         var$4 = $this.$index7;
         $this.$index7 = var$4 + 1 | 0;
         return var$3.$charAt(var$4);
     }
-    $rt_throw(ju_UnknownFormatConversionException__init_(jl_String_valueOf1($this.$format2.$charAt($this.$format2.$length() - 1 | 0))));
+    $rt_throw(ju_UnknownFormatConversionException__init_(jl_String_valueOf1($this.$format5.$charAt($this.$format5.$length() - 1 | 0))));
 }
 function ju_Formatter$FormatWriter_parseFlags($this) {
     var $c, $flag;
     a: {
-        while ($this.$index7 < $this.$format2.$length()) {
+        while ($this.$index7 < $this.$format5.$length()) {
             b: {
-                $c = $this.$format2.$charAt($this.$index7);
+                $c = $this.$format5.$charAt($this.$index7);
                 switch ($c) {
                     case 32:
                         break;
@@ -21467,9 +21856,9 @@ function ju_Formatter$FormatWriter_parseFlags($this) {
 function ju_Formatter$FormatWriter_readInt($this) {
     var $result, var$2, var$3, var$4;
     $result = 0;
-    while ($this.$index7 < $this.$format2.$length() && ju_Formatter$FormatWriter_isDigit($this.$format2.$charAt($this.$index7))) {
+    while ($this.$index7 < $this.$format5.$length() && ju_Formatter$FormatWriter_isDigit($this.$format5.$charAt($this.$index7))) {
         var$2 = $result * 10 | 0;
-        var$3 = $this.$format2;
+        var$3 = $this.$format5;
         var$4 = $this.$index7;
         $this.$index7 = var$4 + 1 | 0;
         $result = var$2 + (var$3.$charAt(var$4) - 48 | 0) | 0;
@@ -21639,10 +22028,10 @@ function ucsic_MainPage_getElement(var$0) {
 function ucsic_MainPage_load(var$0) {
     var var$1, var$2;
     var$1 = ucsiiu_InvUtil_getLocationParameters($rt_str(window.location.hash));
-    var$0.$setDataRange(!var$1.$containsKey($rt_s(505)) ? 0 : jl_Integer_parseInt0(var$1.$get0($rt_s(505))), !var$1.$containsKey($rt_s(506)) ? 60 : jl_Integer_parseInt0(var$1.$get0($rt_s(506))));
+    var$0.$setDataRange(!var$1.$containsKey($rt_s(505)) ? 0 : jl_Integer_parseInt0(var$1.$get1($rt_s(505))), !var$1.$containsKey($rt_s(506)) ? 60 : jl_Integer_parseInt0(var$1.$get1($rt_s(506))));
     var$2 = ucsiiu_InvUtil_getLocationParameters($rt_str(window.location.search));
     var$1 = oj_JSONObject__init_1();
-    var$1.$put0($rt_s(507), var$2.$get0($rt_s(508)));
+    var$1.$put0($rt_s(507), var$2.$get1($rt_s(508)));
     var$0.$fetch0($rt_s(509), var$1, ucsic_MainPage$load$lambda$_2_0__init_(var$0));
 }
 function ucsic_MainPage_refresh(var$0, var$1) {
@@ -21657,7 +22046,7 @@ function ucsic_MainPage_setDataRange(var$0, var$1, var$2) {
     var$6 = oj_JSONObject__init_1();
     var$6.$put4($rt_s(505), var$1);
     var$6.$put4($rt_s(506), var$2);
-    var$6.$put0($rt_s(507), var$3.$get0($rt_s(508)));
+    var$6.$put0($rt_s(507), var$3.$get1($rt_s(508)));
     var$0.$post0($rt_s(513), var$6, ucsic_MainPage$setDataRange$lambda$_5_0__init_(var$0));
 }
 function ucsic_MainPage_lambda$setDataRange$7(var$0, var$1) {
@@ -21682,10 +22071,10 @@ function ucsic_MainPage_lambda$load$3(var$0, var$1) {
     while (var$2 < var$1.$length()) {
         var$3 = var$1.$getJSONObject0(var$2);
         ucsic_MainPage_$callClinit();
-        var$4 = ucsic_MainPage_pageTypes.$get0(var$3.$getString0($rt_s(516)));
+        var$4 = ucsic_MainPage_pageTypes.$get1(var$3.$getString0($rt_s(516)));
         if (var$4 === null)
             $rt_throw(ju_NoSuchElementException__init_1((((jl_StringBuilder__init_()).$append($rt_s(517))).$append(var$3.$getString0($rt_s(516)))).$toString()));
-        var$4 = var$4.$apply1(var$0);
+        var$4 = var$4.$apply(var$0);
         var$4.$configure(var$3);
         var$4.$construct(var$0.$root4);
         var$0.$widgets.$add1(var$4);
@@ -21778,6 +22167,27 @@ function jt_DateFormatElement$Iso8601Timezone__init_0($this, $size) {
     jt_DateFormatElement__init_($this);
     $this.$size3 = $size;
 }
+function jt_DateFormatElement$Iso8601Timezone_format($this, $date, $buffer) {
+    var $minutes, $hours, var$5;
+    $minutes = ($date.$getTimeZone()).$getOffset($date.$getTimeInMillis()) / 60000 | 0;
+    if (!$minutes) {
+        $buffer.$append3(90);
+        return;
+    }
+    if ($minutes > 0)
+        $buffer.$append3(43);
+    else {
+        $minutes =  -$minutes | 0;
+        $buffer.$append3(45);
+    }
+    $hours = $minutes / 60 | 0;
+    var$5 = $minutes % 60 | 0;
+    ($buffer.$append2($hours / 10 | 0)).$append2($hours % 10 | 0);
+    if ($this.$size3 >= 3)
+        $buffer.$append3(58);
+    if ($this.$size3 > 1)
+        ($buffer.$append2(var$5 / 10 | 0)).$append2(var$5 % 10 | 0);
+}
 function jt_DateFormatElement$Iso8601Timezone_equals($this, $o) {
     var $that;
     if ($this === $o)
@@ -21816,7 +22226,7 @@ function jlr_Modifier_toString($mod) {
         $modifier = var$5[var$7];
         if ($mod & $modifier) {
             if ($sb.$length() > 0)
-                $sb.$append10(32);
+                $sb.$append13(32);
             $sb.$append($modifierNames.data[$index]);
         }
         $index = $index + 1 | 0;
@@ -22904,7 +23314,7 @@ function jur_Lexer_parseCharClassName($this) {
                 $ch = $this.$pattern3.data[jur_Lexer_nextIndex($this)];
                 if ($ch == 125)
                     break a;
-                $sb.$append10($ch);
+                $sb.$append13($ch);
             }
         }
         if ($ch != 125)
@@ -22954,7 +23364,7 @@ function jur_Lexer_processQuantifier($this, $ch) {
                         throw $$e;
                     }
                 }
-            $sb.$append10($ch & 65535);
+            $sb.$append13($ch & 65535);
         }
         $rt_throw(jur_PatternSyntaxException__init_($rt_s(20), $this.$toString(), $this.$index8));
     }
@@ -23033,7 +23443,7 @@ function jur_Lexer_readHex($this, $max) {
             break;
         if ($this.$index8 >= $length)
             break;
-        $st.$append10($this.$pattern3.data[jur_Lexer_nextIndex($this)]);
+        $st.$append13($this.$pattern3.data[jur_Lexer_nextIndex($this)]);
         $i = $i + 1 | 0;
     }
     if (!var$5)
@@ -23189,7 +23599,7 @@ function jur_Lexer_getHangulDecomposition($ch) {
 }
 function jur_Lexer_hasSingleCodepointDecomposition($ch) {
     var $hasSingleDecomp;
-    $hasSingleDecomp = jur_Lexer_singleDecompTable.$get2($ch);
+    $hasSingleDecomp = jur_Lexer_singleDecompTable.$get0($ch);
     return $hasSingleDecomp == jur_Lexer_singleDecompTableSize ? 0 : 1;
 }
 function jur_Lexer_hasDecompositionNonNullCanClass($ch) {
@@ -23250,7 +23660,7 @@ function ucsih_Axis() {
     a.$enabled = 0;
     a.$forceMin = null;
     a.$forceMax = null;
-    a.$format3 = null;
+    a.$format6 = null;
     a.$size4 = 0;
     a.$name11 = null;
 }
@@ -23285,6 +23695,9 @@ function ucsih_Axis_getMin(var$0) {
 function ucsih_Axis_getMax(var$0) {
     return var$0.$max2;
 }
+function ucsih_Axis_getFormatter(var$0) {
+    return var$0.$formatter0;
+}
 function ucsih_Axis_isEnabled(var$0) {
     return var$0.$enabled;
 }
@@ -23292,7 +23705,7 @@ function ucsih_Axis_setEnabled(var$0, var$1) {
     var$0.$enabled = var$1;
 }
 function ucsih_Axis_setFormat(var$0, var$1) {
-    var$0.$format3 = var$1;
+    var$0.$format6 = var$1;
     if (var$1 === null)
         var$0.$formatter0 = ucsih_Axis$setFormat$lambda$_20_1__init_();
     else
@@ -23312,6 +23725,15 @@ function ucsih_Axis_getName(var$0) {
 }
 function ucsih_Axis_setName(var$0, var$1) {
     var$0.$name11 = var$1;
+}
+function ucsih_Axis_lambda$setFormat$2(var$1, var$2) {
+    var var$3;
+    var$3 = $rt_createArray(jl_Object, 1);
+    var$3.data[0] = var$2;
+    return var$1.$format7(var$3);
+}
+function ucsih_Axis_lambda$new$0(var$1) {
+    return var$1.$toString();
 }
 function ju_IllegalFormatFlagsException() {
     ju_IllegalFormatException.call(this);
@@ -23334,6 +23756,12 @@ function ucsih_Axis$_init_$lambda$_0_0__init_() {
 }
 function ucsih_Axis$_init_$lambda$_0_0__init_0(var$0) {
     jl_Object__init_0(var$0);
+}
+function ucsih_Axis$_init_$lambda$_0_0_apply(var$0, var$1) {
+    return ucsih_Axis$_init_$lambda$_0_0_apply0(var$0, var$1);
+}
+function ucsih_Axis$_init_$lambda$_0_0_apply0(var$0, var$1) {
+    return ucsih_Axis_lambda$new$0(var$1);
 }
 function jt_SimpleDatePatternParser() {
     var a = this; jl_Object.call(a);
@@ -23543,7 +23971,7 @@ function jt_SimpleDatePatternParser_parsePattern($this, $pattern) {
                 while ($this.$index9 < $pattern.$length() && !jt_SimpleDatePatternParser_isControl($this, $pattern.$charAt($this.$index9))) {
                     var$5 = $this.$index9;
                     $this.$index9 = var$5 + 1 | 0;
-                    $sb.$append10($pattern.$charAt(var$5));
+                    $sb.$append13($pattern.$charAt(var$5));
                 }
                 $this.$elements0.$add1(jt_DateFormatElement$ConstantText__init_($sb.$toString()));
             }
@@ -23576,13 +24004,13 @@ function jt_SimpleDatePatternParser_parseQuoted($this) {
         $this.$index9 = var$3 + 1 | 0;
         $c = var$2.$charAt(var$3);
         if ($c != 39)
-            $sb.$append10($c);
+            $sb.$append13($c);
         else {
             if ($this.$index9 >= $this.$pattern4.$length())
                 break;
             if ($this.$pattern4.$charAt($this.$index9) != 39)
                 break;
-            $sb.$append10(39);
+            $sb.$append13(39);
             $this.$index9 = $this.$index9 + 1 | 0;
         }
     }
@@ -23613,6 +24041,11 @@ function jt_DateFormatElement$EraText__init_(var_0) {
 function jt_DateFormatElement$EraText__init_0($this, $symbols) {
     jt_DateFormatElement__init_($this);
     $this.$eras0 = $symbols.$getEras();
+}
+function jt_DateFormatElement$EraText_format($this, $date, $buffer) {
+    var $era;
+    $era = $date.$get0(0);
+    $buffer.$append16($this.$eras0.data[$era]);
 }
 function jt_DateFormatElement$EraText_equals($this, $o) {
     var $eraText;
@@ -23704,7 +24137,7 @@ otjdc_ElementCSSInlineStyle, 0, jl_Object, [otj_JSObject], 3, 3, 0, 0, 0,
 jl_Runnable, 0, jl_Object, [], 3, 3, 0, 0, 0,
 jl_Thread, "Thread", 7, jl_Object, [jl_Runnable], 0, 3, 0, jl_Thread_$callClinit, ["$_init_", $rt_wrapFunction1(jl_Thread__init_0), "$_init_8", $rt_wrapFunction2(jl_Thread__init_2)],
 jt_DateFormatElement, 0, jl_Object, [], 1, 0, 0, 0, ["$_init_0", $rt_wrapFunction0(jt_DateFormatElement__init_)],
-jt_DateFormatElement$Year, "DateFormatElement$Year", 6, jt_DateFormatElement, [], 0, 3, 0, 0, ["$_init_4", $rt_wrapFunction1(jt_DateFormatElement$Year__init_0), "$equals", $rt_wrapFunction1(jt_DateFormatElement$Year_equals)],
+jt_DateFormatElement$Year, "DateFormatElement$Year", 6, jt_DateFormatElement, [], 0, 3, 0, 0, ["$_init_4", $rt_wrapFunction1(jt_DateFormatElement$Year__init_0), "$format3", $rt_wrapFunction2(jt_DateFormatElement$Year_format), "$equals", $rt_wrapFunction1(jt_DateFormatElement$Year_equals)],
 jur_AbstractCharClass$LazyAlpha, 0, jur_AbstractCharClass$LazyCharClass, [], 0, 0, 0, 0, ["$_init_0", $rt_wrapFunction0(jur_AbstractCharClass$LazyAlpha__init_0), "$computeValue", $rt_wrapFunction0(jur_AbstractCharClass$LazyAlpha_computeValue)],
 ucsic_Button, 0, jl_Object, [], 0, 3, 0, 0, ["$_init_", $rt_wrapFunction1(ucsic_Button__init_0), "$getElement", $rt_wrapFunction0(ucsic_Button_getElement), "$setId", $rt_wrapFunction1(ucsic_Button_setId), "$setOnClick", $rt_wrapFunction1(ucsic_Button_setOnClick)],
 jur_BackReferencedSingleSet, "BackReferencedSingleSet", 2, jur_SingleSet, [], 0, 0, 0, 0, ["$_init_5", $rt_wrapFunction1(jur_BackReferencedSingleSet__init_0), "$find", $rt_wrapFunction3(jur_BackReferencedSingleSet_find), "$findBack", $rt_wrapFunction4(jur_BackReferencedSingleSet_findBack), "$processBackRefReplacement", $rt_wrapFunction0(jur_BackReferencedSingleSet_processBackRefReplacement)],
@@ -23742,15 +24175,16 @@ jlr_Member, 0, jl_Object, [], 3, 3, 0, 0, 0,
 jlr_Constructor, "Constructor", 9, jlr_AccessibleObject, [jlr_Member], 0, 3, 0, 0, ["$isAnnotationPresent", $rt_wrapFunction1(jlr_AnnotatedElement_isAnnotationPresent)],
 jnc_CoderMalfunctionError, 0, jl_Error, [], 0, 3, 0, 0, ["$_init_12", $rt_wrapFunction1(jnc_CoderMalfunctionError__init_0)],
 jur_PosPlusGroupQuantifierSet, "PosPlusGroupQuantifierSet", 2, jur_GroupQuantifierSet, [], 0, 0, 0, 0, ["$_init_14", $rt_wrapFunction3(jur_PosPlusGroupQuantifierSet__init_0), "$matches", $rt_wrapFunction3(jur_PosPlusGroupQuantifierSet_matches)],
-ju_Calendar, 0, jl_Object, [ji_Serializable, jl_Cloneable, jl_Comparable], 1, 3, 0, ju_Calendar_$callClinit, ["$_init_18", $rt_wrapFunction1(ju_Calendar__init_), "$_init_94", $rt_wrapFunction2(ju_Calendar__init_0), "$complete0", $rt_wrapFunction0(ju_Calendar_complete), "$getFirstDayOfWeek0", $rt_wrapFunction0(ju_Calendar_getFirstDayOfWeek), "$getMinimalDaysInFirstWeek0", $rt_wrapFunction0(ju_Calendar_getMinimalDaysInFirstWeek), "$getTimeZone", $rt_wrapFunction0(ju_Calendar_getTimeZone), "$setTimeZone", $rt_wrapFunction1(ju_Calendar_setTimeZone),
-"$isLenient", $rt_wrapFunction0(ju_Calendar_isLenient), "$setFirstDayOfWeek", $rt_wrapFunction1(ju_Calendar_setFirstDayOfWeek), "$setLenient", $rt_wrapFunction1(ju_Calendar_setLenient), "$setMinimalDaysInFirstWeek", $rt_wrapFunction1(ju_Calendar_setMinimalDaysInFirstWeek), "$setTimeInMillis", $rt_wrapFunction1(ju_Calendar_setTimeInMillis)],
-jl_AbstractStringBuilder, 0, jl_Object, [ji_Serializable, jl_CharSequence], 0, 0, 0, 0, ["$_init_0", $rt_wrapFunction0(jl_AbstractStringBuilder__init_1), "$_init_4", $rt_wrapFunction1(jl_AbstractStringBuilder__init_2), "$append16", $rt_wrapFunction1(jl_AbstractStringBuilder_append), "$append5", $rt_wrapFunction1(jl_AbstractStringBuilder_append0), "$insert0", $rt_wrapFunction2(jl_AbstractStringBuilder_insert), "$append17", $rt_wrapFunction1(jl_AbstractStringBuilder_append1), "$append0", $rt_wrapFunction2(jl_AbstractStringBuilder_append2),
-"$insert1", $rt_wrapFunction3(jl_AbstractStringBuilder_insert0), "$append18", $rt_wrapFunction1(jl_AbstractStringBuilder_append3), "$insert2", $rt_wrapFunction2(jl_AbstractStringBuilder_insert1), "$insert3", $rt_wrapFunction3(jl_AbstractStringBuilder_insert2), "$append19", $rt_wrapFunction1(jl_AbstractStringBuilder_append4), "$insert4", $rt_wrapFunction2(jl_AbstractStringBuilder_insert3), "$append20", $rt_wrapFunction1(jl_AbstractStringBuilder_append5), "$insert5", $rt_wrapFunction2(jl_AbstractStringBuilder_insert4),
-"$append6", $rt_wrapFunction1(jl_AbstractStringBuilder_append6), "$insert6", $rt_wrapFunction2(jl_AbstractStringBuilder_insert5), "$insert", $rt_wrapFunction2(jl_AbstractStringBuilder_insert6), "$ensureCapacity", $rt_wrapFunction1(jl_AbstractStringBuilder_ensureCapacity), "$toString", $rt_wrapFunction0(jl_AbstractStringBuilder_toString), "$length", $rt_wrapFunction0(jl_AbstractStringBuilder_length), "$charAt", $rt_wrapFunction1(jl_AbstractStringBuilder_charAt), "$append3", $rt_wrapFunction3(jl_AbstractStringBuilder_append7),
-"$insert7", $rt_wrapFunction4(jl_AbstractStringBuilder_insert7), "$append21", $rt_wrapFunction1(jl_AbstractStringBuilder_append8), "$append4", $rt_wrapFunction3(jl_AbstractStringBuilder_append9), "$insert8", $rt_wrapFunction4(jl_AbstractStringBuilder_insert8), "$append7", $rt_wrapFunction1(jl_AbstractStringBuilder_append10), "$setLength", $rt_wrapFunction1(jl_AbstractStringBuilder_setLength), "$deleteCharAt0", $rt_wrapFunction1(jl_AbstractStringBuilder_deleteCharAt), "$delete", $rt_wrapFunction2(jl_AbstractStringBuilder_delete)],
+ju_Calendar, 0, jl_Object, [ji_Serializable, jl_Cloneable, jl_Comparable], 1, 3, 0, ju_Calendar_$callClinit, ["$_init_18", $rt_wrapFunction1(ju_Calendar__init_), "$_init_94", $rt_wrapFunction2(ju_Calendar__init_0), "$complete0", $rt_wrapFunction0(ju_Calendar_complete), "$get0", $rt_wrapFunction1(ju_Calendar_get), "$getFirstDayOfWeek0", $rt_wrapFunction0(ju_Calendar_getFirstDayOfWeek), "$getMinimalDaysInFirstWeek0", $rt_wrapFunction0(ju_Calendar_getMinimalDaysInFirstWeek), "$getTimeInMillis", $rt_wrapFunction0(ju_Calendar_getTimeInMillis),
+"$getTimeZone", $rt_wrapFunction0(ju_Calendar_getTimeZone), "$setTimeZone", $rt_wrapFunction1(ju_Calendar_setTimeZone), "$isLenient", $rt_wrapFunction0(ju_Calendar_isLenient), "$setFirstDayOfWeek", $rt_wrapFunction1(ju_Calendar_setFirstDayOfWeek), "$setLenient", $rt_wrapFunction1(ju_Calendar_setLenient), "$setMinimalDaysInFirstWeek", $rt_wrapFunction1(ju_Calendar_setMinimalDaysInFirstWeek), "$setTime", $rt_wrapFunction1(ju_Calendar_setTime), "$setTimeInMillis", $rt_wrapFunction1(ju_Calendar_setTimeInMillis)],
+jl_AbstractStringBuilder, 0, jl_Object, [ji_Serializable, jl_CharSequence], 0, 0, 0, 0, ["$_init_0", $rt_wrapFunction0(jl_AbstractStringBuilder__init_1), "$_init_4", $rt_wrapFunction1(jl_AbstractStringBuilder__init_2), "$append18", $rt_wrapFunction1(jl_AbstractStringBuilder_append), "$append7", $rt_wrapFunction1(jl_AbstractStringBuilder_append0), "$insert0", $rt_wrapFunction2(jl_AbstractStringBuilder_insert), "$append8", $rt_wrapFunction1(jl_AbstractStringBuilder_append1), "$append0", $rt_wrapFunction2(jl_AbstractStringBuilder_append2),
+"$insert1", $rt_wrapFunction3(jl_AbstractStringBuilder_insert0), "$append19", $rt_wrapFunction1(jl_AbstractStringBuilder_append3), "$insert2", $rt_wrapFunction2(jl_AbstractStringBuilder_insert1), "$insert3", $rt_wrapFunction3(jl_AbstractStringBuilder_insert2), "$append20", $rt_wrapFunction1(jl_AbstractStringBuilder_append4), "$insert4", $rt_wrapFunction2(jl_AbstractStringBuilder_insert3), "$append21", $rt_wrapFunction1(jl_AbstractStringBuilder_append5), "$insert5", $rt_wrapFunction2(jl_AbstractStringBuilder_insert4),
+"$append9", $rt_wrapFunction1(jl_AbstractStringBuilder_append6), "$insert6", $rt_wrapFunction2(jl_AbstractStringBuilder_insert5), "$insert", $rt_wrapFunction2(jl_AbstractStringBuilder_insert6), "$ensureCapacity", $rt_wrapFunction1(jl_AbstractStringBuilder_ensureCapacity), "$toString", $rt_wrapFunction0(jl_AbstractStringBuilder_toString), "$length", $rt_wrapFunction0(jl_AbstractStringBuilder_length), "$charAt", $rt_wrapFunction1(jl_AbstractStringBuilder_charAt), "$append5", $rt_wrapFunction3(jl_AbstractStringBuilder_append7),
+"$insert7", $rt_wrapFunction4(jl_AbstractStringBuilder_insert7), "$append22", $rt_wrapFunction1(jl_AbstractStringBuilder_append8), "$append6", $rt_wrapFunction3(jl_AbstractStringBuilder_append9), "$insert8", $rt_wrapFunction4(jl_AbstractStringBuilder_insert8), "$append10", $rt_wrapFunction1(jl_AbstractStringBuilder_append10), "$setLength", $rt_wrapFunction1(jl_AbstractStringBuilder_setLength), "$deleteCharAt0", $rt_wrapFunction1(jl_AbstractStringBuilder_deleteCharAt), "$delete", $rt_wrapFunction2(jl_AbstractStringBuilder_delete)],
 jl_Appendable, 0, jl_Object, [], 3, 3, 0, 0, 0,
-jl_StringBuffer, "StringBuffer", 7, jl_AbstractStringBuilder, [jl_Appendable], 0, 3, 0, 0, ["$_init_4", $rt_wrapFunction1(jl_StringBuffer__init_0), "$_init_0", $rt_wrapFunction0(jl_StringBuffer__init_2), "$append14", $rt_wrapFunction1(jl_StringBuffer_append), "$append12", $rt_wrapFunction1(jl_StringBuffer_append0), "$append8", $rt_wrapFunction3(jl_StringBuffer_append1), "$append15", $rt_wrapFunction1(jl_StringBuffer_append2), "$insert9", $rt_wrapFunction4(jl_StringBuffer_insert), "$insert10", $rt_wrapFunction2(jl_StringBuffer_insert0),
-"$insert11", $rt_wrapFunction2(jl_StringBuffer_insert1), "$insert8", $rt_wrapFunction4(jl_StringBuffer_insert2), "$append4", $rt_wrapFunction3(jl_StringBuffer_append3), "$charAt", $rt_wrapFunction1(jl_StringBuffer_charAt), "$length", $rt_wrapFunction0(jl_StringBuffer_length), "$toString", $rt_wrapFunction0(jl_StringBuffer_toString), "$ensureCapacity", $rt_wrapFunction1(jl_StringBuffer_ensureCapacity), "$insert6", $rt_wrapFunction2(jl_StringBuffer_insert3), "$insert0", $rt_wrapFunction2(jl_StringBuffer_insert4)],
+jl_StringBuffer, "StringBuffer", 7, jl_AbstractStringBuilder, [jl_Appendable], 0, 3, 0, 0, ["$_init_4", $rt_wrapFunction1(jl_StringBuffer__init_0), "$_init_0", $rt_wrapFunction0(jl_StringBuffer__init_2), "$append16", $rt_wrapFunction1(jl_StringBuffer_append), "$append2", $rt_wrapFunction1(jl_StringBuffer_append0), "$append3", $rt_wrapFunction1(jl_StringBuffer_append1), "$append11", $rt_wrapFunction3(jl_StringBuffer_append2), "$append17", $rt_wrapFunction1(jl_StringBuffer_append3), "$insert9", $rt_wrapFunction4(jl_StringBuffer_insert),
+"$insert10", $rt_wrapFunction2(jl_StringBuffer_insert0), "$insert11", $rt_wrapFunction2(jl_StringBuffer_insert1), "$insert8", $rt_wrapFunction4(jl_StringBuffer_insert2), "$append6", $rt_wrapFunction3(jl_StringBuffer_append4), "$charAt", $rt_wrapFunction1(jl_StringBuffer_charAt), "$length", $rt_wrapFunction0(jl_StringBuffer_length), "$toString", $rt_wrapFunction0(jl_StringBuffer_toString), "$ensureCapacity", $rt_wrapFunction1(jl_StringBuffer_ensureCapacity), "$insert6", $rt_wrapFunction2(jl_StringBuffer_insert3),
+"$insert0", $rt_wrapFunction2(jl_StringBuffer_insert4)],
 jn_Buffer, 0, jl_Object, [], 1, 3, 0, 0, ["$_init_4", $rt_wrapFunction1(jn_Buffer__init_), "$capacity0", $rt_wrapFunction0(jn_Buffer_capacity), "$position1", $rt_wrapFunction0(jn_Buffer_position), "$position4", $rt_wrapFunction1(jn_Buffer_position0), "$limit0", $rt_wrapFunction0(jn_Buffer_limit), "$flip0", $rt_wrapFunction0(jn_Buffer_flip), "$remaining", $rt_wrapFunction0(jn_Buffer_remaining), "$hasRemaining", $rt_wrapFunction0(jn_Buffer_hasRemaining)],
 jur_SpecialToken, 0, jl_Object, [], 1, 0, 0, 0, ["$_init_0", $rt_wrapFunction0(jur_SpecialToken__init_)],
 jur_AbstractCharClass, 0, jur_SpecialToken, [], 1, 0, 0, jur_AbstractCharClass_$callClinit, ["$_init_0", $rt_wrapFunction0(jur_AbstractCharClass__init_), "$getBits", $rt_wrapFunction0(jur_AbstractCharClass_getBits), "$getLowHighSurrogates", $rt_wrapFunction0(jur_AbstractCharClass_getLowHighSurrogates), "$hasLowHighSurrogates", $rt_wrapFunction0(jur_AbstractCharClass_hasLowHighSurrogates), "$mayContainSupplCodepoints2", $rt_wrapFunction0(jur_AbstractCharClass_mayContainSupplCodepoints), "$getInstance", $rt_wrapFunction0(jur_AbstractCharClass_getInstance),
@@ -23789,21 +24223,21 @@ jl_UnsupportedOperationException, 0, jl_RuntimeException, [], 0, 3, 0, 0, ["$_in
 jn_ReadOnlyBufferException, 0, jl_UnsupportedOperationException, [], 0, 3, 0, 0, ["$_init_0", $rt_wrapFunction0(jn_ReadOnlyBufferException__init_0)],
 jlr_Array, 0, jl_Object, [], 4, 3, 0, 0, 0,
 juf_Function, 0, jl_Object, [], 3, 3, 0, 0, 0,
-ucsic_MainPage$_clinit_$lambda$_14_3, "MainPage$<clinit>$lambda$_14_3", 24, jl_Object, [juf_Function], 0, 3, 0, 0, ["$_init_0", $rt_wrapFunction0(ucsic_MainPage$_clinit_$lambda$_14_3__init_0), "$apply1", $rt_wrapFunction1(ucsic_MainPage$_clinit_$lambda$_14_3_apply), "$apply", $rt_wrapFunction1(ucsic_MainPage$_clinit_$lambda$_14_3_apply0)],
-ucsic_MainPage$_clinit_$lambda$_14_2, "MainPage$<clinit>$lambda$_14_2", 24, jl_Object, [juf_Function], 0, 3, 0, 0, ["$_init_0", $rt_wrapFunction0(ucsic_MainPage$_clinit_$lambda$_14_2__init_0), "$apply1", $rt_wrapFunction1(ucsic_MainPage$_clinit_$lambda$_14_2_apply), "$apply", $rt_wrapFunction1(ucsic_MainPage$_clinit_$lambda$_14_2_apply0)],
-ucsic_MainPage$_clinit_$lambda$_14_4, "MainPage$<clinit>$lambda$_14_4", 24, jl_Object, [juf_Function], 0, 3, 0, 0, ["$_init_0", $rt_wrapFunction0(ucsic_MainPage$_clinit_$lambda$_14_4__init_0), "$apply1", $rt_wrapFunction1(ucsic_MainPage$_clinit_$lambda$_14_4_apply), "$apply", $rt_wrapFunction1(ucsic_MainPage$_clinit_$lambda$_14_4_apply0)],
+ucsic_MainPage$_clinit_$lambda$_14_3, "MainPage$<clinit>$lambda$_14_3", 24, jl_Object, [juf_Function], 0, 3, 0, 0, ["$_init_0", $rt_wrapFunction0(ucsic_MainPage$_clinit_$lambda$_14_3__init_0), "$apply", $rt_wrapFunction1(ucsic_MainPage$_clinit_$lambda$_14_3_apply), "$apply0", $rt_wrapFunction1(ucsic_MainPage$_clinit_$lambda$_14_3_apply0)],
+ucsic_MainPage$_clinit_$lambda$_14_2, "MainPage$<clinit>$lambda$_14_2", 24, jl_Object, [juf_Function], 0, 3, 0, 0, ["$_init_0", $rt_wrapFunction0(ucsic_MainPage$_clinit_$lambda$_14_2__init_0), "$apply", $rt_wrapFunction1(ucsic_MainPage$_clinit_$lambda$_14_2_apply), "$apply0", $rt_wrapFunction1(ucsic_MainPage$_clinit_$lambda$_14_2_apply0)],
+ucsic_MainPage$_clinit_$lambda$_14_4, "MainPage$<clinit>$lambda$_14_4", 24, jl_Object, [juf_Function], 0, 3, 0, 0, ["$_init_0", $rt_wrapFunction0(ucsic_MainPage$_clinit_$lambda$_14_4__init_0), "$apply", $rt_wrapFunction1(ucsic_MainPage$_clinit_$lambda$_14_4_apply), "$apply0", $rt_wrapFunction1(ucsic_MainPage$_clinit_$lambda$_14_4_apply0)],
 otcit_DoubleAnalyzer$Result, 0, jl_Object, [], 0, 3, 0, 0, ["$_init_0", $rt_wrapFunction0(otcit_DoubleAnalyzer$Result__init_0)],
-ucsic_MainPage$_clinit_$lambda$_14_1, "MainPage$<clinit>$lambda$_14_1", 24, jl_Object, [juf_Function], 0, 3, 0, 0, ["$_init_0", $rt_wrapFunction0(ucsic_MainPage$_clinit_$lambda$_14_1__init_0), "$apply1", $rt_wrapFunction1(ucsic_MainPage$_clinit_$lambda$_14_1_apply), "$apply", $rt_wrapFunction1(ucsic_MainPage$_clinit_$lambda$_14_1_apply0)],
-ucsic_MainPage$_clinit_$lambda$_14_0, "MainPage$<clinit>$lambda$_14_0", 24, jl_Object, [juf_Function], 0, 3, 0, 0, ["$_init_0", $rt_wrapFunction0(ucsic_MainPage$_clinit_$lambda$_14_0__init_0), "$apply1", $rt_wrapFunction1(ucsic_MainPage$_clinit_$lambda$_14_0_apply), "$apply", $rt_wrapFunction1(ucsic_MainPage$_clinit_$lambda$_14_0_apply0)],
+ucsic_MainPage$_clinit_$lambda$_14_1, "MainPage$<clinit>$lambda$_14_1", 24, jl_Object, [juf_Function], 0, 3, 0, 0, ["$_init_0", $rt_wrapFunction0(ucsic_MainPage$_clinit_$lambda$_14_1__init_0), "$apply", $rt_wrapFunction1(ucsic_MainPage$_clinit_$lambda$_14_1_apply), "$apply0", $rt_wrapFunction1(ucsic_MainPage$_clinit_$lambda$_14_1_apply0)],
+ucsic_MainPage$_clinit_$lambda$_14_0, "MainPage$<clinit>$lambda$_14_0", 24, jl_Object, [juf_Function], 0, 3, 0, 0, ["$_init_0", $rt_wrapFunction0(ucsic_MainPage$_clinit_$lambda$_14_0__init_0), "$apply", $rt_wrapFunction1(ucsic_MainPage$_clinit_$lambda$_14_0_apply), "$apply0", $rt_wrapFunction1(ucsic_MainPage$_clinit_$lambda$_14_0_apply0)],
 ucsiiu_Format$Inst, 0, jl_Object, [], 1, 0, 0, 0, ["$_init_32", $rt_wrapFunction1(ucsiiu_Format$Inst__init_0)],
-ucsiiu_Format$InstLit, "Format$InstLit", 26, ucsiiu_Format$Inst, [], 0, 0, 0, 0, ["$append26", $rt_wrapFunction1(ucsiiu_Format$InstLit_append), "$getValue0", $rt_wrapFunction0(ucsiiu_Format$InstLit_getValue), "$_init_32", $rt_wrapFunction1(ucsiiu_Format$InstLit__init_2)],
+ucsiiu_Format$InstLit, "Format$InstLit", 26, ucsiiu_Format$Inst, [], 0, 0, 0, 0, ["$render", $rt_wrapFunction1(ucsiiu_Format$InstLit_render), "$append27", $rt_wrapFunction1(ucsiiu_Format$InstLit_append), "$acceptsArg", $rt_wrapFunction0(ucsiiu_Format$InstLit_acceptsArg), "$getValue0", $rt_wrapFunction0(ucsiiu_Format$InstLit_getValue), "$_init_32", $rt_wrapFunction1(ucsiiu_Format$InstLit__init_2)],
 jl_IncompatibleClassChangeError, 0, jl_LinkageError, [], 0, 3, 0, 0, ["$_init_", $rt_wrapFunction1(jl_IncompatibleClassChangeError__init_0)],
 jl_NoSuchFieldError, 0, jl_IncompatibleClassChangeError, [], 0, 3, 0, 0, ["$_init_", $rt_wrapFunction1(jl_NoSuchFieldError__init_0)],
 jur_AbstractCharClass$LazyJavaDigit, 0, jur_AbstractCharClass$LazyCharClass, [], 0, 0, 0, 0, ["$_init_0", $rt_wrapFunction0(jur_AbstractCharClass$LazyJavaDigit__init_0), "$computeValue", $rt_wrapFunction0(jur_AbstractCharClass$LazyJavaDigit_computeValue)],
 jl_Iterable, "Iterable", 7, jl_Object, [], 3, 3, 0, 0, 0,
 ju_Collection, 0, jl_Object, [jl_Iterable], 3, 3, 0, 0, 0,
 ju_AbstractCollection, 0, jl_Object, [ju_Collection], 1, 3, 0, 0, ["$_init_0", $rt_wrapFunction0(ju_AbstractCollection__init_), "$toArray", $rt_wrapFunction1(ju_AbstractCollection_toArray)],
-oj_JSONObject, "JSONObject", 19, jl_Object, [], 0, 3, 0, oj_JSONObject_$callClinit, ["$_init_0", $rt_wrapFunction0(oj_JSONObject__init_2), "$_init_29", $rt_wrapFunction1(oj_JSONObject__init_3), "$_init_35", $rt_wrapFunction1(oj_JSONObject__init_5), "$_init_2", $rt_wrapFunction1(oj_JSONObject__init_7), "$_init_", $rt_wrapFunction1(oj_JSONObject__init_8), "$get1", $rt_wrapFunction1(oj_JSONObject_get), "$getBoolean", $rt_wrapFunction1(oj_JSONObject_getBoolean), "$getFloat", $rt_wrapFunction1(oj_JSONObject_getFloat),
+oj_JSONObject, "JSONObject", 19, jl_Object, [], 0, 3, 0, oj_JSONObject_$callClinit, ["$_init_0", $rt_wrapFunction0(oj_JSONObject__init_2), "$_init_29", $rt_wrapFunction1(oj_JSONObject__init_3), "$_init_35", $rt_wrapFunction1(oj_JSONObject__init_5), "$_init_2", $rt_wrapFunction1(oj_JSONObject__init_7), "$_init_", $rt_wrapFunction1(oj_JSONObject__init_8), "$get2", $rt_wrapFunction1(oj_JSONObject_get), "$getBoolean", $rt_wrapFunction1(oj_JSONObject_getBoolean), "$getFloat", $rt_wrapFunction1(oj_JSONObject_getFloat),
 "$getInt", $rt_wrapFunction1(oj_JSONObject_getInt), "$getJSONArray", $rt_wrapFunction1(oj_JSONObject_getJSONArray), "$getJSONObject", $rt_wrapFunction1(oj_JSONObject_getJSONObject), "$getString0", $rt_wrapFunction1(oj_JSONObject_getString), "$has", $rt_wrapFunction1(oj_JSONObject_has), "$entrySet", $rt_wrapFunction0(oj_JSONObject_entrySet), "$length", $rt_wrapFunction0(oj_JSONObject_length), "$opt", $rt_wrapFunction1(oj_JSONObject_opt), "$optJSONArray", $rt_wrapFunction1(oj_JSONObject_optJSONArray), "$optString",
 $rt_wrapFunction2(oj_JSONObject_optString), "$put4", $rt_wrapFunction2(oj_JSONObject_put), "$put0", $rt_wrapFunction2(oj_JSONObject_put0), "$remove0", $rt_wrapFunction1(oj_JSONObject_remove), "$toString", $rt_wrapFunction0(oj_JSONObject_toString), "$toString1", $rt_wrapFunction1(oj_JSONObject_toString0), "$write2", $rt_wrapFunction3(oj_JSONObject_write)],
 otci_IntegerUtil, 0, jl_Object, [], 4, 3, 0, 0, 0,
@@ -23812,7 +24246,7 @@ jur_AltQuantifierSet, "AltQuantifierSet", 2, jur_LeafQuantifierSet, [], 0, 0, 0,
 jur_PossessiveAltQuantifierSet, "PossessiveAltQuantifierSet", 2, jur_AltQuantifierSet, [], 0, 0, 0, 0, ["$_init_37", $rt_wrapFunction3(jur_PossessiveAltQuantifierSet__init_0), "$matches", $rt_wrapFunction3(jur_PossessiveAltQuantifierSet_matches)],
 jl_Readable, 0, jl_Object, [], 3, 3, 0, 0, 0,
 jl_SecurityException, 0, jl_RuntimeException, [], 0, 3, 0, 0, 0,
-ucsih_HTMLBuilder, 0, jl_Object, [], 0, 3, 0, 0, ["$_init_0", $rt_wrapFunction0(ucsih_HTMLBuilder__init_0), "$toString", $rt_wrapFunction0(ucsih_HTMLBuilder_toString), "$append2", $rt_wrapFunction1(ucsih_HTMLBuilder_append), "$div0", $rt_wrapFunction1(ucsih_HTMLBuilder_div)],
+ucsih_HTMLBuilder, 0, jl_Object, [], 0, 3, 0, 0, ["$_init_0", $rt_wrapFunction0(ucsih_HTMLBuilder__init_0), "$toString", $rt_wrapFunction0(ucsih_HTMLBuilder_toString), "$append4", $rt_wrapFunction1(ucsih_HTMLBuilder_append), "$div0", $rt_wrapFunction1(ucsih_HTMLBuilder_div)],
 jlr_Method, "Method", 9, jlr_AccessibleObject, [jlr_Member], 0, 3, 0, 0, ["$isAnnotationPresent", $rt_wrapFunction1(jlr_AnnotatedElement_isAnnotationPresent), "$_init_48", function(var_1, var_2, var_3, var_4, var_5, var_6, var_7) { jlr_Method__init_0(this, var_1, var_2, var_3, var_4, var_5, var_6, var_7); }, "$getDeclaringClass", $rt_wrapFunction0(jlr_Method_getDeclaringClass), "$getName", $rt_wrapFunction0(jlr_Method_getName), "$getModifiers", $rt_wrapFunction0(jlr_Method_getModifiers), "$getReturnType", $rt_wrapFunction0(jlr_Method_getReturnType),
 "$getParameterTypes", $rt_wrapFunction0(jlr_Method_getParameterTypes), "$toString", $rt_wrapFunction0(jlr_Method_toString), "$invoke", $rt_wrapFunction2(jlr_Method_invoke), "$isBridge", $rt_wrapFunction0(jlr_Method_isBridge)],
 otji_JS, 0, jl_Object, [], 4, 0, 0, 0, 0,
@@ -23881,7 +24315,7 @@ ju_BitSet, 0, jl_Object, [jl_Cloneable, ji_Serializable], 0, 3, 0, 0, ["$_init_0
 $rt_wrapFunction1(ju_BitSet_intersects), "$and", $rt_wrapFunction1(ju_BitSet_and), "$andNot", $rt_wrapFunction1(ju_BitSet_andNot), "$or", $rt_wrapFunction1(ju_BitSet_or), "$xor", $rt_wrapFunction1(ju_BitSet_xor), "$isEmpty", $rt_wrapFunction0(ju_BitSet_isEmpty)],
 jur_AbstractCharClass$LazyJavaJavaIdentifierStart$1, "AbstractCharClass$LazyJavaJavaIdentifierStart$1", 2, jur_AbstractCharClass, [], 0, 0, 0, 0, ["$_init_90", $rt_wrapFunction1(jur_AbstractCharClass$LazyJavaJavaIdentifierStart$1__init_0), "$contains", $rt_wrapFunction1(jur_AbstractCharClass$LazyJavaJavaIdentifierStart$1_contains)],
 otcjn_TURLEncoder, 0, jl_Object, [], 4, 3, 0, 0, 0,
-jl_Float, 0, jl_Number, [jl_Comparable], 0, 3, 0, jl_Float_$callClinit, ["$_init_50", $rt_wrapFunction1(jl_Float__init_0)],
+jl_Float, 0, jl_Number, [jl_Comparable], 0, 3, 0, jl_Float_$callClinit, ["$_init_50", $rt_wrapFunction1(jl_Float__init_0), "$intValue", $rt_wrapFunction0(jl_Float_intValue), "$longValue", $rt_wrapFunction0(jl_Float_longValue), "$floatValue", $rt_wrapFunction0(jl_Float_floatValue), "$toString", $rt_wrapFunction0(jl_Float_toString0)],
 ju_Arrays, 0, jl_Object, [], 0, 3, 0, 0, 0,
 oti_Structure, 0, jl_Object, [], 0, 3, 0, 0, 0,
 otr_RuntimeObject, "RuntimeObject", 17, oti_Structure, [], 0, 3, 0, 0, 0,
@@ -23915,7 +24349,7 @@ ju_Collections$1, 0, ju_TemplateCollections$AbstractImmutableSet, [], 0, 0, 0, 0
 ju_Map, "Map", 1, jl_Object, [], 3, 3, 0, 0, 0,
 ju_AbstractMap, 0, jl_Object, [ju_Map], 1, 3, 0, 0, ["$_init_0", $rt_wrapFunction0(ju_AbstractMap__init_)],
 ju_TemplateCollections$AbstractImmutableMap, 0, ju_AbstractMap, [], 1, 0, 0, 0, ["$_init_0", $rt_wrapFunction0(ju_TemplateCollections$AbstractImmutableMap__init_)],
-ju_Collections$2, 0, ju_TemplateCollections$AbstractImmutableMap, [], 0, 0, 0, 0, ["$_init_0", $rt_wrapFunction0(ju_Collections$2__init_0), "$get0", $rt_wrapFunction1(ju_Collections$2_get), "$containsKey", $rt_wrapFunction1(ju_Collections$2_containsKey)],
+ju_Collections$2, 0, ju_TemplateCollections$AbstractImmutableMap, [], 0, 0, 0, 0, ["$_init_0", $rt_wrapFunction0(ju_Collections$2__init_0), "$get1", $rt_wrapFunction1(ju_Collections$2_get), "$containsKey", $rt_wrapFunction1(ju_Collections$2_containsKey)],
 jur_CICharSet, "CICharSet", 2, jur_LeafSet, [], 0, 0, 0, 0, ["$_init_72", $rt_wrapFunction1(jur_CICharSet__init_0), "$accepts", $rt_wrapFunction2(jur_CICharSet_accepts), "$getName", $rt_wrapFunction0(jur_CICharSet_getName)],
 jur_SupplCharSet, "SupplCharSet", 2, jur_LeafSet, [], 0, 0, 0, 0, ["$_init_4", $rt_wrapFunction1(jur_SupplCharSet__init_0), "$accepts", $rt_wrapFunction2(jur_SupplCharSet_accepts), "$find", $rt_wrapFunction3(jur_SupplCharSet_find), "$findBack", $rt_wrapFunction4(jur_SupplCharSet_findBack), "$getName", $rt_wrapFunction0(jur_SupplCharSet_getName), "$getCodePoint", $rt_wrapFunction0(jur_SupplCharSet_getCodePoint), "$first", $rt_wrapFunction1(jur_SupplCharSet_first)],
 jur_AbstractCharClass$LazyCategoryScope, 0, jur_AbstractCharClass$LazyCharClass, [], 0, 0, 0, 0, ["$_init_23", $rt_wrapFunction2(jur_AbstractCharClass$LazyCategoryScope__init_1), "$_init_24", $rt_wrapFunction3(jur_AbstractCharClass$LazyCategoryScope__init_2), "$computeValue", $rt_wrapFunction0(jur_AbstractCharClass$LazyCategoryScope_computeValue)],
@@ -23929,7 +24363,7 @@ jnc_StandardCharsets, 0, jl_Object, [], 4, 3, 0, jnc_StandardCharsets_$callClini
 ucsic_InfoBitWidget$refresh$lambda$_2_0, 0, jl_Object, [juf_Consumer], 0, 3, 0, 0, ["$_init_64", $rt_wrapFunction1(ucsic_InfoBitWidget$refresh$lambda$_2_0__init_0), "$accept", $rt_wrapFunction1(ucsic_InfoBitWidget$refresh$lambda$_2_0_accept), "$accept0", $rt_wrapFunction1(ucsic_InfoBitWidget$refresh$lambda$_2_0_accept0)],
 jur_AbstractCharClass$LazyJavaMirrored$1, "AbstractCharClass$LazyJavaMirrored$1", 2, jur_AbstractCharClass, [], 0, 0, 0, 0, ["$_init_116", $rt_wrapFunction1(jur_AbstractCharClass$LazyJavaMirrored$1__init_0), "$contains", $rt_wrapFunction1(jur_AbstractCharClass$LazyJavaMirrored$1_contains)],
 ucsic_ReallySimpleEventBus$Subscriber, 0, jl_Object, [ucsic_HandlerReg], 1, 0, 0, 0, ["$_init_3", $rt_wrapFunction3(ucsic_ReallySimpleEventBus$Subscriber__init_)],
-ucsiiu_Format$DecimalInstruction, "Format$DecimalInstruction", 26, ucsiiu_Format$Inst, [], 0, 0, 0, 0, ["$_init_4", $rt_wrapFunction1(ucsiiu_Format$DecimalInstruction__init_0)],
+ucsiiu_Format$DecimalInstruction, "Format$DecimalInstruction", 26, ucsiiu_Format$Inst, [], 0, 0, 0, 0, ["$_init_4", $rt_wrapFunction1(ucsiiu_Format$DecimalInstruction__init_0), "$render", $rt_wrapFunction1(ucsiiu_Format$DecimalInstruction_render), "$acceptsArg", $rt_wrapFunction0(ucsiiu_Format$DecimalInstruction_acceptsArg)],
 otjb_Location, 0, jl_Object, [otj_JSObject], 3, 3, 0, 0, 0,
 jur_AbstractCharClass$LazyJavaISOControl$1, "AbstractCharClass$LazyJavaISOControl$1", 2, jur_AbstractCharClass, [], 0, 0, 0, 0, ["$_init_117", $rt_wrapFunction1(jur_AbstractCharClass$LazyJavaISOControl$1__init_0), "$contains", $rt_wrapFunction1(jur_AbstractCharClass$LazyJavaISOControl$1_contains)],
 jur_UEOLSet, "UEOLSet", 2, jur_AbstractSet, [], 4, 0, 0, 0, ["$_init_4", $rt_wrapFunction1(jur_UEOLSet__init_0), "$matches", $rt_wrapFunction3(jur_UEOLSet_matches), "$hasConsumed", $rt_wrapFunction1(jur_UEOLSet_hasConsumed), "$getName", $rt_wrapFunction0(jur_UEOLSet_getName)],
@@ -23951,8 +24385,8 @@ jur_RelAltGroupQuantifierSet, "RelAltGroupQuantifierSet", 2, jur_AltGroupQuantif
 otcir_Flags, 0, jl_Object, [], 4, 3, 0, 0, 0,
 jl_String, "String", 7, jl_Object, [ji_Serializable, jl_Comparable, jl_CharSequence], 0, 3, 0, jl_String_$callClinit, ["$_init_28", $rt_wrapFunction1(jl_String__init_1), "$_init_19", $rt_wrapFunction3(jl_String__init_2), "$_init_56", $rt_wrapFunction3(jl_String__init_4), "$charAt", $rt_wrapFunction1(jl_String_charAt), "$length", $rt_wrapFunction0(jl_String_length), "$isEmpty", $rt_wrapFunction0(jl_String_isEmpty), "$startsWith1", $rt_wrapFunction2(jl_String_startsWith), "$startsWith", $rt_wrapFunction1(jl_String_startsWith0),
 "$endsWith", $rt_wrapFunction1(jl_String_endsWith), "$indexOf2", $rt_wrapFunction2(jl_String_indexOf), "$indexOf", $rt_wrapFunction1(jl_String_indexOf0), "$lastIndexOf2", $rt_wrapFunction2(jl_String_lastIndexOf), "$lastIndexOf", $rt_wrapFunction1(jl_String_lastIndexOf0), "$indexOf1", $rt_wrapFunction2(jl_String_indexOf1), "$lastIndexOf1", $rt_wrapFunction2(jl_String_lastIndexOf1), "$substring0", $rt_wrapFunction2(jl_String_substring), "$substring", $rt_wrapFunction1(jl_String_substring0), "$subSequence", $rt_wrapFunction2(jl_String_subSequence),
-"$trim", $rt_wrapFunction0(jl_String_trim), "$toString", $rt_wrapFunction0(jl_String_toString), "$toCharArray", $rt_wrapFunction0(jl_String_toCharArray), "$equals", $rt_wrapFunction1(jl_String_equals), "$equalsIgnoreCase", $rt_wrapFunction1(jl_String_equalsIgnoreCase), "$getBytes", $rt_wrapFunction1(jl_String_getBytes), "$hashCode0", $rt_wrapFunction0(jl_String_hashCode), "$toLowerCase2", $rt_wrapFunction0(jl_String_toLowerCase), "$toLowerCase0", $rt_wrapFunction1(jl_String_toLowerCase0), "$toUpperCase1", $rt_wrapFunction0(jl_String_toUpperCase),
-"$split0", $rt_wrapFunction1(jl_String_split)],
+"$concat", $rt_wrapFunction1(jl_String_concat), "$trim", $rt_wrapFunction0(jl_String_trim), "$toString", $rt_wrapFunction0(jl_String_toString), "$toCharArray", $rt_wrapFunction0(jl_String_toCharArray), "$equals", $rt_wrapFunction1(jl_String_equals), "$equalsIgnoreCase", $rt_wrapFunction1(jl_String_equalsIgnoreCase), "$getBytes", $rt_wrapFunction1(jl_String_getBytes), "$hashCode0", $rt_wrapFunction0(jl_String_hashCode), "$toLowerCase2", $rt_wrapFunction0(jl_String_toLowerCase), "$toLowerCase0", $rt_wrapFunction1(jl_String_toLowerCase0),
+"$toUpperCase1", $rt_wrapFunction0(jl_String_toUpperCase), "$split0", $rt_wrapFunction1(jl_String_split)],
 jnci_BufferedEncoder, 0, jnc_CharsetEncoder, [], 1, 3, 0, 0, ["$_init_57", $rt_wrapFunction3(jnci_BufferedEncoder__init_), "$encodeLoop", $rt_wrapFunction2(jnci_BufferedEncoder_encodeLoop)],
 jnci_UTF8Encoder, 0, jnci_BufferedEncoder, [], 0, 3, 0, 0, ["$_init_59", $rt_wrapFunction1(jnci_UTF8Encoder__init_0), "$arrayEncode", function(var_1, var_2, var_3, var_4, var_5, var_6, var_7) { return jnci_UTF8Encoder_arrayEncode(this, var_1, var_2, var_3, var_4, var_5, var_6, var_7); }],
 jur_FSet$PossessiveFSet, "FSet$PossessiveFSet", 2, jur_AbstractSet, [], 0, 0, 0, 0, ["$_init_0", $rt_wrapFunction0(jur_FSet$PossessiveFSet__init_0), "$matches", $rt_wrapFunction3(jur_FSet$PossessiveFSet_matches), "$getName", $rt_wrapFunction0(jur_FSet$PossessiveFSet_getName), "$hasConsumed", $rt_wrapFunction1(jur_FSet$PossessiveFSet_hasConsumed)],
@@ -23985,13 +24419,13 @@ jl_Math, 0, jl_Object, [], 4, 3, 0, 0, 0,
 ucsic_MainPage$setDataRange$lambda$_5_0, 0, jl_Object, [juf_Consumer], 0, 3, 0, 0, ["$_init_121", $rt_wrapFunction1(ucsic_MainPage$setDataRange$lambda$_5_0__init_0), "$accept", $rt_wrapFunction1(ucsic_MainPage$setDataRange$lambda$_5_0_accept), "$accept0", $rt_wrapFunction1(ucsic_MainPage$setDataRange$lambda$_5_0_accept0)],
 ucsic_TimeSelector$UpdateDataOptionsHandler, 0, jl_Object, [], 3, 3, 0, 0, 0,
 ucsic_MainPage$lambda$load$3$lambda$_10_0, 0, jl_Object, [ucsic_TimeSelector$UpdateDataOptionsHandler], 0, 3, 0, 0, ["$_init_121", $rt_wrapFunction1(ucsic_MainPage$lambda$load$3$lambda$_10_0__init_0), "$updateDataOptions", $rt_wrapFunction2(ucsic_MainPage$lambda$load$3$lambda$_10_0_updateDataOptions)],
-jt_DateFormat, 0, jt_Format, [], 1, 3, 0, 0, ["$_init_0", $rt_wrapFunction0(jt_DateFormat__init_)],
+jt_DateFormat, 0, jt_Format, [], 1, 3, 0, 0, ["$_init_0", $rt_wrapFunction0(jt_DateFormat__init_), "$format4", $rt_wrapFunction1(jt_DateFormat_format)],
 jur_AbstractCharClass$LazyJavaUnicodeIdentifierPart, 0, jur_AbstractCharClass$LazyCharClass, [], 0, 0, 0, 0, ["$_init_0", $rt_wrapFunction0(jur_AbstractCharClass$LazyJavaUnicodeIdentifierPart__init_0), "$computeValue", $rt_wrapFunction0(jur_AbstractCharClass$LazyJavaUnicodeIdentifierPart_computeValue)],
 jur_PatternSyntaxException, 0, jl_IllegalArgumentException, [], 0, 3, 0, 0, ["$_init_68", $rt_wrapFunction3(jur_PatternSyntaxException__init_0)],
 ucsic_ClientUtil, 0, jl_Object, [], 0, 3, 0, 0, 0,
 ucsic_InfoBitWidget, "InfoBitWidget", 24, ucsic_AbstractPageWidget, [], 0, 3, 0, 0, ["$_init_31", $rt_wrapFunction1(ucsic_InfoBitWidget__init_0), "$construct", $rt_wrapFunction1(ucsic_InfoBitWidget_construct), "$refresh", $rt_wrapFunction1(ucsic_InfoBitWidget_refresh)],
 jur_AbstractCharClass$LazyJavaDefined, 0, jur_AbstractCharClass$LazyCharClass, [], 0, 0, 0, 0, ["$_init_0", $rt_wrapFunction0(jur_AbstractCharClass$LazyJavaDefined__init_0), "$computeValue", $rt_wrapFunction0(jur_AbstractCharClass$LazyJavaDefined_computeValue)],
-jt_DecimalFormatParser, 0, jl_Object, [], 0, 0, 0, 0, ["$_init_0", $rt_wrapFunction0(jt_DecimalFormatParser__init_0), "$parse", $rt_wrapFunction1(jt_DecimalFormatParser_parse), "$apply0", $rt_wrapFunction1(jt_DecimalFormatParser_apply), "$parseText", $rt_wrapFunction2(jt_DecimalFormatParser_parseText)],
+jt_DecimalFormatParser, 0, jl_Object, [], 0, 0, 0, 0, ["$_init_0", $rt_wrapFunction0(jt_DecimalFormatParser__init_0), "$parse", $rt_wrapFunction1(jt_DecimalFormatParser_parse), "$apply1", $rt_wrapFunction1(jt_DecimalFormatParser_apply), "$parseText", $rt_wrapFunction2(jt_DecimalFormatParser_parseText)],
 jur_Pattern, 0, jl_Object, [ji_Serializable], 4, 3, 0, 0, ["$matcher", $rt_wrapFunction1(jur_Pattern_matcher), "$split1", $rt_wrapFunction2(jur_Pattern_split0), "$split", $rt_wrapFunction1(jur_Pattern_split), "$pattern1", $rt_wrapFunction0(jur_Pattern_pattern), "$groupCount0", $rt_wrapFunction0(jur_Pattern_groupCount), "$compCount0", $rt_wrapFunction0(jur_Pattern_compCount), "$consCount0", $rt_wrapFunction0(jur_Pattern_consCount)],
 ju_Formattable, 0, jl_Object, [], 3, 3, 0, 0, 0,
 jur_PosAltGroupQuantifierSet, "PosAltGroupQuantifierSet", 2, jur_AltGroupQuantifierSet, [], 0, 0, 0, 0, ["$_init_14", $rt_wrapFunction3(jur_PosAltGroupQuantifierSet__init_0), "$matches", $rt_wrapFunction3(jur_PosAltGroupQuantifierSet_matches), "$setNext", $rt_wrapFunction1(jur_PosAltGroupQuantifierSet_setNext)]]);
@@ -23999,8 +24433,8 @@ $rt_metadata([jn_BufferOverflowException, 0, jl_RuntimeException, [], 0, 3, 0, 0
 jur_AbstractCharClass$LazyJavaLetterOrDigit, 0, jur_AbstractCharClass$LazyCharClass, [], 0, 0, 0, 0, ["$_init_0", $rt_wrapFunction0(jur_AbstractCharClass$LazyJavaLetterOrDigit__init_0), "$computeValue", $rt_wrapFunction0(jur_AbstractCharClass$LazyJavaLetterOrDigit_computeValue)],
 otciu_UnicodeHelper$Range, "UnicodeHelper$Range", 16, jl_Object, [], 0, 3, 0, 0, ["$_init_39", $rt_wrapFunction3(otciu_UnicodeHelper$Range__init_0)],
 jur_AbstractLineTerminator$2, 0, jur_AbstractLineTerminator, [], 0, 0, 0, 0, ["$_init_0", $rt_wrapFunction0(jur_AbstractLineTerminator$2__init_0), "$isLineTerminator", $rt_wrapFunction1(jur_AbstractLineTerminator$2_isLineTerminator), "$isAfterLineTerminator", $rt_wrapFunction2(jur_AbstractLineTerminator$2_isAfterLineTerminator)],
-ucsih_Axis$setFormat$lambda$_20_1, 0, jl_Object, [juf_Function], 0, 3, 0, 0, ["$_init_0", $rt_wrapFunction0(ucsih_Axis$setFormat$lambda$_20_1__init_0)],
-ucsih_Axis$setFormat$lambda$_20_0, 0, jl_Object, [juf_Function], 0, 3, 0, 0, ["$_init_127", $rt_wrapFunction1(ucsih_Axis$setFormat$lambda$_20_0__init_0)],
+ucsih_Axis$setFormat$lambda$_20_1, 0, jl_Object, [juf_Function], 0, 3, 0, 0, ["$_init_0", $rt_wrapFunction0(ucsih_Axis$setFormat$lambda$_20_1__init_0), "$apply", $rt_wrapFunction1(ucsih_Axis$setFormat$lambda$_20_1_apply), "$apply2", $rt_wrapFunction1(ucsih_Axis$setFormat$lambda$_20_1_apply0)],
+ucsih_Axis$setFormat$lambda$_20_0, 0, jl_Object, [juf_Function], 0, 3, 0, 0, ["$_init_127", $rt_wrapFunction1(ucsih_Axis$setFormat$lambda$_20_0__init_0), "$apply", $rt_wrapFunction1(ucsih_Axis$setFormat$lambda$_20_0_apply), "$apply2", $rt_wrapFunction1(ucsih_Axis$setFormat$lambda$_20_0_apply0)],
 jur_AbstractLineTerminator$1, 0, jur_AbstractLineTerminator, [], 0, 0, 0, 0, ["$_init_0", $rt_wrapFunction0(jur_AbstractLineTerminator$1__init_0), "$isLineTerminator", $rt_wrapFunction1(jur_AbstractLineTerminator$1_isLineTerminator), "$isAfterLineTerminator", $rt_wrapFunction2(jur_AbstractLineTerminator$1_isAfterLineTerminator)],
 jl_NoClassDefFoundError, 0, jl_LinkageError, [], 0, 3, 0, 0, 0,
 jur_AbstractCharClass$LazyJavaUnicodeIdentifierStart, 0, jur_AbstractCharClass$LazyCharClass, [], 0, 0, 0, 0, ["$_init_0", $rt_wrapFunction0(jur_AbstractCharClass$LazyJavaUnicodeIdentifierStart__init_0), "$computeValue", $rt_wrapFunction0(jur_AbstractCharClass$LazyJavaUnicodeIdentifierStart_computeValue)],
@@ -24019,9 +24453,9 @@ otcit_FloatAnalyzer$Result, 0, jl_Object, [], 0, 3, 0, 0, ["$_init_0", $rt_wrapF
 jur_UCIDecomposedCharSet, "UCIDecomposedCharSet", 2, jur_DecomposedCharSet, [], 0, 0, 0, 0, ["$_init_26", $rt_wrapFunction2(jur_UCIDecomposedCharSet__init_0)],
 jt_DateFormatSymbols, 0, jl_Object, [ji_Serializable, jl_Cloneable], 0, 3, 0, 0, ["$_init_45", $rt_wrapFunction1(jt_DateFormatSymbols__init_0), "$clone", $rt_wrapFunction0(jt_DateFormatSymbols_clone), "$getAmPmStrings", $rt_wrapFunction0(jt_DateFormatSymbols_getAmPmStrings), "$getEras", $rt_wrapFunction0(jt_DateFormatSymbols_getEras), "$getMonths", $rt_wrapFunction0(jt_DateFormatSymbols_getMonths), "$getShortMonths", $rt_wrapFunction0(jt_DateFormatSymbols_getShortMonths), "$getShortWeekdays", $rt_wrapFunction0(jt_DateFormatSymbols_getShortWeekdays),
 "$getWeekdays", $rt_wrapFunction0(jt_DateFormatSymbols_getWeekdays)],
-jt_DateFormatElement$AmPmText, "DateFormatElement$AmPmText", 6, jt_DateFormatElement, [], 0, 3, 0, 0, ["$_init_129", $rt_wrapFunction1(jt_DateFormatElement$AmPmText__init_0), "$equals", $rt_wrapFunction1(jt_DateFormatElement$AmPmText_equals)],
+jt_DateFormatElement$AmPmText, "DateFormatElement$AmPmText", 6, jt_DateFormatElement, [], 0, 3, 0, 0, ["$_init_129", $rt_wrapFunction1(jt_DateFormatElement$AmPmText__init_0), "$format3", $rt_wrapFunction2(jt_DateFormatElement$AmPmText_format), "$equals", $rt_wrapFunction1(jt_DateFormatElement$AmPmText_equals)],
 jt_DateFormatElement$BaseTimezone, 0, jt_DateFormatElement, [], 1, 3, 0, 0, ["$_init_45", $rt_wrapFunction1(jt_DateFormatElement$BaseTimezone__init_), "$equals", $rt_wrapFunction1(jt_DateFormatElement$BaseTimezone_equals)],
-jt_DateFormatElement$Rfc822Timezone, "DateFormatElement$Rfc822Timezone", 6, jt_DateFormatElement$BaseTimezone, [], 0, 3, 0, 0, ["$_init_45", $rt_wrapFunction1(jt_DateFormatElement$Rfc822Timezone__init_0)],
+jt_DateFormatElement$Rfc822Timezone, "DateFormatElement$Rfc822Timezone", 6, jt_DateFormatElement$BaseTimezone, [], 0, 3, 0, 0, ["$_init_45", $rt_wrapFunction1(jt_DateFormatElement$Rfc822Timezone__init_0), "$format3", $rt_wrapFunction2(jt_DateFormatElement$Rfc822Timezone_format)],
 ji_InputStream, "InputStream", 5, jl_Object, [ji_Closeable], 1, 3, 0, 0, 0,
 jur_AbstractCharClass$LazyJavaWhitespace$1, "AbstractCharClass$LazyJavaWhitespace$1", 2, jur_AbstractCharClass, [], 0, 0, 0, 0, ["$_init_115", $rt_wrapFunction1(jur_AbstractCharClass$LazyJavaWhitespace$1__init_0), "$contains", $rt_wrapFunction1(jur_AbstractCharClass$LazyJavaWhitespace$1_contains)],
 jnc_MalformedInputException, 0, jnc_CharacterCodingException, [], 0, 3, 0, 0, ["$_init_4", $rt_wrapFunction1(jnc_MalformedInputException__init_0)],
@@ -24029,7 +24463,7 @@ jur_AbstractCharClass$LazyJavaJavaIdentifierStart, 0, jur_AbstractCharClass$Lazy
 ucsic_ToggleButton, 0, jl_Object, [], 0, 3, 0, 0, ["$_init_22", $rt_wrapFunction3(ucsic_ToggleButton__init_0), "$getElement", $rt_wrapFunction0(ucsic_ToggleButton_getElement), "$setId", $rt_wrapFunction1(ucsic_ToggleButton_setId), "$setOnClick", $rt_wrapFunction1(ucsic_ToggleButton_setOnClick), "$getState", $rt_wrapFunction0(ucsic_ToggleButton_getState), "$setState", $rt_wrapFunction1(ucsic_ToggleButton_setState)],
 jl_CloneNotSupportedException, 0, jl_Exception, [], 0, 3, 0, 0, ["$_init_0", $rt_wrapFunction0(jl_CloneNotSupportedException__init_0)],
 jl_Long, "Long", 7, jl_Number, [jl_Comparable], 0, 3, 0, jl_Long_$callClinit, ["$_init_92", $rt_wrapFunction1(jl_Long__init_0), "$intValue", $rt_wrapFunction0(jl_Long_intValue), "$longValue", $rt_wrapFunction0(jl_Long_longValue), "$floatValue", $rt_wrapFunction0(jl_Long_floatValue), "$toString", $rt_wrapFunction0(jl_Long_toString0), "$equals", $rt_wrapFunction1(jl_Long_equals)],
-jur_SequenceSet$IntHash, 0, jl_Object, [], 0, 0, 0, 0, ["$_init_4", $rt_wrapFunction1(jur_SequenceSet$IntHash__init_0), "$put1", $rt_wrapFunction2(jur_SequenceSet$IntHash_put), "$get2", $rt_wrapFunction1(jur_SequenceSet$IntHash_get)],
+jur_SequenceSet$IntHash, 0, jl_Object, [], 0, 0, 0, 0, ["$_init_4", $rt_wrapFunction1(jur_SequenceSet$IntHash__init_0), "$put1", $rt_wrapFunction2(jur_SequenceSet$IntHash_put), "$get0", $rt_wrapFunction1(jur_SequenceSet$IntHash_get)],
 jm_BigInteger, 0, jl_Number, [jl_Comparable, ji_Serializable], 0, 3, 0, 0, 0,
 jur_AbstractCharClass$LazyNonDigit, 0, jur_AbstractCharClass$LazyDigit, [], 0, 0, 0, 0, ["$_init_0", $rt_wrapFunction0(jur_AbstractCharClass$LazyNonDigit__init_0), "$computeValue", $rt_wrapFunction0(jur_AbstractCharClass$LazyNonDigit_computeValue)],
 jur_AbstractCharClass$1, "AbstractCharClass$1", 2, jur_AbstractCharClass, [], 0, 0, 0, 0, ["$_init_20", $rt_wrapFunction2(jur_AbstractCharClass$1__init_0), "$contains", $rt_wrapFunction1(jur_AbstractCharClass$1_contains)],
@@ -24040,9 +24474,9 @@ jur_PossessiveCompositeQuantifierSet, "PossessiveCompositeQuantifierSet", 2, jur
 jt_DecimalFormat$CurrencyField, "DecimalFormat$CurrencyField", 6, jl_Object, [jt_DecimalFormat$FormatField], 0, 0, 0, 0, ["$_init_0", $rt_wrapFunction0(jt_DecimalFormat$CurrencyField__init_0), "$equals", $rt_wrapFunction1(jt_DecimalFormat$CurrencyField_equals)],
 ju_GregorianCalendar, 0, ju_Calendar, [], 0, 3, 0, ju_GregorianCalendar_$callClinit, ["$_init_0", $rt_wrapFunction0(ju_GregorianCalendar__init_0), "$_init_45", $rt_wrapFunction1(ju_GregorianCalendar__init_2), "$_init_94", $rt_wrapFunction2(ju_GregorianCalendar__init_4), "$getTimeZoneOffset", $rt_wrapFunction1(ju_GregorianCalendar_getTimeZoneOffset), "$computeFields", $rt_wrapFunction0(ju_GregorianCalendar_computeFields), "$computeTime", $rt_wrapFunction0(ju_GregorianCalendar_computeTime), "$isLeapYear", $rt_wrapFunction1(ju_GregorianCalendar_isLeapYear),
 "$setFirstDayOfWeek", $rt_wrapFunction1(ju_GregorianCalendar_setFirstDayOfWeek), "$setMinimalDaysInFirstWeek", $rt_wrapFunction1(ju_GregorianCalendar_setMinimalDaysInFirstWeek)],
-jt_DateFormatElement$ConstantText, "DateFormatElement$ConstantText", 6, jt_DateFormatElement, [], 0, 3, 0, 0, ["$_init_", $rt_wrapFunction1(jt_DateFormatElement$ConstantText__init_0), "$equals", $rt_wrapFunction1(jt_DateFormatElement$ConstantText_equals)],
-jt_DateFormatElement$Numeric, "DateFormatElement$Numeric", 6, jt_DateFormatElement, [], 0, 3, 0, 0, ["$_init_53", $rt_wrapFunction3(jt_DateFormatElement$Numeric__init_0), "$equals", $rt_wrapFunction1(jt_DateFormatElement$Numeric_equals)],
-jt_DateFormatElement$NumericMonth, "DateFormatElement$NumericMonth", 6, jt_DateFormatElement$Numeric, [], 0, 3, 0, 0, ["$_init_4", $rt_wrapFunction1(jt_DateFormatElement$NumericMonth__init_0)],
+jt_DateFormatElement$ConstantText, "DateFormatElement$ConstantText", 6, jt_DateFormatElement, [], 0, 3, 0, 0, ["$_init_", $rt_wrapFunction1(jt_DateFormatElement$ConstantText__init_0), "$format3", $rt_wrapFunction2(jt_DateFormatElement$ConstantText_format), "$equals", $rt_wrapFunction1(jt_DateFormatElement$ConstantText_equals)],
+jt_DateFormatElement$Numeric, "DateFormatElement$Numeric", 6, jt_DateFormatElement, [], 0, 3, 0, 0, ["$_init_53", $rt_wrapFunction3(jt_DateFormatElement$Numeric__init_0), "$format3", $rt_wrapFunction2(jt_DateFormatElement$Numeric_format), "$processBeforeFormat", $rt_wrapFunction1(jt_DateFormatElement$Numeric_processBeforeFormat), "$equals", $rt_wrapFunction1(jt_DateFormatElement$Numeric_equals)],
+jt_DateFormatElement$NumericMonth, "DateFormatElement$NumericMonth", 6, jt_DateFormatElement$Numeric, [], 0, 3, 0, 0, ["$_init_4", $rt_wrapFunction1(jt_DateFormatElement$NumericMonth__init_0), "$processBeforeFormat", $rt_wrapFunction1(jt_DateFormatElement$NumericMonth_processBeforeFormat)],
 jur_AbstractCharClass$LazyJavaLetterOrDigit$1, "AbstractCharClass$LazyJavaLetterOrDigit$1", 2, jur_AbstractCharClass, [], 0, 0, 0, 0, ["$_init_80", $rt_wrapFunction1(jur_AbstractCharClass$LazyJavaLetterOrDigit$1__init_0), "$contains", $rt_wrapFunction1(jur_AbstractCharClass$LazyJavaLetterOrDigit$1_contains)],
 jur_CharClass$18, "CharClass$18", 2, jur_AbstractCharClass, [], 0, 0, 0, 0, ["$_init_86", $rt_wrapFunction2(jur_CharClass$18__init_0), "$contains", $rt_wrapFunction1(jur_CharClass$18_contains), "$toString", $rt_wrapFunction0(jur_CharClass$18_toString)],
 jur_PossessiveGroupQuantifierSet, "PossessiveGroupQuantifierSet", 2, jur_GroupQuantifierSet, [], 0, 0, 0, 0, ["$_init_14", $rt_wrapFunction3(jur_PossessiveGroupQuantifierSet__init_0), "$matches", $rt_wrapFunction3(jur_PossessiveGroupQuantifierSet_matches)],
@@ -24058,11 +24492,11 @@ jur_CharClass$16, 0, jur_AbstractCharClass, [], 0, 0, 0, 0, ["$_init_82", $rt_wr
 jur_CharClass$15, 0, jur_AbstractCharClass, [], 0, 0, 0, 0, ["$_init_85", $rt_wrapFunction3(jur_CharClass$15__init_0), "$contains", $rt_wrapFunction1(jur_CharClass$15_contains)],
 jur_AbstractCharClass$LazyJavaDefined$1, "AbstractCharClass$LazyJavaDefined$1", 2, jur_AbstractCharClass, [], 0, 0, 0, 0, ["$_init_65", $rt_wrapFunction1(jur_AbstractCharClass$LazyJavaDefined$1__init_0), "$contains", $rt_wrapFunction1(jur_AbstractCharClass$LazyJavaDefined$1_contains)],
 jur_CharClass$14, 0, jur_AbstractCharClass, [], 0, 0, 0, 0, ["$_init_85", $rt_wrapFunction3(jur_CharClass$14__init_0), "$contains", $rt_wrapFunction1(jur_CharClass$14_contains)],
-jl_StringBuilder, "StringBuilder", 7, jl_AbstractStringBuilder, [jl_Appendable], 0, 3, 0, 0, ["$_init_4", $rt_wrapFunction1(jl_StringBuilder__init_1), "$_init_0", $rt_wrapFunction0(jl_StringBuilder__init_2), "$append25", $rt_wrapFunction1(jl_StringBuilder_append), "$append", $rt_wrapFunction1(jl_StringBuilder_append0), "$append1", $rt_wrapFunction1(jl_StringBuilder_append1), "$append11", $rt_wrapFunction1(jl_StringBuilder_append2), "$append13", $rt_wrapFunction1(jl_StringBuilder_append3), "$append27", $rt_wrapFunction1(jl_StringBuilder_append4),
-"$append10", $rt_wrapFunction1(jl_StringBuilder_append5), "$append22", $rt_wrapFunction3(jl_StringBuilder_append6), "$append9", $rt_wrapFunction1(jl_StringBuilder_append7), "$append23", $rt_wrapFunction3(jl_StringBuilder_append8), "$append24", $rt_wrapFunction1(jl_StringBuilder_append9), "$insert18", $rt_wrapFunction2(jl_StringBuilder_insert), "$insert17", $rt_wrapFunction2(jl_StringBuilder_insert0), "$insert16", $rt_wrapFunction2(jl_StringBuilder_insert1), "$insert13", $rt_wrapFunction4(jl_StringBuilder_insert2),
-"$insert12", $rt_wrapFunction4(jl_StringBuilder_insert3), "$insert14", $rt_wrapFunction2(jl_StringBuilder_insert4), "$insert15", $rt_wrapFunction2(jl_StringBuilder_insert5), "$delete0", $rt_wrapFunction2(jl_StringBuilder_delete), "$deleteCharAt", $rt_wrapFunction1(jl_StringBuilder_deleteCharAt), "$insert19", $rt_wrapFunction2(jl_StringBuilder_insert6), "$setLength", $rt_wrapFunction1(jl_StringBuilder_setLength), "$insert8", $rt_wrapFunction4(jl_StringBuilder_insert7), "$append4", $rt_wrapFunction3(jl_StringBuilder_append10),
-"$insert7", $rt_wrapFunction4(jl_StringBuilder_insert8), "$append3", $rt_wrapFunction3(jl_StringBuilder_append11), "$charAt", $rt_wrapFunction1(jl_StringBuilder_charAt), "$length", $rt_wrapFunction0(jl_StringBuilder_length), "$toString", $rt_wrapFunction0(jl_StringBuilder_toString), "$ensureCapacity", $rt_wrapFunction1(jl_StringBuilder_ensureCapacity), "$insert", $rt_wrapFunction2(jl_StringBuilder_insert9), "$insert6", $rt_wrapFunction2(jl_StringBuilder_insert10), "$insert5", $rt_wrapFunction2(jl_StringBuilder_insert11),
-"$insert4", $rt_wrapFunction2(jl_StringBuilder_insert12), "$insert2", $rt_wrapFunction2(jl_StringBuilder_insert13), "$insert0", $rt_wrapFunction2(jl_StringBuilder_insert14), "$append28", $rt_wrapFunction1(jl_StringBuilder_append12)],
+jl_StringBuilder, "StringBuilder", 7, jl_AbstractStringBuilder, [jl_Appendable], 0, 3, 0, 0, ["$_init_4", $rt_wrapFunction1(jl_StringBuilder__init_1), "$_init_0", $rt_wrapFunction0(jl_StringBuilder__init_2), "$append26", $rt_wrapFunction1(jl_StringBuilder_append), "$append", $rt_wrapFunction1(jl_StringBuilder_append0), "$append1", $rt_wrapFunction1(jl_StringBuilder_append1), "$append14", $rt_wrapFunction1(jl_StringBuilder_append2), "$append15", $rt_wrapFunction1(jl_StringBuilder_append3), "$append28", $rt_wrapFunction1(jl_StringBuilder_append4),
+"$append13", $rt_wrapFunction1(jl_StringBuilder_append5), "$append23", $rt_wrapFunction3(jl_StringBuilder_append6), "$append12", $rt_wrapFunction1(jl_StringBuilder_append7), "$append24", $rt_wrapFunction3(jl_StringBuilder_append8), "$append25", $rt_wrapFunction1(jl_StringBuilder_append9), "$insert18", $rt_wrapFunction2(jl_StringBuilder_insert), "$insert17", $rt_wrapFunction2(jl_StringBuilder_insert0), "$insert16", $rt_wrapFunction2(jl_StringBuilder_insert1), "$insert13", $rt_wrapFunction4(jl_StringBuilder_insert2),
+"$insert12", $rt_wrapFunction4(jl_StringBuilder_insert3), "$insert14", $rt_wrapFunction2(jl_StringBuilder_insert4), "$insert15", $rt_wrapFunction2(jl_StringBuilder_insert5), "$delete0", $rt_wrapFunction2(jl_StringBuilder_delete), "$deleteCharAt", $rt_wrapFunction1(jl_StringBuilder_deleteCharAt), "$insert19", $rt_wrapFunction2(jl_StringBuilder_insert6), "$setLength", $rt_wrapFunction1(jl_StringBuilder_setLength), "$insert8", $rt_wrapFunction4(jl_StringBuilder_insert7), "$append6", $rt_wrapFunction3(jl_StringBuilder_append10),
+"$insert7", $rt_wrapFunction4(jl_StringBuilder_insert8), "$append5", $rt_wrapFunction3(jl_StringBuilder_append11), "$charAt", $rt_wrapFunction1(jl_StringBuilder_charAt), "$length", $rt_wrapFunction0(jl_StringBuilder_length), "$toString", $rt_wrapFunction0(jl_StringBuilder_toString), "$ensureCapacity", $rt_wrapFunction1(jl_StringBuilder_ensureCapacity), "$insert", $rt_wrapFunction2(jl_StringBuilder_insert9), "$insert6", $rt_wrapFunction2(jl_StringBuilder_insert10), "$insert5", $rt_wrapFunction2(jl_StringBuilder_insert11),
+"$insert4", $rt_wrapFunction2(jl_StringBuilder_insert12), "$insert2", $rt_wrapFunction2(jl_StringBuilder_insert13), "$insert0", $rt_wrapFunction2(jl_StringBuilder_insert14), "$append29", $rt_wrapFunction1(jl_StringBuilder_append12)],
 jl_ClassLoader, "ClassLoader", 7, jl_Object, [], 1, 3, 0, jl_ClassLoader_$callClinit, ["$_init_0", $rt_wrapFunction0(jl_ClassLoader__init_), "$_init_95", $rt_wrapFunction1(jl_ClassLoader__init_0)],
 jur_CompositeRangeSet, "CompositeRangeSet", 2, jur_JointSet, [], 0, 0, 0, 0, ["$_init_79", $rt_wrapFunction2(jur_CompositeRangeSet__init_0), "$matches", $rt_wrapFunction3(jur_CompositeRangeSet_matches), "$setNext", $rt_wrapFunction1(jur_CompositeRangeSet_setNext), "$getName", $rt_wrapFunction0(jur_CompositeRangeSet_getName), "$hasConsumed", $rt_wrapFunction1(jur_CompositeRangeSet_hasConsumed), "$first", $rt_wrapFunction1(jur_CompositeRangeSet_first)],
 ju_ConcurrentModificationException, 0, jl_RuntimeException, [], 0, 3, 0, 0, ["$_init_0", $rt_wrapFunction0(ju_ConcurrentModificationException__init_0)],
@@ -24070,19 +24504,20 @@ ucsic_MainPage$load$lambda$_2_0, 0, jl_Object, [juf_Consumer], 0, 3, 0, 0, ["$_i
 jur_FinalSet, "FinalSet", 2, jur_FSet, [], 0, 0, 0, 0, ["$_init_0", $rt_wrapFunction0(jur_FinalSet__init_0), "$matches", $rt_wrapFunction3(jur_FinalSet_matches), "$getName", $rt_wrapFunction0(jur_FinalSet_getName)],
 ucsic_StandardFrame, 0, jl_Object, [], 0, 3, 0, 0, ["$_init_0", $rt_wrapFunction0(ucsic_StandardFrame__init_0), "$showError", $rt_wrapFunction1(ucsic_StandardFrame_showError), "$hideOverlays", $rt_wrapFunction0(ucsic_StandardFrame_hideOverlays), "$showGlass", $rt_wrapFunction0(ucsic_StandardFrame_showGlass)],
 jur_EmptySet, "EmptySet", 2, jur_LeafSet, [], 0, 0, 0, 0, ["$_init_11", $rt_wrapFunction1(jur_EmptySet__init_0), "$accepts", $rt_wrapFunction2(jur_EmptySet_accepts), "$find", $rt_wrapFunction3(jur_EmptySet_find), "$findBack", $rt_wrapFunction4(jur_EmptySet_findBack), "$getName", $rt_wrapFunction0(jur_EmptySet_getName), "$hasConsumed", $rt_wrapFunction1(jur_EmptySet_hasConsumed)],
-jt_DateFormatElement$MonthText, "DateFormatElement$MonthText", 6, jt_DateFormatElement, [], 0, 3, 0, 0, ["$_init_128", $rt_wrapFunction2(jt_DateFormatElement$MonthText__init_0), "$equals", $rt_wrapFunction1(jt_DateFormatElement$MonthText_equals)],
+jt_DateFormatElement$MonthText, "DateFormatElement$MonthText", 6, jt_DateFormatElement, [], 0, 3, 0, 0, ["$_init_128", $rt_wrapFunction2(jt_DateFormatElement$MonthText__init_0), "$format3", $rt_wrapFunction2(jt_DateFormatElement$MonthText_format), "$equals", $rt_wrapFunction1(jt_DateFormatElement$MonthText_equals)],
 jl_NoSuchMethodError, 0, jl_IncompatibleClassChangeError, [], 0, 3, 0, 0, ["$_init_", $rt_wrapFunction1(jl_NoSuchMethodError__init_0)],
 jur_AbstractCharClass$LazyASCII, 0, jur_AbstractCharClass$LazyCharClass, [], 0, 0, 0, 0, ["$_init_0", $rt_wrapFunction0(jur_AbstractCharClass$LazyASCII__init_0), "$computeValue", $rt_wrapFunction0(jur_AbstractCharClass$LazyASCII_computeValue)],
 jl_ArrayIndexOutOfBoundsException, 0, jl_IndexOutOfBoundsException, [], 0, 3, 0, 0, ["$_init_0", $rt_wrapFunction0(jl_ArrayIndexOutOfBoundsException__init_0)],
-jt_DateFormatElement$NumericWeekday, "DateFormatElement$NumericWeekday", 6, jt_DateFormatElement$Numeric, [], 0, 3, 0, 0, ["$_init_4", $rt_wrapFunction1(jt_DateFormatElement$NumericWeekday__init_0)],
+jt_DateFormatElement$NumericWeekday, "DateFormatElement$NumericWeekday", 6, jt_DateFormatElement$Numeric, [], 0, 3, 0, 0, ["$_init_4", $rt_wrapFunction1(jt_DateFormatElement$NumericWeekday__init_0), "$processBeforeFormat", $rt_wrapFunction1(jt_DateFormatElement$NumericWeekday_processBeforeFormat)],
 jlr_Field, "Field", 9, jlr_AccessibleObject, [jlr_Member], 0, 3, 0, 0, ["$isAnnotationPresent", $rt_wrapFunction1(jlr_AnnotatedElement_isAnnotationPresent)],
 ju_AbstractList$1, 0, jl_Object, [ju_Iterator], 0, 0, 0, 0, ["$_init_51", $rt_wrapFunction1(ju_AbstractList$1__init_0), "$hasNext", $rt_wrapFunction0(ju_AbstractList$1_hasNext), "$next", $rt_wrapFunction0(ju_AbstractList$1_next)],
 ucsic_GraphHoverThing$_init_$lambda$_0_0, 0, jl_Object, [otjde_EventListener], 0, 3, 0, 0, ["$_init_16", $rt_wrapFunction4(ucsic_GraphHoverThing$_init_$lambda$_0_0__init_0), "$handleEvent", $rt_wrapFunction1(ucsic_GraphHoverThing$_init_$lambda$_0_0_handleEvent), "$handleEvent$exported$0", $rt_wrapFunction1(ucsic_GraphHoverThing$_init_$lambda$_0_0_handleEvent$exported$0)],
 jur_Quantifier, "Quantifier", 2, jur_SpecialToken, [jl_Cloneable], 0, 0, 0, 0, ["$_init_13", $rt_wrapFunction2(jur_Quantifier__init_0), "$min0", $rt_wrapFunction0(jur_Quantifier_min), "$max0", $rt_wrapFunction0(jur_Quantifier_max), "$toString", $rt_wrapFunction0(jur_Quantifier_toString)],
 ucsic_GraphHoverThing$_init_$lambda$_0_1, 0, jl_Object, [otjde_EventListener], 0, 3, 0, 0, ["$_init_15", $rt_wrapFunction1(ucsic_GraphHoverThing$_init_$lambda$_0_1__init_0), "$handleEvent", $rt_wrapFunction1(ucsic_GraphHoverThing$_init_$lambda$_0_1_handleEvent), "$handleEvent$exported$0", $rt_wrapFunction1(ucsic_GraphHoverThing$_init_$lambda$_0_1_handleEvent$exported$0)],
 jur_AbstractCharClass$LazyJavaUpperCase$1, "AbstractCharClass$LazyJavaUpperCase$1", 2, jur_AbstractCharClass, [], 0, 0, 0, 0, ["$_init_110", $rt_wrapFunction1(jur_AbstractCharClass$LazyJavaUpperCase$1__init_0), "$contains", $rt_wrapFunction1(jur_AbstractCharClass$LazyJavaUpperCase$1_contains)],
+ju_Date, 0, jl_Object, [jl_Comparable], 0, 3, 0, ju_Date_$callClinit, ["$_init_92", $rt_wrapFunction1(ju_Date__init_0), "$getTime", $rt_wrapFunction0(ju_Date_getTime)],
 ucsic_TimeSelector, "TimeSelector", 24, ucsic_AbstractPageWidget, [], 0, 3, 0, 0, ["$_init_31", $rt_wrapFunction1(ucsic_TimeSelector__init_0), "$refresh", $rt_wrapFunction1(ucsic_TimeSelector_refresh), "$construct", $rt_wrapFunction1(ucsic_TimeSelector_construct), "$setOnChange", $rt_wrapFunction1(ucsic_TimeSelector_setOnChange), "$setCurrent", $rt_wrapFunction1(ucsic_TimeSelector_setCurrent)],
-ucsiiu_Format$FloatInstruction, "Format$FloatInstruction", 26, ucsiiu_Format$Inst, [], 0, 0, 0, 0, ["$_init_13", $rt_wrapFunction2(ucsiiu_Format$FloatInstruction__init_0)],
+ucsiiu_Format$FloatInstruction, "Format$FloatInstruction", 26, ucsiiu_Format$Inst, [], 0, 0, 0, 0, ["$_init_13", $rt_wrapFunction2(ucsiiu_Format$FloatInstruction__init_0), "$render", $rt_wrapFunction1(ucsiiu_Format$FloatInstruction_render), "$acceptsArg", $rt_wrapFunction0(ucsiiu_Format$FloatInstruction_acceptsArg)],
 ucsic_ControlsWidget, "ControlsWidget", 24, ucsic_AbstractPageWidget, [], 0, 3, 0, 0, ["$_init_31", $rt_wrapFunction1(ucsic_ControlsWidget__init_0), "$refresh", $rt_wrapFunction1(ucsic_ControlsWidget_refresh), "$construct", $rt_wrapFunction1(ucsic_ControlsWidget_construct), "$configure", $rt_wrapFunction1(ucsic_ControlsWidget_configure)],
 otpp_ResourceAccessor, 0, jl_Object, [], 4, 0, 0, 0, 0,
 jur_PossessiveQuantifierSet, "PossessiveQuantifierSet", 2, jur_LeafQuantifierSet, [], 0, 0, 0, 0, ["$_init_37", $rt_wrapFunction3(jur_PossessiveQuantifierSet__init_0), "$matches", $rt_wrapFunction3(jur_PossessiveQuantifierSet_matches)],
@@ -24091,24 +24526,24 @@ ju_Locale, "Locale", 1, jl_Object, [jl_Cloneable, ji_Serializable], 4, 3, 0, ju_
 jur_AbstractCharClass$LazyJavaIdentifierIgnorable$1, "AbstractCharClass$LazyJavaIdentifierIgnorable$1", 2, jur_AbstractCharClass, [], 0, 0, 0, 0, ["$_init_123", $rt_wrapFunction1(jur_AbstractCharClass$LazyJavaIdentifierIgnorable$1__init_0), "$contains", $rt_wrapFunction1(jur_AbstractCharClass$LazyJavaIdentifierIgnorable$1_contains)],
 jl_Thread$UncaughtExceptionHandler, 0, jl_Object, [], 3, 3, 0, 0, 0,
 jl_DefaultUncaughtExceptionHandler, 0, jl_Object, [jl_Thread$UncaughtExceptionHandler], 0, 3, 0, 0, ["$_init_0", $rt_wrapFunction0(jl_DefaultUncaughtExceptionHandler__init_0)],
-ucsiiu_Format, 0, jl_Object, [], 0, 3, 0, 0, ["$_init_", $rt_wrapFunction1(ucsiiu_Format__init_0)],
+ucsiiu_Format, 0, jl_Object, [], 0, 3, 0, 0, ["$_init_", $rt_wrapFunction1(ucsiiu_Format__init_0), "$format7", $rt_wrapFunction1(ucsiiu_Format_format)],
 oj_JSONPropertyIgnore, 0, jl_Object, [jla_Annotation], 19, 3, 0, 0, 0,
 jur_AbstractCharClass$LazyJavaLetter$1, "AbstractCharClass$LazyJavaLetter$1", 2, jur_AbstractCharClass, [], 0, 0, 0, 0, ["$_init_25", $rt_wrapFunction1(jur_AbstractCharClass$LazyJavaLetter$1__init_0), "$contains", $rt_wrapFunction1(jur_AbstractCharClass$LazyJavaLetter$1_contains)],
 jur_ReluctantQuantifierSet, "ReluctantQuantifierSet", 2, jur_LeafQuantifierSet, [], 0, 0, 0, 0, ["$_init_37", $rt_wrapFunction3(jur_ReluctantQuantifierSet__init_0), "$matches", $rt_wrapFunction3(jur_ReluctantQuantifierSet_matches)],
-ju_TimeZone, 0, jl_Object, [ji_Serializable, jl_Cloneable], 1, 3, 0, ju_TimeZone_$callClinit, ["$_init_", $rt_wrapFunction1(ju_TimeZone__init_), "$clone", $rt_wrapFunction0(ju_TimeZone_clone)],
-ju_IANATimeZone, 0, ju_TimeZone, [], 0, 0, 0, 0, ["$_init_101", $rt_wrapFunction1(ju_IANATimeZone__init_0), "$getOffset", $rt_wrapFunction1(ju_IANATimeZone_getOffset), "$clone1", $rt_wrapFunction0(ju_IANATimeZone_clone), "$clone", $rt_wrapFunction0(ju_IANATimeZone_clone0)],
+ju_TimeZone, 0, jl_Object, [ji_Serializable, jl_Cloneable], 1, 3, 0, ju_TimeZone_$callClinit, ["$_init_", $rt_wrapFunction1(ju_TimeZone__init_), "$clone", $rt_wrapFunction0(ju_TimeZone_clone), "$getDisplayName0", $rt_wrapFunction1(ju_TimeZone_getDisplayName), "$getDisplayName", $rt_wrapFunction3(ju_TimeZone_getDisplayName0), "$getID", $rt_wrapFunction0(ju_TimeZone_getID)],
+ju_IANATimeZone, 0, ju_TimeZone, [], 0, 0, 0, 0, ["$_init_101", $rt_wrapFunction1(ju_IANATimeZone__init_0), "$getOffset", $rt_wrapFunction1(ju_IANATimeZone_getOffset), "$getRawOffset", $rt_wrapFunction0(ju_IANATimeZone_getRawOffset), "$clone1", $rt_wrapFunction0(ju_IANATimeZone_clone), "$clone", $rt_wrapFunction0(ju_IANATimeZone_clone0)],
 ucsic_ReallySimpleEventBus$1, "ReallySimpleEventBus$1", 24, ucsic_ReallySimpleEventBus$Subscriber, [], 0, 0, 0, 0, ["$_init_3", $rt_wrapFunction3(ucsic_ReallySimpleEventBus$1__init_0)],
 ucsic_ClientPage$fetch$lambda$_4_0, 0, jl_Object, [juf_Consumer], 0, 3, 0, 0, ["$_init_0", $rt_wrapFunction0(ucsic_ClientPage$fetch$lambda$_4_0__init_0), "$accept", $rt_wrapFunction1(ucsic_ClientPage$fetch$lambda$_4_0_accept), "$accept1", $rt_wrapFunction1(ucsic_ClientPage$fetch$lambda$_4_0_accept0)],
 ju_Map$Entry, 0, jl_Object, [], 3, 3, 0, 0, 0,
-ju_MapEntry, 0, jl_Object, [ju_Map$Entry, jl_Cloneable], 0, 0, 0, 0, ["$_init_103", $rt_wrapFunction2(ju_MapEntry__init_0), "$getKey", $rt_wrapFunction0(ju_MapEntry_getKey), "$getValue1", $rt_wrapFunction0(ju_MapEntry_getValue)],
-ju_HashMap$HashEntry, 0, ju_MapEntry, [], 0, 0, 0, 0, ["$_init_125", $rt_wrapFunction2(ju_HashMap$HashEntry__init_0)]]);
-$rt_metadata([jur_EOISet, "EOISet", 2, jur_AbstractSet, [], 0, 0, 0, 0, ["$_init_0", $rt_wrapFunction0(jur_EOISet__init_0), "$matches", $rt_wrapFunction3(jur_EOISet_matches), "$hasConsumed", $rt_wrapFunction1(jur_EOISet_hasConsumed), "$getName", $rt_wrapFunction0(jur_EOISet_getName)],
+ju_MapEntry, 0, jl_Object, [ju_Map$Entry, jl_Cloneable], 0, 0, 0, 0, ["$_init_103", $rt_wrapFunction2(ju_MapEntry__init_0), "$getKey", $rt_wrapFunction0(ju_MapEntry_getKey), "$getValue1", $rt_wrapFunction0(ju_MapEntry_getValue)]]);
+$rt_metadata([ju_HashMap$HashEntry, 0, ju_MapEntry, [], 0, 0, 0, 0, ["$_init_125", $rt_wrapFunction2(ju_HashMap$HashEntry__init_0)],
+jur_EOISet, "EOISet", 2, jur_AbstractSet, [], 0, 0, 0, 0, ["$_init_0", $rt_wrapFunction0(jur_EOISet__init_0), "$matches", $rt_wrapFunction3(jur_EOISet_matches), "$hasConsumed", $rt_wrapFunction1(jur_EOISet_hasConsumed), "$getName", $rt_wrapFunction0(jur_EOISet_getName)],
 jur_AbstractCharClass$LazyUpper, 0, jur_AbstractCharClass$LazyCharClass, [], 0, 0, 0, 0, ["$_init_0", $rt_wrapFunction0(jur_AbstractCharClass$LazyUpper__init_0), "$computeValue", $rt_wrapFunction0(jur_AbstractCharClass$LazyUpper_computeValue)],
 jn_ByteBuffer, 0, jn_Buffer, [jl_Comparable], 1, 3, 0, 0, ["$_init_105", function(var_1, var_2, var_3, var_4, var_5) { jn_ByteBuffer__init_(this, var_1, var_2, var_3, var_4, var_5); }, "$get6", $rt_wrapFunction3(jn_ByteBuffer_get), "$get4", $rt_wrapFunction1(jn_ByteBuffer_get0), "$put3", $rt_wrapFunction3(jn_ByteBuffer_put0), "$put2", $rt_wrapFunction1(jn_ByteBuffer_put), "$hasArray", $rt_wrapFunction0(jn_ByteBuffer_hasArray), "$array", $rt_wrapFunction0(jn_ByteBuffer_array), "$flip", $rt_wrapFunction0(jn_ByteBuffer_flip),
 "$position2", $rt_wrapFunction1(jn_ByteBuffer_position)],
 jn_ByteBufferImpl, 0, jn_ByteBuffer, [], 0, 0, 0, 0, ["$_init_23", $rt_wrapFunction2(jn_ByteBufferImpl__init_1), "$_init_104", function(var_1, var_2, var_3, var_4, var_5, var_6, var_7) { jn_ByteBufferImpl__init_2(this, var_1, var_2, var_3, var_4, var_5, var_6, var_7); }, "$isReadOnly", $rt_wrapFunction0(jn_ByteBufferImpl_isReadOnly)],
-jt_DateFormatElement$GeneralTimezone, "DateFormatElement$GeneralTimezone", 6, jt_DateFormatElement$BaseTimezone, [], 0, 3, 0, 0, ["$_init_45", $rt_wrapFunction1(jt_DateFormatElement$GeneralTimezone__init_0)],
-jt_DateFormatElement$WeekdayText, "DateFormatElement$WeekdayText", 6, jt_DateFormatElement, [], 0, 3, 0, 0, ["$_init_128", $rt_wrapFunction2(jt_DateFormatElement$WeekdayText__init_0), "$equals", $rt_wrapFunction1(jt_DateFormatElement$WeekdayText_equals)],
+jt_DateFormatElement$GeneralTimezone, "DateFormatElement$GeneralTimezone", 6, jt_DateFormatElement$BaseTimezone, [], 0, 3, 0, 0, ["$_init_45", $rt_wrapFunction1(jt_DateFormatElement$GeneralTimezone__init_0), "$format3", $rt_wrapFunction2(jt_DateFormatElement$GeneralTimezone_format)],
+jt_DateFormatElement$WeekdayText, "DateFormatElement$WeekdayText", 6, jt_DateFormatElement, [], 0, 3, 0, 0, ["$_init_128", $rt_wrapFunction2(jt_DateFormatElement$WeekdayText__init_0), "$format3", $rt_wrapFunction2(jt_DateFormatElement$WeekdayText_format), "$equals", $rt_wrapFunction1(jt_DateFormatElement$WeekdayText_equals)],
 ucsih_Series, "Series", 27, jl_Object, [], 0, 3, 0, 0, ["$_init_", $rt_wrapFunction1(ucsih_Series__init_0), "$fromJSON", $rt_wrapFunction1(ucsih_Series_fromJSON)],
 ucsic_Button$setOnClick$lambda$_3_0, 0, jl_Object, [otjde_EventListener], 0, 3, 0, 0, ["$_init_9", $rt_wrapFunction2(ucsic_Button$setOnClick$lambda$_3_0__init_0), "$handleEvent", $rt_wrapFunction1(ucsic_Button$setOnClick$lambda$_3_0_handleEvent), "$handleEvent$exported$0", $rt_wrapFunction1(ucsic_Button$setOnClick$lambda$_3_0_handleEvent$exported$0)],
 jnc_BufferUnderflowException, 0, jl_RuntimeException, [], 0, 3, 0, 0, ["$_init_0", $rt_wrapFunction0(jnc_BufferUnderflowException__init_0)],
@@ -24133,6 +24568,7 @@ jur_AbstractCharClass$LazyRange, 0, jur_AbstractCharClass$LazyCharClass, [], 0, 
 jur_AbstractCharClass$LazyXDigit, 0, jur_AbstractCharClass$LazyCharClass, [], 0, 0, 0, 0, ["$_init_0", $rt_wrapFunction0(jur_AbstractCharClass$LazyXDigit__init_0), "$computeValue", $rt_wrapFunction0(jur_AbstractCharClass$LazyXDigit_computeValue)],
 jur_Matcher, 0, jl_Object, [jur_MatchResult], 4, 3, 0, 0, ["$find1", $rt_wrapFunction1(jur_Matcher_find0), "$find0", $rt_wrapFunction0(jur_Matcher_find), "$start", $rt_wrapFunction1(jur_Matcher_start0), "$end0", $rt_wrapFunction1(jur_Matcher_end0), "$matches0", $rt_wrapFunction0(jur_Matcher_matches), "$start3", $rt_wrapFunction0(jur_Matcher_start), "$end1", $rt_wrapFunction0(jur_Matcher_end), "$hasTransparentBounds", $rt_wrapFunction0(jur_Matcher_hasTransparentBounds), "$_init_66", $rt_wrapFunction2(jur_Matcher__init_0)],
 jur_DotAllSet, "DotAllSet", 2, jur_JointSet, [], 0, 0, 0, 0, ["$_init_0", $rt_wrapFunction0(jur_DotAllSet__init_0), "$matches", $rt_wrapFunction3(jur_DotAllSet_matches), "$getName", $rt_wrapFunction0(jur_DotAllSet_getName), "$setNext", $rt_wrapFunction1(jur_DotAllSet_setNext), "$getType", $rt_wrapFunction0(jur_DotAllSet_getType), "$hasConsumed", $rt_wrapFunction1(jur_DotAllSet_hasConsumed)],
+jt_FieldPosition, 0, jl_Object, [], 0, 3, 0, 0, ["$_init_4", $rt_wrapFunction1(jt_FieldPosition__init_0)],
 jur_AbstractCharClass$LazyJavaLowerCase$1, "AbstractCharClass$LazyJavaLowerCase$1", 2, jur_AbstractCharClass, [], 0, 0, 0, 0, ["$_init_93", $rt_wrapFunction1(jur_AbstractCharClass$LazyJavaLowerCase$1__init_0), "$contains", $rt_wrapFunction1(jur_AbstractCharClass$LazyJavaLowerCase$1_contains)],
 ucsic_MiscWidget$refresh$lambda$_1_1, 0, jl_Object, [juf_Consumer], 0, 3, 0, 0, ["$_init_108", $rt_wrapFunction1(ucsic_MiscWidget$refresh$lambda$_1_1__init_0), "$accept", $rt_wrapFunction1(ucsic_MiscWidget$refresh$lambda$_1_1_accept), "$accept1", $rt_wrapFunction1(ucsic_MiscWidget$refresh$lambda$_1_1_accept0)],
 ucsic_MiscWidget$refresh$lambda$_1_0, 0, jl_Object, [juf_Consumer], 0, 3, 0, 0, ["$_init_108", $rt_wrapFunction1(ucsic_MiscWidget$refresh$lambda$_1_0__init_0), "$accept", $rt_wrapFunction1(ucsic_MiscWidget$refresh$lambda$_1_0_accept), "$accept0", $rt_wrapFunction1(ucsic_MiscWidget$refresh$lambda$_1_0_accept0)],
@@ -24151,11 +24587,11 @@ jur_WordBoundary, "WordBoundary", 2, jur_AbstractSet, [], 0, 0, 0, 0, ["$_init_4
 jl_SystemClassLoader, 0, jl_ClassLoader, [], 0, 0, 0, 0, ["$_init_0", $rt_wrapFunction0(jl_SystemClassLoader__init_0)],
 jur_AbstractCharClass$LazySpace, 0, jur_AbstractCharClass$LazyCharClass, [], 0, 0, 0, 0, ["$_init_0", $rt_wrapFunction0(jur_AbstractCharClass$LazySpace__init_0), "$computeValue", $rt_wrapFunction0(jur_AbstractCharClass$LazySpace_computeValue)],
 ju_HashMap$2, 0, ju_AbstractCollection, [], 0, 0, 0, 0, ["$_init_46", $rt_wrapFunction1(ju_HashMap$2__init_0), "$size", $rt_wrapFunction0(ju_HashMap$2_size), "$iterator", $rt_wrapFunction0(ju_HashMap$2_iterator)],
-jl_Double, "Double", 7, jl_Number, [jl_Comparable], 0, 3, 0, jl_Double_$callClinit, ["$_init_111", $rt_wrapFunction1(jl_Double__init_0), "$intValue", $rt_wrapFunction0(jl_Double_intValue), "$floatValue", $rt_wrapFunction0(jl_Double_floatValue), "$toString", $rt_wrapFunction0(jl_Double_toString0), "$equals", $rt_wrapFunction1(jl_Double_equals), "$isNaN", $rt_wrapFunction0(jl_Double_isNaN), "$isInfinite", $rt_wrapFunction0(jl_Double_isInfinite)],
-jt_SimpleDateFormat, 0, jt_DateFormat, [], 0, 3, 0, 0, ["$_init_", $rt_wrapFunction1(jt_SimpleDateFormat__init_0), "$_init_112", $rt_wrapFunction2(jt_SimpleDateFormat__init_2), "$_init_113", $rt_wrapFunction2(jt_SimpleDateFormat__init_4), "$applyPattern", $rt_wrapFunction1(jt_SimpleDateFormat_applyPattern)],
-otjb_WindowEventTarget, 0, jl_Object, [otjde_EventTarget, otjde_FocusEventTarget, otjde_MouseEventTarget, otjde_KeyboardEventTarget, otjde_LoadEventTarget, otjde_GamepadEventTarget], 3, 3, 0, 0, 0]);
-$rt_metadata([ucsic_RPCError, "RPCError", 24, jl_Exception, [], 0, 3, [0,0,0], 0, ["$_init_", $rt_wrapFunction1(ucsic_RPCError__init_0)],
-ucsiiu_Format$TimeInstruction, "Format$TimeInstruction", 26, ucsiiu_Format$Inst, [], 0, 3, 0, 0, ["$_init_100", $rt_wrapFunction2(ucsiiu_Format$TimeInstruction__init_0)],
+jl_Double, "Double", 7, jl_Number, [jl_Comparable], 0, 3, 0, jl_Double_$callClinit, ["$_init_111", $rt_wrapFunction1(jl_Double__init_0), "$intValue", $rt_wrapFunction0(jl_Double_intValue), "$floatValue", $rt_wrapFunction0(jl_Double_floatValue), "$toString", $rt_wrapFunction0(jl_Double_toString0), "$equals", $rt_wrapFunction1(jl_Double_equals), "$isNaN", $rt_wrapFunction0(jl_Double_isNaN), "$isInfinite", $rt_wrapFunction0(jl_Double_isInfinite)]]);
+$rt_metadata([jt_SimpleDateFormat, 0, jt_DateFormat, [], 0, 3, 0, 0, ["$_init_", $rt_wrapFunction1(jt_SimpleDateFormat__init_0), "$_init_112", $rt_wrapFunction2(jt_SimpleDateFormat__init_2), "$_init_113", $rt_wrapFunction2(jt_SimpleDateFormat__init_4), "$format2", $rt_wrapFunction3(jt_SimpleDateFormat_format), "$applyPattern", $rt_wrapFunction1(jt_SimpleDateFormat_applyPattern)],
+otjb_WindowEventTarget, 0, jl_Object, [otjde_EventTarget, otjde_FocusEventTarget, otjde_MouseEventTarget, otjde_KeyboardEventTarget, otjde_LoadEventTarget, otjde_GamepadEventTarget], 3, 3, 0, 0, 0,
+ucsic_RPCError, "RPCError", 24, jl_Exception, [], 0, 3, [0,0,0], 0, ["$_init_", $rt_wrapFunction1(ucsic_RPCError__init_0)],
+ucsiiu_Format$TimeInstruction, "Format$TimeInstruction", 26, ucsiiu_Format$Inst, [], 0, 3, 0, 0, ["$_init_100", $rt_wrapFunction2(ucsiiu_Format$TimeInstruction__init_0), "$render", $rt_wrapFunction1(ucsiiu_Format$TimeInstruction_render), "$acceptsArg", $rt_wrapFunction0(ucsiiu_Format$TimeInstruction_acceptsArg)],
 otjb_StorageProvider, 0, jl_Object, [], 3, 3, 0, 0, 0,
 otjc_JSArrayReader, 0, jl_Object, [otj_JSObject], 3, 3, 0, 0, 0,
 otjb_Window, 0, jl_Object, [otj_JSObject, otjb_WindowEventTarget, otjb_StorageProvider, otjc_JSArrayReader], 1, 3, 0, 0, ["$addEventListener$exported$0", $rt_wrapFunction2(otjb_Window_addEventListener$exported$0), "$removeEventListener$exported$1", $rt_wrapFunction2(otjb_Window_removeEventListener$exported$1), "$get$exported$2", $rt_wrapFunction1(otjb_Window_get$exported$2), "$removeEventListener$exported$3", $rt_wrapFunction3(otjb_Window_removeEventListener$exported$3), "$dispatchEvent$exported$4", $rt_wrapFunction1(otjb_Window_dispatchEvent$exported$4),
@@ -24170,7 +24606,7 @@ ju_Collections$_clinit_$lambda$_61_0, 0, jl_Object, [ju_Comparator], 0, 3, 0, 0,
 jl_NumberFormatException, 0, jl_IllegalArgumentException, [], 0, 3, 0, 0, ["$_init_0", $rt_wrapFunction0(jl_NumberFormatException__init_1), "$_init_", $rt_wrapFunction1(jl_NumberFormatException__init_2)],
 jl_IllegalStateException, 0, jl_Exception, [], 0, 3, 0, 0, ["$_init_0", $rt_wrapFunction0(jl_IllegalStateException__init_1), "$_init_", $rt_wrapFunction1(jl_IllegalStateException__init_2)],
 ju_FormatterClosedException, 0, jl_IllegalStateException, [], 0, 3, 0, 0, ["$_init_0", $rt_wrapFunction0(ju_FormatterClosedException__init_0)],
-jt_DateFormatElement$NumericHour, "DateFormatElement$NumericHour", 6, jt_DateFormatElement$Numeric, [], 0, 3, 0, 0, ["$_init_53", $rt_wrapFunction3(jt_DateFormatElement$NumericHour__init_0), "$equals", $rt_wrapFunction1(jt_DateFormatElement$NumericHour_equals)],
+jt_DateFormatElement$NumericHour, "DateFormatElement$NumericHour", 6, jt_DateFormatElement$Numeric, [], 0, 3, 0, 0, ["$_init_53", $rt_wrapFunction3(jt_DateFormatElement$NumericHour__init_0), "$processBeforeFormat", $rt_wrapFunction1(jt_DateFormatElement$NumericHour_processBeforeFormat), "$equals", $rt_wrapFunction1(jt_DateFormatElement$NumericHour_equals)],
 jur_IntArrHash, 0, jl_Object, [], 0, 0, 0, 0, 0,
 jur_AbstractCharClass$LazyJavaMirrored, 0, jur_AbstractCharClass$LazyCharClass, [], 0, 0, 0, 0, ["$_init_0", $rt_wrapFunction0(jur_AbstractCharClass$LazyJavaMirrored__init_0), "$computeValue", $rt_wrapFunction0(jur_AbstractCharClass$LazyJavaMirrored_computeValue)],
 jur_AbstractCharClass$LazyJavaISOControl, 0, jur_AbstractCharClass$LazyCharClass, [], 0, 0, 0, 0, ["$_init_0", $rt_wrapFunction0(jur_AbstractCharClass$LazyJavaISOControl__init_0), "$computeValue", $rt_wrapFunction0(jur_AbstractCharClass$LazyJavaISOControl_computeValue)],
@@ -24188,12 +24624,12 @@ ucsic_MainPage, 0, ucsic_ClientPage, [], 0, 3, 0, ucsic_MainPage_$callClinit, ["
 otcir_JSCallable, "JSCallable", 15, jl_Object, [otj_JSObject], 3, 3, 0, 0, 0,
 jm_RoundingMode, 0, jl_Enum, [], 12, 3, 0, jm_RoundingMode_$callClinit, 0,
 jl_IllegalAccessException, 0, jl_ReflectiveOperationException, [], 0, 3, 0, 0, ["$_init_0", $rt_wrapFunction0(jl_IllegalAccessException__init_0)],
-jt_DateFormatElement$Iso8601Timezone, "DateFormatElement$Iso8601Timezone", 6, jt_DateFormatElement, [], 0, 3, 0, 0, ["$_init_4", $rt_wrapFunction1(jt_DateFormatElement$Iso8601Timezone__init_0), "$equals", $rt_wrapFunction1(jt_DateFormatElement$Iso8601Timezone_equals)],
+jt_DateFormatElement$Iso8601Timezone, "DateFormatElement$Iso8601Timezone", 6, jt_DateFormatElement, [], 0, 3, 0, 0, ["$_init_4", $rt_wrapFunction1(jt_DateFormatElement$Iso8601Timezone__init_0), "$format3", $rt_wrapFunction2(jt_DateFormatElement$Iso8601Timezone_format), "$equals", $rt_wrapFunction1(jt_DateFormatElement$Iso8601Timezone_equals)],
 jlr_Modifier, 0, jl_Object, [], 0, 3, 0, jlr_Modifier_$callClinit, 0,
 ucsic_ControlsWidget$construct$lambda$_2_1, 0, jl_Object, [juf_Consumer], 0, 3, 0, 0, ["$_init_98", $rt_wrapFunction2(ucsic_ControlsWidget$construct$lambda$_2_1__init_0), "$accept", $rt_wrapFunction1(ucsic_ControlsWidget$construct$lambda$_2_1_accept), "$accept3", $rt_wrapFunction1(ucsic_ControlsWidget$construct$lambda$_2_1_accept0)],
 ucsic_ControlsWidget$construct$lambda$_2_0, 0, jl_Object, [juf_Consumer], 0, 3, 0, 0, ["$_init_97", $rt_wrapFunction1(ucsic_ControlsWidget$construct$lambda$_2_0__init_0), "$accept", $rt_wrapFunction1(ucsic_ControlsWidget$construct$lambda$_2_0_accept), "$accept4", $rt_wrapFunction1(ucsic_ControlsWidget$construct$lambda$_2_0_accept0)],
 jur_AbstractCharClass$LazyJavaIdentifierIgnorable, 0, jur_AbstractCharClass$LazyCharClass, [], 0, 0, 0, 0, ["$_init_0", $rt_wrapFunction0(jur_AbstractCharClass$LazyJavaIdentifierIgnorable__init_0), "$computeValue", $rt_wrapFunction0(jur_AbstractCharClass$LazyJavaIdentifierIgnorable_computeValue)],
-ju_HashMap, 0, ju_AbstractMap, [jl_Cloneable, ji_Serializable], 0, 3, 0, 0, ["$newElementArray", $rt_wrapFunction1(ju_HashMap_newElementArray), "$_init_0", $rt_wrapFunction0(ju_HashMap__init_1), "$_init_4", $rt_wrapFunction1(ju_HashMap__init_2), "$_init_124", $rt_wrapFunction2(ju_HashMap__init_4), "$containsKey", $rt_wrapFunction1(ju_HashMap_containsKey), "$entrySet", $rt_wrapFunction0(ju_HashMap_entrySet), "$get0", $rt_wrapFunction1(ju_HashMap_get), "$getEntry", $rt_wrapFunction1(ju_HashMap_getEntry), "$findNonNullKeyEntry",
+ju_HashMap, 0, ju_AbstractMap, [jl_Cloneable, ji_Serializable], 0, 3, 0, 0, ["$newElementArray", $rt_wrapFunction1(ju_HashMap_newElementArray), "$_init_0", $rt_wrapFunction0(ju_HashMap__init_1), "$_init_4", $rt_wrapFunction1(ju_HashMap__init_2), "$_init_124", $rt_wrapFunction2(ju_HashMap__init_4), "$containsKey", $rt_wrapFunction1(ju_HashMap_containsKey), "$entrySet", $rt_wrapFunction0(ju_HashMap_entrySet), "$get1", $rt_wrapFunction1(ju_HashMap_get), "$getEntry", $rt_wrapFunction1(ju_HashMap_getEntry), "$findNonNullKeyEntry",
 $rt_wrapFunction3(ju_HashMap_findNonNullKeyEntry), "$findNullKeyEntry", $rt_wrapFunction0(ju_HashMap_findNullKeyEntry), "$put", $rt_wrapFunction2(ju_HashMap_put), "$putImpl", $rt_wrapFunction2(ju_HashMap_putImpl), "$createHashedEntry", $rt_wrapFunction3(ju_HashMap_createHashedEntry), "$rehash0", $rt_wrapFunction1(ju_HashMap_rehash), "$rehash", $rt_wrapFunction0(ju_HashMap_rehash0), "$remove1", $rt_wrapFunction1(ju_HashMap_remove), "$removeEntry", $rt_wrapFunction1(ju_HashMap_removeEntry), "$size", $rt_wrapFunction0(ju_HashMap_size),
 "$values", $rt_wrapFunction0(ju_HashMap_values)],
 jt_DecimalFormat$MinusField, "DecimalFormat$MinusField", 6, jl_Object, [jt_DecimalFormat$FormatField], 0, 0, 0, 0, ["$_init_0", $rt_wrapFunction0(jt_DecimalFormat$MinusField__init_0), "$equals", $rt_wrapFunction1(jt_DecimalFormat$MinusField_equals)],
@@ -24206,12 +24642,12 @@ jur_Lexer, 0, jl_Object, [], 0, 0, 0, 0, ["$_init_67", $rt_wrapFunction2(jur_Lex
 "$lookAhead", $rt_wrapFunction0(jur_Lexer_lookAhead), "$back0", $rt_wrapFunction0(jur_Lexer_back), "$toString", $rt_wrapFunction0(jur_Lexer_toString), "$isEmpty", $rt_wrapFunction0(jur_Lexer_isEmpty), "$isLetter", $rt_wrapFunction0(jur_Lexer_isLetter0), "$isHighSurrogate0", $rt_wrapFunction0(jur_Lexer_isHighSurrogate0), "$isLowSurrogate0", $rt_wrapFunction0(jur_Lexer_isLowSurrogate0), "$getIndex", $rt_wrapFunction0(jur_Lexer_getIndex)],
 jur_AbstractCharClass$LazySpecialsBlock, 0, jur_AbstractCharClass$LazyCharClass, [], 0, 0, 0, 0, ["$_init_0", $rt_wrapFunction0(jur_AbstractCharClass$LazySpecialsBlock__init_0), "$computeValue", $rt_wrapFunction0(jur_AbstractCharClass$LazySpecialsBlock_computeValue)],
 jur_AbstractCharClass$LazyNonSpace, 0, jur_AbstractCharClass$LazySpace, [], 0, 0, 0, 0, ["$_init_0", $rt_wrapFunction0(jur_AbstractCharClass$LazyNonSpace__init_0), "$computeValue", $rt_wrapFunction0(jur_AbstractCharClass$LazyNonSpace_computeValue)],
-ucsih_Axis, 0, jl_Object, [], 0, 3, 0, 0, ["$_init_4", $rt_wrapFunction1(ucsih_Axis__init_0), "$fromJSON", $rt_wrapFunction1(ucsih_Axis_fromJSON), "$getMin", $rt_wrapFunction0(ucsih_Axis_getMin), "$getMax", $rt_wrapFunction0(ucsih_Axis_getMax), "$isEnabled", $rt_wrapFunction0(ucsih_Axis_isEnabled), "$setEnabled", $rt_wrapFunction1(ucsih_Axis_setEnabled), "$setFormat", $rt_wrapFunction1(ucsih_Axis_setFormat), "$getSize", $rt_wrapFunction0(ucsih_Axis_getSize), "$setSize", $rt_wrapFunction1(ucsih_Axis_setSize),
-"$axisSize", $rt_wrapFunction0(ucsih_Axis_axisSize), "$getName", $rt_wrapFunction0(ucsih_Axis_getName), "$setName", $rt_wrapFunction1(ucsih_Axis_setName)],
-ju_IllegalFormatFlagsException, 0, ju_IllegalFormatException, [], 0, 3, 0, 0, ["$_init_", $rt_wrapFunction1(ju_IllegalFormatFlagsException__init_0)],
-ucsih_Axis$_init_$lambda$_0_0, 0, jl_Object, [juf_Function], 0, 3, 0, 0, ["$_init_0", $rt_wrapFunction0(ucsih_Axis$_init_$lambda$_0_0__init_0)],
-jt_SimpleDatePatternParser, 0, jl_Object, [], 0, 0, 0, 0, ["$_init_114", $rt_wrapFunction2(jt_SimpleDatePatternParser__init_0), "$getElements", $rt_wrapFunction0(jt_SimpleDatePatternParser_getElements), "$parsePattern", $rt_wrapFunction1(jt_SimpleDatePatternParser_parsePattern)]]);
-$rt_metadata([jt_DateFormatElement$EraText, "DateFormatElement$EraText", 6, jt_DateFormatElement, [], 0, 3, 0, 0, ["$_init_129", $rt_wrapFunction1(jt_DateFormatElement$EraText__init_0), "$equals", $rt_wrapFunction1(jt_DateFormatElement$EraText_equals)],
+ucsih_Axis, 0, jl_Object, [], 0, 3, 0, 0, ["$_init_4", $rt_wrapFunction1(ucsih_Axis__init_0), "$fromJSON", $rt_wrapFunction1(ucsih_Axis_fromJSON), "$getMin", $rt_wrapFunction0(ucsih_Axis_getMin), "$getMax", $rt_wrapFunction0(ucsih_Axis_getMax), "$getFormatter", $rt_wrapFunction0(ucsih_Axis_getFormatter), "$isEnabled", $rt_wrapFunction0(ucsih_Axis_isEnabled), "$setEnabled", $rt_wrapFunction1(ucsih_Axis_setEnabled), "$setFormat", $rt_wrapFunction1(ucsih_Axis_setFormat), "$getSize", $rt_wrapFunction0(ucsih_Axis_getSize),
+"$setSize", $rt_wrapFunction1(ucsih_Axis_setSize), "$axisSize", $rt_wrapFunction0(ucsih_Axis_axisSize), "$getName", $rt_wrapFunction0(ucsih_Axis_getName), "$setName", $rt_wrapFunction1(ucsih_Axis_setName)],
+ju_IllegalFormatFlagsException, 0, ju_IllegalFormatException, [], 0, 3, 0, 0, ["$_init_", $rt_wrapFunction1(ju_IllegalFormatFlagsException__init_0)]]);
+$rt_metadata([ucsih_Axis$_init_$lambda$_0_0, 0, jl_Object, [juf_Function], 0, 3, 0, 0, ["$_init_0", $rt_wrapFunction0(ucsih_Axis$_init_$lambda$_0_0__init_0), "$apply", $rt_wrapFunction1(ucsih_Axis$_init_$lambda$_0_0_apply), "$apply2", $rt_wrapFunction1(ucsih_Axis$_init_$lambda$_0_0_apply0)],
+jt_SimpleDatePatternParser, 0, jl_Object, [], 0, 0, 0, 0, ["$_init_114", $rt_wrapFunction2(jt_SimpleDatePatternParser__init_0), "$getElements", $rt_wrapFunction0(jt_SimpleDatePatternParser_getElements), "$parsePattern", $rt_wrapFunction1(jt_SimpleDatePatternParser_parsePattern)],
+jt_DateFormatElement$EraText, "DateFormatElement$EraText", 6, jt_DateFormatElement, [], 0, 3, 0, 0, ["$_init_129", $rt_wrapFunction1(jt_DateFormatElement$EraText__init_0), "$format3", $rt_wrapFunction2(jt_DateFormatElement$EraText_format), "$equals", $rt_wrapFunction1(jt_DateFormatElement$EraText_equals)],
 ju_HashMap$EntryIterator, 0, ju_HashMap$AbstractMapIterator, [ju_Iterator], 0, 0, 0, 0, ["$_init_46", $rt_wrapFunction1(ju_HashMap$EntryIterator__init_0), "$next5", $rt_wrapFunction0(ju_HashMap$EntryIterator_next), "$next", $rt_wrapFunction0(ju_HashMap$EntryIterator_next0)],
 ju_Collections, 0, jl_Object, [], 0, 3, 0, ju_Collections_$callClinit, 0]);
 function $rt_array(cls, data) {

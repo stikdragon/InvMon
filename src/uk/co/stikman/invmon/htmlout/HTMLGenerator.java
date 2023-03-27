@@ -2,12 +2,9 @@ package uk.co.stikman.invmon.htmlout;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.function.Function;
 
-import uk.co.stikman.invmon.Env;
-import uk.co.stikman.invmon.datalog.DBRecord;
 import uk.co.stikman.invmon.datalog.DataLogger;
 import uk.co.stikman.invmon.datalog.MiniDbException;
 import uk.co.stikman.invmon.datalog.QueryRecord;
@@ -117,7 +114,7 @@ public class HTMLGenerator {
 			float sx = 1.0f - (float) axisWidthTotal / width; // scale factors
 			float sy = 1.0f - (float) (opts.getAxisX1().axisSize()) / height;
 			html.append("<svg class=\"chart ").append(cssclass).append("\" width=\"%dpx\" height=\"%dpx\">\n", width, height);
-			html.append("<g transform=\"translate(%d,0) scale(%f, %f)\"> \n", (opts.getAxisX1().axisSize()), sx, sy);
+			html.append("<g transform=\"translate(%d,0) scale(%f, %f)\"> \n", (opts.getAxisY1().axisSize()), sx, sy);
 			html.append("<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" class=\"background\" />", 0, 0, width, height);
 			int fts = res.getFieldIndex("TIMESTAMP");
 
@@ -127,6 +124,8 @@ public class HTMLGenerator {
 				minX = Math.min(minX, rec.getLong(fts));
 				maxX = Math.max(maxX, rec.getLong(fts));
 			}
+			opts.getAxisX1().setMin(minX);
+			opts.getAxisX1().setMax(maxX);
 
 			int seriesIndex = 0;
 
@@ -134,13 +133,13 @@ public class HTMLGenerator {
 			// work out the extent of each axis
 			//
 			for (Series series : opts.getSeries()) {
-				Axis<?> ax = opts.getAxis(series.getYAxisId());
+				Axis ax = opts.getAxis(series.getYAxisId());
 				ax.setMin(Float.MAX_VALUE);
 				ax.setMax(Float.MIN_VALUE);
 			}
 			for (Series series : opts.getSeries()) {
 				int fmain = res.getFieldIndex(series.getField());
-				Axis<?> ax = opts.getAxis(series.getYAxisId());
+				Axis ax = opts.getAxis(series.getYAxisId());
 				for (QueryRecord rec : res.getRecords()) {
 					float f = rec.getFloat(fmain);
 					ax.setMin(Math.min(ax.getMin(), f));
@@ -166,7 +165,7 @@ public class HTMLGenerator {
 				for (int i = 0; i < fsubs.length; ++i)
 					fsubs[i] = res.getFieldIndex(series.getSubfields().get(i));
 
-				Axis<?> axy = opts.getAxis(series.getYAxisId());
+				Axis axy = opts.getAxis(series.getYAxisId());
 
 				List<String> pathlist = new ArrayList<>();
 
@@ -238,19 +237,19 @@ public class HTMLGenerator {
 			int axw = opts.getAxisY1().axisSize();
 			int axh = opts.getAxisX1().axisSize();
 			if (opts.getAxisY1().isEnabled()) {
-				Function<Float, String> f = opts.getAxisY1().getFormatter();
+				Function<Number, String> f = opts.getAxisY1().getFormatter();
 				html.append("<path d=\"M%d %d %d %d\" stroke-width=\"2\" stroke=\"black\"/>\n", axw, 0, axw, height - axh);
 				html.append("<text x=\"%d\" y=\"%d\" alignment-baseline=\"hanging\" text-anchor=\"end\" class=\"axis\">%s</text>", axw - 4, 0, f.apply(opts.getAxisY1().getMax()));
 				html.append("<text x=\"%d\" y=\"%d\" text-anchor=\"end\" class=\"axis\">%s</text>", axw - 4, height - axh, f.apply(opts.getAxisY1().getMin()));
 			}
 			if (opts.getAxisY2().isEnabled()) {
-				Function<Float, String> f = opts.getAxisY2().getFormatter();
+				Function<Number, String> f = opts.getAxisY2().getFormatter();
 				int w = width - axw;
 				html.append("<path d=\"M%d %d %d %d\" stroke-width=\"2\" stroke=\"black\"/>\n", w, 0, w, height - axh);
 				html.append("<text x=\"%d\" y=\"%d\" alignment-baseline=\"hanging\" text-anchor=\"start\" class=\"axis\">%s</text>", w + 4, 0, f.apply(opts.getAxisY2().getMax()));
 				html.append("<text x=\"%d\" y=\"%d\" text-anchor=\"start\" class=\"axis\">%s</text>", w + 4, height - axh, f.apply(opts.getAxisY2().getMin()));
 			}
-			Function<Long, String> f2 = opts.getAxisX1().getFormatter();
+			Function<Number, String> f2 = opts.getAxisX1().getFormatter();
 			html.append("<path d=\"M%d %d %d %d\" stroke-width=\"2\" stroke=\"black\"/>\n", (opts.getAxisY1().isEnabled() ? 1 : 0) * axw, height - axh, width - (opts.getAxisY2().isEnabled() ? 1 : 0) * axw, height - axh);
 			html.append("<text x=\"%d\" y=\"%d\" alignment-baseline=\"hanging\" class=\"axis\">%s</text>", axw, height - axh + 4, f2.apply(minX));
 			html.append("<text x=\"%d\" y=\"%d\" alignment-baseline=\"hanging\" text-anchor=\"end\" class=\"axis\">%s</text>", width - (axw * (nAxes - 1)), height - axh + 4, f2.apply(maxX));

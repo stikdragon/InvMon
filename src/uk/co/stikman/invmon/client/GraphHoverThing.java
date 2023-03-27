@@ -1,12 +1,10 @@
 package uk.co.stikman.invmon.client;
 
 import org.teavm.jso.dom.events.MouseEvent;
-import org.teavm.jso.dom.html.HTMLCanvasElement;
 import org.teavm.jso.dom.html.HTMLElement;
 import org.teavm.jso.dom.xml.Element;
 
 import uk.co.stikman.invmon.htmlout.Axis;
-import uk.co.stikman.invmon.htmlout.AxisInfo;
 import uk.co.stikman.invmon.htmlout.ChartOptions;
 import uk.co.stikman.invmon.htmlout.HTMLBuilder;
 
@@ -58,14 +56,14 @@ public class GraphHoverThing {
 
 	}
 
-	private HTMLElement	root;
-	private int			x0;
-	private int			y0;
-	private int			h;
-	private int			w;
+	private HTMLElement		root;
+	private int				x0;
+	private int				y0;
+	private int				h;
+	private int				w;
 
-	private Marker		hoverMarker;
-	private Element		svg;
+	private Marker			hoverMarker;
+	private Element			svg;
 	private ChartOptions	info;
 
 	public GraphHoverThing(int x0, int y0, int w, int h, ChartOptions opts) {
@@ -94,7 +92,7 @@ public class GraphHoverThing {
 			HTMLBuilder html = new HTMLBuilder();
 
 			doAx(opts.getAxisX1(), x, w, html);
-			doAx(opts.getAxisY1(), y, h, html);
+			doAx(opts.getAxisY1(), h - y, h, html);
 			if (opts.getAxisY2() != null)
 				doAx(opts.getAxisY2(), y, h, html);
 			hoverMarker.setXY(x, y, html.toString());
@@ -106,13 +104,14 @@ public class GraphHoverThing {
 
 	}
 
-	private void doAx(Axis<?> axis, float val, float size, HTMLBuilder html) {
+	private void doAx(Axis axis, float val, float screen, HTMLBuilder html) {
 		float a = axis.getMax() - axis.getMin();
-		val /= size; // normalised
-		val *= a;
-		val += axis.getMin();
+		val /= screen; // normalised
+		val *= a; // data
+		val += axis.getMin(); // offset
 		html.div("row").div("k").append(axis.getName()).append(": </div>");
-		html.div("v").append(Float.toString(val)).append("</div></div>");
+
+		html.div("v").append(axis.getFormatter().apply(Float.valueOf(val))).append("</div></div>");
 	}
 
 	public HTMLElement getElement() {

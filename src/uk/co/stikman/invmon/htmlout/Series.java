@@ -22,7 +22,7 @@ public class Series {
 	 * 
 	 * @param yAxis
 	 */
-	public void setYAxis(Axis<?> yAxis) {
+	public void setYAxis(Axis yAxis) {
 		this.yAxis = yAxis.getId();
 	}
 

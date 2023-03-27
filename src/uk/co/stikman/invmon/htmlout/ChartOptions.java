@@ -8,9 +8,9 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class ChartOptions {
-	private Axis<Long>		axisX1	= new Axis<>(0);
-	private Axis<Float>		axisY1	= new Axis<>(1);
-	private Axis<Float>		axisY2	= new Axis<>(2);
+	private Axis			axisX1	= new Axis(0);
+	private Axis			axisY1	= new Axis(1);
+	private Axis			axisY2	= new Axis(2);
 	private List<Series>	series	= new ArrayList<>();
 	private int				width	= 800;
 	private int				height	= 300;
@@ -18,10 +18,10 @@ public class ChartOptions {
 	public ChartOptions() {
 		setAxisDefault(axisX1, true, 22, "Time");
 		setAxisDefault(axisY1, true, 55, "Y");
-		setAxisDefault(axisY2, false, 5, "Y2"); // defaults to off 
+		setAxisDefault(axisY2, false, 55, "Y2"); // defaults to off 
 	}
 
-	private void setAxisDefault(Axis<?> ax, boolean enabled, int size, String name) {
+	private void setAxisDefault(Axis ax, boolean enabled, int size, String name) {
 		ax.setEnabled(enabled);
 		ax.setSize(size);
 		ax.setName(name);
@@ -37,9 +37,9 @@ public class ChartOptions {
 			series.add(s);
 		}
 
-		axisX1 = new Axis<>(0);
-		axisY1 = new Axis<>(0);
-		axisY2 = new Axis<>(0);
+		axisX1 = new Axis(0);
+		axisY1 = new Axis(0);
+		axisY2 = new Axis(0);
 		axisX1.fromJSON(root.getJSONObject("axisX1"));
 		axisY1.fromJSON(root.getJSONObject("axisY1"));
 		axisY2.fromJSON(root.getJSONObject("axisY2"));
@@ -60,15 +60,15 @@ public class ChartOptions {
 		return root;
 	}
 
-	public Axis<Long> getAxisX1() {
+	public Axis getAxisX1() {
 		return axisX1;
 	}
 
-	public Axis<Float> getAxisY1() {
+	public Axis getAxisY1() {
 		return axisY1;
 	}
 
-	public Axis<Float> getAxisY2() {
+	public Axis getAxisY2() {
 		return axisY2;
 	}
 
@@ -114,7 +114,7 @@ public class ChartOptions {
 		this.height = h;
 	}
 
-	public Axis<?> getAxis(int id) {
+	public Axis getAxis(int id) {
 		if (axisX1.getId() == id)
 			return axisX1;
 		if (axisY1.getId() == id)

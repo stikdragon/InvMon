@@ -8,7 +8,6 @@ import org.json.JSONObject;
 import org.w3c.dom.Element;
 
 import uk.co.stikman.invmon.datalog.QueryResults;
-import uk.co.stikman.invmon.inverter.util.Format;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
 
 public class ChartWidget extends PageWidget {
@@ -40,7 +39,7 @@ public class ChartWidget extends PageWidget {
 				else
 					throw new IllegalArgumentException("Unknown axis: " + s);
 			} else if ("Axis".equals(el.getTagName())) {
-				Axis<?> ax = null;
+				Axis ax = null;
 				String id = InvUtil.getAttrib(el, "id");
 				if (id.equals("x1"))
 					ax = opts.getAxisX1();

@@ -6,20 +6,20 @@ import org.json.JSONObject;
 
 import uk.co.stikman.invmon.inverter.util.Format;
 
-public class Axis<T extends Number> {
+public class Axis {
 
-	private int								id;
-	private float							min;
-	private float							max;
-	private transient float					minmax;
-	private int								intervals;
-	private transient Function<T, String>	formatter	= f -> f.toString();
-	private boolean							enabled;
-	private Float							forceMin	= null;
-	private Float							forceMax	= null;
-	private String							format;
-	private int								size		= 50;
-	private String							name;
+	private int									id;
+	private float								min;
+	private float								max;
+	private transient float						minmax;
+	private int									intervals;
+	private transient Function<Number, String>	formatter	= f -> f.toString();
+	private boolean								enabled;
+	private Float								forceMin	= null;
+	private Float								forceMax	= null;
+	private String								format;
+	private int									size		= 50;
+	private String								name;
 
 	public Axis(int id) {
 		super();
@@ -86,7 +86,7 @@ public class Axis<T extends Number> {
 		this.intervals = intervals;
 	}
 
-	public Function<T, String> getFormatter() {
+	public Function<Number, String> getFormatter() {
 		return formatter;
 	}
 
