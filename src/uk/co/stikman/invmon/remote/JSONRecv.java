@@ -15,6 +15,7 @@ import uk.co.stikman.invmon.Events;
 import uk.co.stikman.invmon.InvModule;
 import uk.co.stikman.invmon.InvMonException;
 import uk.co.stikman.invmon.PollData;
+import uk.co.stikman.invmon.Sample;
 import uk.co.stikman.invmon.datalog.DataLogger;
 import uk.co.stikman.invmon.datalog.MiniDbException;
 import uk.co.stikman.invmon.datamodel.DataModel;
@@ -164,20 +165,20 @@ public class JSONRecv extends InvModule {
 			// we're pretending to be an inverter, so we post this data to our own bus
 			//
 			PollData pd = new PollData();
-			DataPoint dp = new DataPoint(jo.getLong("ts"));
+			Sample dp = new Sample(jo.getLong("ts"));
 			JSONArray arr2 = jo.getJSONArray("data");
 			for (int j = 0; j < arr2.length(); ++j) {
 				JSONObject jo2 = arr2.getJSONObject(j);
 				Field f = model.get(jo2.getString("f"));
 				switch (f.getType().getBaseType()) {
 					case FLOAT:
-						dp.put(f, jo2.getFloat("v"));
+						dp.put(f.getId(), jo2.getFloat("v"));
 						break;
 					case INT:
-						dp.put(f, jo2.getInt("v"));
+						dp.put(f.getId(), jo2.getInt("v"));
 						break;
 					case STRING:
-						dp.put(f, jo2.getString("v"));
+						dp.put(f.getId(), jo2.getString("v"));
 						break;
 					default:
 						throw new InvUserError("Unsupported field: " + f.getId());

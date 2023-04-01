@@ -13,20 +13,6 @@ import uk.co.stikman.log.StikLog;
 public class FakeInverterMonitor extends InverterMonitor {
 	private static final StikLog	LOGGER	= StikLog.getLogger(FakeInverterMonitor.class);
 
-	private Field					fieldMode;
-	private Field					fieldChargeState;
-	private FieldVIF				fieldPv1;
-	private FieldVIF				fieldPv2;
-	private Field					fieldTemperature;
-	private Field					fieldBusVoltage;
-	private Field					fieldLoadPF;
-	private Field					fieldStateOfCharge;
-	private Field					fieldPv1P;
-	private Field					fieldPv2P;
-	private Field					fieldLoadV;
-	private Field					fieldLoadI;
-	private Field					fieldBattV;
-	private Field					fieldBattI;
 
 	private boolean					grouped;
 
@@ -41,41 +27,25 @@ public class FakeInverterMonitor extends InverterMonitor {
 	@Override
 	public void start() throws InvMonException {
 		super.start();
-
-		DataModel model = getEnv().getModel();
-		fieldMode = model.get("INV_MODE");
-		fieldChargeState = model.get("BATT_MODE");
-		fieldBattV = model.get("BATT_V");
-		fieldBattI = model.get("INV_1_I");
-		fieldLoadV = model.get("LOAD_V");
-		fieldLoadI = model.get("LOAD_1_I");
-		fieldLoadPF = model.get("LOAD_PF");
-		fieldPv1 = model.getVIF("PVA_1");
-		fieldPv2 = model.getVIF("PVB_1");
-		fieldPv1P = model.get("PVA_1_P");
-		fieldPv2P = model.get("PVB_1_P");
-		fieldTemperature = model.get("INV_1_TEMP");
-		fieldBusVoltage = model.get("INV_1_BUS_V");
-		fieldStateOfCharge = model.get("BATT_SOC");
 	}
 
 	@Override
-	public DataPoint createDataPoint(long ts) {
-		DataPoint dp = new DataPoint(ts);
-		dp.put(fieldMode, InverterMode.CHARGING);
-		dp.put(fieldChargeState, BatteryChargeStage.CHARGE_FLOAT);
-		dp.put(fieldBattI, rand(90f));
-		dp.put(fieldBattV, 50f + rand(20f));
-		dp.put(fieldLoadI, 1.45f + rand(3f));
-		dp.put(fieldLoadV, 230.0f + rand(10f));
-		dp.put(fieldPv1, 304f + rand(40f), 4.0f + rand(7f), 0);
-		dp.put(fieldPv2, 304f + rand(40f), 4.0f + rand(7f), 0);
-		dp.put(fieldPv1P, rand(1000) + 500);
-		dp.put(fieldPv2P, rand(1000) + 500);
-		dp.put(fieldTemperature, 41f + rand(5f));
-		dp.put(fieldBusVoltage, (int) (380 + rand(100)));
-		dp.put(fieldLoadPF, rand(1.0f));
-		dp.put(fieldStateOfCharge, 0.52f + rand(0.5f));
+	public Sample createDataPoint(long ts) {
+		Sample dp = new Sample(ts);
+		dp.put("mode", InverterMode.CHARGING);
+		dp.put("chargeState", BatteryChargeStage.CHARGE_FLOAT);
+		dp.put("battI", rand(90f));
+		dp.put("battV", 50f + rand(20f));
+		dp.put("gridI", rand(90f));
+		dp.put("gridV", rand(240f));
+		dp.put("loadI", 1.45f + rand(3f));
+		dp.put("loadV", 230.0f + rand(10f));
+		dp.put("pv1", 304f + rand(40f), 4.0f + rand(7f), 0);
+		dp.put("pv2", 304f + rand(40f), 4.0f + rand(7f), 0);
+		dp.put("temp", 41f + rand(5f));
+		dp.put("busV", (int) (380 + rand(100)));
+		dp.put("loadPF", rand(1.0f));
+		dp.put("soc", 0.52f + rand(0.5f));
 		return dp;
 	}
 

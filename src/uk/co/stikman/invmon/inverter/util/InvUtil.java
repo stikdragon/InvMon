@@ -166,6 +166,21 @@ public class InvUtil {
 		return Collections.emptyMap();
 	}
 
-
+	/**
+	 * throws exception if there's no "ch" in the string
+	 * 
+	 * @param s
+	 * @param ch
+	 * @return
+	 */
+	public static String[] splitPair(String s, char ch) {
+		int p = s.indexOf(ch);
+		if (p == -1)
+			throw new NoSuchElementException("String [" + s + "] does not contain split char");
+		String[] res = new String[2];
+		res[0] = s.substring(0, p);
+		res[1] = s.substring(p + 1);
+		return res;
+	}
 
 }

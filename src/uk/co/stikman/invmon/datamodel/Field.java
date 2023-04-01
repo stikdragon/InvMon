@@ -13,6 +13,8 @@ public class Field {
 	private int				position;
 	private String			calculated;
 	private CalcMethod		calculationMethod;
+	private String			source;
+	private boolean			readOnly;
 
 	public Field(String id) {
 		super();
@@ -112,6 +114,22 @@ public class Field {
 		if (this.getType().getBaseType() == FieldDataType.FLOAT)
 			return rec.getFloat(position);
 		throw new IllegalArgumentException("Not a float");
+	}
+
+	public String getSource() {
+		return source;
+	}
+
+	public void setSource(String source) {
+		this.source = source;
+	}
+
+	public void setReadOnly(boolean b) {
+		this.readOnly = b;
+	}
+
+	public boolean isReadOnly() {
+		return readOnly;
 	}
 
 }

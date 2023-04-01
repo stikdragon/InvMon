@@ -15,13 +15,13 @@ public abstract class InverterMonitor extends InvModule {
 	 */
 	public abstract void setGrouped(boolean b);
 	public abstract boolean isGrouped();
-	public abstract DataPoint createDataPoint(long ts);
+	public abstract Sample createDataPoint(long ts);
 
 	@Subscribe(Events.POLL_SOURCES)
 	public void poll(PollData data) {
 		if (isGrouped())
 			return;
-		DataPoint dp = createDataPoint(data.getTimestamp());
+		Sample dp = createDataPoint(data.getTimestamp());
 		data.add(getId(), dp);
 	}
 	

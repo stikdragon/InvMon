@@ -1,0 +1,92 @@
+<Model version="3" dataVersion="2">
+	<!-- configuration of repeated groups -->
+	<RepeatGroup id="inverters" count="2">
+		<ReplaceToken key="ID" values="1,2" />
+		<ReplaceToken key="SRC" values="invA,invB" />
+	</RepeatGroup>
+	<RepeatGroup id="batteries" count="0">
+		<ReplaceToken key="ID" values="1,2" />
+		<ReplaceToken key="SRC" values="invA,invB" />
+	</RepeatGroup>
+
+	<!-- actual fields -->
+
+	<Field id="TIMESTAMP" type="TIMESTAMP" />
+	<Field id="INV_MODE" type="string,16" source="invA.mode" />
+
+	<Repeat group="inverters">	
+		<Field id="INV_$ID$_TEMP" type="float" source="$SRC$.temp" />
+		<Field id="INV_$ID$_BUS_V" type="float" source="$SRC$.busV" />
+	</Repeat>
+
+	<Field id="GRID_V" type="voltage" source="invA.gridV" />
+	<Field id="GRID_I" type="current" source="invA.gridI" />
+	<Field id="GRID_F" type="freq" source="invA.gridF" />
+	<Field id="LOAD_F" type="freq" source="invA.loadF" />
+	<Field id="BATT_V" type="voltage" source="invA.battV" />
+
+	<Repeat group="inverters">
+		<Field id="INV_$ID$_I" type="current" source="$SRC$.battI" />
+	</Repeat>
+	<Field id="INV_I" type="current" calculatedRepeat="[INV_$ID$_I],sum" repeatGroup="inverters" />
+	<Field id="BATT_SOC" type="float" source="invA.soc" />
+	<Field id="BATT_MODE" type="string,16" source="invA.mode" />
+
+	<Field id="LOAD_V" type="voltage" source="invA.loadV" />
+	<Repeat group="inverters">
+		<Field id="LOAD_$ID$_I" type="current" source="$SRC$.loadI" />
+		<Field id="LOAD_$ID$_P" type="power" calculated="[LOAD_V], [LOAD_$ID$_I], *" />
+	</Repeat>
+	<Field id="LOAD_PF" type="float" source="invA.loadPF" />
+	<Field id="LOAD_P" type="power" calculatedRepeat="[LOAD_$ID$_P],sum" repeatGroup="inverters" />
+	<Field id="LOAD_I" type="current" calculatedRepeat="[LOAD_$ID$_I],sum" repeatGroup="inverters" />
+
+	<Repeat group="inverters">
+		<Field id="PVA_$ID$_V" type="voltage" source="$SRC$.pv1V" />
+		<Field id="PVB_$ID$_V" type="voltage" source="$SRC$.pv2V" />
+		<Field id="PVA_$ID$_I" type="current" source="$SRC$.pv1I" />
+		<Field id="PVB_$ID$_I" type="current" source="$SRC$.pv2I" />
+		<Field id="PVA_$ID$_P" type="power" calculated="[PVA_$ID$_V], [PVA_$ID$_I], *" />
+		<Field id="PVB_$ID$_P" type="power" calculated="[PVB_$ID$_V], [PVB_$ID$_I], *" />
+		<Field id="PV_$ID$_P" type="power" calculated="[PVA_$ID$_V], [PVA_$ID$_I], *, [PVB_$ID$_V], [PVB_$ID$_I], *, +" />
+	</Repeat>
+
+	<Field id="PV_TOTAL_P" type="power" calculatedRepeat="[PV_$ID$_P],sum" repeatGroup="inverters" />
+
+	<Repeat group="batteries">
+		<Field id="BATT_$ID$_I" type="current" source="$SRC$.i" />
+
+		<Field id="BATT_$ID$_C1" type="volt8,1.5,3.0" source="$SRC$.c1" />
+		<Field id="BATT_$ID$_C2" type="volt8,1.5,3.0" source="$SRC$.c2" />
+		<Field id="BATT_$ID$_C3" type="volt8,1.5,3.0" source="$SRC$.c3" />
+		<Field id="BATT_$ID$_C4" type="volt8,1.5,3.0" source="$SRC$.c4" />
+		<Field id="BATT_$ID$_C5" type="volt8,1.5,3.0" source="$SRC$.c5" />
+		<Field id="BATT_$ID$_C6" type="volt8,1.5,3.0" source="$SRC$.c6" />
+		<Field id="BATT_$ID$_C7" type="volt8,1.5,3.0" source="$SRC$.c7" />
+		<Field id="BATT_$ID$_C8" type="volt8,1.5,3.0" source="$SRC$.c8" />
+		<Field id="BATT_$ID$_C9" type="volt8,1.5,3.0" source="$SRC$.c9" />
+		<Field id="BATT_$ID$_C10" type="volt8,1.5,3.0" source="$SRC$.c10" />
+		<Field id="BATT_$ID$_C11" type="volt8,1.5,3.0" source="$SRC$.c11" />
+		<Field id="BATT_$ID$_C12" type="volt8,1.5,3.0" source="$SRC$.c12" />
+		<Field id="BATT_$ID$_C13" type="volt8,1.5,3.0" source="$SRC$.c13" />
+		<Field id="BATT_$ID$_C14" type="volt8,1.5,3.0" source="$SRC$.c14" />
+		<Field id="BATT_$ID$_C15" type="volt8,1.5,3.0" source="$SRC$.c15" />
+		<Field id="BATT_$ID$_C16" type="volt8,1.5,3.0" source="$SRC$.c16" />
+		<Field id="BATT_$ID$_C17" type="volt8,1.5,3.0" source="$SRC$.c17" />
+		<Field id="BATT_$ID$_C18" type="volt8,1.5,3.0" source="$SRC$.c18" />
+		<Field id="BATT_$ID$_C19" type="volt8,1.5,3.0" source="$SRC$.c19" />
+		<Field id="BATT_$ID$_C20" type="volt8,1.5,3.0" source="$SRC$.c20" />
+		<Field id="BATT_$ID$_C21" type="volt8,1.5,3.0" source="$SRC$.c21" />
+		<Field id="BATT_$ID$_C22" type="volt8,1.5,3.0" source="$SRC$.c22" />
+		<Field id="BATT_$ID$_C23" type="volt8,1.5,3.0" source="$SRC$.c23" />
+		<Field id="BATT_$ID$_C24" type="volt8,1.5,3.0" source="$SRC$.c24" />
+	</Repeat>
+
+
+	<!-- <Field id="BATT_I" type="current" calculatedRepeat="[BATT_$_I],sum" repeatGroup="batteries" /> -->
+	<Field id="BATT_I" type="current" calculatedRepeat="[INV_$ID$_I],sum" repeatGroup="inverters" />
+
+	<Field id="BATT_P" type="power" calculated="[BATT_I], [BATT_V], *" />
+	<Field id="BATT_I_CHG" type="current" calculated="[BATT_I], !invert, 0, !max" />
+	<Field id="BATT_I_DIS" type="current" calculated="[BATT_I], 0, !max" />
+</Model>

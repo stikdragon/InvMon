@@ -43,13 +43,16 @@ import uk.co.stikman.table.DataRecord;
 import uk.co.stikman.table.DataTable;
 
 public class DataModel implements Iterable<Field> {
+	public static final int			VERSION_1			= 1;
+	public static final int			VERSION_2			= 2;
+	public static final int			VERSION_3			= 3;
+
 	private static final StikLog	LOGGER				= StikLog.getLogger(DataModel.class);
-	private static final int		CURRENT_VERSION		= 2;
+	private static final int		CURRENT_VERSION		= VERSION_3;
 	private Map<String, Field>		fields				= new HashMap<>();
 	private List<Field>				fieldList			= new ArrayList<>();
 	private List<Field>				calculatedFields	= Collections.emptyList();
 	private FieldCounts				fieldCounts			= new FieldCounts();
-	private ModelGenerationSettings			repeatSettings		= new ModelGenerationSettings();
 	private int						dataVersion;
 
 	public void loadXML(InputStream str) throws IOException, InvMonException {
@@ -64,18 +67,23 @@ public class DataModel implements Iterable<Field> {
 			LOGGER.info("  done");
 		}
 
+		LoadContext ctx = new LoadContext(ver);
 		fieldCounts = new FieldCounts();
 		for (Element el : InvUtil.getElements(doc.getDocumentElement())) {
-			if ("Field".equals(el.getTagName())) {
-				readField(el, -1);
+			if ("RepeatGroup".equals(el.getTagName())) {
+				if (ver < VERSION_3)
+					throw new InvMonException("Only version 3+ can use <RepeatGroup>");
+				readRepeatGroup(ctx, el);
+			} else if ("Field".equals(el.getTagName())) {
+				readField(ctx, el, null, -1);
 			} else if ("Repeat".equals(el.getTagName())) {
 				String grp = InvUtil.getAttrib(el, "group");
-				int cnt = repeatSettings.getCountForGroup(grp, 0);
+				RepeatGroup g = ctx.getGroup(grp);
 				for (Element el2 : InvUtil.getElements(el)) {
 					if (!el2.getTagName().equals("Field"))
 						throw new InvMonException("Can only have <Field> elements in a <Repeat> block");
-					for (int i = 0; i < cnt; ++i) {
-						readField(el2, (i + 1));
+					for (int i = 0; i < g.getCount(); ++i) {
+						readField(ctx, el2, g, i);
 					}
 				}
 			} else
@@ -89,7 +97,7 @@ public class DataModel implements Iterable<Field> {
 		for (Field f : fields.values()) {
 			if (f.getType() == FieldType.TIMESTAMP) {
 				if (ftimestamp != null)
-					throw new IOException("a TIMESTAMP field has been declared multiple times, there can only be one");
+					throw new IOException("a TIMESTAMP field has been declared multiple times, there can be only one");
 				ftimestamp = f;
 			}
 		}
@@ -97,23 +105,52 @@ public class DataModel implements Iterable<Field> {
 		compileExpressions();
 	}
 
+	private void readRepeatGroup(LoadContext ctx, Element root) throws InvMonException {
+		RepeatGroup g = new RepeatGroup(InvUtil.getAttrib(root, "id"));
+		g.setCount(Integer.parseInt(InvUtil.getAttrib(root, "count")));
+		for (Element el : InvUtil.getElements(root, "ReplaceToken")) {
+			ReplaceToken t = new ReplaceToken(InvUtil.getAttrib(el, "key"));
+			for (String s : InvUtil.getAttrib(el, "values").split(","))
+				t.getValues().add(s.trim());
+			if (t.getValues().size() < g.getCount())
+				throw new InvMonException("<ReplaceToken> element [" + g.getId() + "] does not have enough of values (need at least " + g.getCount() + ")");
+			g.getReplaceTokens().add(t);
+		}
+		ctx.getGroups().add(g);
+	}
+
 	private int convertDocument(int from, Document doc) {
 		switch (from) {
 			case 1:
 				DataModelConversion.convertV1(doc);
 				return from + 1;
+			case 2:
+				DataModelConversion.convertV2(doc);
+				return from + 1;
+
 		}
 		throw new IllegalArgumentException("Unknown version: " + from);
 	}
 
-	private void readField(Element el, int repeatIndex) throws InvMonException {
+	/**
+	 * if <code>grp</code> is <code>null</code> then it's not a repeated field and
+	 * <code>repeatIndex</code> will be ignored
+	 * 
+	 * @param ctx
+	 * @param el
+	 * @param grp
+	 * @param repeatIndex
+	 * @throws InvMonException
+	 */
+	private void readField(LoadContext ctx, Element el, RepeatGroup grp, int ridx) throws InvMonException {
 		String id = InvUtil.getAttrib(el, "id");
-		if (repeatIndex != -1)
-			id = id.replace("$", Integer.toString(repeatIndex));
+		if (grp != null)
+			id = grp.subst(id, ridx);
 		Field f = new Field(id);
 		if (find(f.getId()) != null)
 			throw new IllegalArgumentException("Field [" + f.getId() + "] already declared");
 		f.setType(FieldType.parse(InvUtil.getAttrib(el, "type").toUpperCase()));
+		f.setSource(InvUtil.getAttrib(el, "source", null));
 
 		if (f.getType() == FieldType.TIMESTAMP) {
 			//
@@ -133,8 +170,8 @@ public class DataModel implements Iterable<Field> {
 				if (f.getType().getBaseType() != FieldDataType.FLOAT)
 					throw new IllegalArgumentException("Only FLOAT fields can be calculated");
 				String t = el.getAttribute("calculated");
-				if (repeatIndex != -1)
-					t = t.replace("$", Integer.toString(repeatIndex));
+				if (grp != null)
+					t = grp.subst(t, ridx);
 				f.setCalculated(t);
 			}
 
@@ -147,10 +184,22 @@ public class DataModel implements Iterable<Field> {
 				f.setPosition(fieldCounts.getAndInc(f.getType().getBaseType()));
 			}
 
+			String src = InvUtil.getAttrib(el, "source", null);
+			if (src != null) {
+				if (grp != null)
+					src = grp.subst(src, ridx);
+				f.setSource(src);
+			}
+
+			if (el.hasAttribute("readonly")) {
+				f.setReadOnly(Boolean.parseBoolean(el.getAttribute("readonly")));
+			}
+
 			if (el.hasAttribute("calculatedRepeat")) {
-				if (repeatIndex != -1)
+				if (grp != null)
 					throw new InvMonException("<Field> with calculatedRepeat attribute is only valid outside a <Repeat> element");
-				int repeatCount = repeatSettings.getCountForGroup(InvUtil.getAttrib(el, "repeatGroup"));
+				grp = ctx.getGroup(InvUtil.getAttrib(el, "repeatGroup"));
+				int rcnt = grp.getCount();
 
 				String t = el.getAttribute("calculatedRepeat");
 				String[] bits = t.split(",");
@@ -162,17 +211,20 @@ public class DataModel implements Iterable<Field> {
 					throw new InvMonException("Illegal calcaultedRepeat attrib (expected \"sum\" or \"avg\"): " + t);
 				StringBuilder sb = new StringBuilder();
 				String sep = "";
-				for (int i = 1; i <= repeatCount; ++i) {
-					String s = bits[0].replace("$", Integer.toString(i));
+				for (int i = 0; i < rcnt; ++i) {
+					String s = grp.subst(bits[0], i);
 					sb.append(sep).append(s);
 					sep = ", ";
 				}
-				for (int i = 1; i < repeatCount; ++i)
+				for (int i = 1; i < rcnt; ++i)
 					sb.append(sep).append("+");
 				if (bits[1].equals("avg")) // divide through by N for an average
-					sb.append(", ").append(repeatIndex).append(", /");
+					sb.append(", ").append(rcnt).append(", /");
 				f.setCalculated(sb.toString());
 			}
+
+			if (f.getCalculated() == null && f.getSource() == null && !f.isReadOnly())
+				throw new InvMonException("Field [" + f.getId() + "] is not readonly or calculated, and does not have a source attribute, it must have one of these things");
 		}
 
 		fields.put(f.getId(), f);
@@ -190,6 +242,7 @@ public class DataModel implements Iterable<Field> {
 				Element el = doc.createElement("Field");
 				el.setAttribute("id", f.getId());
 				el.setAttribute("type", f.getType().name());
+				el.setAttribute("source", f.getSource());
 				if (f.getCalculated() != null)
 					el.setAttribute("calculated", f.getCalculated());
 				root.appendChild(el);
@@ -304,55 +357,58 @@ public class DataModel implements Iterable<Field> {
 		List<Field> lst = new ArrayList<>();
 		for (Field f : this) {
 			if (f.getCalculated() != null) {
-				lst.add(f);
+				try {
+					lst.add(f);
 
-				//
-				// calculations are very basic, just +-*/, and RPN
-				//
-				// TODO: make this more comprehensive
-				String[] bits = f.getCalculated().split(",");
-				final List<CalcOp> ops = new ArrayList<>();
-				for (String bit : bits) {
-					bit = bit.trim();
-					if (bit.matches("\\[[a-zA-Z0-9_]+\\]")) {
-						ops.add(new FetchValOp(get(bit.substring(1, bit.length() - 1))));
-					} else if (isNumber(bit)) {
-						ops.add(new PushFloatOp(Float.parseFloat(bit)));
-					} else if (bit.matches("![a-z0-9]+")) {
-						if (bit.equals("!invert"))
-							ops.add(new InvertOp());
-						else if (bit.equals("!max"))
-							ops.add(new MaxOp());
-						else
-							throw new IllegalArgumentException("Unknown function: " + bit);
-					} else if (bit.matches("[\\-\\+\\*\\/]")) {
-						if (bit.charAt(0) == '-')
-							ops.add(new SubOp());
-						else if (bit.charAt(0) == '+')
-							ops.add(new AddOp());
-						else if (bit.charAt(0) == '*')
-							ops.add(new MulOp());
-						else if (bit.charAt(0) == '/')
-							ops.add(new DivOp());
-					} else
-						throw new IllegalArgumentException("Expression invalid for [" + f.getId() + "]: " + f.getCalculated());
+					//
+					// calculations are very basic, just +-*/, and RPN
+					//
+					// TODO: make this more comprehensive
+					String[] bits = f.getCalculated().split(",");
+					final List<CalcOp> ops = new ArrayList<>();
+					for (String bit : bits) {
+						bit = bit.trim();
+						if (bit.matches("\\[[a-zA-Z0-9_]+\\]")) {
+							ops.add(new FetchValOp(get(bit.substring(1, bit.length() - 1))));
+						} else if (isNumber(bit)) {
+							ops.add(new PushFloatOp(Float.parseFloat(bit)));
+						} else if (bit.matches("![a-z0-9]+")) {
+							if (bit.equals("!invert"))
+								ops.add(new InvertOp());
+							else if (bit.equals("!max"))
+								ops.add(new MaxOp());
+							else
+								throw new IllegalArgumentException("Unknown function: " + bit);
+						} else if (bit.matches("[\\-\\+\\*\\/]")) {
+							if (bit.charAt(0) == '-')
+								ops.add(new SubOp());
+							else if (bit.charAt(0) == '+')
+								ops.add(new AddOp());
+							else if (bit.charAt(0) == '*')
+								ops.add(new MulOp());
+							else if (bit.charAt(0) == '/')
+								ops.add(new DivOp());
+						} else
+							throw new IllegalArgumentException("Expression invalid for [" + f.getId() + "]: " + f.getCalculated());
+					}
+
+					f.setCalculationMethod(new CalcMethod() {
+						@Override
+						public List<CalcOp> getOps() {
+							return ops;
+						}
+
+						@Override
+						public float calc(DBRecord r) {
+							FloatStack stk = new FloatStack(); // can we cache this?
+							for (CalcOp op : ops)
+								op.calc(r, stk);
+							return stk.pop();
+						}
+					});
+				} catch (Exception e) {
+					throw new InvMonException("Failed to compile expression for calculated field [" + f.getId() + "]: " + e.getMessage(), e);
 				}
-
-				f.setCalculationMethod(new CalcMethod() {
-					@Override
-					public List<CalcOp> getOps() {
-						return ops;
-					}
-
-					@Override
-					public float calc(DBRecord r) {
-						FloatStack stk = new FloatStack(); // can we cache this?
-						for (CalcOp op : ops)
-							op.calc(r, stk);
-						return stk.pop();
-					}
-				});
-
 			}
 		}
 
@@ -446,14 +502,6 @@ public class DataModel implements Iterable<Field> {
 
 	public List<Field> getFields() {
 		return fieldList;
-	}
-
-	public ModelGenerationSettings getRepeatSettings() {
-		return repeatSettings;
-	}
-
-	public void setRepeatSettings(ModelGenerationSettings repeatSettings) {
-		this.repeatSettings = repeatSettings;
 	}
 
 	public int getDataVersion() {

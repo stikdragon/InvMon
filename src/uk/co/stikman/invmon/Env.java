@@ -1,5 +1,6 @@
 package uk.co.stikman.invmon;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
@@ -18,7 +19,6 @@ import com.fazecast.jSerialComm.SerialPort;
 import uk.co.stikman.eventbus.StringEventBus;
 import uk.co.stikman.invmon.datamodel.DataModel;
 import uk.co.stikman.invmon.datamodel.FieldType;
-import uk.co.stikman.invmon.datamodel.ModelGenerationSettings;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
 import uk.co.stikman.log.ConsoleLogTarget;
 import uk.co.stikman.log.Level;
@@ -40,8 +40,6 @@ public class Env {
 	private DataModel				model;
 	private ExecutorService			exec;
 	private Timer					timer;
-
-	private ModelGenerationSettings	modelGenSettings;
 
 	static {
 		try (InputStream is = Env.class.getResourceAsStream("version.txt")) { // ant script writes this
@@ -77,12 +75,9 @@ public class Env {
 			// enabled in the config file
 			//
 			model = new DataModel();
-			try (InputStream is = getClass().getResourceAsStream("model.xml")) {
-				modelGenSettings = new ModelGenerationSettings();
-				determineGenerationSettings(modelGenSettings, config);
+			LOGGER.info("Loading model from: " + config.getModelFile());
+			try (InputStream is = new FileInputStream(config.getModelFile())) {
 				LOGGER.info("Model generation settings:");
-				modelGenSettings.keys().forEach(k -> LOGGER.info("  " + k + ": " + modelGenSettings.getCountForGroup(k)));
-				model.setRepeatSettings(modelGenSettings);
 				model.loadXML(is);
 			} catch (IOException e) {
 				throw new InvMonException("Failed to load model: " + e.getMessage(), e);
@@ -116,33 +111,6 @@ public class Env {
 				e.printStackTrace();
 			}
 			throw th;
-		}
-	}
-
-	private void determineGenerationSettings(ModelGenerationSettings result, Config config) {
-		//
-		// count devices
-		//
-		for (InvModDefinition thing : config.getThings()) {
-			String grp = null;
-			int cnt = 1;
-			switch (thing.getDeviceType()) {
-				case BATTERY:
-					grp = "batteries";
-					break;
-				case INVERTER:
-					grp = "inverters";
-					break;
-				case INVERGER_GROUP:
-					// for now i guess just count the elements in here?
-					grp = "inverters";
-					cnt = InvUtil.getElements(thing.getConfig()).size();
-					break;
-				default:
-					break;
-			}
-			if (grp != null)
-				result.setCountForGroup(grp, result.getCountForGroup(grp, 0) + cnt);
 		}
 	}
 
@@ -256,10 +224,6 @@ public class Env {
 			}
 		};
 		timer.scheduleAtFixedRate(tt, 0, period);
-	}
-
-	public ModelGenerationSettings getModelGenSettings() {
-		return modelGenSettings;
 	}
 
 }

@@ -26,6 +26,22 @@ public class DataModelConversion {
 		}
 	}
 
+	public static void convertV2(Document doc) {
+		//
+		// make everything read-only, this should be enough to get it opened
+		// enough to be copied into the new format
+		//
+		for (Element el : getAllElements(doc.getDocumentElement(), "Field")) 
+			el.setAttribute("readonly", "true");
+	}
+
+	/**
+	 * recursively get all elements in this
+	 * 
+	 * @param root
+	 * @param name
+	 * @return
+	 */
 	private static List<Element> getAllElements(Element root, String name) {
 		List<Element> lst = new ArrayList<>();
 		getAllEls(lst, root, name);

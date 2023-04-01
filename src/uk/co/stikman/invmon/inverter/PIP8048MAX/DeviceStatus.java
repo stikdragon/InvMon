@@ -1,5 +1,6 @@
 package uk.co.stikman.invmon.inverter.PIP8048MAX;
 
+import uk.co.stikman.invmon.datamodel.VIFReading;
 import uk.co.stikman.invmon.inverter.BatteryChargeStage;
 import uk.co.stikman.invmon.inverter.TemplateResult;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
@@ -7,6 +8,7 @@ import uk.co.stikman.invmon.inverter.util.InvUtil;
 public class DeviceStatus {
 	private float	gridV;
 	private float	gridF;
+	private float	gridI;
 	private float	outputV;
 	private float	outputF;
 	private int		outputApparentP;
@@ -198,6 +200,14 @@ public class DeviceStatus {
 		if (deviceStatus2.charAt(0) == '1')
 			return BatteryChargeStage.CHARGE_FLOAT;
 		return BatteryChargeStage.CHARGE_BULK; // i guess if it's not the others then it must be this?
+	}
+
+	public float getGridI() {
+		return gridI;
+	}
+
+	public void setGridI(float gridI) {
+		this.gridI = gridI;
 	}
 
 }

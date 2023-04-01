@@ -7,18 +7,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.w3c.dom.Element;
 
 import uk.co.stikman.eventbus.Subscribe;
-import uk.co.stikman.invmon.DataPoint;
 import uk.co.stikman.invmon.Env;
 import uk.co.stikman.invmon.Events;
 import uk.co.stikman.invmon.InvModule;
 import uk.co.stikman.invmon.InvMonException;
 import uk.co.stikman.invmon.PollData;
+import uk.co.stikman.invmon.Sample;
 import uk.co.stikman.invmon.datamodel.AggregationMode;
 import uk.co.stikman.invmon.datamodel.DataModel;
 import uk.co.stikman.invmon.datamodel.Field;
@@ -172,6 +173,18 @@ public class DataLogger extends InvModule {
 			oldDb.rename(new File(file.toString() + ".old"));
 			newDb.rename(file);
 
+			LOGGER.warn("");
+			LOGGER.warn("****************************************************************************");
+			LOGGER.warn("");
+			LOGGER.warn("Existing database has been upgraded to the latest format, everything appears");
+			LOGGER.info("to have worked, but just in case the original data has been left behind with");
+			LOGGER.info("the name [" + (new File(file.toString() + ".old").toString()) + "]");
+			LOGGER.info("If you're happy that everything is working correctly then you should delete");
+			LOGGER.info("these files.");
+			LOGGER.warn("");
+			LOGGER.warn("****************************************************************************");
+			LOGGER.warn("");
+			
 		} catch (Exception e) {
 			throw new MiniDbException("Failed to convert database: " + e.getMessage(), e);
 		}
@@ -190,26 +203,35 @@ public class DataLogger extends InvModule {
 		}
 		DBRecord rec = db.addRecord();
 		rec.setTimestamp(data.getTimestamp());
-		for (DataPoint x : data.getData().values()) {
-			for (Entry<Field, Object> e : x.getValues().entrySet()) {
-				switch (e.getKey().getType().getBaseType()) {
+
+		//
+		// work through the Source fields for all fields and fetch their values
+		//
+		for (Field f : getEnv().getModel()) {
+			if (f.getSource() != null) {
+				String[] bits = InvUtil.splitPair(f.getSource(), '.');
+				Sample src = data.get(bits[0]);
+				if (src == null)
+					throw new NoSuchElementException("Source [" + f.getSource() + "] was not found in the samples returned by active modules");
+				switch (f.getType().getBaseType()) {
 					case FLOAT:
-						rec.setFloat(e.getKey(), ((Number) e.getValue()).floatValue());
+						rec.setFloat(f, src.getFloat(bits[1]));
 						break;
 					case STRING:
-						rec.setString(e.getKey(), e.getValue().toString());
+						rec.setString(f, src.getString(bits[1]));
 						break;
 					case INT:
-						rec.setInt(e.getKey(), ((Number) e.getValue()).intValue());
+						rec.setInt(f, src.getInt(bits[1]));
 						break;
 					case FLOAT8:
-						rec.setFloat8(e.getKey(), ((Number) e.getValue()).floatValue());
+						rec.setFloat8(f, src.getFloat(bits[1]));
 						break;
 					default:
-						throw new IllegalStateException("unsupported field type: " + e.getKey().getType());
+						throw new IllegalStateException("unsupported field type: " + f.getType());
 				}
 			}
 		}
+
 		db.commitRecord(rec);
 		getEnv().getBus().fire(Events.LOGGER_RECORD_COMMITED, rec);
 	}

@@ -12,6 +12,7 @@ import uk.co.stikman.invmon.InvModType;
 import uk.co.stikman.invmon.InvMonException;
 import uk.co.stikman.invmon.InverterMonitor;
 import uk.co.stikman.invmon.ModType;
+import uk.co.stikman.invmon.Sample;
 import uk.co.stikman.invmon.datamodel.DataModel;
 import uk.co.stikman.invmon.datamodel.Field;
 import uk.co.stikman.invmon.datamodel.FieldVIF;
@@ -48,7 +49,7 @@ public class InverterPIPMAX extends InverterMonitor {
 	}
 
 	@Override
-	public DataPoint createDataPoint(long ts) {
+	public Sample createDataPoint(long ts) {
 		DeviceStatus sts = inv.getStatus();
 		float current = sts.getBatteryChargeI();
 		boolean charging = true;
@@ -59,23 +60,22 @@ public class InverterPIPMAX extends InverterMonitor {
 
 		float pf = sts.getOutputApparentP() == 0 ? 0.0f : (float) sts.getOutputActiveP() / sts.getOutputApparentP();
 
-		DataPoint dp = new DataPoint(ts);
-
-		dp.put(fieldMode, charging ? InverterMode.CHARGING : InverterMode.DISCHARGING);
-		dp.put(fieldChargeState, sts.getBatteryChargeStage());
-		dp.put(fieldBattI, charging ? sts.getBatteryChargeI() : -sts.getBatteryDischargeI());
-		dp.put(fieldBattV, sts.getBatteryV());
+		Sample dp = new Sample(ts);
+		dp.put("mode", charging ? InverterMode.CHARGING : InverterMode.DISCHARGING);
+		dp.put("chargeState", sts.getBatteryChargeStage());
+		dp.put("battI", charging ? sts.getBatteryChargeI() : -sts.getBatteryDischargeI());
+		dp.put("battV", sts.getBatteryV());
 		float maxp = Math.max(sts.getOutputActiveP(), sts.getOutputApparentP());
-		dp.put(fieldLoadI, maxp / sts.getOutputV());
-		dp.put(fieldLoadV, sts.getOutputV());
-		dp.put(fieldPv1, sts.getPv1V(), sts.getPv1I(), 0);
-		dp.put(fieldPv2, sts.getPv2V(), sts.getPv2I(), 0);
-		dp.put(fieldPv1P, sts.getPv1V() * sts.getPv1I());
-		dp.put(fieldPv2P, sts.getPv2V() * sts.getPv2I());
-		dp.put(fieldTemperature, sts.getInverterTemp());
-		dp.put(fieldBusVoltage, sts.getBusV());
-		dp.put(fieldLoadPF, pf);
-		dp.put(fieldStateOfCharge, (float) sts.getBatteryCapacity() / 100.0f);
+		dp.put("loadI", maxp / sts.getOutputV());
+		dp.put("loadV", sts.getOutputV());
+		dp.put("pv1", sts.getPv1V(), sts.getPv1I(), 0);
+		dp.put("pv2", sts.getPv2V(), sts.getPv2I(), 0);
+		dp.put("temp", sts.getInverterTemp());
+		dp.put("busV", sts.getBusV());
+		dp.put("loadPF", pf);
+		dp.put("stateOfCharge", (float) sts.getBatteryCapacity() / 100.0f);
+		dp.put("gridV", sts.getGridV());
+		dp.put("gridI", sts.getGridI());
 		return dp;
 	}
 
