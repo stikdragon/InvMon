@@ -27,6 +27,9 @@ public class Field {
 		return id;
 	}
 
+	/**
+	 * see {@link #setPosition(int)}
+	 */
 	public int getPosition() {
 		return position;
 	}

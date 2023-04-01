@@ -4,8 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import uk.co.stikman.invmon.datamodel.Field;
 import uk.co.stikman.invmon.datamodel.FieldType;
+import uk.co.stikman.invmon.htmlout.DataSet;
+import uk.co.stikman.invmon.htmlout.DataSetRecord;
 import uk.co.stikman.table.DataRecord;
 import uk.co.stikman.table.DataTable;
 
@@ -19,6 +24,7 @@ public class QueryResults {
 
 	private long					start;
 	private long					end;
+	private DataSet					adapter;
 
 	public List<Field> getFields() {
 		return fields;
@@ -109,6 +115,108 @@ public class QueryResults {
 
 	public QueryRecord getLastRecord() {
 		return records.get(records.size() - 1);
+	}
+
+	public DataSet asDataSet() {
+		if (adapter != null)
+			return adapter;
+		adapter = new DataSet() {
+			@Override
+			public long getStart() {
+				return QueryResults.this.getStart();
+			}
+
+			@Override
+			public long getEnd() {
+				return QueryResults.this.getEnd();
+			}
+
+			@Override
+			public List<DataSetRecord> getRecords() {
+				List<DataSetRecord> lst = new ArrayList<>();
+				for (QueryRecord x : records)
+					lst.add(x);
+				return lst;
+			}
+
+			@Override
+			public int getFieldIndex(String name) {
+				return QueryResults.this.getFieldIndex(name);
+			}
+
+			@Override
+			public JSONObject toJSON() {
+				JSONObject root = new JSONObject();
+				root.put("start", getStart());
+				root.put("end", getEnd());
+				JSONArray arr = new JSONArray();
+				root.put("fields", arr);
+				for (Field f : fields) {
+					JSONObject jo = new JSONObject();
+					jo.put("id", f.getId());
+					if (f.getType() == FieldType.TIMESTAMP) {
+						jo.put("t", "TS");
+					} else {
+						switch (f.getType().getBaseType()) {
+							case FLOAT:
+							case FLOAT8:
+								jo.put("t", "f");
+								break;
+							case INT:
+								jo.put("t", "i");
+								break;
+							case STRING:
+								jo.put("t", "s");
+								break;
+							default:
+								throw new RuntimeException("Not implemented this");
+						}
+					}
+					arr.put(jo);
+				}
+
+				//
+				// use first record to work out data types
+				//
+				char[] types = new char[fields.size()];
+				QueryRecord first = records.get(0);
+				int i = 0;
+				arr = new JSONArray();
+				for (Object o : first.getValues()) {
+					if (o instanceof Float)
+						types[i] = 'f';
+					else if (o instanceof Integer)
+						types[i] = 'i';
+					else if (o instanceof String)
+						types[i] = 's';
+					else if (o instanceof Long)
+						types[i] = 'l';
+					arr.put("" + types[i++]);
+				}
+				root.put("types", arr);
+
+				arr = new JSONArray();
+				root.put("records", arr);
+				for (QueryRecord r : records) {
+					JSONArray arr2 = new JSONArray();
+					i = 0;
+					for (Object o : r.getValues()) {
+						if (types[i] == 'f')
+							arr2.put(((Float) o).floatValue());
+						else if (types[i] == 'i')
+							arr2.put(((Integer) o).intValue());
+						else if (types[i] == 's')
+							arr2.put((String) o);
+						else if (types[i] == 'l')
+							arr2.put(((Long) o).toString());
+						++i;
+					}
+					arr.put(arr2);
+				}
+				return root;
+			}
+		};
+		return adapter;
 	}
 
 }

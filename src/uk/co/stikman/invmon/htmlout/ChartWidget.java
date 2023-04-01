@@ -77,7 +77,8 @@ public class ChartWidget extends PageWidget {
 	public JSONObject execute(JSONObject params, QueryResults qr) {
 		opts.setSize(params.getInt("w"), params.getInt("h"));
 		HTMLBuilder html = new HTMLBuilder();
-		HTMLGenerator.renderChart(html, cssClass, opts, qr);
+		DataSet ds = qr.asDataSet();
+//		HTMLGenerator.renderChart(html, cssClass, opts, ds);
 
 		JSONArray jarr = new JSONArray();
 		for (HeaderBitDef hb : headerBits)
@@ -87,6 +88,8 @@ public class ChartWidget extends PageWidget {
 		jo.put("html", html.toString());
 		jo.put("titleBits", jarr);
 		jo.put("config", opts.toJSON());
+		jo.put("css", cssClass);
+		jo.put("data", ds.toJSON());
 		return jo;
 	}
 

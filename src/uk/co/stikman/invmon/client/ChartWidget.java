@@ -5,6 +5,8 @@ import org.json.JSONObject;
 import org.teavm.jso.dom.html.HTMLElement;
 
 import uk.co.stikman.invmon.htmlout.ChartOptions;
+import uk.co.stikman.invmon.htmlout.HTMLBuilder;
+import uk.co.stikman.invmon.htmlout.HTMLGenerator;
 
 public class ChartWidget extends AbstractPageWidget {
 
@@ -29,9 +31,15 @@ public class ChartWidget extends AbstractPageWidget {
 			ChartOptions opts = new ChartOptions();
 			opts.fromJSON(result.getJSONObject("config"));
 			
+			DataSetImpl data = new DataSetImpl();
+			data.fromJSON(result.getJSONObject("data"));
+			HTMLBuilder html = new HTMLBuilder();
+			HTMLGenerator.renderChart(html, result.getString("css"), opts, data);
+			
 			frame.content.clear();
 			HTMLElement div = InvMon.div();
-			div.setInnerHTML(result.getString("html"));
+			div.setInnerHTML(html.toString());
+//			div.setInnerHTML(result.getString("html"));
 			div.getStyle().setProperty("position", "relative");
 			frame.content.appendChild(div);
 

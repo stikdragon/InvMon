@@ -10,6 +10,15 @@ import java.util.List;
  * 
  * why am i doing this
  * 
+ * format flags:
+ * <pre>
+ * %s  - string
+ * %f  - float
+ * %d  - integer
+ * %Y  - date+time
+ * %t  - time (HH:mm)
+ * %T  - date
+ * </pre>
  * @author stik
  *
  */
@@ -68,6 +77,11 @@ public class Format {
 				}
 			} else if (ch == '.') {
 				seenDot = true;
+			} else if (ch == 's') {
+				if (hasPrecision)
+					throw new IllegalArgumentException("%s cannot specify a precision\n" + iter.toString());
+				in = new StringInstruction(hasWidth ? width : -1);
+				break;
 			} else if (ch == 'f') {
 				in = new FloatInstruction(hasWidth ? width : -1, hasPrecision ? precision : -1);
 				break;
@@ -78,7 +92,7 @@ public class Format {
 				break;
 			} else if (ch == 'Y') {
 				if (hasPrecision || hasWidth)
-					throw new IllegalArgumentException("%t/%T cannot specify a precision or width\n" + iter.toString());
+					throw new IllegalArgumentException("%Y cannot specify a precision or width\n" + iter.toString());
 				in = new TimeInstruction("yyy-MM-dd HH:mm");
 				break;
 			} else if (ch == 't' || ch == 'T') {
@@ -157,6 +171,25 @@ public class Format {
 					out[i] = '0';
 			}
 			return s + "." + new String(out);
+		}
+
+		@Override
+		public boolean acceptsArg() {
+			return true;
+		}
+
+	}
+	private static class StringInstruction extends Inst {
+		private int	width;
+
+		public StringInstruction(int width) {
+			super();
+			this.width = width;
+		}
+
+		@Override
+		public String render(Object arg) {
+			return arg.toString();
 		}
 
 		@Override

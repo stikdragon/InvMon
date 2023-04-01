@@ -12,7 +12,7 @@
 	<Field id="GRID_F" type="freq" />
 	<Field id="LOAD_F" type="freq" />
 	<Field id="BATT_V" type="voltage" />
-	
+
 	<Repeat group="inverters">
 		<Field id="INV_$_I" type="current" />
 	</Repeat>
@@ -46,7 +46,7 @@
 
 	<Repeat group="batteries">
 		<Field id="BATT_$_I" type="current" />
-	
+
 		<Field id="BATT_$_C1" type="volt8,1.5,3.0" />
 		<Field id="BATT_$_C2" type="volt8,1.5,3.0" />
 		<Field id="BATT_$_C3" type="volt8,1.5,3.0" />
@@ -73,9 +73,11 @@
 		<Field id="BATT_$_C24" type="volt8,1.5,3.0" />
 	</Repeat>
 
-<!-- 	<Field id="BATT_I" type="current" calculatedRepeat="[BATT_$_I],sum" repeatGroup="batteries" /> -->
+
+	<!-- <Field id="BATT_I" type="current" calculatedRepeat="[BATT_$_I],sum" repeatGroup="batteries" /> -->
 	<Field id="BATT_I" type="current" calculatedRepeat="[INV_$_I],sum" repeatGroup="inverters" />
-	 <Field id="BATT_P" type="power" calculated="[BATT_I], [BATT_V], *" /> 
+
+	<Field id="BATT_P" type="power" calculated="[BATT_I], [BATT_V], *" />
 	<Field id="BATT_I_CHG" type="current" calculated="[BATT_I], !invert, 0, !max" />
 	<Field id="BATT_I_DIS" type="current" calculated="[BATT_I], 0, !max" />
 </Model>

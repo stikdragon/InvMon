@@ -44,7 +44,9 @@
 
 			<jvmarg value="-Xmx4g" />
 			<arg line="-t js" />
-			<arg line="-G" />
+			<!-- <arg line="-m" />  -->
+			<!-- <arg line="-G" /> -->
+			<!-- <arg line="-g" /> -->
 			<arg line="-d src/uk/co/stikman/invmon/client/res" />
 			<arg value="uk.co.stikman.invmon.client.InvMon" />
 		</java>

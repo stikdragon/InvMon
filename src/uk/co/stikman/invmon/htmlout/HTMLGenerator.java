@@ -82,7 +82,7 @@ public class HTMLGenerator {
 
 	private static SimpleDateFormat sdf = new SimpleDateFormat("yy/MM/dd HH:mm");
 
-	public static void renderChart(HTMLBuilder html, String cssclass, ChartOptions opts, QueryResults res) {
+	public static void renderChart(HTMLBuilder html, String cssclass, ChartOptions opts, DataSet res) {
 		try {
 			//
 			// this is quite messy i'm afraid
@@ -102,25 +102,21 @@ public class HTMLGenerator {
 			//
 			// now onto rendering the chart
 			//
-			//			final int AXIS_W = 55;
-			//			final int AXIS_H = 22;
 			final int width = opts.getWidth();
 			final int height = opts.getHeight();
-//			info.setWidth(width);
-//			info.setHeight(height);
 
 			int nAxes = (opts.getAxisY2().isEnabled() ? 1 : 0) + (opts.getAxisY1().isEnabled() ? 1 : 0);
 			float axisWidthTotal = (opts.getAxisY1().axisSize()) + (opts.getAxisY2().axisSize());
 			float sx = 1.0f - (float) axisWidthTotal / width; // scale factors
 			float sy = 1.0f - (float) (opts.getAxisX1().axisSize()) / height;
 			html.append("<svg class=\"chart ").append(cssclass).append("\" width=\"%dpx\" height=\"%dpx\">\n", width, height);
-			html.append("<g transform=\"translate(%d,0) scale(%f, %f)\"> \n", (opts.getAxisY1().axisSize()), sx, sy);
+			html.append("<g transform=\"translate(%d,0) scale(%s, %f)\"> \n", (opts.getAxisY1().axisSize()), sx, sy);
 			html.append("<rect x=\"%d\" y=\"%d\" width=\"%d\" height=\"%d\" class=\"background\" />", 0, 0, width, height);
 			int fts = res.getFieldIndex("TIMESTAMP");
 
 			long minX = Long.MAX_VALUE;
 			long maxX = Long.MIN_VALUE;
-			for (QueryRecord rec : res.getRecords()) {
+			for (DataSetRecord rec : res.getRecords()) {
 				minX = Math.min(minX, rec.getLong(fts));
 				maxX = Math.max(maxX, rec.getLong(fts));
 			}
@@ -140,7 +136,7 @@ public class HTMLGenerator {
 			for (Series series : opts.getSeries()) {
 				int fmain = res.getFieldIndex(series.getField());
 				Axis ax = opts.getAxis(series.getYAxisId());
-				for (QueryRecord rec : res.getRecords()) {
+				for (DataSetRecord rec : res.getRecords()) {
 					float f = rec.getFloat(fmain);
 					ax.setMin(Math.min(ax.getMin(), f));
 					ax.setMax(Math.max(ax.getMax(), f));
@@ -148,15 +144,6 @@ public class HTMLGenerator {
 			}
 			opts.getAxisY1().setMax(opts.getAxisY1().getMax() * 1.05f);
 			opts.getAxisY2().setMax(opts.getAxisY2().getMax() * 1.05f);
-//
-//			info.setAxisX(new AxisInfo());
-//			copyAxisInfo(info.getAxisX(), opts.getAxisX1(), opts.getAxisX1().axisSize(), "time");
-//			info.setAxisY1(new AxisInfo());
-//			copyAxisInfo(info.getAxisY1(), opts.getAxisY1(), opts.getAxisY1().axisSize(), "y1");
-//			if (opts.getAxisY2().isEnabled()) {
-//				info.setAxisY2(new AxisInfo());
-//				copyAxisInfo(info.getAxisY2(), opts.getAxisY2(), opts.getAxisY2().axisSize(), "y2");
-//			}
 
 			for (Series series : opts.getSeries()) {
 				++seriesIndex;
@@ -176,7 +163,7 @@ public class HTMLGenerator {
 				sb.append("<path class=\"series" + seriesIndex + "_line\" d=\"");
 				float f = 0.0f;
 				char ch = 'M';
-				for (QueryRecord rec : res.getRecords()) {
+				for (DataSetRecord rec : res.getRecords()) {
 					long ts = rec.getLong(fts);
 					f = rec.getFloat(fmain);
 					sb.append(ch).append(ti(width * (float) (ts - tsStart) / tsLength)).append(" ").append(ti(height - (height * axy.eval(f)))).append(" ");
@@ -191,7 +178,7 @@ public class HTMLGenerator {
 				sb = new StringBuilder();
 				sb.append("<path class=\"series" + seriesIndex + "_fill\" d=\"M0 ").append(height - 0).append(" ");
 				f = 0.0f;
-				for (QueryRecord rec : res.getRecords()) {
+				for (DataSetRecord rec : res.getRecords()) {
 					long ts = rec.getLong(fts);
 					f = rec.getFloat(fmain);
 					sb.append("L").append(ti(width * (float) (ts - tsStart) / tsLength)).append(" ").append(ti(height - (height * axy.eval(f)))).append(" ");
@@ -211,7 +198,7 @@ public class HTMLGenerator {
 					sb = new StringBuilder();
 					sb.append("<path class=\"series" + seriesIndex + "_" + (i + 1) + "\" d=\"M0 ").append(height - 0).append(" ");
 					int j = 0;
-					for (QueryRecord rec : res.getRecords()) {
+					for (DataSetRecord rec : res.getRecords()) {
 						long ts = rec.getLong(fts);
 						f = rec.getFloat(fsubs[i]);
 						float y = height * axy.eval(f);

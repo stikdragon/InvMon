@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
+import uk.co.stikman.invmon.inverter.util.Format;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
 
 public class HTMLBuilder {
@@ -40,7 +41,9 @@ public class HTMLBuilder {
 	}
 
 	public HTMLBuilder append(String fmt, Object... args) {
-		sb.append(String.format(fmt, args));
+		Format f = new Format(fmt);
+		sb.append(f.format(args));
+//		sb.append(String.format(fmt, args));
 		return this;
 	}
 

@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import uk.co.stikman.invmon.datamodel.VIFReading;
+import uk.co.stikman.invmon.htmlout.DataSetRecord;
 
-public class QueryRecord {
+public class QueryRecord implements DataSetRecord {
 
 	private final QueryResults	owner;
 	private List<Object>		values	= new ArrayList<>();
@@ -16,18 +17,22 @@ public class QueryRecord {
 		this.owner = owner;
 	}
 
+	@Override
 	public float getFloat(int idx) {
 		return ((Float) values.get(idx)).floatValue();
 	}
 
+	@Override
 	public long getLong(int idx) {
 		return ((Long) values.get(idx)).longValue();
 	}
 
+	@Override
 	public int getInt(int idx) {
 		return ((Integer) values.get(idx)).intValue();
 	}
 
+	@Override
 	public String getString(int idx) {
 		return (String) values.get(idx);
 	}
@@ -87,6 +92,10 @@ public class QueryRecord {
 		if (o instanceof Number)
 			return (Number) o;
 		throw new ClassCastException("Field [" + field + "] is not a Number");
+	}
+
+	public List<Object> getValues() {
+		return values;
 	}
 
 }
