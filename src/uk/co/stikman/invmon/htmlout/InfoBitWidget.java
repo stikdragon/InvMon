@@ -31,7 +31,8 @@ public class InfoBitWidget extends PageWidget {
 		String dur = String.format("%d days, %02d:%02d", d.toDays() % 60, d.toHours() % 24, d.toMinutes() % 60);
 		html.append("<div class=\"tiny\"><div class=\"a\">Uptime: </div><div class=\"b\">").append(dur).append("</div></div>");
 		
-		html.append("<div class=\"tiny\"><div class=\"a\">Heap/Max: </div><div class=\"b\">").append(InvUtil.formatSize(Runtime.getRuntime().totalMemory())).append(" / ").append(InvUtil.formatSize(Runtime.getRuntime().maxMemory())).append("</div></div>");
+		n = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed();
+		html.append("<div class=\"tiny\"><div class=\"a\">Heap/Max: </div><div class=\"b\">").append(InvUtil.formatSize(n)).append(" / ").append(InvUtil.formatSize(Runtime.getRuntime().maxMemory())).append("</div></div>");
 		
 		
 		DataLogger dl = null;
