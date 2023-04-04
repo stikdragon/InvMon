@@ -87,9 +87,9 @@ public class DailyPowerSummaryWidget extends PageWidget {
 					qr.totalLoad += r.getFloat(fload) * slicewidth;
 					float f =  r.getFloat(fbi) * r.getFloat(fbv) * slicewidth;
 					if (f < 0.0f)
-						qr.battIn += -f;
+						qr.battOut += -f;
 					else
-						qr.battOut += f;
+						qr.battIn += f;
 					qr.gridIn += r.getFloat(fgv) * r.getFloat(fgi) * slicewidth;
 				}
 			}

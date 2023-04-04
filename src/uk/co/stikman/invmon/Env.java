@@ -54,7 +54,7 @@ public class Env {
 			StikLog.clearTargets();
 			ConsoleLogTarget tgt = new ConsoleLogTarget();
 			tgt.setFormat(new InvMonLogFormatter());
-			tgt.enableLevel(Level.DEBUG, false);
+			tgt.enableLevel(Level.DEBUG, true);
 			StikLog.addTarget(tgt);
 
 			LOGGER.info("Starting InvMon...");

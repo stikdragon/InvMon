@@ -1,15 +1,17 @@
 <InvMon>
 
     <!--
-    updatePeriod is the sample period
+    updatePeriod - is the sample period
 
-    allowConversion allows the database to be upgraded if you've switched to a new version
-                    that has a different db structure.  it's worth setting this to `false` and
-                    then taking a backup of the database in the event that it needs converting
-                    (you'll get a startup error if it does and this isn't enabled)
+    allowConversion - allows the database to be upgraded if you've switched to a new version
+                      that has a different db structure.  it's worth setting this to `false` and
+                      then taking a backup of the database in the event that it needs converting
+                      (you'll get a startup error if it does and this isn't enabled)
+
+    model - names a file that defines the data model, you need to build this to match your 
+            configuration
     -->
-    <Settings updatePeriod="1000" allowConversion="true" />
-
+    <Settings updatePeriod="1000" allowConversion="true" model="model.xml" />
 
     <Modules>
         <!-- Inverter talks to an actual inverter.  The `type` attrib tells it which sort of 
@@ -18,15 +20,54 @@
     
         <!-- ConsoleOutput renders a little table in the local terminal.  controlCodes attribute
         allows colour formatting -->        
-        <ConsoleOutput id="console" controlCodes="true" />
+        <!-- This feature is currently broken, sorry -->
+        <!-- <ConsoleOutput id="console" controlCodes="true" /> -->
 
         <!-- DataLogger saves each sample to a database file.  This allows things like HTTPServer
-        to function -->
+        to function.  Increasing blockSize will improve performance very slightly at the expensive
+        of significantly more RAM usage.  400000 results in a minimum of about 350Mb heap size -->
         <DataLogger id="datalogger" file="junk\datalog.db" blockSize="400000" />
 
         <!-- HTTPServer runs a small web server that shows some charts.  It requires a 
         <DataLogger> to be enabled too -->
-        <HTTPServer id="httpserver" port="8083" />
+        <HTTPServer id="httpserver" port="8083">
+			<Page id="mainpage" default="true">
+				<Widget id="timeselector" class="timesel" layout="0, 0, 25, 1" />
+				<Widget id="pvChart" class="chart" title="PV Power" layout="0, 1, 20, 7" cssClass="pv">
+					<Series field="PV_TOTAL_P" subfields="PVA_1_P, PVB_1_P" axis="y1" />
+					<Axis id="y1" min="0" formatter="%d W" />
+					<HeaderBit text="Total: [%d]W" fields="PV_TOTAL_P" />
+				</Widget>
+				<Widget id="pvTable" class="table-pv" title="PV Power" layout="20, 1, 5, 5" fields="PVA_1,PVB_1" />
+				<Widget id="loadChart" class="chart" title="Load" layout="0, 8, 20, 7" cssClass="load">
+					<HeaderBit text="Load: [%d]W ([%.2f]V @ [%.2f]A)" fields="LOAD_P, LOAD_V, LOAD_I" />
+					<HeaderBit special="powerfactor" />
+					<Axis id="y1" min="0" formatter="%d W" />
+					<Series field="LOAD_P" />
+				</Widget>
+				<Widget id="batteryChart" class="chart" title="Battery" layout="0, 15, 20, 7" cssClass="battery">
+					<Axis id="y1" min="0" formatter="%.1f A" />
+					<Axis id="y2" min="35" max="65" formatter="%.1f V" />
+					<Series field="BATT_I_CHG" />
+					<Series field="BATT_I_DIS" />
+					<Series field="BATT_SOC" min="0" max="100" axis="y2" />
+					<HeaderBit text="Battery: [%d]W ([%.2f]V @ [%.2f]A)" fields="BATT_P, BATT_V, BATT_I" />
+				</Widget>
+				<Widget id="busChart" class="chart" title="Bus/Temps" layout="0, 22, 20, 4" cssClass="temperature">
+					<Axis id="y1" min="0" formatter="%.1f C" />
+					<Axis id="y2" min="0" formatter="%d V" />
+					<Series field="INV_1_TEMP" />
+					<Series field="INV_1_BUS_V" axis="y2" />
+					<HeaderBit text="Battery: [%d]W ([%.2f]V @ [%.2f]A)" fields="BATT_P, BATT_V, BATT_I" />
+				</Widget>
+				<Widget id="infobit" class="infobit" layout="0, 26, 20, 2" />
+				<Widget id="refresh" class="controls" title="Control" layout="20, 6, 5, 7" />
+				<Widget id="summary" class="energysummary" title="Energy" layout="20, 13, 5, 5" />                
+			</Page>
+
+
+
+        </HTTPServer>
 
     </Modules>
 

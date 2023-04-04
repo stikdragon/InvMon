@@ -13,7 +13,7 @@
 
 		<DataLogger id="datalogger" file="data\datalog.db" blockSize="400000" />
 
-		<HTTPServer id="httpserver" port="8083" sourceData="invertergroup1">
+		<HTTPServer id="httpserver" port="8083">
 			<Page id="main" default="true">
 				<Widget id="timeselector" class="timesel" layout="0, 0, 25, 1" />
 				<Widget id="pvChart" class="chart" title="PV Power" layout="0, 1, 20, 7" cssClass="pv">

@@ -18,7 +18,7 @@ public class Block {
 	private static final StikLog	LOGGER			= StikLog.getLogger(Block.class);
 	private static final int		MAGIC_NUMBER	= 0x4D9B5FA9;
 	private static final int		VERSION_1		= 1;
-	private List<DBRecord>			records			= new ArrayList<>();
+	private List<DBRecord>			records			= null;
 	private DataOutputStream		output			= null;
 	private File					file;
 	private MiniDB					owner;
@@ -49,6 +49,7 @@ public class Block {
 
 	public void open() throws MiniDbException {
 		LOGGER.debug("Opening block " + this);
+		records = new ArrayList<>();
 		//
 		// read contents first
 		//
@@ -107,6 +108,7 @@ public class Block {
 		LOGGER.debug("Closing block " + this);
 		if (output != null)
 			output.close();
+		records = null;
 		output = null;
 	}
 
@@ -142,6 +144,10 @@ public class Block {
 		return Long.compare(a.lastAccessed, b.lastAccessed);
 	}
 
+	/**
+	 * will return <code>null</code> if this block is closed
+	 * @return
+	 */
 	public List<DBRecord> getRecords() {
 		return records;
 	}

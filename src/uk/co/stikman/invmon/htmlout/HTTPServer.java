@@ -13,7 +13,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.Element;
 
@@ -58,7 +57,6 @@ public class HTTPServer extends InvModule {
 	private DataLogger						datalogger;
 	private int								port;
 	private Svr								svr;
-	private PollData						lastData;
 	private final Map<String, FetchMethod>	urlMappings				= new HashMap<>();
 	private Map<String, UserSesh>			sessions				= new HashMap<>();
 	private HttpLayoutConfig				layoutConfig;
@@ -199,7 +197,6 @@ public class HTTPServer extends InvModule {
 
 	@Subscribe(Events.POST_DATA)
 	public void postData(PollData data) {
-		this.lastData = data;
 	}
 
 	private Response serve(IHTTPSession httpsession) {
