@@ -1,6 +1,7 @@
 package uk.co.stikman.invmon.datalog;
 
 import java.io.File;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -261,6 +262,7 @@ public class DataLogger extends InvModule {
 		// make records for the results
 		//
 		QueryResults res = new QueryResults();
+		res.setZone(ZoneId.systemDefault());
 		for (Field f : fields)
 			res.addField(f);
 		List<QueryRecord> recs = new ArrayList<>();
@@ -406,6 +408,14 @@ public class DataLogger extends InvModule {
 
 	public DBRecord getLastRecord() throws MiniDbException {
 		return db.getLastRecord();
+	}
+
+	public long getDbFileSize() {
+		return db.getTotalSize();
+	}
+	
+	public int getDbRecordCount() {
+		return db.getRecordCount();
 	}
 
 }

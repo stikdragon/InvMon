@@ -1,5 +1,6 @@
 package uk.co.stikman.invmon.htmlout;
 
+import java.time.ZoneId;
 import java.util.function.Function;
 
 import org.json.JSONObject;
@@ -150,14 +151,19 @@ public class Axis {
 		return "Axis [min=" + min + ", max=" + max + ", enabled=" + enabled + "]";
 	}
 
-	public void setFormat(String s) {
+	public void setFormat(String s, ZoneId zone) {
 		this.format = s;
 		if (s == null) {
 			formatter = f -> f.toString();
 		} else {
 			final Format f = new Format(s);
+			f.setTimezone(zone);
 			formatter = n -> f.format(n);
 		}
+	}
+	
+	public void setFormat(String s) {
+		setFormat(s, ZoneId.systemDefault());
 	}
 
 	public String getFormat() {
@@ -189,5 +195,7 @@ public class Axis {
 	public void setName(String name) {
 		this.name = name;
 	}
+
+
 
 }

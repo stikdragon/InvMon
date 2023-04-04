@@ -7,8 +7,11 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.function.Supplier;
 
+import org.json.JSONObject;
 import org.w3c.dom.Element;
 
+import fi.iki.elonen.NanoHTTPD;
+import fi.iki.elonen.NanoHTTPD.Response.Status;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
 
 public class PageLayout {
@@ -25,6 +28,7 @@ public class PageLayout {
 		TYPES.put("infobit", InfoBitWidget::new);
 		TYPES.put("timesel", TimeSelPageWidget::new);
 		TYPES.put("controls", ControlsWidget::new);
+		TYPES.put("energysummary", DailyPowerSummaryWidget::new);
 	}
 
 	public void configure(Element root) {
@@ -57,6 +61,13 @@ public class PageLayout {
 	@Override
 	public String toString() {
 		return id;
+	}
+
+	public PageWidget getWidgetById(String name) {
+		for (PageWidget wij : getWidgets())
+			if (wij.getId().equals(name))
+				return wij;
+		throw new NoSuchElementException("Widget [" + name + "] not found");
 	}
 
 }

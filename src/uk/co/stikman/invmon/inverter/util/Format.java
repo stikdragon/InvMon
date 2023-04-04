@@ -1,6 +1,10 @@
 package uk.co.stikman.invmon.inverter.util;
 
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -11,6 +15,7 @@ import java.util.List;
  * why am i doing this
  * 
  * format flags:
+ * 
  * <pre>
  * %s  - string
  * %f  - float
@@ -19,14 +24,16 @@ import java.util.List;
  * %t  - time (HH:mm)
  * %T  - date
  * </pre>
+ * 
  * @author stik
  *
  */
 public class Format {
 
-	private List<Inst> instructions = new ArrayList<>();
+	private List<Inst>	instructions	= new ArrayList<>();
+	private ZoneId		timezone		= ZoneId.systemDefault();
 
-	private static abstract class Inst {
+	private abstract class Inst {
 		public abstract String render(Object arg);
 
 		public abstract boolean acceptsArg();
@@ -115,7 +122,7 @@ public class Format {
 		return ch >= '0' && ch <= '9';
 	}
 
-	private static class DecimalInstruction extends Inst {
+	private class DecimalInstruction extends Inst {
 
 		private int width;
 
@@ -139,7 +146,7 @@ public class Format {
 
 	}
 
-	private static class FloatInstruction extends Inst {
+	private class FloatInstruction extends Inst {
 		private int	width;
 		private int	precision;
 
@@ -159,7 +166,7 @@ public class Format {
 				s = InvUtil.padLeft(s, width);
 
 			float f = n.floatValue() - n.intValue();
-			String t = Float.toString(f).substring(2); // will always be 0.123456, so trim off "0."
+			String t = Float.toString(f).substring(n.floatValue() < 0.0f ? 3 : 2); // will always be [-]0.123456, so trim off "[-]0."
 			if (precision == -1)
 				return s + "." + t;
 
@@ -179,8 +186,9 @@ public class Format {
 		}
 
 	}
-	private static class StringInstruction extends Inst {
-		private int	width;
+
+	private class StringInstruction extends Inst {
+		private int width;
 
 		public StringInstruction(int width) {
 			super();
@@ -200,20 +208,23 @@ public class Format {
 	}
 
 	public class TimeInstruction extends Inst {
-		private SimpleDateFormat sdf;
+
+		private DateTimeFormatter dtf;
 
 		public TimeInstruction(String fmt) {
-			sdf = new SimpleDateFormat(fmt);
+			dtf = DateTimeFormatter.ofPattern(fmt);
 		}
 
 		@Override
 		public String render(Object arg) {
-			Date d;
-			if (arg instanceof Number)
-				d = new Date(((Number) arg).longValue());
-			else
-				d = (Date) arg;
-			return sdf.format(d);
+			LocalDateTime d;
+			if (arg instanceof Number) {
+				long n = ((Number) arg).longValue();
+				d = LocalDateTime.ofInstant(Instant.ofEpochMilli(n), timezone);
+			} else {
+				d = (LocalDateTime) arg;
+			}
+			return dtf.format(d);
 		}
 
 		@Override
@@ -223,7 +234,7 @@ public class Format {
 
 	}
 
-	private static class InstLit extends Inst {
+	private class InstLit extends Inst {
 		private StringBuilder value = new StringBuilder();
 
 		@Override
@@ -258,5 +269,13 @@ public class Format {
 
 		return output.toString();
 
+	}
+
+	public ZoneId getTimezone() {
+		return timezone;
+	}
+
+	public void setTimezone(ZoneId timezone) {
+		this.timezone = timezone;
 	}
 }

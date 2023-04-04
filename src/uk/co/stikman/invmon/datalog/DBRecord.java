@@ -7,6 +7,7 @@ import java.nio.charset.StandardCharsets;
 
 import uk.co.stikman.invmon.datamodel.Field;
 import uk.co.stikman.invmon.datamodel.FieldCounts;
+import uk.co.stikman.invmon.datamodel.FieldDataType;
 import uk.co.stikman.invmon.datamodel.FieldType;
 import uk.co.stikman.invmon.datamodel.FieldVIF;
 import uk.co.stikman.invmon.datamodel.VIFReading;
@@ -74,6 +75,17 @@ public class DBRecord {
 		f = 256.0f * f / (t.max() - t.min());
 		bytes[field.getPosition()] = (byte) f;
 	}
+	
+	public Number getNumber(Field field) {
+		if (field.getType().getBaseType() == FieldDataType.FLOAT)
+			return Float.valueOf(getFloat(field));
+		if (field.getType().getBaseType() == FieldDataType.FLOAT8)
+			return Float.valueOf(getFloat8(field));
+		if (field.getType().getBaseType() == FieldDataType.INT)
+			return Integer.valueOf(getInt(field));
+		throw new IllegalStateException("Field [" + field.getId() + "] is not numeric");
+	}
+
 
 	public long getTimestamp() {
 		return timestamp;
@@ -155,4 +167,5 @@ public class DBRecord {
 		return (T) Enum.valueOf(cls, getString(f));
 	}
 
+	
 }

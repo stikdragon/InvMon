@@ -79,14 +79,12 @@ public class HTMLGenerator {
 		return Integer.toString((int) f);
 	}
 
-	private static SimpleDateFormat sdf = new SimpleDateFormat("yy/MM/dd HH:mm");
-
 	public static void renderChart(HTMLBuilder html, String cssclass, ChartOptions opts, DataSet res) {
 		try {
 			//
 			// this is quite messy i'm afraid
 			//
-			opts.getAxisX1().setFormat("%Y");
+			opts.getAxisX1().setFormat("%Y", res.getZone());
 
 			List<String> fields = new ArrayList<>();
 			for (Series s : opts.getSeries()) {

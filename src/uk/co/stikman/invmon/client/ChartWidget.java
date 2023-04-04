@@ -11,7 +11,6 @@ import uk.co.stikman.invmon.htmlout.HTMLGenerator;
 public class ChartWidget extends AbstractPageWidget {
 
 	private StandardFrame	frame;
-	private String			name;
 
 	public ChartWidget(ClientPage owner) {
 		super(owner);
@@ -39,7 +38,6 @@ public class ChartWidget extends AbstractPageWidget {
 			frame.content.clear();
 			HTMLElement div = InvMon.div();
 			div.setInnerHTML(html.toString());
-//			div.setInnerHTML(result.getString("html"));
 			div.getStyle().setProperty("position", "relative");
 			frame.content.appendChild(div);
 
@@ -49,7 +47,7 @@ public class ChartWidget extends AbstractPageWidget {
 			JSONArray arr = result.optJSONArray("titleBits");
 			frame.header.clear();
 			HTMLElement h1 = InvMon.element("h1", "title");
-			h1.setInnerText(name);
+			h1.setInnerText(getName());
 			frame.header.appendChild(h1);
 			if (arr != null) {
 				for (int i = 0; i < arr.length(); ++i) {
@@ -72,7 +70,6 @@ public class ChartWidget extends AbstractPageWidget {
 	@Override
 	public void configure(JSONObject obj) {
 		super.configure(obj);
-		this.name = obj.getString("title");
 	}
 
 }

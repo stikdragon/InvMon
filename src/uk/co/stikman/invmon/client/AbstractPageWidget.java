@@ -11,6 +11,7 @@ public abstract class AbstractPageWidget {
 	private int					width;
 	private int					height;
 	private String				id;
+	private String				name;
 
 	public AbstractPageWidget(ClientPage owner) {
 		super();
@@ -23,6 +24,7 @@ public abstract class AbstractPageWidget {
 		width = obj.getInt("w");
 		height = obj.getInt("h");
 		id = obj.getString("id");
+		name = obj.optString("title", null);
 	}
 
 	public int getX() {
@@ -73,6 +75,7 @@ public abstract class AbstractPageWidget {
 			root.getClassList().add(mainclass);
 		parent.appendChild(root);
 		root.getClassList().add("gridframe");
+		root.setId(getId());
 		doLayout(root);
 
 		HTMLElement inner = InvMon.div("gridframeinner");
@@ -82,6 +85,11 @@ public abstract class AbstractPageWidget {
 		if (header) {
 			hdr = InvMon.div("hdr");
 			inner.appendChild(hdr);
+			if (name != null) {
+				HTMLElement h1 = InvMon.element("h1", "title");
+				h1.setInnerText(name);
+				hdr.appendChild(h1);
+			}
 		}
 
 		HTMLElement el2 = InvMon.div("content");
@@ -105,6 +113,10 @@ public abstract class AbstractPageWidget {
 		a.error = elError;
 		a.hideOverlays();
 		return a;
+	}
+
+	public String getName() {
+		return name;
 	}
 
 }

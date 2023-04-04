@@ -13,6 +13,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.Element;
 
@@ -43,15 +44,23 @@ public class HTTPServer extends InvModule {
 		Response fetch(String url, UserSesh sesh, IHTTPSession session) throws Exception;
 	}
 
-	private static final StikLog			LOGGER				= StikLog.getLogger(HTTPServer.class);
-	private static final String				GLOBAL_VIEW_OPTIONS	= "gvo";
-	private static final String				LAST_QUERY_RESULTS	= "lqr";
+	private static final StikLog			LOGGER					= StikLog.getLogger(HTTPServer.class);
+
+	/**
+	 * keys for associating objects with a user session. in particular the cached
+	 * ones are used to avoid re-querying the database for multiple hits with a
+	 * single page
+	 */
+	private static final String				GLOBAL_VIEW_OPTIONS		= "gvo";
+	private static final String				CACHED_QUERY_RESULTS	= "cqr";
+	private static final String				CACHED_LAST_RECORD		= "clr";
+
 	private DataLogger						datalogger;
 	private int								port;
 	private Svr								svr;
 	private PollData						lastData;
-	private final Map<String, FetchMethod>	urlMappings			= new HashMap<>();
-	private Map<String, UserSesh>			sessions			= new HashMap<>();
+	private final Map<String, FetchMethod>	urlMappings				= new HashMap<>();
+	private Map<String, UserSesh>			sessions				= new HashMap<>();
 	private HttpLayoutConfig				layoutConfig;
 
 	public HTTPServer(String id, Env env) {
@@ -112,15 +121,18 @@ public class HTTPServer extends InvModule {
 		opts.setWidth(jo.optInt("w", 700));
 		opts.setHeight(jo.optInt("h", 300));
 
-		QueryResults data = getQueryResults(sesh);
+		ensureCachedResults(sesh);
+		QueryResults qr = sesh.getData(CACHED_QUERY_RESULTS);
+		DBRecord lastrec = sesh.getData(CACHED_LAST_RECORD);
 
 		PageLayout layout = viewopts.getLayout();
 		if (layout == null)
 			layout = layoutConfig.getDefaultPage();
 
+		WidgetExecuteContext ctx = new WidgetExecuteContext(this, sesh, qr, lastrec);
 		for (PageWidget wij : layout.getWidgets()) {
 			if (wij.getId().equals(name)) {
-				JSONObject result = wij.execute(jo, data);
+				JSONObject result = wij.execute(jo, ctx);
 				return NanoHTTPD.newFixedLengthResponse(Status.OK, "text/html", result.toString());
 			}
 		}
@@ -132,25 +144,14 @@ public class HTTPServer extends InvModule {
 		return NanoHTTPD.newFixedLengthResponse(Status.OK, "text/html", res.toString());
 	}
 
-	private QueryResults getQueryResults(UserSesh sesh) {
+	private void ensureCachedResults(UserSesh sesh) {
 		synchronized (sesh) {
 			ViewOptions opts = sesh.getData(GLOBAL_VIEW_OPTIONS);
-			QueryResults qr = sesh.getData(LAST_QUERY_RESULTS);
+			QueryResults qr = sesh.getData(CACHED_QUERY_RESULTS);
 			if (qr == null) {
 				long end = System.currentTimeMillis();
 				long start = end - (long) opts.getDuration() * 1000 * 60;
 				FieldNameList flds = new FieldNameList();
-				//				flds.add("BATT_V, BATT_I, BATT_I_CHG, BATT_I_DIS");
-				//				flds.add("LOAD_V, LOAD_I, LOAD_F");
-				//				flds.add("LOAD_P, LOAD_1_P, LOAD_2_P");
-				//				flds.add("PVA_1_V, PVA_1_I, PVA_1_P");
-				//				flds.add("PVB_1_V, PVB_1_I, PVB_1_P");
-				//				flds.add("PVA_2_V, PVA_2_I, PVA_2_P");
-				//				flds.add("PVB_2_V, PVB_2_I, PVB_2_P");
-				//				flds.add("PV_TOTAL_P");
-				//				flds.add("INV_1_TEMP,INV_2_TEMP");
-				//				flds.add("INV_1_BUS_V,INV_2_BUS_V");
-				//				flds.add("LOAD_PF");
 				//
 				// add everything except timestamp, i guess
 				//
@@ -159,13 +160,14 @@ public class HTTPServer extends InvModule {
 						flds.add(f.getId());
 
 				try {
-					qr = datalogger.query(start, end, 100, flds.asList());
+					QueryResults aggr = datalogger.query(start, end, 100, flds.asList());
+					DBRecord lr = datalogger.getLastRecord();
+					sesh.putData(CACHED_QUERY_RESULTS, aggr);
+					sesh.putData(CACHED_LAST_RECORD, datalogger.getLastRecord());
 				} catch (MiniDbException e) {
 					throw new RuntimeException(e);
 				}
-				sesh.putData(LAST_QUERY_RESULTS, qr);
 			}
-			return qr;
 		}
 	}
 
@@ -263,11 +265,20 @@ public class HTTPServer extends InvModule {
 
 	}
 
-	private Response getInfoBit(String url, UserSesh sesh, IHTTPSession request) {
-		HTMLBuilder html = new HTMLBuilder();
-		html.append("<div class=\"tiny\"><div class=\"a\">Local Time: </div><div class=\"b\">").append(new Date().toString()).append("</div></div>");
-		html.append("<div class=\"tiny\"><div class=\"a\">Version: </div><div class=\"b\">").append(Env.getVersion()).append("</div></div>");
-		return NanoHTTPD.newFixedLengthResponse(new JSONObject().put("html", html.toString()).toString());
+	private Response getInfoBit(String url, UserSesh sesh, IHTTPSession request) throws Exception {
+		JSONObject jo = new JSONObject(URLDecoder.decode(request.getQueryParameterString(), StandardCharsets.UTF_8.name()));
+		String name = jo.getString("name");
+		if (name == null)
+			throw new NotFoundException("No widget name");
+
+		ViewOptions viewopts = sesh.getData(GLOBAL_VIEW_OPTIONS);
+		if (viewopts == null)
+			sesh.putData(GLOBAL_VIEW_OPTIONS, viewopts = new ViewOptions());
+		PageLayout layout = viewopts.getLayout();
+		if (layout == null)
+			layout = layoutConfig.getDefaultPage();
+		WidgetExecuteContext ctx = new WidgetExecuteContext(this, sesh, null, null);
+		return NanoHTTPD.newFixedLengthResponse(Status.OK, "text/html", layout.getWidgetById(name).execute(null, ctx).toString());
 	}
 
 	private Response setParams(String url, UserSesh sesh, IHTTPSession request) {
@@ -280,7 +291,8 @@ public class HTTPServer extends InvModule {
 		global.setDuration(dur);
 		global.setOffset(off);
 		global.setLayout(this.layoutConfig.getPage(jo.optString("page", null)));
-		sesh.putData(LAST_QUERY_RESULTS, null);
+		sesh.putData(CACHED_QUERY_RESULTS, null);
+		sesh.putData(CACHED_LAST_RECORD, null);
 		return NanoHTTPD.newFixedLengthResponse(new JSONObject().put("result", "OK").toString());
 	}
 
@@ -294,7 +306,8 @@ public class HTTPServer extends InvModule {
 	}
 
 	private Response invalidateResults(String url, UserSesh sesh, IHTTPSession request) {
-		sesh.putData(LAST_QUERY_RESULTS, null);
+		sesh.putData(CACHED_QUERY_RESULTS, null);
+		sesh.putData(CACHED_LAST_RECORD, null);
 		return NanoHTTPD.newFixedLengthResponse(new JSONObject().put("result", "OK").toString());
 	}
 
@@ -316,7 +329,7 @@ public class HTTPServer extends InvModule {
 		for (PageWidget w : pg.getWidgets()) {
 			JSONObject wij = new JSONObject();
 			wij.put("x", w.getX()).put("y", w.getY()).put("w", w.getWidth()).put("h", w.getHeight());
-			wij.put("id", w.getId()).put("type", w.getWidgetType());
+			wij.put("id", w.getId()).put("type", w.getClientWidgetType());
 			wij.put("title", w.getTitle());
 			arr.put(wij);
 		}
@@ -348,6 +361,10 @@ public class HTTPServer extends InvModule {
 		synchronized (sessions) {
 
 		}
+	}
+
+	public DataLogger getTargetModule() {
+		return datalogger;
 	}
 
 }

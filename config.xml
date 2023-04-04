@@ -46,6 +46,7 @@
 				</Widget>
 				<Widget id="infobit" class="infobit" layout="0, 26, 20, 2" />
 				<Widget id="refresh" class="controls" title="Control" layout="20, 6, 5, 7" />
+				<Widget id="summary" class="energysummary" title="Energy" layout="20, 13, 5, 5" />
 			</Page>
 
 

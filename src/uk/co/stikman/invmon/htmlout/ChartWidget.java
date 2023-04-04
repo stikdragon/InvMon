@@ -7,7 +7,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.w3c.dom.Element;
 
-import uk.co.stikman.invmon.datalog.QueryResults;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
 
 public class ChartWidget extends PageWidget {
@@ -74,11 +73,10 @@ public class ChartWidget extends PageWidget {
 	}
 
 	@Override
-	public JSONObject execute(JSONObject params, QueryResults qr) {
+	public JSONObject execute(JSONObject params, WidgetExecuteContext qr) {
 		opts.setSize(params.getInt("w"), params.getInt("h"));
 		HTMLBuilder html = new HTMLBuilder();
-		DataSet ds = qr.asDataSet();
-//		HTMLGenerator.renderChart(html, cssClass, opts, ds);
+		DataSet ds = qr.getResults().asDataSet();
 
 		JSONArray jarr = new JSONArray();
 		for (HeaderBitDef hb : headerBits)
@@ -94,7 +92,7 @@ public class ChartWidget extends PageWidget {
 	}
 
 	@Override
-	public String getWidgetType() {
+	public String getClientWidgetType() {
 		return "chart";
 	}
 

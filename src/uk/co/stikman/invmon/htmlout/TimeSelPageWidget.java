@@ -6,12 +6,12 @@ import uk.co.stikman.invmon.datalog.QueryResults;
 
 class TimeSelPageWidget extends PageWidget {
 	@Override
-	public JSONObject execute(JSONObject params, QueryResults qr) {
+	public JSONObject execute(JSONObject params, WidgetExecuteContext qr) {
 		return new JSONObject();
 	}
 
 	@Override
-	public String getWidgetType() {
+	public String getClientWidgetType() {
 		return "timesel";
 	}
 

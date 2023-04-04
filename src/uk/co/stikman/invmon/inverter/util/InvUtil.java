@@ -183,4 +183,16 @@ public class InvUtil {
 		return res;
 	}
 
+	private static final String[] SUFFIXES = new String[] { "b", "Kb", "Mb", "Gb", "Tb" };
+
+	public static String formatSize(long n) {
+		int i = 0;
+		double f = n;
+		while (f > 1024) {
+			f /= 1024.0;
+			++i;
+		}
+		return String.format("%.2f %s", f, SUFFIXES[i]);
+	}
+
 }

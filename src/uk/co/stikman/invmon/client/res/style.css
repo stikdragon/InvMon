@@ -339,9 +339,10 @@ h1 {
 .graphhover .hovertext {
 	font-size: 12px;
 	pointer-events: none;
-	background: rgba(255, 255, 255, 50%);
+	background: rgba(255, 255, 255, 80%);
 	padding: 4px;
 	border: 1px solid rgba(0, 0, 0, 20%);
+	box-shadow: 5px 5px 5px -2px rgba(0, 0, 0, 0.41);
 }
 
 .graphhover .hovertext .row {
@@ -350,6 +351,8 @@ h1 {
 
 .graphhover .hovertext .row .k {
 	color: #444;
+	width: 35px;
+	text-align: right;
 }
 
 .graphhover .hovertext .row .v {
@@ -444,4 +447,10 @@ table.data .total td {
 .errorpopup>.content {
 	flex: 1;
 	overflow: auto;
+}
+
+#summary .tiny {
+	font-size: 12px;
+	margin-top: 6px;
+	margin-bottom: 6px;
 }

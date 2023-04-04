@@ -1,5 +1,6 @@
 package uk.co.stikman.invmon.datalog;
 
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -25,6 +26,7 @@ public class QueryResults {
 	private long					start;
 	private long					end;
 	private DataSet					adapter;
+	private ZoneId zone;
 
 	public List<Field> getFields() {
 		return fields;
@@ -149,6 +151,7 @@ public class QueryResults {
 				JSONObject root = new JSONObject();
 				root.put("start", getStart());
 				root.put("end", getEnd());
+				root.put("zone", zone.getId());
 				JSONArray arr = new JSONArray();
 				root.put("fields", arr);
 				for (Field f : fields) {
@@ -215,8 +218,21 @@ public class QueryResults {
 				}
 				return root;
 			}
+
+			@Override
+			public ZoneId getZone() {
+				return zone;
+			}
 		};
 		return adapter;
+	}
+
+	public ZoneId getZone() {
+		return zone;
+	}
+
+	public void setZone(ZoneId zone) {
+		this.zone = zone;
 	}
 
 }

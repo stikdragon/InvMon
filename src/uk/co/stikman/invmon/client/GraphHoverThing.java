@@ -45,10 +45,20 @@ public class GraphHoverThing {
 			hidden = true;
 		}
 
-		public void setXY(int x, int y, String html) {
+		public void setXY(int x, int y, float sidex, float sidey, String html) {
 			show();
 			elVert.setAttribute("d", String.format("M%d %d L%d %d", x, 0, x, h));
 			elHoriz.setAttribute("d", String.format("M%d %d L%d %d", 0, y, w, y));
+
+			if (sidex > 0)
+				x += 10;
+			else
+				x -= elText.getOffsetWidth() + 10;
+			if (sidey > 0)
+				y += 10;
+			else
+				y -= elText.getOffsetHeight() + 10;
+
 			elText.getStyle().setProperty("left", x + "px");
 			elText.getStyle().setProperty("top", y + "px");
 			elText.setInnerHTML(html);
@@ -95,7 +105,15 @@ public class GraphHoverThing {
 			doAx(opts.getAxisY1(), h - y, h, html);
 			if (opts.getAxisY2() != null)
 				doAx(opts.getAxisY2(), y, h, html);
-			hoverMarker.setXY(x, y, html.toString());
+
+			int dx = -1;
+			int dy = -1;
+			if ((float) x / w < 0.5)
+				dx = 1;
+			if ((float) y / h < 0.5)
+				dy = 1;
+
+			hoverMarker.setXY(x, y, dx, dy, html.toString());
 		});
 
 		root.addEventListener("mouseout", ev -> {

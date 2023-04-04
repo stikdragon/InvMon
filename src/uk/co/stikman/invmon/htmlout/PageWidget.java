@@ -30,7 +30,7 @@ public abstract class PageWidget {
 
 	}
 
-	public abstract JSONObject execute(JSONObject params, QueryResults qr);
+	public abstract JSONObject execute(JSONObject params, WidgetExecuteContext qr);
 
 	public int getX() {
 		return x;
@@ -48,7 +48,7 @@ public abstract class PageWidget {
 		return height;
 	}
 
-	public abstract String getWidgetType();
+	public abstract String getClientWidgetType();
 
 	public String getTitle() {
 		return title;

@@ -226,4 +226,8 @@ public class Env {
 		timer.scheduleAtFixedRate(tt, 0, period);
 	}
 
+	public Iterable<InvModule> getModules() {
+		return parts;
+	}
+
 }

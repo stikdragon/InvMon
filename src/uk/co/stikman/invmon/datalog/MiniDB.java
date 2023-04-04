@@ -20,11 +20,20 @@ import uk.co.stikman.table.DataRecord;
 import uk.co.stikman.table.DataTable;
 
 /**
+ * <p>
  * Stores data in "blocks" of a given size. There's an "index" file which is the
  * main database file, this contains information about which record is in which
  * block. requesting a record from a block means it is loaded into memory. old
  * blocks get pushed out of this cache. An exception to this is that the most
  * recent block is always open
+ * </p>
+ * 
+ * <p>
+ * Every record is stored against a TIMESTAMP, which is a <code>long</code>
+ * representing the number of ms since the epoch (ie. the same thing
+ * <code>System.currentTimeMillis()</code> returns)
+ * 
+ * 
  * 
  * @author stik
  *
@@ -241,7 +250,7 @@ public class MiniDB {
 				if (last != null && first != null)
 					break;
 			}
-			
+
 			if (first == null && last == null)
 				return res;
 
@@ -253,7 +262,6 @@ public class MiniDB {
 				if (blocks.get(blocks.size() - 1).getInfo().getEndIndex() < end)
 					last = blocks.get(blocks.size() - 1);
 			}
-
 
 			//
 			// now we need to find the index of the specific records in each of those blocks
@@ -440,6 +448,13 @@ public class MiniDB {
 	@Override
 	public String toString() {
 		return indexFile.toString();
+	}
+
+	public long getTotalSize() {
+		long r = 0;
+		for (Block b : blocks)
+			r += b.getFile().length();
+		return r;
 	}
 
 }

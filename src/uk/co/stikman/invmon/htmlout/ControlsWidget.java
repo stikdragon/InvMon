@@ -7,7 +7,7 @@ import uk.co.stikman.invmon.datalog.QueryResults;
 public class ControlsWidget extends PageWidget {
 	
 	@Override
-	public JSONObject execute(JSONObject params, QueryResults data) {
+	public JSONObject execute(JSONObject params, WidgetExecuteContext data) {
 		HTMLBuilder html = new HTMLBuilder();
 		html.append("Controls");
 		JSONObject jo = new JSONObject();
@@ -16,7 +16,7 @@ public class ControlsWidget extends PageWidget {
 	}
 
 	@Override
-	public String getWidgetType() {
+	public String getClientWidgetType() {
 		return "controls";
 	}
 

@@ -35,6 +35,9 @@ public class TestStringFormatter {
 
 		f = new Format("test %d,0 what(%s, %1.1f)");
 		assertEquals("test 1234,0 what(hello, 1.2)", f.format(1234, "hello", 1.2));
+		
+		f = new Format("%1.2f");
+		assertEquals("-1.23", f.format(-1.23));
 	}
 
 	@Test

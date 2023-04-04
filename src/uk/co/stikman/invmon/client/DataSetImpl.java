@@ -1,5 +1,6 @@
 package uk.co.stikman.invmon.client;
 
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -59,10 +60,12 @@ public class DataSetImpl implements DataSet {
 	private List<DataSetRecord>	records	= new ArrayList<>();
 	private long				start;
 	private long				end;
+	private ZoneId				zone	= ZoneId.systemDefault();
 
 	public void fromJSON(JSONObject root) {
 		start = root.getLong("start");
 		end = root.getLong("end");
+		zone = ZoneId.of(root.getString("zone"));
 		JSONArray arr = root.getJSONArray("fields");
 		for (int i = 0; i < arr.length(); ++i) {
 			JSONObject jo = arr.getJSONObject(i);
@@ -152,6 +155,15 @@ public class DataSetImpl implements DataSet {
 				r2.setValue(i++, r.getString(f.position));
 		}
 		return dt.toString();
+	}
+
+	@Override
+	public ZoneId getZone() {
+		return zone;
+	}
+
+	public void setZone(ZoneId zone) {
+		this.zone = zone;
 	}
 
 }
