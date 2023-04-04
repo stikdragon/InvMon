@@ -187,12 +187,11 @@ public class InvUtil {
 
 	public static String formatSize(long n) {
 		int i = 0;
-		double f = n;
-		while (f > 1024) {
-			f /= 1024.0;
+		while (n > 1024 * 5) {
+			n /= 1024;
 			++i;
 		}
-		return String.format("%.2f %s", f, SUFFIXES[i]);
+		return String.format("%d %s", n, SUFFIXES[i]);
 	}
 
 }

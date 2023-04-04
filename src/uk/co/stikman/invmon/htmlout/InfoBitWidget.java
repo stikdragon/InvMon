@@ -1,5 +1,9 @@
 package uk.co.stikman.invmon.htmlout;
 
+import java.lang.management.ManagementFactory;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.Date;
 
 import org.json.JSONObject;
@@ -22,6 +26,14 @@ public class InfoBitWidget extends PageWidget {
 		html.append("<div class=\"tiny\"><div class=\"a\">Local Time: </div><div class=\"b\">").append(new Date().toString()).append("</div></div>");
 		html.append("<div class=\"tiny\"><div class=\"a\">Version: </div><div class=\"b\">").append(Env.getVersion()).append("</div></div>");
 
+		long n = ManagementFactory.getRuntimeMXBean().getUptime();
+		Duration d = Duration.of(n, ChronoUnit.MILLIS);
+		String dur = String.format("%d days, %02d:%02d", d.toDays() % 60, d.toHours() % 24, d.toMinutes() % 60);
+		html.append("<div class=\"tiny\"><div class=\"a\">Uptime: </div><div class=\"b\">").append(dur).append("</div></div>");
+		
+		html.append("<div class=\"tiny\"><div class=\"a\">Heap/Max: </div><div class=\"b\">").append(InvUtil.formatSize(Runtime.getRuntime().totalMemory())).append(" / ").append(InvUtil.formatSize(Runtime.getRuntime().maxMemory())).append("</div></div>");
+		
+		
 		DataLogger dl = null;
 		for (InvModule m : qr.getOwner().getEnv().getModules()) {
 			if (m instanceof DataLogger)
