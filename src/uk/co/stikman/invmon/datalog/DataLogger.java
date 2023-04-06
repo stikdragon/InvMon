@@ -124,7 +124,7 @@ public class DataLogger extends InvModule {
 
 				long lastT = 0;
 				for (int i = 0; i < oldDb.getRecordCount(); ++i) {
-					if (System.currentTimeMillis() - lastT > 250) {
+					if (System.currentTimeMillis() - lastT > 1500) {
 						lastT = System.currentTimeMillis();
 						LOGGER.info("Converting record [" + i + "] of [" + oldDb.getRecordCount() + "]...");
 						//						LOGGER.info("Open blocks: " + oldDb.getOpenBlocks()  + ",  " + newDb.getOpenBlocks());
