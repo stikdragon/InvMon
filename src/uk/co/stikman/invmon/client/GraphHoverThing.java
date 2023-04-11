@@ -104,7 +104,7 @@ public class GraphHoverThing {
 			doAx(opts.getAxisX1(), x, w, html);
 			doAx(opts.getAxisY1(), h - y, h, html);
 			if (opts.getAxisY2() != null)
-				doAx(opts.getAxisY2(), y, h, html);
+				doAx(opts.getAxisY2(), h - y, h, html);
 
 			int dx = -1;
 			int dy = -1;

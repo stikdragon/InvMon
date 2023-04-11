@@ -17,16 +17,19 @@ import org.json.JSONObject;
 import org.w3c.dom.Element;
 
 import fi.iki.elonen.NanoHTTPD;
-import fi.iki.elonen.NanoHTTPD.IHTTPSession;
 import fi.iki.elonen.NanoHTTPD.Method;
 import fi.iki.elonen.NanoHTTPD.Response;
 import fi.iki.elonen.NanoHTTPD.Response.Status;
 import uk.co.stikman.eventbus.Subscribe;
+import uk.co.stikman.invmon.EmbeddedServer;
 import uk.co.stikman.invmon.Env;
 import uk.co.stikman.invmon.Events;
 import uk.co.stikman.invmon.FieldNameList;
+import uk.co.stikman.invmon.InvMonHTTPRequest;
+import uk.co.stikman.invmon.HTTPServicer;
 import uk.co.stikman.invmon.InvModule;
 import uk.co.stikman.invmon.InvMonException;
+import uk.co.stikman.invmon.InvMonServlet;
 import uk.co.stikman.invmon.PollData;
 import uk.co.stikman.invmon.client.res.ClientRes;
 import uk.co.stikman.invmon.datalog.DBRecord;
@@ -40,7 +43,7 @@ import uk.co.stikman.log.StikLog;
 public class HTTPServer extends InvModule {
 
 	private interface FetchMethod {
-		Response fetch(String url, UserSesh sesh, IHTTPSession session) throws Exception;
+		InvMonHTTPResponse fetch(String url, UserSesh sesh, InvMonHTTPRequest http) throws Exception;
 	}
 
 	private static final StikLog			LOGGER					= StikLog.getLogger(HTTPServer.class);
@@ -56,10 +59,11 @@ public class HTTPServer extends InvModule {
 
 	private DataLogger						datalogger;
 	private int								port;
-	private Svr								svr;
 	private final Map<String, FetchMethod>	urlMappings				= new HashMap<>();
 	private Map<String, UserSesh>			sessions				= new HashMap<>();
 	private HttpLayoutConfig				layoutConfig;
+
+	private EmbeddedServer					embeddedSvr;
 
 	public HTTPServer(String id, Env env) {
 		super(id, env);
@@ -97,12 +101,12 @@ public class HTTPServer extends InvModule {
 	 * @param session
 	 * @return
 	 */
-	private Response resource(String url, UserSesh sesh, IHTTPSession session) throws Exception {
+	private InvMonHTTPResponse resource(String url, UserSesh sesh, InvMonHTTPRequest session) throws Exception {
 		ClientRes r = ClientRes.get(url);
-		return NanoHTTPD.newFixedLengthResponse(Status.OK, NanoHTTPD.getMimeTypeForFile(url), r.makeStream(), r.getSize());
+		return new InvMonHTTPResponse(Status.OK, NanoHTTPD.getMimeTypeForFile(url), r.makeStream(), r.getSize());
 	}
 
-	private Response executeChart(String url, UserSesh sesh, IHTTPSession session) throws Exception {
+	private InvMonHTTPResponse executeChart(String url, UserSesh sesh, InvMonHTTPRequest session) throws Exception {
 		JSONObject jo = new JSONObject(URLDecoder.decode(session.getQueryParameterString(), StandardCharsets.UTF_8.name()));
 		String name = jo.getString("name");
 		if (name == null)
@@ -131,7 +135,7 @@ public class HTTPServer extends InvModule {
 		for (PageWidget wij : layout.getWidgets()) {
 			if (wij.getId().equals(name)) {
 				JSONObject result = wij.execute(jo, ctx);
-				return NanoHTTPD.newFixedLengthResponse(Status.OK, "text/html", result.toString());
+				return new InvMonHTTPResponse(result.toString());
 			}
 		}
 
@@ -139,7 +143,7 @@ public class HTTPServer extends InvModule {
 		HTMLBuilder html = new HTMLBuilder();
 		html.append("Widget [" + name + "] not found");
 		res.put("contentHtml", html.toString());
-		return NanoHTTPD.newFixedLengthResponse(Status.OK, "text/html", res.toString());
+		return new InvMonHTTPResponse(res.toString());
 	}
 
 	private void ensureCachedResults(UserSesh sesh) {
@@ -159,7 +163,6 @@ public class HTTPServer extends InvModule {
 
 				try {
 					QueryResults aggr = datalogger.query(start, end, 100, flds.asList());
-					DBRecord lr = datalogger.getLastRecord();
 					sesh.putData(CACHED_QUERY_RESULTS, aggr);
 					sesh.putData(CACHED_LAST_RECORD, datalogger.getLastRecord());
 				} catch (MiniDbException e) {
@@ -180,18 +183,36 @@ public class HTTPServer extends InvModule {
 	public void start() throws InvMonException {
 		super.start();
 		this.datalogger = getEnv().getModule("datalogger");
-		svr = new Svr(port, this);
-		try {
-			svr.start();
-		} catch (IOException e) {
-			throw new InvMonException("Could not start NanoHTTPD: " + e.getMessage(), e);
+
+		HTTPServicer intf = new HTTPServicer() {
+			@Override
+			public InvMonHTTPResponse serve(InvMonHTTPRequest http) {
+				InvMonHTTPResponse res = HTTPServer.this.serve(http);
+				return res;
+			}
+		};
+
+		//
+		// find the HTTP interface, if we're running inside a servlet contianer
+		// then we need to find the singleton for that, if not then we create our
+		// own internal server
+		//
+		if (InvMonServlet.isActive()) {
+			InvMonServlet.setInterface(intf);
+		} else {
+			embeddedSvr = new EmbeddedServer(port, intf);
+			try {
+				embeddedSvr.start();
+			} catch (IOException e) {
+				throw new InvMonException("Could not start NanoHTTPD: " + e.getMessage(), e);
+			}
 		}
 	}
 
 	@Override
 	public void terminate() {
-		if (svr != null)
-			svr.stop();
+		if (embeddedSvr != null)
+			embeddedSvr.stop();
 		super.terminate();
 	}
 
@@ -199,12 +220,12 @@ public class HTTPServer extends InvModule {
 	public void postData(PollData data) {
 	}
 
-	private Response serve(IHTTPSession httpsession) {
+	private InvMonHTTPResponse serve(InvMonHTTPRequest http) {
 		try {
-			if (httpsession.getMethod() != Method.GET && httpsession.getMethod() != Method.POST)
+			if (!http.isMethod("GET") && !http.isMethod("POST"))
 				throw new Exception("Unsupported method");
 
-			String url = httpsession.getUri();
+			String url = http.getUri();
 			if (url.equals("/"))
 				url = "/index.html";
 			url = url.substring(1);
@@ -213,11 +234,11 @@ public class HTTPServer extends InvModule {
 			if (m == null)
 				throw new NotFoundException("Not found");
 
-			String seshId = httpsession.getCookies().read("sesh");
+			String seshId = http.getCookies().get("sesh");
 			boolean setSeshCookie = false;
 			UserSesh sesh;
 			synchronized (sessions) {
-				sesh = sessions.get(seshId);
+				sesh = seshId == null ? null : sessions.get(seshId);
 				if (sesh == null) {
 					sesh = new UserSesh();
 					sessions.put(sesh.getId(), sesh);
@@ -226,43 +247,20 @@ public class HTTPServer extends InvModule {
 			}
 			sesh.touch();
 
-			Response res = m.fetch(url, sesh, httpsession);
+			InvMonHTTPResponse res = m.fetch(url, sesh, http);
 			if (setSeshCookie)
 				res.addHeader("Set-Cookie", "sesh=" + sesh.getId());
 			return res;
 
 		} catch (NotFoundException nfe) {
-			return NanoHTTPD.newFixedLengthResponse(Status.NOT_FOUND, "text/html", "404 Not Found: " + nfe.getMessage());
+			return new InvMonHTTPResponse(Status.NOT_FOUND, "text/html", "404 Not Found: " + nfe.getMessage());
 		} catch (Exception e) {
 			LOGGER.error(e);
-			return NanoHTTPD.newFixedLengthResponse(Status.INTERNAL_ERROR, "text/html", "Internal Error");
+			return new InvMonHTTPResponse(Status.INTERNAL_ERROR, "text/html", "Internal Error");
 		}
 	}
 
-	private static String getParam(IHTTPSession session, String key) {
-		List<String> lst = session.getParameters().get(key);
-		if (lst == null)
-			return null;
-		return lst.get(0);
-	}
-
-	public static class Svr extends NanoHTTPD {
-
-		private HTTPServer owner;
-
-		@Override
-		public Response serve(IHTTPSession session) {
-			return owner.serve(session);
-		}
-
-		public Svr(int port, HTTPServer owner) {
-			super(port);
-			this.owner = owner;
-		}
-
-	}
-
-	private Response getInfoBit(String url, UserSesh sesh, IHTTPSession request) throws Exception {
+	private InvMonHTTPResponse getInfoBit(String url, UserSesh sesh, InvMonHTTPRequest request) throws Exception {
 		JSONObject jo = new JSONObject(URLDecoder.decode(request.getQueryParameterString(), StandardCharsets.UTF_8.name()));
 		String name = jo.getString("name");
 		if (name == null)
@@ -275,10 +273,10 @@ public class HTTPServer extends InvModule {
 		if (layout == null)
 			layout = layoutConfig.getDefaultPage();
 		WidgetExecuteContext ctx = new WidgetExecuteContext(this, sesh, null, null);
-		return NanoHTTPD.newFixedLengthResponse(Status.OK, "text/html", layout.getWidgetById(name).execute(null, ctx).toString());
+		return new InvMonHTTPResponse(Status.OK, "text/html", layout.getWidgetById(name).execute(null, ctx).toString());
 	}
 
-	private Response setParams(String url, UserSesh sesh, IHTTPSession request) {
+	private InvMonHTTPResponse setParams(String url, UserSesh sesh, InvMonHTTPRequest request) {
 		JSONObject jo = decodeQueryParams(request);
 		int dur = jo.getInt("dur");
 		int off = jo.getInt("off");
@@ -290,10 +288,10 @@ public class HTTPServer extends InvModule {
 		global.setLayout(this.layoutConfig.getPage(jo.optString("page", null)));
 		sesh.putData(CACHED_QUERY_RESULTS, null);
 		sesh.putData(CACHED_LAST_RECORD, null);
-		return NanoHTTPD.newFixedLengthResponse(new JSONObject().put("result", "OK").toString());
+		return new InvMonHTTPResponse(new JSONObject().put("result", "OK").toString());
 	}
 
-	private static JSONObject decodeQueryParams(IHTTPSession request) {
+	private static JSONObject decodeQueryParams(InvMonHTTPRequest request) {
 		try {
 			JSONObject jo = new JSONObject(URLDecoder.decode(request.getQueryParameterString(), StandardCharsets.UTF_8.name()));
 			return jo;
@@ -302,13 +300,13 @@ public class HTTPServer extends InvModule {
 		}
 	}
 
-	private Response invalidateResults(String url, UserSesh sesh, IHTTPSession request) {
+	private InvMonHTTPResponse invalidateResults(String url, UserSesh sesh, InvMonHTTPRequest request) {
 		sesh.putData(CACHED_QUERY_RESULTS, null);
 		sesh.putData(CACHED_LAST_RECORD, null);
-		return NanoHTTPD.newFixedLengthResponse(new JSONObject().put("result", "OK").toString());
+		return new InvMonHTTPResponse(new JSONObject().put("result", "OK").toString());
 	}
 
-	private Response getConfig(String url, UserSesh sesh, IHTTPSession request) {
+	private InvMonHTTPResponse getConfig(String url, UserSesh sesh, InvMonHTTPRequest request) {
 		JSONObject opts = decodeQueryParams(request);
 		String name = opts.optString("page", null);
 		PageLayout pg = null;
@@ -349,7 +347,7 @@ public class HTTPServer extends InvModule {
 		html.append("<div class=\"tiny\"><div class=\"a\">Version: </div><div class=\"b\">").append(Env.getVersion()).append("</div></div>");
 		root.put("infoBit", html.toString());
 
-		return NanoHTTPD.newFixedLengthResponse(root.toString());
+		return new InvMonHTTPResponse(Status.OK, "text/html", root.toString());
 
 	}
 

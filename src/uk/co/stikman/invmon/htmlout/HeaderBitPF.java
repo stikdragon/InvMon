@@ -16,7 +16,7 @@ public class HeaderBitPF extends HeaderBitDef {
 		float pf = rec.getFloat(mdl.get("LOAD_PF"));
 
 		Format fmt = new Format(f);
-		String s = fmt.format(pf, real, real * pf);
+		String s = fmt.format(pf, real * pf, rec.getFloat(mdl.get("LOAD_I")));
 		return boldSquareBits(s);
 	}
 
