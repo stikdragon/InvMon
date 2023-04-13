@@ -2,18 +2,12 @@ package uk.co.stikman.invmon;
 
 public class InvMon {
 
-	public static void main(String[] args) throws Exception {
+	private static Env svcmode;
 
-//		new File("C:\\Stik\\java\\InvMon\\data\\datalog.db").delete();
-//		new File("C:\\Stik\\java\\InvMon\\data\\datalog.db.0").delete();
-//		new File("C:\\Stik\\java\\InvMon\\data\\datalog.db.1").delete();
-//		new File("C:\\Stik\\java\\InvMon\\data\\datalog.db.2").delete();
-//
-//		Files.copy(Paths.get("C:\\Stik\\java\\InvMon\\data\\frompi\\red\\datalog.db"), Paths.get("C:\\Stik\\java\\InvMon\\data\\datalog.db"));
-//		Files.copy(Paths.get("C:\\Stik\\java\\InvMon\\data\\frompi\\red\\datalog.db.0"), Paths.get("C:\\Stik\\java\\InvMon\\data\\datalog.db.0"));
-//		Files.copy(Paths.get("C:\\Stik\\java\\InvMon\\data\\frompi\\red\\datalog.db.1"), Paths.get("C:\\Stik\\java\\InvMon\\data\\datalog.db.1"));
-//		Files.copy(Paths.get("C:\\Stik\\java\\InvMon\\data\\frompi\\red\\datalog.db.2"), Paths.get("C:\\Stik\\java\\InvMon\\data\\datalog.db.2"));
-		
+	public static void main(String[] args) throws Exception {
+		//
+		// called if executed as an ordinary java process
+		//
 		Env env = new Env();
 		env.start();
 
@@ -29,6 +23,30 @@ public class InvMon {
 				}
 				break;
 			}
+		}
+	}
+
+	//
+	// start and stop are called by procrun, when setting this up
+	// as a windows service
+	//
+	public static void start(String[] args) {
+		svcmode = new Env();
+		try {
+			svcmode.start();
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(-1);
+		}
+	}
+
+	public static void stop(String[] args) {
+		try {
+			if (svcmode != null)
+				svcmode.terminate();
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(-1);
 		}
 	}
 
