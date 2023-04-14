@@ -39,16 +39,17 @@ import uk.co.stikman.table.DataTable;
  *
  */
 public class MiniDB {
-	private static final StikLog	LOGGER				= StikLog.getLogger(MiniDB.class);
-	public static final int			DEFAULT_BLOCKSIZE	= 100000;
+	private static final StikLog	LOGGER					= StikLog.getLogger(MiniDB.class);
+	public static final int			DEFAULT_BLOCKSIZE		= 100000;
+	public static final int			DEFAULT_CACHED_BLOCKS	= 2;
 	private DataModel				model;
 	private File					indexFile;
 	private IndexFile				index;
-	private List<Block>				blocks				= new ArrayList<>();
-	private int						recordCount			= 0;
-	private int						maxCachedBlocks		= 1;
+	private List<Block>				blocks					= new ArrayList<>();
+	private int						recordCount				= 0;
+	private int						maxCachedBlocks			= 1;
 	private final int				blockSize;
-	private Set<Block>				open				= new HashSet<>();
+	private Set<Block>				open					= new HashSet<>();
 
 	/**
 	 * <code>file</code> is the main index file, block files will be called

@@ -1,4 +1,4 @@
-package uk.co.stikman.invmon.htmlout;
+package uk.co.stikman.invmon.server;
 
 public class NotFoundException extends Exception {
 

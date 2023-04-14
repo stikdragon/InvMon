@@ -1,5 +1,7 @@
 package uk.co.stikman.invmon;
 
+import java.io.File;
+
 public class InvMon {
 
 	private static Env svcmode;
@@ -9,7 +11,7 @@ public class InvMon {
 		// called if executed as an ordinary java process
 		//
 		Env env = new Env();
-		env.start();
+		env.start(new File(System.getProperty("user.dir")));
 
 		for (;;) {
 			int n = System.in.read();
@@ -33,7 +35,7 @@ public class InvMon {
 	public static void start(String[] args) {
 		svcmode = new Env();
 		try {
-			svcmode.start();
+			svcmode.start(new File(args[0]));
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(-1);

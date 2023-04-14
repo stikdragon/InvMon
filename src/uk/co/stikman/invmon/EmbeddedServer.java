@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import fi.iki.elonen.NanoHTTPD;
-import uk.co.stikman.invmon.htmlout.InvMonHTTPResponse;
+import uk.co.stikman.invmon.server.InvMonHTTPResponse;
 
 public class EmbeddedServer extends NanoHTTPD {
 
@@ -55,16 +55,27 @@ public class EmbeddedServer extends NanoHTTPD {
 		public String getQueryParameterString() {
 			return session.getQueryParameterString();
 		}
+
+		@Override
+		public String optParam(String name, String def) {
+			List<String> lst = getParameters().get(name);
+			if (lst == null || lst.isEmpty())
+				return def;
+			return lst.get(0);
+		}
 	}
 
 	@Override
 	public Response serve(IHTTPSession session) {
 		HTTPRequestImpl x = new HTTPRequestImpl(session);
 		InvMonHTTPResponse res = servicer.serve(x);
+		Response out;
 		if (res.getStream() == null)
-			return NanoHTTPD.newFixedLengthResponse(res.getStatus(), res.getMime(), res.getContent());
+			out = NanoHTTPD.newFixedLengthResponse(res.getStatus(), res.getMime(), res.getContent());
 		else
-			return NanoHTTPD.newFixedLengthResponse(res.getStatus(), res.getMime(), res.getStream(), res.getSize());
+			out = NanoHTTPD.newFixedLengthResponse(res.getStatus(), res.getMime(), res.getStream(), res.getSize());
+		res.getHeaders().entrySet().forEach(e -> out.addHeader(e.getKey(), e.getValue()));
+		return out;
 	}
 
 }

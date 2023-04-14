@@ -1,4 +1,4 @@
-package uk.co.stikman.invmon.htmlout;
+package uk.co.stikman.invmon.server.widgets;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -12,6 +12,9 @@ import uk.co.stikman.invmon.datalog.DataLogger;
 import uk.co.stikman.invmon.datalog.QueryRecord;
 import uk.co.stikman.invmon.datalog.QueryResults;
 import uk.co.stikman.invmon.datamodel.DataModel;
+import uk.co.stikman.invmon.server.HTMLBuilder;
+import uk.co.stikman.invmon.server.UserSesh;
+import uk.co.stikman.invmon.server.WidgetExecuteContext;
 import uk.co.stikman.log.StikLog;
 
 public class DailyPowerSummaryWidget extends PageWidget {

@@ -1,5 +1,6 @@
 package uk.co.stikman.invmon;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,6 +42,8 @@ public class Env {
 	private ExecutorService			exec;
 	private Timer					timer;
 
+	private EnvLog					log;
+
 	static {
 		try (InputStream is = Env.class.getResourceAsStream("version.txt")) { // ant script writes this
 			if (is != null)
@@ -49,13 +52,18 @@ public class Env {
 		}
 	}
 
-	public void start() throws InvMonException {
+	public void start(File root) throws InvMonException {
 		try {
 			StikLog.clearTargets();
 			ConsoleLogTarget tgt = new ConsoleLogTarget();
 			tgt.setFormat(new InvMonLogFormatter());
 			tgt.enableLevel(Level.DEBUG, true);
 			StikLog.addTarget(tgt);
+
+			log = new EnvLog();
+			log.setFormat(new InvMonLogFormatter());
+			log.enableLevel(Level.DEBUG, true);
+			StikLog.addTarget(log);
 
 			LOGGER.info("Starting InvMon...");
 			listPorts();
@@ -65,7 +73,7 @@ public class Env {
 
 			config = new Config();
 			try {
-				config.loadFromFile(Paths.get("config.xml").toFile());
+				config.loadFromFile(new File(root, "config.xml"));
 			} catch (IOException e) {
 				throw new InvMonException("Failed to load config: " + e.getMessage(), e);
 			}
@@ -75,8 +83,11 @@ public class Env {
 			// enabled in the config file
 			//
 			model = new DataModel();
-			LOGGER.info("Loading model from: " + config.getModelFile());
-			try (InputStream is = new FileInputStream(config.getModelFile())) {
+			File f = config.getModelFile();
+			if (!f.isAbsolute())
+				f = new File(root, f.toString());
+			LOGGER.info("Loading model from: " + f);
+			try (InputStream is = new FileInputStream(f)) {
 				LOGGER.info("Model generation settings:");
 				model.loadXML(is);
 			} catch (IOException e) {
@@ -228,6 +239,10 @@ public class Env {
 
 	public Iterable<InvModule> getModules() {
 		return parts;
+	}
+
+	public EnvLog getLog() {
+		return log;
 	}
 
 }

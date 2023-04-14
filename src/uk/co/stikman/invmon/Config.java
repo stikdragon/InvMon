@@ -16,10 +16,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import uk.co.stikman.invmon.datalog.DataLogger;
-import uk.co.stikman.invmon.htmlout.HTTPServer;
 import uk.co.stikman.invmon.inverter.PIP8048MAX.InverterPIPMAX;
 import uk.co.stikman.invmon.remote.JSONRecv;
 import uk.co.stikman.invmon.remote.JSONSend;
+import uk.co.stikman.invmon.server.HTTPServer;
 
 public class Config {
 

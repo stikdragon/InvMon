@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import uk.co.stikman.invmon.datamodel.VIFReading;
-import uk.co.stikman.invmon.htmlout.DataSetRecord;
+import uk.co.stikman.invmon.server.DataSetRecord;
 
 public class QueryRecord implements DataSetRecord {
 

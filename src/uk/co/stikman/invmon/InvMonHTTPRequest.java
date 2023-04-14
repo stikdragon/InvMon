@@ -17,6 +17,8 @@ public interface InvMonHTTPRequest {
 
 	Map<String, List<String>> getParameters();
 
+	String optParam(String name, String def);
+	
 	String getQueryParameterString();
 
 }

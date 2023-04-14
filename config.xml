@@ -11,7 +11,7 @@
 
 		<!-- <TempHTMLOutput id="htmlout" target="junk\inv.html" /> -->
 
-		<DataLogger id="datalogger" file="data\datalog.db" blockSize="400000" />
+		<DataLogger id="datalogger" file="data\datalog.db" blockSize="400000" cachedBlocks="4" />
 
 		<HTTPServer id="httpserver" port="8083">
 			<Page id="main" default="true">
@@ -48,7 +48,6 @@
 				<Widget id="refresh" class="controls" title="Control" layout="20, 6, 5, 7" />
 				<Widget id="summary" class="energysummary" title="Energy" layout="20, 13, 5, 5" />
 			</Page>
-
 
 			<Page id="single" default="false">
 				<Widget id="timeselector" class="timesel" layout="0, 0, 25, 1" />

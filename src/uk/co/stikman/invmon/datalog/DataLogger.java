@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.w3c.dom.Element;
@@ -34,6 +35,7 @@ public class DataLogger extends InvModule {
 	private File					lock;
 	private File					file;
 	private int						blockSize;
+	private int						cachedBlocks;
 
 	public DataLogger(String id, Env env) {
 		super(id, env);
@@ -74,8 +76,11 @@ public class DataLogger extends InvModule {
 				LOGGER.error("Error converting database.  The original files should still exist with the extension .old");
 				throw new InvMonException("Attempted to convert database, but failed to open it because: " + ee.getMessage(), ee);
 			}
-
 		}
+		LOGGER.info("MiniDB heap block size: " + InvUtil.formatSize(db.getModel().getRecordHeapSize() * db.getBlockSize()));
+		LOGGER.info("MiniDB max cached blocks: " + cachedBlocks);
+		db.setMaxCachedBlocks(cachedBlocks);
+
 		LOGGER.info("  done.");
 	}
 
@@ -185,7 +190,7 @@ public class DataLogger extends InvModule {
 			LOGGER.warn("");
 			LOGGER.warn("****************************************************************************");
 			LOGGER.warn("");
-			
+
 		} catch (Exception e) {
 			throw new MiniDbException("Failed to convert database: " + e.getMessage(), e);
 		}
@@ -242,6 +247,7 @@ public class DataLogger extends InvModule {
 		file = new File(InvUtil.getAttrib(config, "file"));
 		lock = new File(file.getAbsolutePath() + ".lock");
 		blockSize = Integer.parseInt(InvUtil.getAttrib(config, "blockSize", Integer.toString(MiniDB.DEFAULT_BLOCKSIZE)));
+		cachedBlocks = Integer.parseInt(InvUtil.getAttrib(config, "cachedBlocks", Integer.toString(MiniDB.DEFAULT_CACHED_BLOCKS)));
 	}
 
 	@Override
@@ -386,6 +392,16 @@ public class DataLogger extends InvModule {
 		return res;
 	}
 
+	public void forEachRecordIn(long tsStart, long tsEnd, Consumer<DBRecord> callback) throws MiniDbException {
+		if (tsStart > tsEnd)
+			throw new MiniDbException("Range is smaller than 0");
+		IntRange range = db.getRecordRange(tsStart, tsEnd);
+		if (range.isValid()) {
+			for (int idx = range.getLow(); idx < range.getHigh(); ++idx) 
+				callback.accept(db.getRecord(idx));
+		}
+	}
+
 	private static String maxString(String a, String b) {
 		if (a.compareTo(b) > 0)
 			return a;
@@ -413,7 +429,7 @@ public class DataLogger extends InvModule {
 	public long getDbFileSize() {
 		return db.getTotalSize();
 	}
-	
+
 	public int getDbRecordCount() {
 		return db.getRecordCount();
 	}

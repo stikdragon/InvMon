@@ -4,9 +4,9 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.teavm.jso.dom.html.HTMLElement;
 
-import uk.co.stikman.invmon.htmlout.ChartOptions;
-import uk.co.stikman.invmon.htmlout.HTMLBuilder;
-import uk.co.stikman.invmon.htmlout.HTMLGenerator;
+import uk.co.stikman.invmon.server.ChartOptions;
+import uk.co.stikman.invmon.server.HTMLBuilder;
+import uk.co.stikman.invmon.server.HTMLGenerator;
 
 public class ChartWidget extends AbstractPageWidget {
 

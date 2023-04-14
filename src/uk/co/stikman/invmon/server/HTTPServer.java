@@ -1,4 +1,4 @@
-package uk.co.stikman.invmon.htmlout;
+package uk.co.stikman.invmon.server;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -29,7 +29,6 @@ import uk.co.stikman.invmon.InvMonHTTPRequest;
 import uk.co.stikman.invmon.HTTPServicer;
 import uk.co.stikman.invmon.InvModule;
 import uk.co.stikman.invmon.InvMonException;
-import uk.co.stikman.invmon.InvMonServlet;
 import uk.co.stikman.invmon.PollData;
 import uk.co.stikman.invmon.client.res.ClientRes;
 import uk.co.stikman.invmon.datalog.DBRecord;
@@ -38,6 +37,7 @@ import uk.co.stikman.invmon.datalog.MiniDbException;
 import uk.co.stikman.invmon.datalog.QueryResults;
 import uk.co.stikman.invmon.datamodel.Field;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
+import uk.co.stikman.invmon.server.widgets.PageWidget;
 import uk.co.stikman.log.StikLog;
 
 public class HTTPServer extends InvModule {
@@ -74,6 +74,9 @@ public class HTTPServer extends InvModule {
 		urlMappings.put("style.css", this::resource);
 		urlMappings.put("index.html", this::resource);
 		urlMappings.put("classes.js", this::resource);
+		
+		urlMappings.put("log", this::logPage);
+		urlMappings.put("data", this::dataPage);
 
 		urlMappings.put("executeChart", this::executeChart);
 		urlMappings.put("getConfig", this::getConfig);
@@ -104,6 +107,15 @@ public class HTTPServer extends InvModule {
 	private InvMonHTTPResponse resource(String url, UserSesh sesh, InvMonHTTPRequest session) throws Exception {
 		ClientRes r = ClientRes.get(url);
 		return new InvMonHTTPResponse(Status.OK, NanoHTTPD.getMimeTypeForFile(url), r.makeStream(), r.getSize());
+	}
+	
+	private InvMonHTTPResponse dataPage(String url, UserSesh sesh, InvMonHTTPRequest session) throws Exception {
+		return new DataViewPage(this).exec(url, sesh, session);
+	}
+	
+	private InvMonHTTPResponse logPage(String url, UserSesh sesh, InvMonHTTPRequest session) throws Exception {
+		String html = new LogPage(getEnv(), sesh).exec();
+		return new InvMonHTTPResponse(html);
 	}
 
 	private InvMonHTTPResponse executeChart(String url, UserSesh sesh, InvMonHTTPRequest session) throws Exception {
@@ -192,20 +204,11 @@ public class HTTPServer extends InvModule {
 			}
 		};
 
-		//
-		// find the HTTP interface, if we're running inside a servlet contianer
-		// then we need to find the singleton for that, if not then we create our
-		// own internal server
-		//
-		if (InvMonServlet.isActive()) {
-			InvMonServlet.setInterface(intf);
-		} else {
-			embeddedSvr = new EmbeddedServer(port, intf);
-			try {
-				embeddedSvr.start();
-			} catch (IOException e) {
-				throw new InvMonException("Could not start NanoHTTPD: " + e.getMessage(), e);
-			}
+		embeddedSvr = new EmbeddedServer(port, intf);
+		try {
+			embeddedSvr.start();
+		} catch (IOException e) {
+			throw new InvMonException("Could not start NanoHTTPD: " + e.getMessage(), e);
 		}
 	}
 

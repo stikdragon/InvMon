@@ -4,9 +4,9 @@ import org.teavm.jso.dom.events.MouseEvent;
 import org.teavm.jso.dom.html.HTMLElement;
 import org.teavm.jso.dom.xml.Element;
 
-import uk.co.stikman.invmon.htmlout.Axis;
-import uk.co.stikman.invmon.htmlout.ChartOptions;
-import uk.co.stikman.invmon.htmlout.HTMLBuilder;
+import uk.co.stikman.invmon.server.Axis;
+import uk.co.stikman.invmon.server.ChartOptions;
+import uk.co.stikman.invmon.server.HTMLBuilder;
 
 public class GraphHoverThing {
 	private class Marker {

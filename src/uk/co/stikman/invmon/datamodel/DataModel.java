@@ -512,4 +512,30 @@ public class DataModel implements Iterable<Field> {
 		this.dataVersion = dataVersion;
 	}
 
+	public int getRecordHeapSize() {
+		int n = 0;
+		for (Field f : fieldList) {
+			if (f.getType().getBaseType() == null) // this is probably the timestamp field
+				continue;
+			switch (f.getType().getBaseType()) {
+				case FLOAT:
+				case INT:
+					n += 4;
+					break;
+				case FLOAT8:
+					++n;
+					break;
+				case STRING:
+					n += f.getType().width();
+					break;
+			}
+		}
+		//
+		// fields themselves (not 100% accurate because some of the arrays
+		// might be null)
+		//
+		n += 4 + 8 + 16 + 16 + 16 + 16;
+		return n;
+	}
+
 }

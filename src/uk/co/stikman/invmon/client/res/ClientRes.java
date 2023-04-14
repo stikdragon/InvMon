@@ -3,8 +3,11 @@ package uk.co.stikman.invmon.client.res;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
-import uk.co.stikman.invmon.htmlout.NotFoundException;
+import org.apache.commons.io.IOUtils;
+
+import uk.co.stikman.invmon.server.NotFoundException;
 
 public class ClientRes {
 	private long	size;
@@ -38,9 +41,18 @@ public class ClientRes {
 	public String getName() {
 		return name;
 	}
-	
+
 	public InputStream makeStream() {
 		return ClientRes.class.getResourceAsStream(name);
+	}
+
+	@Override
+	public String toString() {
+		try (InputStream is = makeStream()) {
+			return IOUtils.toString(is, StandardCharsets.UTF_8);
+		} catch (IOException e) {
+			return "ERROR";
+		}
 	}
 
 }

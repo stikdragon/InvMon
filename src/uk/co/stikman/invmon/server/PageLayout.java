@@ -1,4 +1,4 @@
-package uk.co.stikman.invmon.htmlout;
+package uk.co.stikman.invmon.server;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,6 +13,13 @@ import org.w3c.dom.Element;
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoHTTPD.Response.Status;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
+import uk.co.stikman.invmon.server.widgets.ChartWidget;
+import uk.co.stikman.invmon.server.widgets.ControlsWidget;
+import uk.co.stikman.invmon.server.widgets.DailyPowerSummaryWidget;
+import uk.co.stikman.invmon.server.widgets.InfoBitWidget;
+import uk.co.stikman.invmon.server.widgets.PVTableWidget;
+import uk.co.stikman.invmon.server.widgets.PageWidget;
+import uk.co.stikman.invmon.server.widgets.TimeSelPageWidget;
 
 public class PageLayout {
 

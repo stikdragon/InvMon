@@ -1,4 +1,4 @@
-package uk.co.stikman.invmon.htmlout;
+package uk.co.stikman.invmon.server;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,5 +37,10 @@ public class UserSesh {
 
 	public void putData(String key, Object o) {
 		data.put(key, o);
+	}
+
+	@Override
+	public String toString() {
+		return id;
 	}
 }

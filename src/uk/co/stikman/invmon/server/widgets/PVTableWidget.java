@@ -1,4 +1,4 @@
-package uk.co.stikman.invmon.htmlout;
+package uk.co.stikman.invmon.server.widgets;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +11,8 @@ import uk.co.stikman.invmon.datalog.QueryRecord;
 import uk.co.stikman.invmon.datalog.QueryResults;
 import uk.co.stikman.invmon.datamodel.DataModel;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
+import uk.co.stikman.invmon.server.HTMLBuilder;
+import uk.co.stikman.invmon.server.WidgetExecuteContext;
 
 public class PVTableWidget extends PageWidget {
 	private List<String>	fieldNames		= new ArrayList<>();

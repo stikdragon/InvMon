@@ -1,4 +1,4 @@
-package uk.co.stikman.invmon.htmlout;
+package uk.co.stikman.invmon.server.widgets;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,6 +8,14 @@ import org.json.JSONObject;
 import org.w3c.dom.Element;
 
 import uk.co.stikman.invmon.inverter.util.InvUtil;
+import uk.co.stikman.invmon.server.Axis;
+import uk.co.stikman.invmon.server.ChartOptions;
+import uk.co.stikman.invmon.server.DataSet;
+import uk.co.stikman.invmon.server.HTMLBuilder;
+import uk.co.stikman.invmon.server.HeaderBitDef;
+import uk.co.stikman.invmon.server.HeaderBitPF;
+import uk.co.stikman.invmon.server.Series;
+import uk.co.stikman.invmon.server.WidgetExecuteContext;
 
 public class ChartWidget extends PageWidget {
 

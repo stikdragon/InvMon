@@ -12,8 +12,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import uk.co.stikman.invmon.datamodel.FieldDataType;
-import uk.co.stikman.invmon.htmlout.DataSet;
-import uk.co.stikman.invmon.htmlout.DataSetRecord;
+import uk.co.stikman.invmon.server.DataSet;
+import uk.co.stikman.invmon.server.DataSetRecord;
 import uk.co.stikman.table.DataRecord;
 import uk.co.stikman.table.DataTable;
 

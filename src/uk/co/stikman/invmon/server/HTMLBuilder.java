@@ -1,4 +1,4 @@
-package uk.co.stikman.invmon.htmlout;
+package uk.co.stikman.invmon.server;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,10 +40,30 @@ public class HTMLBuilder {
 		return this;
 	}
 
+	public HTMLBuilder escape(String s) {
+		sb.append(escapeHTML(s));
+		return this;
+	}
+
+	private static String escapeHTML(String s) {
+		StringBuilder out = new StringBuilder(Math.max(16, s.length()));
+		for (int i = 0; i < s.length(); i++) {
+			char c = s.charAt(i);
+			if (c > 127 || c == '"' || c == '\'' || c == '<' || c == '>' || c == '&') {
+				out.append("&#");
+				out.append((int) c);
+				out.append(';');
+			} else {
+				out.append(c);
+			}
+		}
+		return out.toString();
+	}
+
 	public HTMLBuilder append(String fmt, Object... args) {
 		Format f = new Format(fmt);
 		sb.append(f.format(args));
-//		sb.append(String.format(fmt, args));
+		//		sb.append(String.format(fmt, args));
 		return this;
 	}
 

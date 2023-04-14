@@ -1,0 +1,51 @@
+Pass URL parameters to this page to set up the 
+data range you're interested in:
+
+example:
+
+  http://host/InvMon/data?start=2023-03-01&duration=1d&fields=all&format=fixed
+  
+  
+Here's the available options:
+
+  start        [optional]
+     The date to start from, in ISO8601 format (YYYY-MM-DD 
+     or YYYY-MM-DDTHH-MM-SSZ)
+     If not specified then the "duration" is considered negative
+     and start date is now
+     
+  duration     [optional]
+     The time span to work with.  This can be negative, in which 
+     case it works back from the "start" parameter.  Specify it
+     as an integer with a suffix:
+       s,m,h,d,w  - seconds, minutes, hours, days, weeks
+     eg: "1d"  or "3600s"
+     If not specified then it defaults to "1h"
+     
+  count        [optional]
+     How many records to return.  Data is aggregated.  If not 
+     provided then it won't do aggregation and will return the
+     base records instead
+     
+  fields       [required]
+     Which fields do you want?  Must be a comma separated list of 
+     them, or the word "all" for everything.  Timestamp will 
+     always be present
+     
+  format       [required]
+     Which format to return the data in, either "fixed" or "csv"
+     
+     
+Beware that there's no sanity checking here, you can ask for a 
+huge number of records and it'll try to produce them, which might
+make an impractically large file 
+  
+  
+        
+     
+    
+  
+  
+ 
+  
+  

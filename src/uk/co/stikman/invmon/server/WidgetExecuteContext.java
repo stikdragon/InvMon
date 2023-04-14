@@ -1,4 +1,4 @@
-package uk.co.stikman.invmon.htmlout;
+package uk.co.stikman.invmon.server;
 
 import uk.co.stikman.invmon.datalog.DBRecord;
 import uk.co.stikman.invmon.datalog.QueryResults;

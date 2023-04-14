@@ -10,8 +10,8 @@ import org.json.JSONObject;
 
 import uk.co.stikman.invmon.datamodel.Field;
 import uk.co.stikman.invmon.datamodel.FieldType;
-import uk.co.stikman.invmon.htmlout.DataSet;
-import uk.co.stikman.invmon.htmlout.DataSetRecord;
+import uk.co.stikman.invmon.server.DataSet;
+import uk.co.stikman.invmon.server.DataSetRecord;
 import uk.co.stikman.table.DataRecord;
 import uk.co.stikman.table.DataTable;
 
@@ -26,7 +26,7 @@ public class QueryResults {
 	private long					start;
 	private long					end;
 	private DataSet					adapter;
-	private ZoneId zone;
+	private ZoneId					zone;
 
 	public List<Field> getFields() {
 		return fields;
@@ -38,6 +38,10 @@ public class QueryResults {
 
 	@Override
 	public String toString() {
+		return toDataTable().toString();
+	}
+
+	public DataTable toDataTable() {
 		DataTable dt = new DataTable();
 		for (Field f : fields)
 			dt.addField(f.getId());
@@ -47,7 +51,7 @@ public class QueryResults {
 			for (int i = 0; i < fields.size(); ++i)
 				r2.setValue(i, r.asString(i));
 		}
-		return dt.toString();
+		return dt;
 	}
 
 	public void addField(Field f) {

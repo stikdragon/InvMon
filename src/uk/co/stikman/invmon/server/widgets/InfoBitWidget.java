@@ -1,4 +1,4 @@
-package uk.co.stikman.invmon.htmlout;
+package uk.co.stikman.invmon.server.widgets;
 
 import java.lang.management.ManagementFactory;
 import java.time.Duration;
@@ -13,6 +13,8 @@ import uk.co.stikman.invmon.InvModule;
 import uk.co.stikman.invmon.datalog.DataLogger;
 import uk.co.stikman.invmon.datalog.QueryResults;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
+import uk.co.stikman.invmon.server.HTMLBuilder;
+import uk.co.stikman.invmon.server.WidgetExecuteContext;
 
 public class InfoBitWidget extends PageWidget {
 

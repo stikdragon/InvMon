@@ -1,10 +1,11 @@
-package uk.co.stikman.invmon.htmlout;
+package uk.co.stikman.invmon.server.widgets;
 
 import org.json.JSONObject;
 
 import uk.co.stikman.invmon.datalog.QueryResults;
+import uk.co.stikman.invmon.server.WidgetExecuteContext;
 
-class TimeSelPageWidget extends PageWidget {
+public class TimeSelPageWidget extends PageWidget {
 	@Override
 	public JSONObject execute(JSONObject params, WidgetExecuteContext qr) {
 		return new JSONObject();
