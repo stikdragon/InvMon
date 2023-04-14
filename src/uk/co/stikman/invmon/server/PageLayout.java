@@ -16,6 +16,7 @@ import uk.co.stikman.invmon.inverter.util.InvUtil;
 import uk.co.stikman.invmon.server.widgets.ChartWidget;
 import uk.co.stikman.invmon.server.widgets.ControlsWidget;
 import uk.co.stikman.invmon.server.widgets.DailyPowerSummaryWidget;
+import uk.co.stikman.invmon.server.widgets.GaugeWidget;
 import uk.co.stikman.invmon.server.widgets.InfoBitWidget;
 import uk.co.stikman.invmon.server.widgets.PVTableWidget;
 import uk.co.stikman.invmon.server.widgets.PageWidget;
@@ -36,6 +37,7 @@ public class PageLayout {
 		TYPES.put("timesel", TimeSelPageWidget::new);
 		TYPES.put("controls", ControlsWidget::new);
 		TYPES.put("energysummary", DailyPowerSummaryWidget::new);
+		TYPES.put("dial", GaugeWidget::new);
 	}
 
 	public void configure(Element root) {

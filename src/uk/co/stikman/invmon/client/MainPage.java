@@ -29,7 +29,7 @@ public class MainPage extends ClientPage {
 		pageTypes.put("timesel", TimeSelector::new);
 		pageTypes.put("infobit", InfoBitWidget::new);
 		pageTypes.put("chart", ChartWidget::new);
-		pageTypes.put("misc", MiscWidget::new);
+		pageTypes.put("serverside", ServerRenderedWidget::new);
 		pageTypes.put("controls", ControlsWidget::new);
 	}
 

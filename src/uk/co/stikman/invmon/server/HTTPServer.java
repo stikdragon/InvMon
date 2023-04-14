@@ -53,9 +53,9 @@ public class HTTPServer extends InvModule {
 	 * ones are used to avoid re-querying the database for multiple hits with a
 	 * single page
 	 */
-	private static final String				GLOBAL_VIEW_OPTIONS		= "gvo";
-	private static final String				CACHED_QUERY_RESULTS	= "cqr";
-	private static final String				CACHED_LAST_RECORD		= "clr";
+	public static final String				GLOBAL_VIEW_OPTIONS		= "gvo";
+	public static final String				CACHED_QUERY_RESULTS	= "cqr";
+	public static final String				CACHED_LAST_RECORD		= "clr";
 
 	private DataLogger						datalogger;
 	private int								port;
@@ -74,7 +74,7 @@ public class HTTPServer extends InvModule {
 		urlMappings.put("style.css", this::resource);
 		urlMappings.put("index.html", this::resource);
 		urlMappings.put("classes.js", this::resource);
-		
+
 		urlMappings.put("log", this::logPage);
 		urlMappings.put("data", this::dataPage);
 
@@ -108,11 +108,11 @@ public class HTTPServer extends InvModule {
 		ClientRes r = ClientRes.get(url);
 		return new InvMonHTTPResponse(Status.OK, NanoHTTPD.getMimeTypeForFile(url), r.makeStream(), r.getSize());
 	}
-	
+
 	private InvMonHTTPResponse dataPage(String url, UserSesh sesh, InvMonHTTPRequest session) throws Exception {
 		return new DataViewPage(this).exec(url, sesh, session);
 	}
-	
+
 	private InvMonHTTPResponse logPage(String url, UserSesh sesh, InvMonHTTPRequest session) throws Exception {
 		String html = new LogPage(getEnv(), sesh).exec();
 		return new InvMonHTTPResponse(html);

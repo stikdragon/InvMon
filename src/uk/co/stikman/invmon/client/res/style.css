@@ -454,3 +454,7 @@ table.data .total td {
 	margin-top: 6px;
 	margin-bottom: 6px;
 }
+
+#soc .reading {
+	text-align: center;
+}

@@ -3,12 +3,12 @@ package uk.co.stikman.invmon.client;
 import org.json.JSONObject;
 import org.teavm.jso.dom.html.HTMLElement;
 
-public class MiscWidget extends AbstractPageWidget {
+public class ServerRenderedWidget extends AbstractPageWidget {
 
 	private StandardFrame	frame;
 	private String			name;
 
-	public MiscWidget(ClientPage owner) {
+	public ServerRenderedWidget(ClientPage owner) {
 		super(owner);
 	}
 
