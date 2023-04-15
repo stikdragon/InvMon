@@ -68,14 +68,17 @@ public class InverterPIPMAX extends InverterMonitor {
 		float maxp = Math.max(sts.getOutputActiveP(), sts.getOutputApparentP());
 		dp.put("loadI", maxp / sts.getOutputV());
 		dp.put("loadV", sts.getOutputV());
+		dp.put("loadF", sts.getOutputF());
 		dp.put("pv1", sts.getPv1V(), sts.getPv1I(), 0);
 		dp.put("pv2", sts.getPv2V(), sts.getPv2I(), 0);
 		dp.put("temp", sts.getInverterTemp());
 		dp.put("busV", sts.getBusV());
 		dp.put("loadPF", pf);
-		dp.put("stateOfCharge", (float) sts.getBatteryCapacity() / 100.0f);
+		dp.put("soc", (float) sts.getBatteryCapacity() / 100.0f);
 		dp.put("gridV", sts.getGridV());
 		dp.put("gridI", sts.getGridI());
+		dp.put("gridF", sts.getGridF());
+
 		return dp;
 	}
 

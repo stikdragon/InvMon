@@ -38,8 +38,10 @@ public class FakeInverterMonitor extends InverterMonitor {
 		dp.put("battV", 50f + rand(20f));
 		dp.put("gridI", rand(90f));
 		dp.put("gridV", rand(240f));
+		dp.put("gridF", 50.0f);
 		dp.put("loadI", 1.45f + rand(3f));
 		dp.put("loadV", 230.0f + rand(10f));
+		dp.put("loadF", 50.0f);
 		dp.put("pv1", 304f + rand(40f), 4.0f + rand(7f), 0);
 		dp.put("pv2", 304f + rand(40f), 4.0f + rand(7f), 0);
 		dp.put("temp", 41f + rand(5f));

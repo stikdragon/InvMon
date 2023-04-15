@@ -3,6 +3,7 @@ package uk.co.stikman.invmon;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 
 import uk.co.stikman.invmon.datamodel.FieldVIF;
 import uk.co.stikman.invmon.datamodel.VIFReading;
@@ -70,7 +71,7 @@ public class Sample {
 		nonull(f);
 		Number v = (Number) values.get(f);
 		if (v == null)
-			return 0.0f;
+			throw new NoSuchElementException("Sample field [" + f + "] not found");
 		return v.floatValue();
 	}
 
@@ -78,7 +79,7 @@ public class Sample {
 		nonull(f);
 		Number v = (Number) values.get(f);
 		if (v == null)
-			return 0;
+			throw new NoSuchElementException("Sample field [" + f + "] not found");
 		return v.intValue();
 	}
 
@@ -86,7 +87,7 @@ public class Sample {
 		nonull(f);
 		Object x = values.get(f);
 		if (x == null)
-			return null;
+			throw new NoSuchElementException("Sample field [" + f + "] not found");
 		return x.toString();
 	}
 
