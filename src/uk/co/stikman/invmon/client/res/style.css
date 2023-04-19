@@ -455,6 +455,10 @@ table.data .total td {
 	margin-bottom: 6px;
 }
 
-#soc .reading {
+.gauge .reading {
 	text-align: center;
+}
+
+.gauge .needle {
+	filter: drop-shadow(1px 1px 1px rgba(0, 0, 0, .3))
 }
