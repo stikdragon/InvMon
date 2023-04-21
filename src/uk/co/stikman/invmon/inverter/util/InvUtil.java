@@ -22,7 +22,7 @@ import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import fi.iki.elonen.NanoHTTPD.IHTTPSession;
+import uk.co.stikman.invmon.nanohttpd.NanoHTTPD.IHTTPSession;
 
 public class InvUtil {
 	public static String padLeft(String s, int len) {

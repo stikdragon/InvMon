@@ -4,7 +4,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import fi.iki.elonen.NanoHTTPD;
+import uk.co.stikman.invmon.nanohttpd.NanoHTTPD;
+import uk.co.stikman.invmon.nanohttpd.NanoHTTPD.IHTTPSession;
+import uk.co.stikman.invmon.nanohttpd.NanoHTTPD.Response;
 import uk.co.stikman.invmon.server.InvMonHTTPResponse;
 
 public class EmbeddedServer extends NanoHTTPD {
