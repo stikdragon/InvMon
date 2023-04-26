@@ -12,7 +12,7 @@
 	<classpathentry kind="lib" path="lib/ivy/h2-2.1.214.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/nanohttpd-2.3.1.jar" sourcepath="lib/ivy/nanohttpd-sources-2.3.1.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/teavm-classlib-0.7.0.jar" sourcepath="lib/ivy/teavm-classlib-sources-0.7.0.jar"/>
-	<classpathentry kind="lib" path="lib/ivy/teavm-core-0.7.0.jar"/>
+	<classpathentry kind="lib" path="lib/ivy/teavm-core-0.7.0.jar" sourcepath="lib/ivy/teavm-core-sources-0.7.0.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/teavm-interop-0.7.0.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/teavm-jso-0.7.0.jar"/>
 	<classpathentry kind="lib" path="lib/ivy/teavm-jso-apis-0.7.0.jar" sourcepath="lib/ivy/teavm-jso-apis-sources-0.7.0.jar"/>

@@ -51,7 +51,6 @@
 			<arg line="-d src/uk/co/stikman/invmon/client/res" />
 			<arg value="uk.co.stikman.invmon.client.InvMon" />
 		</java>
-
 	</target>
 
 	<target name="jar" depends="compile,teavm">
