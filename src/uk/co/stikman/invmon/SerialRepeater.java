@@ -33,6 +33,8 @@ public class SerialRepeater extends InvModule {
 			if (p.getSystemPortName().equals(portName))
 				this.port = p;
 		}
+		if (port == null)
+			throw new InvMonException("Cannot find port called [" + portName + "]");
 	}
 
 	@Override
@@ -77,6 +79,7 @@ public class SerialRepeater extends InvModule {
 		int checksum = 0;
 		for (byte b : bytes)
 			checksum += b;
+		
 		try (OutputStream os = port.getOutputStream()) {
 			os.write(bytes, 0, bytes.length);
 			os.write((checksum >> 8) & 0xff);

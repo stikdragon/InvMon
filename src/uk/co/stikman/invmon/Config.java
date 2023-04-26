@@ -37,6 +37,7 @@ public class Config {
 		thingtypes.put("HTTPServer", HTTPServer.class);
 		thingtypes.put("JSONRecv", JSONRecv.class);
 		thingtypes.put("JSONSend", JSONSend.class);
+		thingtypes.put("SerialRepeater", SerialRepeater.class);
 	}
 
 	public void loadFromFile(File f) throws IOException {
