@@ -4,7 +4,7 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import fi.iki.elonen.NanoHTTPD.Response.Status;
+import uk.co.stikman.invmon.nanohttpd.NanoHTTPD.Response.Status;
 
 public class InvMonHTTPResponse {
 	private final long					size;

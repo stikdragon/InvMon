@@ -16,10 +16,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.w3c.dom.Element;
 
-import fi.iki.elonen.NanoHTTPD;
-import fi.iki.elonen.NanoHTTPD.Method;
-import fi.iki.elonen.NanoHTTPD.Response;
-import fi.iki.elonen.NanoHTTPD.Response.Status;
 import uk.co.stikman.eventbus.Subscribe;
 import uk.co.stikman.invmon.EmbeddedServer;
 import uk.co.stikman.invmon.Env;
@@ -37,6 +33,8 @@ import uk.co.stikman.invmon.datalog.MiniDbException;
 import uk.co.stikman.invmon.datalog.QueryResults;
 import uk.co.stikman.invmon.datamodel.Field;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
+import uk.co.stikman.invmon.nanohttpd.NanoHTTPD;
+import uk.co.stikman.invmon.nanohttpd.NanoHTTPD.Response.Status;
 import uk.co.stikman.invmon.server.widgets.PageWidget;
 import uk.co.stikman.log.StikLog;
 
@@ -185,7 +183,7 @@ public class HTTPServer extends InvModule {
 	}
 
 	@Override
-	public void configure(Element config) {
+	public void configure(Element config) throws InvMonException {
 		this.port = Integer.parseInt(InvUtil.getAttrib(config, "port"));
 		layoutConfig = new HttpLayoutConfig();
 		layoutConfig.configure(config);
@@ -279,7 +277,7 @@ public class HTTPServer extends InvModule {
 		return new InvMonHTTPResponse(Status.OK, "text/html", layout.getWidgetById(name).execute(null, ctx).toString());
 	}
 
-	private InvMonHTTPResponse setParams(String url, UserSesh sesh, InvMonHTTPRequest request) {
+	private InvMonHTTPResponse setParams(String url, UserSesh sesh, InvMonHTTPRequest request) throws InvMonException {
 		JSONObject jo = decodeQueryParams(request);
 		int dur = jo.getInt("dur");
 		int off = jo.getInt("off");
@@ -309,7 +307,7 @@ public class HTTPServer extends InvModule {
 		return new InvMonHTTPResponse(new JSONObject().put("result", "OK").toString());
 	}
 
-	private InvMonHTTPResponse getConfig(String url, UserSesh sesh, InvMonHTTPRequest request) {
+	private InvMonHTTPResponse getConfig(String url, UserSesh sesh, InvMonHTTPRequest request) throws InvMonException {
 		JSONObject opts = decodeQueryParams(request);
 		String name = opts.optString("page", null);
 		PageLayout pg = null;

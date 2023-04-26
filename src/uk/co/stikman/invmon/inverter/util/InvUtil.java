@@ -22,7 +22,7 @@ import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import fi.iki.elonen.NanoHTTPD.IHTTPSession;
+import uk.co.stikman.invmon.nanohttpd.NanoHTTPD.IHTTPSession;
 
 public class InvUtil {
 	public static String padLeft(String s, int len) {
@@ -192,6 +192,14 @@ public class InvUtil {
 			++i;
 		}
 		return String.format("%d %s", n, SUFFIXES[i]);
+	}
+
+	public static float clamp(float val, float min, float max) {
+		if (val < min)
+			return min;
+		if (val > max)
+			return max;
+		return val;
 	}
 
 }
