@@ -5,8 +5,6 @@ import java.util.List;
 
 import org.w3c.dom.Element;
 
-import uk.co.stikman.invmon.datalog.DBRecord;
-import uk.co.stikman.invmon.datalog.QueryResults;
 import uk.co.stikman.invmon.datamodel.Field;
 import uk.co.stikman.invmon.inverter.util.Format;
 import uk.co.stikman.invmon.inverter.util.InvUtil;

@@ -6,7 +6,6 @@ import org.w3c.dom.Element;
 
 import com.fazecast.jSerialComm.SerialPort;
 
-import uk.co.stikman.invmon.DataPoint;
 import uk.co.stikman.invmon.Env;
 import uk.co.stikman.invmon.InvModType;
 import uk.co.stikman.invmon.InvMonException;

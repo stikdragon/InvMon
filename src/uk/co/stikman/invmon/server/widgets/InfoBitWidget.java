@@ -3,7 +3,6 @@ package uk.co.stikman.invmon.server.widgets;
 import java.lang.management.ManagementFactory;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.Date;
 
 import org.json.JSONObject;
@@ -11,7 +10,6 @@ import org.json.JSONObject;
 import uk.co.stikman.invmon.Env;
 import uk.co.stikman.invmon.InvModule;
 import uk.co.stikman.invmon.datalog.DataLogger;
-import uk.co.stikman.invmon.datalog.QueryResults;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
 import uk.co.stikman.invmon.server.HTMLBuilder;
 import uk.co.stikman.invmon.server.WidgetExecuteContext;

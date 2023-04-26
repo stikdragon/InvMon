@@ -1,8 +1,5 @@
 package uk.co.stikman.invmon.server;
 
-import static uk.co.stikman.invmon.inverter.util.InvUtil.getAttrib;
-import static uk.co.stikman.invmon.inverter.util.InvUtil.getElement;
-import static uk.co.stikman.invmon.inverter.util.InvUtil.getElements;
 import static uk.co.stikman.invmon.inverter.util.InvUtil.loadXML;
 
 import java.io.File;
@@ -14,12 +11,9 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.function.Supplier;
 
-import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import uk.co.stikman.invmon.InvModDefinition;
-import uk.co.stikman.invmon.InvModule;
 import uk.co.stikman.invmon.InvMonException;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
 import uk.co.stikman.invmon.server.widgets.ChartWidget;

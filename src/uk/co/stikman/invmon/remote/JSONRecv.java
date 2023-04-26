@@ -9,7 +9,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.Element;
 
-import uk.co.stikman.invmon.DataPoint;
 import uk.co.stikman.invmon.Env;
 import uk.co.stikman.invmon.Events;
 import uk.co.stikman.invmon.InvModule;

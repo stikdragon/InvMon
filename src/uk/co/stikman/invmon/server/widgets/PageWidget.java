@@ -3,7 +3,6 @@ package uk.co.stikman.invmon.server.widgets;
 import org.json.JSONObject;
 import org.w3c.dom.Element;
 
-import uk.co.stikman.invmon.datalog.QueryResults;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
 import uk.co.stikman.invmon.server.WidgetExecuteContext;
 

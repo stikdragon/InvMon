@@ -7,8 +7,6 @@ import org.json.JSONObject;
 import org.w3c.dom.Element;
 
 import uk.co.stikman.invmon.datalog.DBRecord;
-import uk.co.stikman.invmon.datalog.QueryRecord;
-import uk.co.stikman.invmon.datalog.QueryResults;
 import uk.co.stikman.invmon.datamodel.DataModel;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
 import uk.co.stikman.invmon.server.HTMLBuilder;

@@ -1,9 +1,6 @@
 package uk.co.stikman.invmon;
 
-import static uk.co.stikman.invmon.inverter.util.InvUtil.getAttrib;
-import static uk.co.stikman.invmon.inverter.util.InvUtil.getElement;
-import static uk.co.stikman.invmon.inverter.util.InvUtil.getElements;
-import static uk.co.stikman.invmon.inverter.util.InvUtil.loadXML;
+import static uk.co.stikman.invmon.inverter.util.InvUtil.*;
 
 import java.io.File;
 import java.io.IOException;

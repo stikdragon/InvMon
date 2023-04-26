@@ -2,9 +2,6 @@ package uk.co.stikman.invmon;
 
 import org.w3c.dom.Element;
 
-import uk.co.stikman.invmon.datamodel.DataModel;
-import uk.co.stikman.invmon.datamodel.Field;
-import uk.co.stikman.invmon.datamodel.FieldVIF;
 import uk.co.stikman.invmon.datamodel.InverterMode;
 import uk.co.stikman.invmon.inverter.BatteryChargeStage;
 import uk.co.stikman.log.StikLog;
