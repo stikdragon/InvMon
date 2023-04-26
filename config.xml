@@ -7,7 +7,10 @@
 		<FakeInverter id="invA" />
 		<FakeInverter id="invB" />
 
-		<SerialRepeater id="serialout1" port="COM8" />
+		<SerialRepeater id="serialout1" port="COM8" baud="9600">
+			<Field width="3" scale="1.0">BATT_SOC</Field>
+			<Field width="3" scale="10.0">BATT_V</Field>
+		</SerialRepeater>
 		
 		<!-- <ConsoleOutput id="console" controlCodes="false" /> -->
 

@@ -100,7 +100,7 @@ public class Env {
 					part.configure(def.getConfig());
 					parts.add(part);
 				} catch (Exception e) {
-					throw new InvMonException("Failed to start part [" + def.getId() + "]: " + e.getMessage(), e);
+					throw new InvMonException("Failed to start module [" + def.getId() + "]: " + e.getMessage(), e);
 				}
 			}
 
