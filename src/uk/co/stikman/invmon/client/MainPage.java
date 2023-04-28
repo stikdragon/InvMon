@@ -19,11 +19,13 @@ import uk.co.stikman.invmon.inverter.util.InvUtil;
 public class MainPage extends ClientPage {
 	private HTMLElement														root;
 
-	private List<AbstractPageWidget>										widgets			= new ArrayList<>();
+	private List<AbstractPageWidget>										widgets				= new ArrayList<>();
 	private int																gridSize;
 
-	private Boolean															doAutoRefresh	= false;
-	private static Map<String, Function<ClientPage, AbstractPageWidget>>	pageTypes		= new HashMap<>();
+	private Boolean															doAutoRefresh		= false;
+
+	private boolean															lastRequestFinished	= true;
+	private static Map<String, Function<ClientPage, AbstractPageWidget>>	pageTypes			= new HashMap<>();
 
 	static {
 		pageTypes.put("timesel", TimeSelector::new);
@@ -40,8 +42,9 @@ public class MainPage extends ClientPage {
 		getBus().subscribe(Events.REFRESH_NOW, data -> refresh(false));
 
 		Window.setInterval(() -> {
-			if (doAutoRefresh)
-				refresh(true);
+			if (lastRequestFinished)
+				if (doAutoRefresh)
+					refresh(true);
 		}, 5000);
 	}
 
@@ -60,7 +63,7 @@ public class MainPage extends ClientPage {
 		Map<String, String> urlparams = InvUtil.getLocationParameters(Window.current().getLocation().getSearch());
 		JSONObject jo = new JSONObject();
 		jo.put("page", urlparams.get("layout"));
-		fetch("getConfig", jo, result  -> {
+		fetch("getConfig", jo, result -> {
 			gridSize = result.getInt("gridSize");
 			JSONArray arr = result.getJSONArray("widgets");
 			for (int i = 0; i < arr.length(); ++i) {
@@ -86,7 +89,12 @@ public class MainPage extends ClientPage {
 	}
 
 	public void refresh(boolean nomask) {
-		post("invalidateResults", new JSONObject(), res -> widgets.forEach(w -> w.refresh(nomask)));
+		lastRequestFinished = false;
+		post("invalidateResults", new JSONObject(), res -> {
+			widgets.forEach(w -> w.refresh(nomask));
+			lastRequestFinished = true;
+		});
+
 	}
 
 	public int getGridSize() {

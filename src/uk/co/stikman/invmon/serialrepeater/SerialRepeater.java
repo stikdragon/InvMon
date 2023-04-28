@@ -122,8 +122,8 @@ public class SerialRepeater extends InvModule {
 
 	public SerialRepeater(String id, Env env) {
 		super(id, env);
-//		output = new OutputPort();
-		output = new OutputConsole();
+		output = new OutputPort();
+//		output = new OutputConsole();
 	}
 
 	@Override
