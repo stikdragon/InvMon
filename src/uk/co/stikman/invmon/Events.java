@@ -8,5 +8,6 @@ public class Events {
 
 	public static final String	AUTOREFRESH_CHANGED		= "autorefresh_changed";
 	public static final String	REFRESH_NOW				= "refresh_now";
+	public static final String	TIMER_UPDATE_PERIOD		= "timer1";
 
 }

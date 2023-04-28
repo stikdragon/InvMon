@@ -3,6 +3,7 @@ package uk.co.stikman.invmon.inverter.util;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -26,13 +27,18 @@ import uk.co.stikman.invmon.nanohttpd.NanoHTTPD.IHTTPSession;
 
 public class InvUtil {
 	public static String padLeft(String s, int len) {
+		return padLeft(s, len, ' ');
+
+	}
+
+	public static String padLeft(String s, int len, char pad) {
 		if (s == null)
 			s = "";
 		if (s.length() >= len)
 			return s;
 		char[] res = new char[len - s.length()];
 		for (int i = 0; i < res.length; ++i)
-			res[i] = ' ';
+			res[i] = pad;
 		return new String(res).concat(s);
 	}
 
@@ -46,6 +52,8 @@ public class InvUtil {
 	}
 
 	public static Document loadXML(File file) throws IOException {
+		if (!file.exists())
+			throw new FileNotFoundException(file.toString());
 		try (FileInputStream fis = new FileInputStream(file)) {
 			return loadXML(fis);
 		}

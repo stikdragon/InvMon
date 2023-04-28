@@ -1,4 +1,4 @@
-package uk.co.stikman.invmon;
+package uk.co.stikman.invmon.serialrepeater;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -11,6 +11,10 @@ import org.w3c.dom.Element;
 import com.fazecast.jSerialComm.SerialPort;
 
 import uk.co.stikman.eventbus.Subscribe;
+import uk.co.stikman.invmon.Env;
+import uk.co.stikman.invmon.Events;
+import uk.co.stikman.invmon.InvModule;
+import uk.co.stikman.invmon.InvMonException;
 import uk.co.stikman.invmon.datalog.DBRecord;
 import uk.co.stikman.invmon.datamodel.Field;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
@@ -20,14 +24,9 @@ public class SerialRepeater extends InvModule {
 	private static final StikLog	LOGGER	= StikLog.getLogger(SerialRepeater.class);
 	private int						baud;
 
-	private List<OutputField>		fields	= new ArrayList<>();
+	private List<OutputElement>		fields	= new ArrayList<>();
 	private Output					output;
 
-	private static class OutputField {
-		Field	f;
-		int		width;
-		float	scale;
-	}
 
 	public interface Output {
 		void config(Element config) throws InvMonException;
@@ -123,18 +122,29 @@ public class SerialRepeater extends InvModule {
 
 	public SerialRepeater(String id, Env env) {
 		super(id, env);
-		output = new OutputPort();
-//		output = new OutputConsole();
+//		output = new OutputPort();
+		output = new OutputConsole();
 	}
 
 	@Override
 	public void configure(Element config) throws InvMonException {
-		for (Element el : InvUtil.getElements(config, "Field")) {
-			OutputField x = new OutputField();
-			x.f = getEnv().getModel().get(el.getTextContent());
-			x.width = Integer.parseInt(InvUtil.getAttrib(el, "width"));
-			x.scale = Float.parseFloat(InvUtil.getAttrib(el, "scale"));
-			fields.add(x);
+		for (Element el : InvUtil.getElements(config)) {
+			if (el.getTagName().equals("Field" )) {
+				
+				Field f = getEnv().getModel().get(el.getTextContent());
+				int width = Integer.parseInt(InvUtil.getAttrib(el, "width"));
+				float scale = Float.parseFloat(InvUtil.getAttrib(el, "scale"));
+				OutputField x = new OutputField(f, width, scale);
+				fields.add(x);
+				
+			} else if (el.getTagName().equals("Property")) {
+				String prop = InvUtil.getAttrib(el, "id");
+				int width = Integer.parseInt(InvUtil.getAttrib(el, "width"));
+				char pad = InvUtil.getAttrib(el, "pad", " ").charAt(0);
+				OutputProperty x = new OutputProperty(prop, width, pad);
+				fields.add(x);
+			}
+			
 		}
 		output.config(config);
 	}
@@ -158,12 +168,10 @@ public class SerialRepeater extends InvModule {
 		//
 		StringBuilder sb = new StringBuilder();
 		String sep = "";
-		for (OutputField of : fields) {
-			float a = rec.getFloat(of.f);
-			int n = (int) (a * of.scale);
+		for (OutputElement oe : fields) {
 			sb.append(sep);
 			sep = ",";
-			sb.append(String.format("%0" + of.width + "d", n));
+			sb.append(oe.eval(getEnv(), rec));
 		}
 		output.send(sb.toString());
 	}

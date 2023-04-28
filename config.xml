@@ -7,9 +7,16 @@
 		<FakeInverter id="invA" />
 		<FakeInverter id="invB" />
 
+		<Properties id="props" source="stuff.xml">
+			<Property id="some_key">1234</Property>
+		</Properties>
+
+
 		<SerialRepeater id="serialout1" port="COM8" baud="9600">
 			<Field width="3" scale="100.0">BATT_SOC</Field>
+			<Property id="props.some_key" width="3" />
 			<Field width="3" scale="10.0">BATT_V</Field>
+			<Property id="props.thing" width="6" pad="0" />
 		</SerialRepeater>
 		
 		<!-- <ConsoleOutput id="console" controlCodes="false" /> -->

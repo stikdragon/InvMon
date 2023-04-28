@@ -16,6 +16,7 @@ import uk.co.stikman.invmon.datalog.DataLogger;
 import uk.co.stikman.invmon.inverter.PIP8048MAX.InverterPIPMAX;
 import uk.co.stikman.invmon.remote.JSONRecv;
 import uk.co.stikman.invmon.remote.JSONSend;
+import uk.co.stikman.invmon.serialrepeater.SerialRepeater;
 import uk.co.stikman.invmon.server.HTTPServer;
 
 public class Config {
@@ -24,6 +25,7 @@ public class Config {
 	private int														updatePeriod;
 	private boolean													allowConversion	= false;
 	private File													modelFile;
+	private long													lastModified;
 	private final static Map<String, Class<? extends InvModule>>	thingtypes		= new HashMap<>();
 
 	static {
@@ -35,6 +37,7 @@ public class Config {
 		thingtypes.put("JSONRecv", JSONRecv.class);
 		thingtypes.put("JSONSend", JSONSend.class);
 		thingtypes.put("SerialRepeater", SerialRepeater.class);
+		thingtypes.put("Properties", PropertiesThing.class);
 	}
 
 	public void loadFromFile(File f) throws IOException {
@@ -54,6 +57,7 @@ public class Config {
 				things.add(new InvModDefinition(id, cls, el));
 			}
 		}
+		this.lastModified = f.lastModified();
 	}
 
 	public InvModDefinition findPartDef(String id) {
@@ -78,6 +82,10 @@ public class Config {
 
 	public File getModelFile() {
 		return modelFile;
+	}
+
+	public long lastFileModified() {
+		return lastModified;
 	}
 
 }

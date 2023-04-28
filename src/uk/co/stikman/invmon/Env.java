@@ -43,6 +43,8 @@ public class Env {
 
 	private EnvLog					log;
 
+	private File					root;
+
 	static {
 		try (InputStream is = Env.class.getResourceAsStream("version.txt")) { // ant script writes this
 			if (is != null)
@@ -53,6 +55,7 @@ public class Env {
 
 	public void start(File root) throws InvMonException {
 		try {
+			this.root = root;
 			StikLog.clearTargets();
 			ConsoleLogTarget tgt = new ConsoleLogTarget();
 			tgt.setFormat(new InvMonLogFormatter());
@@ -148,7 +151,9 @@ public class Env {
 		for (;;) {
 			if (terminated)
 				return;
-
+			
+			bus.fire(Events.TIMER_UPDATE_PERIOD);
+			
 			PollData data = new PollData();
 			bus.fire(Events.POLL_SOURCES, data);
 			bus.fire(Events.POST_DATA, data);
@@ -160,6 +165,8 @@ public class Env {
 			}
 		}
 	}
+
+
 
 	public void terminate() {
 		terminated = true;
@@ -214,7 +221,7 @@ public class Env {
 		return null;
 	}
 
-	public Config getConfig() {
+	public synchronized Config getConfig() {
 		return config;
 	}
 
@@ -242,6 +249,17 @@ public class Env {
 
 	public EnvLog getLog() {
 		return log;
+	}
+
+	public File getRoot() {
+		return root;
+	}
+
+	public File getFile(String path) {
+		File f = new File(path);
+		if (f.isAbsolute())
+			return f;
+		return new File(root, path);
 	}
 
 }
