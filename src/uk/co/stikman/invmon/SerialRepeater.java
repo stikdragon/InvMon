@@ -93,6 +93,7 @@ public class SerialRepeater extends InvModule {
 				os.write(bytes, 0, bytes.length);
 				os.write((checksum >> 8) & 0xff);
 				os.write(checksum & 0xff);
+				os.write('\n');
 			} catch (IOException e) {
 				LOGGER.error("Failed to write to serial port because: " + e.getMessage(), e);
 			}
@@ -164,7 +165,6 @@ public class SerialRepeater extends InvModule {
 			sep = ",";
 			sb.append(String.format("%0" + of.width + "d", n));
 		}
-		sb.append("\n");
 		output.send(sb.toString());
 	}
 

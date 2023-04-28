@@ -138,8 +138,11 @@ public class HTMLGenerator {
 					ax.setMax(Math.max(ax.getMax(), f));
 				}
 			}
-			opts.getAxisY1().setMax(opts.getAxisY1().getMax() * 1.05f);
-			opts.getAxisY2().setMax(opts.getAxisY2().getMax() * 1.05f);
+
+			if (opts.getAxisY1().getForceMax() == null)
+				opts.getAxisY1().setMax(opts.getAxisY1().getMax() * 1.05f);
+			if (opts.getAxisY2().getForceMax() == null)
+				opts.getAxisY2().setMax(opts.getAxisY2().getMax() * 1.05f);
 
 			for (Series series : opts.getSeries()) {
 				++seriesIndex;
@@ -250,12 +253,12 @@ public class HTMLGenerator {
 		}
 	}
 
-//	private static void copyAxisInfo(AxisInfo out, Axis<?> in, int size, String name) {
-//		out.setMin(in.getMin());
-//		out.setMax(in.getMax());
-//		out.setSize(size);
-//		out.setName(name);
-//	}
+	//	private static void copyAxisInfo(AxisInfo out, Axis<?> in, int size, String name) {
+	//		out.setMin(in.getMin());
+	//		out.setMax(in.getMax());
+	//		out.setSize(size);
+	//		out.setName(name);
+	//	}
 
 	private static List<String> list(String... strings) {
 		List<String> a = new ArrayList<>();
