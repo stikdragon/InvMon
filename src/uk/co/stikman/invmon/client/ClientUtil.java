@@ -46,9 +46,10 @@ public class ClientUtil {
 	}
 
 	public static void handleError(Exception e) {
-		ErrorPopup pop = InvMon.getErrorPopup();
-		pop.addMessage(e.getClass().getSimpleName() + ": " + e.getMessage());
-		pop.show();
+		System.err.println(e.getMessage());
+//		ErrorPopup pop = InvMon.getErrorPopup();
+//		pop.addMessage(e.getClass().getSimpleName() + ": " + e.getMessage());
+//		pop.show();
 	}
 
 }
