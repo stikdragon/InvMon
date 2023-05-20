@@ -13,24 +13,26 @@ converted to fit the new structure, which could take a long time and might
 result in data loss if you were to remove a field (that field will then be 
 taken out of the database, and you won't be able to get the data back again)
 
-It defines the field names as [name].[fact], so the first inverter's load power
-will be called "invA.LOAD_P"  etc
+It defines the source names as [name].[fact], so the first inverter's load power
+will be called "invA.LOAD_P" etc.  This means it expects there to be an 
+<Inverter> object declared in the config file called "invA"
 
 "version" attribute must remain as 3.  "dataVersion" can be used in special 
 cases to allow smarter migration of data between model versions, but this
 requires support in the code so for now it must stay as 2.
 
 -->
-
 <Model version="3" dataVersion="2">
 	<!-- configuration of repeated groups -->
 	<RepeatGroup id="inverters" count="1">
-		<ReplaceToken key="ID" values="1,2" />
-		<ReplaceToken key="SRC" values="invA,invB" />
+		<ReplaceToken key="ID" values="1,2,3,4,5,6" />
+		<ReplaceToken key="SRC" values="invA,invB,invC,invD,invE,invF" />
 	</RepeatGroup>
+	<!-- for now i haven't implemented any communication with a BMS, so count is set to 0 to 
+	     effectively disable the battery fields -->
 	<RepeatGroup id="batteries" count="0">
-		<ReplaceToken key="ID" values="1,2" />
-		<ReplaceToken key="SRC" values="battA,battB" />
+		<ReplaceToken key="ID" values="1,2,3,4" />
+		<ReplaceToken key="SRC" values="battA,battB,battC,battD" />
 	</RepeatGroup>
 
 	<!-- actual fields -->
@@ -80,6 +82,7 @@ requires support in the code so for now it must stay as 2.
 	<Repeat group="batteries">
 		<Field id="BATT_$ID$_I" type="current" source="$SRC$.i" />
 
+		<!-- "volt8,x,y" is a special data type, it's a single byte and represents a value scaled between X and Y -->
 		<Field id="BATT_$ID$_C1" type="volt8,1.5,3.0" source="$SRC$.c1" />
 		<Field id="BATT_$ID$_C2" type="volt8,1.5,3.0" source="$SRC$.c2" />
 		<Field id="BATT_$ID$_C3" type="volt8,1.5,3.0" source="$SRC$.c3" />
@@ -106,7 +109,8 @@ requires support in the code so for now it must stay as 2.
 		<Field id="BATT_$ID$_C24" type="volt8,1.5,3.0" source="$SRC$.c24" />
 	</Repeat>
 
-
+	<!-- once a BMS is in place it would make more sense to get the battery current from there instead of 
+	     the inverters.  i know mine lie about the current, it's a few A higher than reported -->
 	<!-- <Field id="BATT_I" type="current" calculatedRepeat="[BATT_$_I],sum" repeatGroup="batteries" /> -->
 	<Field id="BATT_I" type="current" calculatedRepeat="[INV_$ID$_I],sum" repeatGroup="inverters" />
 

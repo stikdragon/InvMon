@@ -1,15 +1,26 @@
 <Model version="3" dataVersion="2">
+	<!-- note that changing anything about this file will usually require the existing
+	     database files get rebuilt when you first start InvMon, this can take a long 
+		 time if you've got months and months of history.  If you don't care about keeping
+		 that history then delete the .db files -->
+
 	<!-- configuration of repeated groups -->
 	<RepeatGroup id="inverters" count="2">
 		<ReplaceToken key="ID" values="1,2" />
 		<ReplaceToken key="SRC" values="invA,invB" />
 	</RepeatGroup>
+
+	<!-- for now i haven't implemented any communication with a BMS, so count is set to 0 to 
+	     effectively disable the battery fields -->
 	<RepeatGroup id="batteries" count="0">
 		<ReplaceToken key="ID" values="1,2" />
 		<ReplaceToken key="SRC" values="invA,invB" />
 	</RepeatGroup>
 
 	<!-- actual fields -->
+	<!-- "source" tells it where it gets its data from.  eg. "invA.gridV" means there is an <Inverter> 
+	     declared in the config file called "invA" and it produces a field called "gridV" in each sample 
+		     -->
 
 	<Field id="TIMESTAMP" type="TIMESTAMP" />
 	<Field id="INV_MODE" type="string,16" source="invA.mode" />
@@ -55,7 +66,7 @@
 
 	<Repeat group="batteries">
 		<Field id="BATT_$ID$_I" type="current" source="$SRC$.i" />
-
+		<!-- "volt8,x,y" is a special data type, it's a single byte and represents a value scaled between X and Y -->
 		<Field id="BATT_$ID$_C1" type="volt8,1.5,3.0" source="$SRC$.c1" />
 		<Field id="BATT_$ID$_C2" type="volt8,1.5,3.0" source="$SRC$.c2" />
 		<Field id="BATT_$ID$_C3" type="volt8,1.5,3.0" source="$SRC$.c3" />

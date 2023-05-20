@@ -1,7 +1,7 @@
 <project default="compile" xmlns:ivy="antlib:org.apache.ivy.ant">
 
 <!--	<property name="version" value="dev" /> -->
- <property name="version" value="0.17" /> 
+ <property name="version" value="0.18" /> 
 
 	<target name="clean">
 		<delete dir="build/classes" />
@@ -63,19 +63,17 @@
 
 	<target name="package" depends="jar">
 		<copy file="build/resources/start.sh" tofile="temp/start.sh" />
-		<copy file="build/resources/conftemplate.xml" tofile="temp/config-example.xml" />
+		<copy file="build/resources/start.bat" tofile="temp/start.bat" />
 
-		<replace file="temp/start.sh">
-			<replacefilter token="JARFILE" value="invmon-${version}.jar" />
-		</replace>
+		<replace file="temp/start.sh"> <replacefilter token="JARFILE" value="invmon-${version}.jar" /> </replace>
+		<replace file="temp/start.bat"> <replacefilter token="JARFILE" value="invmon-${version}.jar" /> </replace>
 
 		<zip destfile="dist\invmon-${version}.zip">
 			<zipfileset dir="dist" includes="invmon-${version}.jar" />
-			<zipfileset dir="build/resources" includes="README.txt" />
 			<zipfileset dir="lib/ivy" prefix="lib" includes="commons-io-2.7.jar,json-20200518.jar,nanohttpd-2.3.1.jar" />
 			<zipfileset dir="lib/provided" prefix="lib" includes="stikutils-1.5-jdk8.jar,jSerialComm-2.9.3-beta1.jar" />
-			<zipfileset dir="temp" includes="config-example.xml" />
-			<zipfileset dir="temp" includes="start.sh" />
+			<zipfileset dir="build/resources" includes="*.xml" />
+			<zipfileset dir="temp" includes="start.*" />
 		</zip>
 	</target>
 

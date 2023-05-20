@@ -1,0 +1,46 @@
+<InvMon>
+
+    <!--
+    updatePeriod - is the sample period
+
+    allowConversion - allows the database to be upgraded if you've switched to a new version
+                      that has a different db structure.  it's worth setting this to `false` and
+                      then taking a backup of the database in the event that it needs converting
+                      (you'll get a startup error if it does and this isn't enabled)
+
+    model - names a file that defines the data model, you need to build this to match your 
+            configuration
+    -->
+    <Settings updatePeriod="1000" allowConversion="true" model="model.xml" />
+
+    <Modules>
+        <!-- Inverter talks to an actual inverter.  The `type` attrib tells it which sort of 
+             inverter to talk to.  The rest of the configuration is specific to that type -->
+        <Inverter id="invA" type="PIP8048MAX" port="COM8" />
+    
+        <!-- ConsoleOutput renders a little table in the local terminal.  controlCodes attribute
+             allows colour formatting -->        
+        <!-- This feature is currently broken, sorry -->
+        <!-- <ConsoleOutput id="console" controlCodes="true" /> -->
+
+        <!-- DataLogger saves each sample to a database file.  This allows things like HTTPServer
+             to function.  Increasing blockSize will improve performance very slightly at the expensive
+             of significantly more RAM usage.  400000 results in a minimum of about 350Mb heap size -->
+        <DataLogger id="datalogger" file="/exthdd0/invmon/datalog.db" blockSize="400000" />
+
+        <!-- HTTPServer runs a small web server that shows some charts.  It requires a 
+             <DataLogger> to be enabled too.  I've not really put any thought into security
+			 here, recommend not exposing this to the internet, put it behind a real web server
+			 if necessary (eg. IIS' ARR feature) -->
+        <HTTPServer id="httpserver" port="8083">
+			<!-- declare at least one <Page>.  You might have a tablet mounted on a wall in your
+			     house that you want a specific layout of information on, so you'd make a page for 
+				 it.  See the "pageexample.xml" file for a sample "source" file -->
+
+			<Page id="main" default="true" source="example-page.xml" />
+			<!-- <Page id="kitchenscreen" source="kitchen1.xml" /> -->
+        </HTTPServer>
+
+    </Modules>
+
+</InvMon>
