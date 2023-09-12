@@ -183,7 +183,7 @@ public class MiniDB {
 					index.save();
 				}
 				rec.setIndex(recordCount++);
-				top.add(rec);
+				top.add(rec); // saves it to disk
 			} catch (IOException e) {
 				throw new MiniDbException("Commit failed: " + e.getMessage(), e);
 			}

@@ -4,6 +4,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 import uk.co.stikman.invmon.datamodel.Field;
 import uk.co.stikman.invmon.datamodel.FieldCounts;
@@ -174,6 +175,11 @@ public class DBRecord {
 
 	public <T extends Enum<T>> T getEnum(Field f, Class<T> cls) {
 		return (T) Enum.valueOf(cls, getString(f));
+	}
+
+	@Override
+	public String toString() {
+		return timestamp + ": index " + index;
 	}
 
 }

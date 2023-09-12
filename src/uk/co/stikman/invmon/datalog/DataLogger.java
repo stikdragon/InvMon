@@ -204,8 +204,11 @@ public class DataLogger extends InvModule {
 		//
 		DBRecord last = db.getLastRecord();
 		if (last != null) {
-			if (data.getTimestamp() <= last.getTimestamp())
+			if (data.getTimestamp() <= last.getTimestamp()) {
+				LOGGER.warn("Last record: " + last.toString());
+				LOGGER.warn("PollData: " + data);
 				throw new MiniDbException("Records must be in timestamp order");
+			}
 		}
 		DBRecord rec = db.addRecord();
 		rec.setTimestamp(data.getTimestamp());

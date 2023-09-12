@@ -5,7 +5,7 @@ import java.util.Map;
 
 public class PollData {
 	private Map<String, Sample>	data	= new HashMap<>();
-	private long				timestamp;
+	private final long			timestamp;
 
 	public PollData() {
 		super();
@@ -26,6 +26,11 @@ public class PollData {
 
 	public Map<String, Sample> getData() {
 		return data;
+	}
+
+	@Override
+	public String toString() {
+		return Long.toString(timestamp);
 	}
 
 }
