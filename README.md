@@ -39,3 +39,4 @@ The layout of the pages is configured by a fairly verbose XML file, so you can c
 The data model is defined by `model.xml` and is moderately flexible.  At its core it's a list of `<Field>` objects, but there's some additional complexity with a form of templating you can use to duplicate sets of fields.  For example, in my case, i have two inverters, so a lot of fields have duplicates (eg. charge current per inverter)
 
 ## Pictures
+![image](https://github.com/stikdragon/InvMon/assets/6278403/67e983e6-ca5e-4e8e-a778-1cf710948aee)
