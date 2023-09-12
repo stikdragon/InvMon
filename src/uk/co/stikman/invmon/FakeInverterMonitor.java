@@ -4,14 +4,12 @@ import org.w3c.dom.Element;
 
 import uk.co.stikman.invmon.datamodel.InverterMode;
 import uk.co.stikman.invmon.inverter.BatteryChargeStage;
+import uk.co.stikman.invmon.inverter.PIP8048MAX.OutputMode;
 import uk.co.stikman.log.StikLog;
 
 @ModType(InvModType.INVERTER)
 public class FakeInverterMonitor extends InverterMonitor {
-	private static final StikLog	LOGGER	= StikLog.getLogger(FakeInverterMonitor.class);
-
-
-	private boolean					grouped;
+	private static final StikLog LOGGER = StikLog.getLogger(FakeInverterMonitor.class);
 
 	public FakeInverterMonitor(String id, Env env) {
 		super(id, env);
@@ -58,13 +56,8 @@ public class FakeInverterMonitor extends InverterMonitor {
 	}
 
 	@Override
-	public void setGrouped(boolean b) {
-		this.grouped = b;
-	}
-
-	@Override
-	public boolean isGrouped() {
-		return grouped;
+	public void setOutputMode(OutputMode mode) {
+		LOGGER.info("Output mode set to: " + mode);
 	}
 
 }

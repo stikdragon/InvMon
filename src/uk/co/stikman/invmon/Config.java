@@ -12,6 +12,7 @@ import java.util.Map;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import uk.co.stikman.invmon.controllers.InverterController;
 import uk.co.stikman.invmon.datalog.DataLogger;
 import uk.co.stikman.invmon.inverter.PIP8048MAX.InverterPIPMAX;
 import uk.co.stikman.invmon.remote.JSONRecv;
@@ -38,6 +39,7 @@ public class Config {
 		thingtypes.put("JSONSend", JSONSend.class);
 		thingtypes.put("SerialRepeater", SerialRepeater.class);
 		thingtypes.put("Properties", PropertiesThing.class);
+		thingtypes.put("InverterController", InverterController.class);
 	}
 
 	public void loadFromFile(File f) throws IOException {

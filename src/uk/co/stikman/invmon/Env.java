@@ -147,17 +147,37 @@ public class Env {
 	}
 
 	private void loop() {
+		long lastTimer = System.currentTimeMillis();
+		long t2err = 0;
 
 		for (;;) {
 			if (terminated)
 				return;
-			
+
+			//
+			// do timer events
+			//
 			bus.fire(Events.TIMER_UPDATE_PERIOD);
-			
+
+			long dt = System.currentTimeMillis() - lastTimer;
+			lastTimer = System.currentTimeMillis();
+			t2err += dt;
+			if (t2err >= 60 * 1000) {
+				while (t2err >= 60 * 1000)
+					t2err -= 60 * 1000;
+				bus.fire(Events.TIMER_UPDATE_MINUTE);
+			}
+
+			//
+			// poll inverters and post data to anything listening
+			//
 			PollData data = new PollData();
 			bus.fire(Events.POLL_SOURCES, data);
 			bus.fire(Events.POST_DATA, data);
 
+			//
+			// wait for the update period 
+			//
 			try {
 				Thread.sleep(config.getUpdatePeriod());
 			} catch (InterruptedException e) {
@@ -165,8 +185,6 @@ public class Env {
 			}
 		}
 	}
-
-
 
 	public void terminate() {
 		terminated = true;

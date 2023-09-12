@@ -12,9 +12,6 @@ import uk.co.stikman.invmon.InvMonException;
 import uk.co.stikman.invmon.InverterMonitor;
 import uk.co.stikman.invmon.ModType;
 import uk.co.stikman.invmon.Sample;
-import uk.co.stikman.invmon.datamodel.DataModel;
-import uk.co.stikman.invmon.datamodel.Field;
-import uk.co.stikman.invmon.datamodel.FieldVIF;
 import uk.co.stikman.invmon.datamodel.InverterMode;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
 import uk.co.stikman.log.StikLog;
@@ -25,23 +22,6 @@ public class InverterPIPMAX extends InverterMonitor {
 	private static final StikLog	LOGGER	= StikLog.getLogger(InverterPIPMAX.class);
 	private PIP8048MAX				inv;
 	private SerialPort				port;
-
-	private Field					fieldMode;
-	private Field					fieldChargeState;
-	private FieldVIF				fieldPv1;
-	private FieldVIF				fieldPv2;
-	private Field					fieldTemperature;
-	private Field					fieldBusVoltage;
-	private Field					fieldLoadPF;
-	private Field					fieldStateOfCharge;
-	private Field					fieldPv1P;
-	private Field					fieldPv2P;
-	private Field					fieldLoadV;
-	private Field					fieldLoadI;
-	private Field					fieldBattV;
-	private Field					fieldBattI;
-
-	private boolean					grouped;
 
 	public InverterPIPMAX(String id, Env env) {
 		super(id, env);
@@ -124,21 +104,6 @@ public class InverterPIPMAX extends InverterMonitor {
 	public void start() throws InvMonException {
 		super.start();
 		inv.open(port);
-		DataModel model = getEnv().getModel();
-		fieldMode = model.get("INV_MODE");
-		fieldChargeState = model.get("BATT_MODE");
-		fieldBattV = model.get("BATT_V");
-		fieldBattI = model.get("INV_1_I");
-		fieldLoadV = model.get("LOAD_V");
-		fieldLoadI = model.get("LOAD_1_I");
-		fieldLoadPF = model.get("LOAD_PF");
-		fieldPv1 = model.getVIF("PVA_1");
-		fieldPv2 = model.getVIF("PVB_1");
-		fieldPv1P = model.get("PVA_1_P");
-		fieldPv2P = model.get("PVB_1_P");
-		fieldTemperature = model.get("INV_1_TEMP");
-		fieldBusVoltage = model.get("INV_1_BUS_V");
-		fieldStateOfCharge = model.get("BATT_SOC");
 	}
 
 	@Override
@@ -148,13 +113,12 @@ public class InverterPIPMAX extends InverterMonitor {
 	}
 
 	@Override
-	public void setGrouped(boolean b) {
-		this.grouped = b;
-	}
-
-	@Override
-	public boolean isGrouped() {
-		return grouped;
+	public void setOutputMode(OutputMode mode) throws InvMonException {
+		try {
+			inv.setOutputMode(mode);
+		} catch (Exception e) {
+			throw new InvMonException(e);
+		}
 	}
 
 }

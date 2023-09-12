@@ -146,8 +146,8 @@ public class PIP8048MAX implements InverterModel {
 	private static final int[] CRC_TABLE = new int[] { 0x0000, 0x1021, 0x2042, 0x3063, 0x4084, 0x50a5, 0x60c6, 0x70e7, 0x8108, 0x9129, 0xa14a, 0xb16b, 0xc18c, 0xd1ad, 0xe1ce, 0xf1ef };
 
 	/**
-	 * this seems to be a weird type of CRC16 with a custom table perhaps? and some
-	 * fettling at the end
+	 * this seems to be a weird type of CRC16 with a custom table perhaps? and
+	 * some fettling at the end
 	 * 
 	 * @param data
 	 * @return
@@ -241,20 +241,31 @@ public class PIP8048MAX implements InverterModel {
 		if (s.charAt(0) != '(')
 			throw new CommunicationError("Invalid response: " + s);
 		switch (s.charAt(1)) {
-			case 'P':
-				return DeviceMode.POWER_ON;
-			case 'S':
-				return DeviceMode.STANDBY;
-			case 'L':
-				return DeviceMode.LINE;
-			case 'B':
-				return DeviceMode.BATTERY;
-			case 'F':
-				return DeviceMode.FAULT;
-			case 'D':
-				return DeviceMode.SHUTDOWN;
+		case 'P':
+			return DeviceMode.POWER_ON;
+		case 'S':
+			return DeviceMode.STANDBY;
+		case 'L':
+			return DeviceMode.LINE;
+		case 'B':
+			return DeviceMode.BATTERY;
+		case 'F':
+			return DeviceMode.FAULT;
+		case 'D':
+			return DeviceMode.SHUTDOWN;
 		}
 		throw new CommunicationError("Invalid response: " + s);
+	}
+
+	public void setOutputMode(OutputMode mode) throws IOException {
+		if (mode == OutputMode.SOL_BAT_UTIL)
+			send("POP02");
+		else if (mode == OutputMode.UTIL_SOL_BAT)
+			send("POP00");
+		
+		String resp = recv();
+		if (!"ACK".equals(resp))
+			throw new IOException("Setting OutputMode (`POP` Command) failed with reponse: " + resp);
 	}
 
 }
