@@ -4,6 +4,7 @@ import org.teavm.jso.browser.Window;
 import org.teavm.jso.dom.html.HTMLDocument;
 import org.teavm.jso.dom.html.HTMLElement;
 import org.teavm.jso.dom.xml.Element;
+import org.teavm.jso.dom.xml.Node;
 
 public class InvMon {
 
@@ -11,7 +12,7 @@ public class InvMon {
 
 	private static Window		browserWindow;
 	private static HTMLDocument	doc;
-
+	private LoggedInUser		user;
 	private static ErrorPopup	errorPopup;
 
 	//
@@ -57,5 +58,25 @@ public class InvMon {
 
 	public static Element createSvgElement(String type) {
 		return getDocument().createElementNS("http://www.w3.org/2000/svg", type);
+	}
+
+	public LoggedInUser getUser() {
+		return user;
+	}
+
+	public void setUser(LoggedInUser usr) {
+		this.user = usr;
+	}
+
+	public static HTMLElement text2(String element, String text) {
+		HTMLElement el = element(element);
+		el.setTextContent(text);
+		return el;
+	}
+
+	public static HTMLElement text(String text) {
+		HTMLElement el = div();
+		el.setTextContent(text);
+		return el;
 	}
 }

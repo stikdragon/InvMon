@@ -19,4 +19,6 @@ public interface InvMonHTTPRequest {
 	
 	String getQueryParameterString();
 
+	String getBodyAsString();
+
 }

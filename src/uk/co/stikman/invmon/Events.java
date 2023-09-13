@@ -18,5 +18,7 @@ public class Events {
 	 * fires once per minute
 	 */
 	public static final String	TIMER_UPDATE_MINUTE		= "timer2";
+	public static final String	USER_LOGGED_IN			= "user_login";
+	public static final String	USER_LOGGED_OUT			= "user_logout";
 
 }

@@ -46,9 +46,9 @@ public class HTTPServer extends InvModule {
 	private static final StikLog			LOGGER					= StikLog.getLogger(HTTPServer.class);
 
 	/**
-	 * keys for associating objects with a user session. in particular the cached
-	 * ones are used to avoid re-querying the database for multiple hits with a
-	 * single page
+	 * keys for associating objects with a user session. in particular the
+	 * cached ones are used to avoid re-querying the database for multiple hits
+	 * with a single page
 	 */
 	public static final String				GLOBAL_VIEW_OPTIONS		= "gvo";
 	public static final String				CACHED_QUERY_RESULTS	= "cqr";
@@ -80,6 +80,8 @@ public class HTTPServer extends InvModule {
 		urlMappings.put("setParams", this::setParams);
 		urlMappings.put("getInfoBit", this::getInfoBit);
 		urlMappings.put("invalidateResults", this::invalidateResults);
+
+		urlMappings.put("login", this::login);
 
 		env.submitTimerTask(() -> env.submitTask(this::tidySessions), 60000);
 	}
@@ -155,6 +157,19 @@ public class HTTPServer extends InvModule {
 		return new InvMonHTTPResponse(res.toString());
 	}
 
+	private InvMonHTTPResponse login(String url, UserSesh sesh, InvMonHTTPRequest session) throws Exception {
+		if (!session.getMethod().equals("POST")) 
+			throw new Exception("Must be POST");
+		String s = session.getBodyAsString();
+		JSONObject jo = new JSONObject(s);
+		
+		
+		JSONObject res = new JSONObject();
+		res.put("name", jo.getString("user"));
+		res.put("token", "askdja;slkdaj");
+		return new InvMonHTTPResponse(res.toString());
+	}
+	
 	private void ensureCachedResults(UserSesh sesh) {
 		synchronized (sesh) {
 			ViewOptions opts = sesh.getData(GLOBAL_VIEW_OPTIONS);
@@ -277,7 +292,7 @@ public class HTTPServer extends InvModule {
 	}
 
 	private InvMonHTTPResponse setParams(String url, UserSesh sesh, InvMonHTTPRequest request) throws InvMonException {
-		JSONObject jo = decodeQueryParams(request);
+		JSONObject jo = new JSONObject(request.getBodyAsString());
 		int dur = jo.getInt("dur");
 		int off = jo.getInt("off");
 		ViewOptions global = sesh.getData(GLOBAL_VIEW_OPTIONS);
@@ -361,5 +376,7 @@ public class HTTPServer extends InvModule {
 	public DataLogger getTargetModule() {
 		return datalogger;
 	}
+
+
 
 }

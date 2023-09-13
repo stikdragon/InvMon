@@ -12,6 +12,14 @@ body {
 	flex-direction: column;
 }
 
+h2 {
+	margin: 0;
+}
+
+.fill {
+	flex: 1 1 0;
+}
+
 .mainpage {
 	position: relative;
 	flex: 1;
@@ -28,8 +36,7 @@ body {
 	padding: 5px;
 	border: 2px solid rgba(0, 0, 0, 0.2);
 	border-radius: 5px;
-	background: linear-gradient(0deg, rgba(0, 0, 0, 0.1) 0%,
-		rgba(255, 255, 255, 0.1) 100%);
+	background: linear-gradient(0deg, rgba(0, 0, 0, 0.1) 0%, rgba(255, 255, 255, 0.1) 100%);
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -38,8 +45,7 @@ body {
 }
 
 .togglebutton.selected {
-	background: linear-gradient(0deg, rgba(127, 127, 127, 0.3) 0%,
-		rgba(0, 0, 0, 0.2) 100%);
+	background: linear-gradient(0deg, rgba(127, 127, 127, 0.3) 0%, rgba(0, 0, 0, 0.2) 100%);
 	padding-top: 7px;
 	padding-left: 7px;
 	padding-bottom: 3px;
@@ -79,6 +85,10 @@ body {
 
 .timeselector .content {
 	padding: 1px;
+}
+
+.timeselector .controls {
+	
 }
 
 .timeselector .controls .sel, .controls .unsel {
@@ -461,4 +471,63 @@ table.data .total td {
 
 .gauge .needle {
 	filter: drop-shadow(1px 1px 1px rgba(0, 0, 0, .3))
+}
+
+.accountwidget {
+	font-size: 75%;
+}
+
+.modalglass {
+	backdrop-filter: blur(5px);
+	background: rgba(0, 0, 0, 30%);
+	position: absolute;
+	left: 0;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.modalglass>.content {
+	border: 1px rgba(0, 0, 0, 50%);
+	border-radius: 5px;
+	box-shadow: 4px 7px 21px 0px rgba(0, 0, 0, 0.75);
+	background: #ddd;
+	position: relative;
+	padding: 16px;
+}
+
+.logindialog {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.logindialog .bottombar {
+	display: flex;
+	flex-direction: row;
+}
+
+.logindialog .pair {
+	display: flex;
+	flex-direction: row;
+	gap: 8px;
+}
+
+.logindialog .pair>div {
+	width: 100px;
+}
+
+.logindialog .mask {
+	background: rgba(255, 255, 255, 90%);
+	position: absolute;
+	height: 100%;
+	width: 100%;
+	z-index: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin: -16px;
 }

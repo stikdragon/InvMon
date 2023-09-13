@@ -24,7 +24,7 @@ public class ControlsWidget extends AbstractPageWidget {
 
 		Button btn = new Button("Refresh");
 		btn.setId("refresh");
-		btn.setOnClick(b -> getOwner().getBus().fire(Events.REFRESH_NOW, null)); 
+		btn.setOnClick(b -> getOwner().getBus().fire(Events.REFRESH_NOW, null));
 		frame.content.appendChild(btn.getElement());
 
 		ToggleButton tog = new ToggleButton("Auto Refresh", "unticked.png", "ticked.png");
@@ -33,6 +33,9 @@ public class ControlsWidget extends AbstractPageWidget {
 		tog.setOnClick(b -> {
 			getOwner().getBus().fire(Events.AUTOREFRESH_CHANGED, Boolean.valueOf(tog.getState()));
 		});
+
+		UserWidget x = new UserWidget(getOwner());
+		frame.content.appendChild(x.getElement());
 	}
 
 	@Override

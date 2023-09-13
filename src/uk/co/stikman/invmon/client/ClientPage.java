@@ -8,6 +8,8 @@ import org.teavm.classlib.java.net.TURLEncoder;
 import org.teavm.jso.ajax.XMLHttpRequest;
 import org.teavm.jso.dom.html.HTMLElement;
 
+import uk.co.stikman.invmon.Events;
+
 public abstract class ClientPage {
 	private ReallySimpleEventBus bus = new ReallySimpleEventBus();
 
@@ -41,15 +43,43 @@ public abstract class ClientPage {
 			else
 				response.accept(new JSONObject(xhr.getResponseText()));
 		});
-		if (args != null)
-			xhr.open("GET", api + "?" + TURLEncoder.encode(args.toString(), StandardCharsets.UTF_8));
-		else
-			xhr.open("GET", api);
-		xhr.send();
+
+		if (method.equals("POST")) {
+			xhr.open("POST", api);
+			if (args != null) {
+				xhr.setRequestHeader("Content-type", "application/json");
+				xhr.send(args.toString());
+			} else {
+				xhr.send();
+			}
+			
+		} else {
+			if (args != null)
+				xhr.open("GET", api + "?" + TURLEncoder.encode(args.toString(), StandardCharsets.UTF_8));
+			else
+				xhr.open("GET", api);
+			xhr.send();
+		}
 	}
 
 	public ReallySimpleEventBus getBus() {
 		return bus;
+	}
+
+	public void doLogin() {
+		// todo...
+		LoginDialog dlg = new LoginDialog(this);
+		dlg.showModal();
+
+		LoggedInUser usr = new LoggedInUser();
+		usr.setName("Stik2");
+		InvMon.INSTANCE.setUser(usr);
+		bus.fire(Events.USER_LOGGED_IN, usr);
+	}
+
+	public void doLogout() {
+		InvMon.INSTANCE.setUser(null);
+		bus.fire(Events.USER_LOGGED_OUT, null);
 	}
 
 }

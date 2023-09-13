@@ -1,8 +1,12 @@
 package uk.co.stikman.invmon;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.io.IOUtils;
 
 import uk.co.stikman.invmon.nanohttpd.NanoHTTPD;
 import uk.co.stikman.invmon.server.InvMonHTTPResponse;
@@ -18,10 +22,23 @@ public class EmbeddedServer extends NanoHTTPD {
 
 	private class HTTPRequestImpl implements InvMonHTTPRequest {
 
-		private IHTTPSession session;
+		private IHTTPSession	session;
+		Map<String, String>		bodyData;
 
 		public HTTPRequestImpl(IHTTPSession session) {
 			this.session = session;
+			if (session.getMethod() == Method.POST) {
+				//
+				// read body, otherwise there's a bug in nanohttpd 
+				//  https://github.com/NanoHttpd/nanohttpd/issues/356
+				//
+				bodyData = new HashMap<>();
+				try {
+					session.parseBody(bodyData);
+				} catch (IOException | ResponseException e) {
+					throw new RuntimeException("POST parseBody failed: " + e.getMessage(), e);
+				}
+			}
 		}
 
 		@Override
@@ -54,6 +71,13 @@ public class EmbeddedServer extends NanoHTTPD {
 		@Override
 		public String getQueryParameterString() {
 			return session.getQueryParameterString();
+		}
+
+		@Override
+		public String getBodyAsString() {
+			if (session.getMethod() != Method.POST)
+				throw new IllegalStateException("Only supported for POST requests");
+			return bodyData.get("postData");
 		}
 
 		@Override
