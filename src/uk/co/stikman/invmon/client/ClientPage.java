@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 import org.json.JSONObject;
 import org.teavm.classlib.java.net.TURLEncoder;
 import org.teavm.jso.ajax.XMLHttpRequest;
+import org.teavm.jso.browser.Window;
 import org.teavm.jso.dom.html.HTMLElement;
 
 import uk.co.stikman.invmon.Events;
@@ -67,17 +68,13 @@ public abstract class ClientPage {
 	}
 
 	public void doLogin() {
-		// todo...
 		LoginDialog dlg = new LoginDialog(this);
 		dlg.showModal();
-
-		LoggedInUser usr = new LoggedInUser();
-		usr.setName("Stik2");
-		InvMon.INSTANCE.setUser(usr);
-		bus.fire(Events.USER_LOGGED_IN, usr);
 	}
 
 	public void doLogout() {
+		post("logout", new JSONObject(), res -> {
+		});
 		InvMon.INSTANCE.setUser(null);
 		bus.fire(Events.USER_LOGGED_OUT, null);
 	}

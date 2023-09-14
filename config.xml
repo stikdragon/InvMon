@@ -30,6 +30,9 @@
 		<HTTPServer id="httpserver" port="8083">
 			<Page id="main" default="true" source="mainpage.xml" />
 			<Page id="single" default="false" source="singlepage.xml" />
+
+			<User name="stik" password="turnip" role="admin" />
+			
 		</HTTPServer>
 
 		<JSONSend id="sender" destination="localhost" port="28347" key="turnips" user="user1___" logger="datalogger" />

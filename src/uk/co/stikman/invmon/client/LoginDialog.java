@@ -5,6 +5,8 @@ import org.teavm.jso.browser.Window;
 import org.teavm.jso.dom.html.HTMLElement;
 import org.teavm.jso.dom.html.HTMLInputElement;
 
+import uk.co.stikman.invmon.Events;
+
 public class LoginDialog extends PopupWindow {
 
 	private HTMLInputElement	txtPass;
@@ -29,6 +31,7 @@ public class LoginDialog extends PopupWindow {
 		div = InvMon.div("pair");
 		div.appendChild(InvMon.text("Password"));
 		getContent().appendChild(div);
+		
 		txtPass = InvMon.element("input");
 		txtPass.setType("password");
 		div.appendChild(txtPass);
@@ -54,16 +57,16 @@ public class LoginDialog extends PopupWindow {
 		mask.getStyle().setProperty("display", "flex");
 		JSONObject jo = new JSONObject();
 		jo.put("user", txtUser.getValue());
-		jo.put("pass", txtUser.getValue());
+		jo.put("pass", txtPass.getValue());
 		owner.post("login", jo, res -> {
-			if (res.has("error")) {
-				Window.alert("Login failed: " + res.getString("error"));
-				close();
-			}
 			LoggedInUser u = new LoggedInUser();
 			u.setName(res.getString("name"));
 			u.setToken(res.getString("token"));
 			InvMon.INSTANCE.setUser(u);
+			owner.getBus().fire(Events.USER_LOGGED_IN, u);
+			close();
+		}, err -> {
+			Window.alert("Login failed: " + err.toString());
 			close();
 		});
 	}

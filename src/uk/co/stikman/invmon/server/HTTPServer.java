@@ -59,6 +59,8 @@ public class HTTPServer extends InvModule {
 	private final Map<String, FetchMethod>	urlMappings				= new HashMap<>();
 	private Map<String, UserSesh>			sessions				= new HashMap<>();
 	private HttpLayoutConfig				layoutConfig;
+	private Users							users					= new Users();
+	private AuthedSessions					authedSessions			= new AuthedSessions();
 
 	private EmbeddedServer					embeddedSvr;
 
@@ -82,6 +84,7 @@ public class HTTPServer extends InvModule {
 		urlMappings.put("invalidateResults", this::invalidateResults);
 
 		urlMappings.put("login", this::login);
+		urlMappings.put("logout", this::logout);
 
 		env.submitTimerTask(() -> env.submitTask(this::tidySessions), 60000);
 	}
@@ -157,19 +160,34 @@ public class HTTPServer extends InvModule {
 		return new InvMonHTTPResponse(res.toString());
 	}
 
+	private InvMonHTTPResponse logout(String url, UserSesh sesh, InvMonHTTPRequest session) throws Exception {
+		sesh.putData("authed-user", null);
+		return new InvMonHTTPResponse("{}");
+	}
 	private InvMonHTTPResponse login(String url, UserSesh sesh, InvMonHTTPRequest session) throws Exception {
-		if (!session.getMethod().equals("POST")) 
+		if (!session.getMethod().equals("POST"))
 			throw new Exception("Must be POST");
 		String s = session.getBodyAsString();
 		JSONObject jo = new JSONObject(s);
-		
-		
-		JSONObject res = new JSONObject();
-		res.put("name", jo.getString("user"));
-		res.put("token", "askdja;slkdaj");
-		return new InvMonHTTPResponse(res.toString());
+		try {
+			User u = users.findByName(jo.getString("user"));
+			if (!u.getPass().equals(jo.getString("pass")))
+				throw new InvMonException("Incorrect password");
+
+			AuthedSession as = authedSessions.createNew(u);
+			sesh.putData("authed-user", as);
+			JSONObject res = new JSONObject();
+			res.put("name", jo.getString("user"));
+			res.put("token", as.getUid());
+			return new InvMonHTTPResponse(res.toString());
+
+		} catch (Exception e) {
+			LOGGER.error("Login for user [" + jo.getString("user") + "] failed because: " + e.getMessage(), e);
+			throw new InvMonException("Login failed"); // don't pass any details back here 
+		}
+
 	}
-	
+
 	private void ensureCachedResults(UserSesh sesh) {
 		synchronized (sesh) {
 			ViewOptions opts = sesh.getData(GLOBAL_VIEW_OPTIONS);
@@ -201,6 +219,7 @@ public class HTTPServer extends InvModule {
 		this.port = Integer.parseInt(InvUtil.getAttrib(config, "port"));
 		layoutConfig = new HttpLayoutConfig();
 		layoutConfig.configure(config);
+		users.configure(config);
 	}
 
 	@Override
@@ -376,7 +395,5 @@ public class HTTPServer extends InvModule {
 	public DataLogger getTargetModule() {
 		return datalogger;
 	}
-
-
 
 }

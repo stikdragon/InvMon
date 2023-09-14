@@ -1,6 +1,8 @@
 package uk.co.stikman.invmon.client;
 
 import org.json.JSONObject;
+import org.teavm.jso.dom.events.EventListener;
+import org.teavm.jso.dom.events.MouseEvent;
 import org.teavm.jso.dom.html.HTMLElement;
 
 public abstract class AbstractPageWidget {
@@ -12,6 +14,20 @@ public abstract class AbstractPageWidget {
 	private int					height;
 	private String				id;
 	private String				name;
+	private HTMLElement			hdr;
+	private HTMLElement			root;
+
+	//
+	// support for dragging them around
+	//
+	private EventListener<?>	mouseUpEL;
+	private EventListener<?>	mouseMoveEL;
+	private int					downAtX;
+	private int					downAtY;
+	private int					startY;
+	private int					startX;
+
+	private static int			zIndexCounter	= 0;
 
 	public AbstractPageWidget(ClientPage owner) {
 		super();
@@ -70,18 +86,19 @@ public abstract class AbstractPageWidget {
 	}
 
 	protected StandardFrame createStandardFrame(HTMLElement parent, boolean header, String mainclass) {
-		HTMLElement root = InvMon.div();
+		root = InvMon.div();
 		if (mainclass != null)
 			root.getClassList().add(mainclass);
 		parent.appendChild(root);
 		root.getClassList().add("gridframe");
 		root.setId(getId());
+		root.addEventListener("mousedown", ev -> root.getStyle().setProperty("z-index", Integer.toString(++zIndexCounter)));
 		doLayout(root);
 
 		HTMLElement inner = InvMon.div("gridframeinner");
 		root.appendChild(inner);
 
-		HTMLElement hdr = null;
+		hdr = null;
 		if (header) {
 			hdr = InvMon.div("hdr");
 			inner.appendChild(hdr);
@@ -90,6 +107,7 @@ public abstract class AbstractPageWidget {
 				h1.setInnerText(name);
 				hdr.appendChild(h1);
 			}
+			hdr.addEventListener("mousedown", ev -> mouseDown((MouseEvent) ev));
 		}
 
 		HTMLElement el2 = InvMon.div("content");
@@ -113,6 +131,35 @@ public abstract class AbstractPageWidget {
 		a.error = elError;
 		a.hideOverlays();
 		return a;
+	}
+
+	private void mouseDown(MouseEvent ev) {
+		ev.preventDefault();
+		downAtX = ev.getClientX();
+		downAtY = ev.getClientY();
+		startX = x;
+		startY = y;
+		mouseMoveEL = x -> drag((MouseEvent) x);
+		mouseUpEL = x -> mouseUp((MouseEvent) x);
+		InvMon.getDocument().addEventListener("mousemove", mouseMoveEL);
+		InvMon.getDocument().addEventListener("mouseup", mouseUpEL);
+	}
+
+	private void mouseUp(MouseEvent ev) {
+		InvMon.getDocument().removeEventListener("mousemove", mouseMoveEL);
+		InvMon.getDocument().removeEventListener("mouseup", mouseUpEL);
+	}
+
+	private void drag(MouseEvent ev) {
+		ev.preventDefault();
+		int newX = startX + (ev.getClientX() - downAtX);
+		int newY = startY + (ev.getClientY() - downAtY);
+
+		int gs = ((MainPage) owner).getGridSize();
+
+		x = gs * (int) (newX / gs);
+		y = gs * (int) (newY / gs);
+		doLayout(root);
 	}
 
 	public String getName() {
