@@ -33,6 +33,7 @@ public class MainPage extends ClientPage {
 		pageTypes.put("chart", ChartWidget::new);
 		pageTypes.put("serverside", ServerRenderedWidget::new);
 		pageTypes.put("controls", ControlsWidget::new);
+		pageTypes.put("invcontrol", InverterControlWidget::new);
 	}
 
 	public MainPage() {

@@ -532,3 +532,9 @@ table.data .total td {
 	justify-content: center;
 	margin: -16px;
 }
+
+.invertercontrolswidget .txt {
+	white-space: pre;
+	overflow: hidden;
+	font-size: 80%;
+}

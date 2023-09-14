@@ -49,4 +49,9 @@ public class InverterController extends InvModule {
 			LOGGER.error(e);
 		}
 	}
+
+	@Override
+	public String toString() {
+		return logic.toString();
+	}
 }

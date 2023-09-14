@@ -42,6 +42,7 @@ public class RedControllerLogic implements ControllerLogic {
 	private LocalTime			windowEnd;
 	private String				inverterId;
 	private State				currentState		= State.NOT_CHARGING;
+	private DateTimeFormatter	dtf;
 
 	public RedControllerLogic(InverterController owner) {
 		this.owner = owner;
@@ -56,7 +57,7 @@ public class RedControllerLogic implements ControllerLogic {
 		csv.setImporter(new CSVImporter());
 		csv.setOnReload(dt -> dt.getTable().createIndex("day"));
 
-		DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm");
+		dtf = DateTimeFormatter.ofPattern("HH:mm");
 		windowStart = LocalTime.parse(InvUtil.getAttrib(root, "startTime"), dtf);
 		windowEnd = LocalTime.parse(InvUtil.getAttrib(root, "endTime"), dtf);
 		inverterId = InvUtil.getAttrib(root, "inverter");
@@ -72,7 +73,7 @@ public class RedControllerLogic implements ControllerLogic {
 		int today = getCurrentDayNumber();
 		if (lastCompletedDay >= today) // already done it today, so stop immediately
 			return;
-		
+
 		Mutable<State> outcome = new Mutable<>();
 		try {
 			int soc = 25;
@@ -81,10 +82,7 @@ public class RedControllerLogic implements ControllerLogic {
 			//
 			// get today's threshold
 			//
-			DataRecord rec = csv.getTable().findRecord("day", Integer.toString(today));
-			if (rec == null)
-				throw new InvMonException("Day [" + today + "] does not have a row in the CSV file");
-			int threshold = rec.getInt("soc");
+			int threshold = getTodayThreshold(today);
 
 			//
 			// if we're not in the time window then we must never be charging
@@ -115,6 +113,13 @@ public class RedControllerLogic implements ControllerLogic {
 		}
 	}
 
+	private int getTodayThreshold(int today) throws InvMonException {
+		DataRecord rec = csv.getTable().findRecord("day", Integer.toString(today));
+		if (rec == null)
+			throw new InvMonException("Day [" + today + "] does not have a row in the CSV file");
+		return rec.getInt("soc");
+	}
+
 	private void setCharging(State state) throws InvMonException {
 		if (currentState == state) // no change
 			return;
@@ -142,6 +147,22 @@ public class RedControllerLogic implements ControllerLogic {
 
 	private static int getCurrentDayNumber() {
 		return LocalDate.now().getDayOfYear();
+	}
+
+	@Override
+	public String toString() {
+		try {
+			int today = getCurrentDayNumber();
+			StringBuilder sb = new StringBuilder();
+			sb.append("  Time: ").append(dtf.format(LocalTime.now())).append("\n");
+			sb.append(" State: ").append(currentState).append("\n");
+			sb.append(" Today: ").append(today).append("\n");
+			sb.append("Target: ").append(getTodayThreshold(today)).append("%\n");
+			sb.append("  Done? ").append(lastCompletedDay >= today ? "Yes" : "-").append("\n");
+			return sb.toString();
+		} catch (Exception e) {
+			return e.toString();
+		}
 	}
 
 }

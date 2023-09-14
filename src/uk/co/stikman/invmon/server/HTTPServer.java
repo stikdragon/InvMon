@@ -120,6 +120,7 @@ public class HTTPServer extends InvModule {
 		return new InvMonHTTPResponse(html);
 	}
 
+
 	private InvMonHTTPResponse executeChart(String url, UserSesh sesh, InvMonHTTPRequest session) throws Exception {
 		JSONObject jo = new JSONObject(URLDecoder.decode(session.getQueryParameterString(), StandardCharsets.UTF_8.name()));
 		String name = jo.getString("name");
@@ -164,6 +165,7 @@ public class HTTPServer extends InvModule {
 		sesh.putData("authed-user", null);
 		return new InvMonHTTPResponse("{}");
 	}
+
 	private InvMonHTTPResponse login(String url, UserSesh sesh, InvMonHTTPRequest session) throws Exception {
 		if (!session.getMethod().equals("POST"))
 			throw new Exception("Must be POST");

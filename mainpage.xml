@@ -33,4 +33,5 @@
     <Widget id="summary" class="energysummary" title="Energy" layout="20, 11, 5, 5" />
     <Widget id="soc" class="dial" title="SoC" layout="20, 16, 5, 5" field="BATT_SOC" range="0,1" mode="normal" text="percent"/>
     <Widget id="batti" class="dial" title="Battery Current" layout="20, 21, 5, 4" field="BATT_I" range="-200,200" mode="split" text="current" arclength="75" />
+    <Widget id="invcon" class="invcontrol" title="Inverter" layout="20, 25, 5, 4" controller="invcon1" />
 </Page>
