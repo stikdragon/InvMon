@@ -16,16 +16,15 @@ public abstract class AbstractPageWidget {
 	private String				name;
 	private HTMLElement			hdr;
 	private HTMLElement			root;
+	private HTMLElement			resizehandle;
 
 	//
 	// support for dragging them around
 	//
-	private EventListener<?>	mouseUpEL;
-	private EventListener<?>	mouseMoveEL;
-	private int					downAtX;
-	private int					downAtY;
 	private int					startY;
 	private int					startX;
+	private int					startH;
+	private int					startW;
 
 	private static int			zIndexCounter	= 0;
 
@@ -107,7 +106,20 @@ public abstract class AbstractPageWidget {
 				h1.setInnerText(name);
 				hdr.appendChild(h1);
 			}
-			hdr.addEventListener("mousedown", ev -> mouseDown((MouseEvent) ev));
+			DragHelper dh = new DragHelper(hdr);
+			dh.setDragStartHandler(() -> {
+				startX = x;
+				startY = y;
+			});
+			dh.setDragHandler((nx, ny) -> {
+				nx += startX;
+				ny += startY;
+				int gs = ((MainPage) owner).getGridSize();
+				x = gs * (int) (nx / gs);
+				y = gs * (int) (ny / gs);
+				doLayout(root);
+			});
+
 		}
 
 		HTMLElement el2 = InvMon.div("content");
@@ -124,6 +136,25 @@ public abstract class AbstractPageWidget {
 		elError.appendChild(elMsg);
 		inner.appendChild(elError);
 
+		if (header) {
+			resizehandle = InvMon.div("resizehandle");
+			inner.appendChild(resizehandle);
+			DragHelper dh = new DragHelper(resizehandle);
+			dh.setDragStartHandler(() -> {
+				startW = width;
+				startH = height;
+			});
+			dh.setDragHandler((nx, ny) -> {
+				nx += startW;
+				ny += startH;
+				int gs = ((MainPage) owner).getGridSize();
+				width = gs * (int) (nx / gs);
+				height = gs * (int) (ny / gs);
+				doLayout(root);
+			});
+
+		}
+
 		StandardFrame a = new StandardFrame();
 		a.header = hdr;
 		a.content = el2;
@@ -131,35 +162,6 @@ public abstract class AbstractPageWidget {
 		a.error = elError;
 		a.hideOverlays();
 		return a;
-	}
-
-	private void mouseDown(MouseEvent ev) {
-		ev.preventDefault();
-		downAtX = ev.getClientX();
-		downAtY = ev.getClientY();
-		startX = x;
-		startY = y;
-		mouseMoveEL = x -> drag((MouseEvent) x);
-		mouseUpEL = x -> mouseUp((MouseEvent) x);
-		InvMon.getDocument().addEventListener("mousemove", mouseMoveEL);
-		InvMon.getDocument().addEventListener("mouseup", mouseUpEL);
-	}
-
-	private void mouseUp(MouseEvent ev) {
-		InvMon.getDocument().removeEventListener("mousemove", mouseMoveEL);
-		InvMon.getDocument().removeEventListener("mouseup", mouseUpEL);
-	}
-
-	private void drag(MouseEvent ev) {
-		ev.preventDefault();
-		int newX = startX + (ev.getClientX() - downAtX);
-		int newY = startY + (ev.getClientY() - downAtY);
-
-		int gs = ((MainPage) owner).getGridSize();
-
-		x = gs * (int) (newX / gs);
-		y = gs * (int) (newY / gs);
-		doLayout(root);
 	}
 
 	public String getName() {

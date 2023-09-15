@@ -179,6 +179,19 @@ h1 {
 	margin-right: 20px;
 }
 
+.gridframeinner .resizehandle {
+	width: 24px;
+	height: 24px;
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	background-image: url("resize.png");
+	opacity:0;
+}
+.gridframeinner .resizehandle:hover {
+	opacity: 1.0;
+}
+
 .grp {
 	font-size: 12px;
 	background-color: rgba(0, 0, 0, 5%);

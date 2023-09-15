@@ -2,8 +2,13 @@ package uk.co.stikman.invmon.controllers;
 
 import java.io.File;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.w3c.dom.Element;
 
@@ -37,12 +42,12 @@ public class RedControllerLogic implements ControllerLogic {
 
 	private FileBackedDataTable	csv;
 	private InverterController	owner;
-	private int					lastCompletedDay	= -1;
-	private LocalTime			windowStart;
-	private LocalTime			windowEnd;
 	private String				inverterId;
 	private State				currentState		= State.NOT_CHARGING;
 	private DateTimeFormatter	dtf;
+	private Set<TimeWindow>		completedWindows	= new HashSet<>();
+	private LocalTime			start;
+	private LocalTime			end;
 
 	public RedControllerLogic(InverterController owner) {
 		this.owner = owner;
@@ -58,59 +63,70 @@ public class RedControllerLogic implements ControllerLogic {
 		csv.setOnReload(dt -> dt.getTable().createIndex("day"));
 
 		dtf = DateTimeFormatter.ofPattern("HH:mm");
-		windowStart = LocalTime.parse(InvUtil.getAttrib(root, "startTime"), dtf);
-		windowEnd = LocalTime.parse(InvUtil.getAttrib(root, "endTime"), dtf);
+		start = LocalTime.parse(InvUtil.getAttrib(root, "startTime"), dtf);
+		end = LocalTime.parse(InvUtil.getAttrib(root, "endTime"), dtf);
 		inverterId = InvUtil.getAttrib(root, "inverter");
 	}
 
 	@Override
 	public void run() throws InvMonException {
+		State s = run(LocalDateTime.now());
+		if (s != null)
+			setCharging(s);
+	}
+
+	public State run(LocalDateTime now) throws InvMonException {
 		//
-		// see if we're in the time window, then check if we're under the target
+		// see if we're in a time window, then check if we're under the target
 		// SoC% and switch on if so.  If we hit the target, mark today as finished
-		// and turn off
+		// and turn off.  if we've already completed a charge within this time
+		// window then don't start again
 		//
-		int today = getCurrentDayNumber();
-		if (lastCompletedDay >= today) // already done it today, so stop immediately
-			return;
+		List<TimeWindow> windows = new ArrayList<>();
+		windows.add(new TimeWindow(now.toLocalDate().plusDays(-1), start, end));
+		windows.add(new TimeWindow(now.toLocalDate().plusDays(0), start, end));
+		windows.add(new TimeWindow(now.toLocalDate().plusDays(1), start, end));
+
+		//
+		// remove any that are complete
+		//
+		windows.removeAll(completedWindows);
 
 		Mutable<State> outcome = new Mutable<>();
-		try {
-			int soc = 25;
-			boolean inWindow = isInWindow(LocalTime.now());
-
-			//
-			// get today's threshold
-			//
-			int threshold = getTodayThreshold(today);
-
-			//
-			// if we're not in the time window then we must never be charging
-			//
-			if (!inWindow) {
-				outcome.set(State.NOT_CHARGING);
-				return;
-			}
-
-			//
-			// if we're in the time window, we're not charging, and we're under the target SoC
-			// then go into charge mode
-			//
-			if (inWindow && currentState == State.NOT_CHARGING && soc < threshold) {
-				outcome.set(State.CHARGING);
-			}
-
-			if (inWindow && currentState == State.CHARGING && soc >= threshold) {
-				outcome.set(State.NOT_CHARGING);
-				lastCompletedDay = today; // prevent us from going back into charge today
-			}
-		} finally {
-			//
-			// actually send the instruction to the inverter
-			//
-			if (outcome.get() != null)
-				setCharging(outcome.get());
+		//
+		// see if we're in any window at the moment, if we're not then we must 
+		// never be charging
+		//
+		TimeWindow in = null;
+		for (TimeWindow w : windows) {
+			if (w.contains(now))
+				in = w;
 		}
+
+		boolean inWindow = in != null;
+		if (!inWindow)
+			return State.NOT_CHARGING;
+
+		//
+		// get today's threshold
+		//
+		int soc = 25;
+		int threshold = getTodayThreshold(getCurrentDayNumber(now.toLocalDate()));
+
+		//
+		// if we're in the time window, we're not charging, and we're under the target SoC
+		// then go into charge mode
+		//
+		if (inWindow && currentState == State.NOT_CHARGING && soc < threshold) {
+			outcome.set(State.CHARGING);
+		}
+
+		if (inWindow && currentState == State.CHARGING && soc >= threshold) {
+			outcome.set(State.NOT_CHARGING);
+			completedWindows.add(in);
+		}
+
+		return outcome.get();
 	}
 
 	private int getTodayThreshold(int today) throws InvMonException {
@@ -134,35 +150,39 @@ public class RedControllerLogic implements ControllerLogic {
 		currentState = state;
 	}
 
-	private boolean isInWindow(LocalTime now) {
-		//
-		// if our window spans midnight (ie. start>end) then 
-		// we need to check in two halves
-		//
-		if (windowStart.isAfter(windowEnd))
-			return (windowStart.isBefore(now) && LocalTime.MIDNIGHT.isAfter(now)) || (LocalTime.MIDNIGHT.isBefore(now) && windowEnd.isAfter(now));
-		else
-			return windowStart.isBefore(now) && windowEnd.isAfter(now);
-	}
-
-	private static int getCurrentDayNumber() {
-		return LocalDate.now().getDayOfYear();
+	private static int getCurrentDayNumber(LocalDate now) {
+		return now.getDayOfYear();
 	}
 
 	@Override
 	public String toString() {
 		try {
-			int today = getCurrentDayNumber();
+			int today = getCurrentDayNumber(LocalDate.now());
 			StringBuilder sb = new StringBuilder();
 			sb.append("  Time: ").append(dtf.format(LocalTime.now())).append("\n");
 			sb.append(" State: ").append(currentState).append("\n");
 			sb.append(" Today: ").append(today).append("\n");
 			sb.append("Target: ").append(getTodayThreshold(today)).append("%\n");
-			sb.append("  Done? ").append(lastCompletedDay >= today ? "Yes" : "-").append("\n");
 			return sb.toString();
 		} catch (Exception e) {
 			return e.toString();
 		}
+	}
+
+	public LocalTime getStart() {
+		return start;
+	}
+
+	public void setStart(LocalTime start) {
+		this.start = start;
+	}
+
+	public LocalTime getEnd() {
+		return end;
+	}
+
+	public void setEnd(LocalTime end) {
+		this.end = end;
 	}
 
 }
