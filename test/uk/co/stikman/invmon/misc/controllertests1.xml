@@ -1,0 +1,3 @@
+<TestConfig>
+		<Test1 csv="thresholds.csv" startTime="23:00" endTime="04:00" inverter="invA" />
+</TestConfig>
