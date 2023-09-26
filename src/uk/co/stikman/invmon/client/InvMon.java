@@ -4,7 +4,6 @@ import org.teavm.jso.browser.Window;
 import org.teavm.jso.dom.html.HTMLDocument;
 import org.teavm.jso.dom.html.HTMLElement;
 import org.teavm.jso.dom.xml.Element;
-import org.teavm.jso.dom.xml.Node;
 
 public class InvMon {
 

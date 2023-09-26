@@ -6,7 +6,6 @@ import java.util.function.Consumer;
 import org.json.JSONObject;
 import org.teavm.classlib.java.net.TURLEncoder;
 import org.teavm.jso.ajax.XMLHttpRequest;
-import org.teavm.jso.browser.Window;
 import org.teavm.jso.dom.html.HTMLElement;
 
 import uk.co.stikman.invmon.Events;

@@ -10,7 +10,7 @@ import uk.co.stikman.invmon.server.HTMLGenerator;
 
 public class ChartWidget extends AbstractPageWidget {
 
-	private StandardFrame	frame;
+	private StandardFrame frame;
 
 	public ChartWidget(ClientPage owner) {
 		super(owner);
@@ -29,12 +29,12 @@ public class ChartWidget extends AbstractPageWidget {
 		getOwner().fetch("executeChart", args, result -> {
 			ChartOptions opts = new ChartOptions();
 			opts.fromJSON(result.getJSONObject("config"));
-			
+
 			DataSetImpl data = new DataSetImpl();
 			data.fromJSON(result.getJSONObject("data"));
 			HTMLBuilder html = new HTMLBuilder();
 			HTMLGenerator.renderChart(html, result.getString("css"), opts, data);
-			
+
 			frame.content.clear();
 			HTMLElement div = InvMon.div();
 			div.setInnerHTML(html.toString());
@@ -45,14 +45,14 @@ public class ChartWidget extends AbstractPageWidget {
 			div.appendChild(thing.getElement());
 
 			JSONArray arr = result.optJSONArray("titleBits");
-			frame.header.clear();
+			frame.clearExtraHeaderBits();
 			HTMLElement h1 = InvMon.element("h1", "title");
 			h1.setInnerText(getName());
-			frame.header.appendChild(h1);
+			frame.appendExtraHeaderBit(h1);
 			if (arr != null) {
 				for (int i = 0; i < arr.length(); ++i) {
 					div = InvMon.div("grp");
-					frame.header.appendChild(div);
+					frame.appendExtraHeaderBit(div);
 					div.setInnerHTML(arr.getString(i));
 				}
 			}

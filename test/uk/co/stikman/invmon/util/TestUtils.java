@@ -1,6 +1,7 @@
 package uk.co.stikman.invmon.util;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -23,6 +24,8 @@ public class TestUtils {
 
 	public static File resourceToTempFile(Class<?> cls, String name) throws IOException {
 		try (InputStream is = cls.getResourceAsStream(name)) {
+			if (is == null)
+				throw new FileNotFoundException(name);
 			File f = File.createTempFile("invmontests", null);
 			FileUtils.copyInputStreamToFile(is, f);
 			return f;

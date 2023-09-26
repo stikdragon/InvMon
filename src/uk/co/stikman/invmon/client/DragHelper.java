@@ -4,8 +4,6 @@ import org.teavm.jso.dom.events.EventListener;
 import org.teavm.jso.dom.events.MouseEvent;
 import org.teavm.jso.dom.html.HTMLElement;
 
-import uk.co.stikman.invmon.client.DragHelper.DragHandler;
-
 public class DragHelper {
 
 	public interface DragHandler {

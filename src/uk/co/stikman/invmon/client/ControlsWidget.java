@@ -1,7 +1,9 @@
 package uk.co.stikman.invmon.client;
 
 import org.json.JSONObject;
+import org.teavm.jso.dom.events.MouseEvent;
 import org.teavm.jso.dom.html.HTMLElement;
+import org.teavm.jso.dom.xml.Node;
 
 import uk.co.stikman.invmon.Events;
 
@@ -36,6 +38,20 @@ public class ControlsWidget extends AbstractPageWidget {
 
 		UserWidget x = new UserWidget(getOwner());
 		frame.content.appendChild(x.getElement());
+		frame.appendExtraHeaderBit(createOptionsButton());
+	}
+
+	private HTMLElement createOptionsButton() {
+		HTMLElement el = InvMon.div("options");
+		el.addEventListener("click", ev -> {
+			ev.stopPropagation();
+			MouseEvent ev2 = (MouseEvent) ev;
+			Menu mnu = new Menu();
+			mnu.addItem("Login", null);
+			mnu.addItem("Show log..", null);
+			mnu.showAt(ev2.getClientX(), ev2.getClientY());
+		});
+		return el;
 	}
 
 	@Override

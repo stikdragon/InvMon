@@ -74,6 +74,7 @@ public class HTTPServer extends InvModule {
 		urlMappings.put("index.html", this::resource);
 		urlMappings.put("classes.js", this::resource);
 		urlMappings.put("resize.png", this::resource);
+		urlMappings.put("cog.png", this::resource);
 
 		urlMappings.put("log", this::logPage);
 		urlMappings.put("data", this::dataPage);

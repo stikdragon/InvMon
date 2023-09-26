@@ -14,10 +14,10 @@ import org.w3c.dom.Element;
 
 import uk.co.stikman.invmon.InvMonException;
 import uk.co.stikman.invmon.InverterMonitor;
+import uk.co.stikman.invmon.PollData;
 import uk.co.stikman.invmon.inverter.PIP8048MAX.OutputMode;
 import uk.co.stikman.invmon.inverter.util.FileBackedDataTable;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
-import uk.co.stikman.invmon.inverter.util.Mutable;
 import uk.co.stikman.table.CSVImporter;
 import uk.co.stikman.table.DataRecord;
 
@@ -35,7 +35,7 @@ import uk.co.stikman.table.DataRecord;
  */
 public class RedControllerLogic implements ControllerLogic {
 
-	private enum State {
+	public enum State {
 		NOT_CHARGING,
 		CHARGING
 	}
@@ -48,6 +48,7 @@ public class RedControllerLogic implements ControllerLogic {
 	private Set<TimeWindow>		completedWindows	= new HashSet<>();
 	private LocalTime			start;
 	private LocalTime			end;
+	private int					soc;
 
 	public RedControllerLogic(InverterController owner) {
 		this.owner = owner;
@@ -65,17 +66,32 @@ public class RedControllerLogic implements ControllerLogic {
 		dtf = DateTimeFormatter.ofPattern("HH:mm");
 		start = LocalTime.parse(InvUtil.getAttrib(root, "startTime"), dtf);
 		end = LocalTime.parse(InvUtil.getAttrib(root, "endTime"), dtf);
-		inverterId = InvUtil.getAttrib(root, "inverter");
+		inverterId = InvUtil.getAttrib(root, "inverter", null);
 	}
 
 	@Override
 	public void run() throws InvMonException {
-		State s = run(LocalDateTime.now());
+		State s = run(LocalDateTime.now(), soc);
 		if (s != null)
 			setCharging(s);
 	}
 
-	public State run(LocalDateTime now) throws InvMonException {
+
+	//
+	// so the logic here should be:
+	//
+	//  in window   under thresh    state           OUTCOME
+	//  ---------   ------------    ------------    -----------------------------
+	//  no          no              not_charging     
+	//  no          no              charging        set no-charge, mark completed
+	//  no          yes             not_charging     
+	//  no          yes             charging        set no-charge, mark completed
+	//  yes         no              not_charging     
+	//  yes         no              charging        set no-charge, mark completed
+	//  yes         yes             not_charging    set charge, if not completed
+	//  yes         yes             charging         
+	//
+	public State run(LocalDateTime now, int soc) throws InvMonException {
 		//
 		// see if we're in a time window, then check if we're under the target
 		// SoC% and switch on if so.  If we hit the target, mark today as finished
@@ -87,16 +103,6 @@ public class RedControllerLogic implements ControllerLogic {
 		windows.add(new TimeWindow(now.toLocalDate().plusDays(0), start, end));
 		windows.add(new TimeWindow(now.toLocalDate().plusDays(1), start, end));
 
-		//
-		// remove any that are complete
-		//
-		windows.removeAll(completedWindows);
-
-		Mutable<State> outcome = new Mutable<>();
-		//
-		// see if we're in any window at the moment, if we're not then we must 
-		// never be charging
-		//
 		TimeWindow in = null;
 		for (TimeWindow w : windows) {
 			if (w.contains(now))
@@ -104,29 +110,32 @@ public class RedControllerLogic implements ControllerLogic {
 		}
 
 		boolean inWindow = in != null;
-		if (!inWindow)
-			return State.NOT_CHARGING;
 
 		//
 		// get today's threshold
 		//
-		int soc = 25;
 		int threshold = getTodayThreshold(getCurrentDayNumber(now.toLocalDate()));
-
-		//
-		// if we're in the time window, we're not charging, and we're under the target SoC
-		// then go into charge mode
-		//
-		if (inWindow && currentState == State.NOT_CHARGING && soc < threshold) {
-			outcome.set(State.CHARGING);
+		if (!inWindow) {
+			if (currentState == State.CHARGING) {
+				setCharging(State.NOT_CHARGING);
+				completedWindows.add(in);
+			}
+		} else {
+			if (soc > threshold) {
+				if (currentState == State.CHARGING) {
+					setCharging(State.NOT_CHARGING);
+					completedWindows.add(in);
+				}
+			} else {
+				if (currentState == State.NOT_CHARGING) {
+					if (!completedWindows.contains(in)) {
+						setCharging(State.CHARGING);
+					}
+				}
+			}
 		}
 
-		if (inWindow && currentState == State.CHARGING && soc >= threshold) {
-			outcome.set(State.NOT_CHARGING);
-			completedWindows.add(in);
-		}
-
-		return outcome.get();
+		return currentState;
 	}
 
 	private int getTodayThreshold(int today) throws InvMonException {
@@ -143,10 +152,13 @@ public class RedControllerLogic implements ControllerLogic {
 		//
 		// send to inverter
 		//
-		InverterMonitor inv = owner.getEnv().findModule(inverterId);
-		if (inv == null)
-			throw new InvMonException("Controller target inverter [" + inverterId + "] not found");
-		inv.setOutputMode(state == State.CHARGING ? OutputMode.UTIL_SOL_BAT : OutputMode.SOL_BAT_UTIL);
+		if (inverterId != null) {
+			InverterMonitor inv = owner.getEnv().findModule(inverterId);
+			if (inv == null)
+				throw new InvMonException("Controller target inverter [" + inverterId + "] not found");
+			inv.setOutputMode(state == State.CHARGING ? OutputMode.UTIL_SOL_BAT : OutputMode.SOL_BAT_UTIL);
+		}
+
 		currentState = state;
 	}
 
@@ -162,6 +174,7 @@ public class RedControllerLogic implements ControllerLogic {
 			sb.append("  Time: ").append(dtf.format(LocalTime.now())).append("\n");
 			sb.append(" State: ").append(currentState).append("\n");
 			sb.append(" Today: ").append(today).append("\n");
+			sb.append("   SoC: ").append(soc).append("%\n");
 			sb.append("Target: ").append(getTodayThreshold(today)).append("%\n");
 			return sb.toString();
 		} catch (Exception e) {
@@ -183,6 +196,11 @@ public class RedControllerLogic implements ControllerLogic {
 
 	public void setEnd(LocalTime end) {
 		this.end = end;
+	}
+
+	@Override
+	public void acceptPollData(PollData data) {
+		soc = (int) (100.0f * data.get(inverterId).getFloat("soc"));
 	}
 
 }

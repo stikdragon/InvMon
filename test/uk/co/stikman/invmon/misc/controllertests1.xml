@@ -1,3 +1,4 @@
 <TestConfig>
-		<Test1 csv="thresholds.csv" startTime="23:00" endTime="04:00" inverter="invA" />
+		<Test1 csv="this gets replaced by the test" startTime="15:00" endTime="18:00" />
+		<Test2 csv="this gets replaced by the test" startTime="22:00" endTime="02:00" />
 </TestConfig>

@@ -1,12 +1,9 @@
 package uk.co.stikman.invmon;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.io.IOUtils;
 
 import uk.co.stikman.invmon.nanohttpd.NanoHTTPD;
 import uk.co.stikman.invmon.server.InvMonHTTPResponse;

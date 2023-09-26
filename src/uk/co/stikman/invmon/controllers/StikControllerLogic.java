@@ -3,6 +3,7 @@ package uk.co.stikman.invmon.controllers;
 import org.w3c.dom.Element;
 
 import uk.co.stikman.invmon.InvMonException;
+import uk.co.stikman.invmon.PollData;
 
 public class StikControllerLogic implements ControllerLogic {
 
@@ -19,6 +20,11 @@ public class StikControllerLogic implements ControllerLogic {
 
 	@Override
 	public void run() throws InvMonException {
+		
+	}
+
+	@Override
+	public void acceptPollData(PollData data) {
 		
 	}
 

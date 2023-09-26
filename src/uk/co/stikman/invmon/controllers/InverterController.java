@@ -11,6 +11,7 @@ import uk.co.stikman.invmon.Env;
 import uk.co.stikman.invmon.Events;
 import uk.co.stikman.invmon.InvModule;
 import uk.co.stikman.invmon.InvMonException;
+import uk.co.stikman.invmon.PollData;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
 import uk.co.stikman.log.StikLog;
 
@@ -48,6 +49,11 @@ public class InverterController extends InvModule {
 		} catch (InvMonException e) {
 			LOGGER.error(e);
 		}
+	}
+
+	@Subscribe(Events.POST_DATA)
+	public void poll(PollData data) {
+		logic.acceptPollData(data);
 	}
 
 	@Override

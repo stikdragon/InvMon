@@ -3,6 +3,7 @@ package uk.co.stikman.invmon.controllers;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 
 public class TimeWindow {
 	private final LocalDateTime	start;
@@ -10,8 +11,8 @@ public class TimeWindow {
 
 	public TimeWindow(LocalDateTime start, LocalDateTime end) {
 		super();
-		this.start = start;
-		this.end = end;
+		this.start = start.truncatedTo(ChronoUnit.SECONDS);
+		this.end = end.truncatedTo(ChronoUnit.SECONDS);
 	}
 
 	public TimeWindow(TimeWindow copy) {
@@ -20,11 +21,11 @@ public class TimeWindow {
 	}
 
 	public TimeWindow(LocalDate date, LocalTime start, LocalTime end) {
-		this.start = LocalDateTime.of(date, start);
+		this.start = LocalDateTime.of(date, start).truncatedTo(ChronoUnit.SECONDS);
 		if (start.isAfter(end)) // spans two days
-			this.end = LocalDateTime.of(date, end).plusDays(1);
+			this.end = LocalDateTime.of(date, end).truncatedTo(ChronoUnit.SECONDS).plusDays(1);
 		else // same day
-			this.end = LocalDateTime.of(date, end);
+			this.end = LocalDateTime.of(date, end).truncatedTo(ChronoUnit.SECONDS);
 	}
 
 	@Override
@@ -72,7 +73,12 @@ public class TimeWindow {
 	}
 
 	public boolean contains(LocalDateTime dt) {
-		return start.isBefore(dt) && end.isAfter(dt);
+		LocalDateTime x = dt.truncatedTo(ChronoUnit.SECONDS);
+		if (start.equals(x))
+			return true;
+		if (end.equals(x))
+			return true;
+		return start.truncatedTo(ChronoUnit.SECONDS).isBefore(x) && end.isAfter(x);
 	}
 
 }

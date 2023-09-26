@@ -1,8 +1,6 @@
 package uk.co.stikman.invmon.client;
 
 import org.json.JSONObject;
-import org.teavm.jso.dom.events.EventListener;
-import org.teavm.jso.dom.events.MouseEvent;
 import org.teavm.jso.dom.html.HTMLElement;
 
 public abstract class AbstractPageWidget {
@@ -14,7 +12,6 @@ public abstract class AbstractPageWidget {
 	private int					height;
 	private String				id;
 	private String				name;
-	private HTMLElement			hdr;
 	private HTMLElement			root;
 	private HTMLElement			resizehandle;
 
@@ -96,17 +93,13 @@ public abstract class AbstractPageWidget {
 
 		HTMLElement inner = InvMon.div("gridframeinner");
 		root.appendChild(inner);
-
-		hdr = null;
+		
+		StandardFrame a = new StandardFrame(header);
 		if (header) {
-			hdr = InvMon.div("hdr");
-			inner.appendChild(hdr);
-			if (name != null) {
-				HTMLElement h1 = InvMon.element("h1", "title");
-				h1.setInnerText(name);
-				hdr.appendChild(h1);
-			}
-			DragHelper dh = new DragHelper(hdr);
+			inner.appendChild(a.getHeader());
+			if (name != null) 
+				a.setTitle(name);
+			DragHelper dh = new DragHelper(a.getHeader());
 			dh.setDragStartHandler(() -> {
 				startX = x;
 				startY = y;
@@ -155,8 +148,7 @@ public abstract class AbstractPageWidget {
 
 		}
 
-		StandardFrame a = new StandardFrame();
-		a.header = hdr;
+		
 		a.content = el2;
 		a.glass = elGlass;
 		a.error = elError;
