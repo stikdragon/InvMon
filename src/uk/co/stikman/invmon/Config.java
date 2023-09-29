@@ -13,6 +13,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import uk.co.stikman.invmon.controllers.InverterController;
+import uk.co.stikman.invmon.controllers.RedSystemController;
+import uk.co.stikman.invmon.controllers.StikSystemController;
 import uk.co.stikman.invmon.datalog.DataLogger;
 import uk.co.stikman.invmon.inverter.PIP8048MAX.InverterPIPMAX;
 import uk.co.stikman.invmon.remote.JSONRecv;
@@ -22,24 +24,43 @@ import uk.co.stikman.invmon.server.HTTPServer;
 
 public class Config {
 
-	private List<InvModDefinition>									things			= new ArrayList<>();
-	private int														updatePeriod;
-	private boolean													allowConversion	= false;
-	private File													modelFile;
-	private long													lastModified;
-	private final static Map<String, Class<? extends InvModule>>	thingtypes		= new HashMap<>();
+	private interface InvModuleTypeMatcher {
+		boolean accepts(Element el);
+	}
+
+	private static class SimpleMatcher implements InvModuleTypeMatcher {
+		private final String tagName;
+
+		public SimpleMatcher(String tagName) {
+			super();
+			this.tagName = tagName;
+		}
+
+		@Override
+		public boolean accepts(Element el) {
+			return tagName.equals(el.getTagName());
+		}
+	}
+
+	private List<InvModDefinition>														things			= new ArrayList<>();
+	private int																			updatePeriod;
+	private boolean																		allowConversion	= false;
+	private File																		modelFile;
+	private long																		lastModified;
+	private final static List<Pair<InvModuleTypeMatcher, Class<? extends InvModule>>>	thingtypes		= new ArrayList<>();
 
 	static {
-		thingtypes.put("Inverter", InverterPIPMAX.class);
-		thingtypes.put("FakeInverter", FakeInverterMonitor.class);
-		thingtypes.put("ConsoleOutput", ConsoleOutput.class);
-		thingtypes.put("DataLogger", DataLogger.class);
-		thingtypes.put("HTTPServer", HTTPServer.class);
-		thingtypes.put("JSONRecv", JSONRecv.class);
-		thingtypes.put("JSONSend", JSONSend.class);
-		thingtypes.put("SerialRepeater", SerialRepeater.class);
-		thingtypes.put("Properties", PropertiesThing.class);
-		thingtypes.put("InverterController", InverterController.class);
+		thingtypes.add(new Pair<>(new SimpleMatcher("Inverter"), InverterPIPMAX.class));
+		thingtypes.add(new Pair<>(new SimpleMatcher("FakeInverter"), FakeInverterMonitor.class));
+		thingtypes.add(new Pair<>(new SimpleMatcher("ConsoleOutput"), ConsoleOutput.class));
+		thingtypes.add(new Pair<>(new SimpleMatcher("DataLogger"), DataLogger.class));
+		thingtypes.add(new Pair<>(new SimpleMatcher("HTTPServer"), HTTPServer.class));
+		thingtypes.add(new Pair<>(new SimpleMatcher("JSONRecv"), JSONRecv.class));
+		thingtypes.add(new Pair<>(new SimpleMatcher("JSONSend"), JSONSend.class));
+		thingtypes.add(new Pair<>(new SimpleMatcher("SerialRepeater"), SerialRepeater.class));
+		thingtypes.add(new Pair<>(new SimpleMatcher("Properties"), PropertiesThing.class));
+		thingtypes.add(new Pair<>(el -> el.getTagName().equals("InverterController") && "stik".equals(el.getAttribute("type")), StikSystemController.class));
+		thingtypes.add(new Pair<>(el -> el.getTagName().equals("InverterController") && "red".equals(el.getAttribute("type")), RedSystemController.class));
 	}
 
 	public void loadFromFile(File f) throws IOException {
@@ -51,13 +72,17 @@ public class Config {
 
 		Element emod = getElement(doc.getDocumentElement(), "Modules");
 		for (Element el : getElements(emod)) {
-			Class<? extends InvModule> cls = thingtypes.get(el.getTagName());
-			if (cls != null) {
-				String id = getAttrib(el, "id");
-				if (findPartDef(id) != null)
-					throw new IllegalArgumentException("Object with id [" + id + "] already defined");
-				things.add(new InvModDefinition(id, cls, el));
+			Class<? extends InvModule> cls = null;
+			for (Pair<InvModuleTypeMatcher, Class<? extends InvModule>> p : thingtypes) {
+				if (p.getA().accepts(el))
+					cls = p.getB();
 			}
+			if (cls == null)
+				throw new IllegalArgumentException("No Module could be found for element <" + el.getTagName() + ">");
+			String id = getAttrib(el, "id");
+			if (findPartDef(id) != null)
+				throw new IllegalArgumentException("Object with id [" + id + "] already defined");
+			things.add(new InvModDefinition(id, cls, el));
 		}
 		this.lastModified = f.lastModified();
 	}
@@ -76,10 +101,6 @@ public class Config {
 
 	public boolean isAllowConversion() {
 		return allowConversion;
-	}
-
-	public static Map<String, Class<? extends InvModule>> getThingTypes() {
-		return thingtypes;
 	}
 
 	public File getModelFile() {

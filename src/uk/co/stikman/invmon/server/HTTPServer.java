@@ -4,11 +4,14 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import java.util.Set;
 
 import org.json.JSONArray;
@@ -84,6 +87,7 @@ public class HTTPServer extends InvModule {
 		urlMappings.put("setParams", this::setParams);
 		urlMappings.put("getInfoBit", this::getInfoBit);
 		urlMappings.put("invalidateResults", this::invalidateResults);
+		urlMappings.put("fetchLog", this::fetchLog);
 
 		urlMappings.put("login", this::login);
 		urlMappings.put("logout", this::logout);
@@ -121,7 +125,6 @@ public class HTTPServer extends InvModule {
 		String html = new LogPage(getEnv(), sesh).exec();
 		return new InvMonHTTPResponse(html);
 	}
-
 
 	private InvMonHTTPResponse executeChart(String url, UserSesh sesh, InvMonHTTPRequest session) throws Exception {
 		JSONObject jo = new JSONObject(URLDecoder.decode(session.getQueryParameterString(), StandardCharsets.UTF_8.name()));
@@ -342,6 +345,13 @@ public class HTTPServer extends InvModule {
 		sesh.putData(CACHED_QUERY_RESULTS, null);
 		sesh.putData(CACHED_LAST_RECORD, null);
 		return new InvMonHTTPResponse(new JSONObject().put("result", "OK").toString());
+	}
+
+	private InvMonHTTPResponse fetchLog(String url, UserSesh sesh, InvMonHTTPRequest request) throws InvMonException {
+		JSONObject res = new JSONObject();
+		List<String> lst = getEnv().copyUserLog(new ArrayList<>());
+		res.put("log", lst.stream().collect(Collectors.joining("\n")));
+		return new InvMonHTTPResponse(Status.OK, "text/json", res.toString());
 	}
 
 	private InvMonHTTPResponse getConfig(String url, UserSesh sesh, InvMonHTTPRequest request) throws InvMonException {

@@ -39,4 +39,11 @@ public abstract class InvModule {
 		getEnv().getBus().unregister(this);
 	};
 
+	public void userLog(String msg) {
+		if (env != null)
+			env.userLog(this, msg);
+		else
+			System.out.println(msg); // to work during tests 
+	}
+
 }

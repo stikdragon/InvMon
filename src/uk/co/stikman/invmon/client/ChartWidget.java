@@ -46,9 +46,6 @@ public class ChartWidget extends AbstractPageWidget {
 
 			JSONArray arr = result.optJSONArray("titleBits");
 			frame.clearExtraHeaderBits();
-			HTMLElement h1 = InvMon.element("h1", "title");
-			h1.setInnerText(getName());
-			frame.appendExtraHeaderBit(h1);
 			if (arr != null) {
 				for (int i = 0; i < arr.length(); ++i) {
 					div = InvMon.div("grp");

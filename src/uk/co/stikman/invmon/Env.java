@@ -5,7 +5,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Timer;
@@ -26,24 +29,27 @@ import uk.co.stikman.log.StikLog;
 import uk.co.stikman.table.DataTable;
 
 public class Env {
-	private static final StikLog	LOGGER			= StikLog.getLogger(Env.class);
+	private static final StikLog			LOGGER				= StikLog.getLogger(Env.class);
+	private static final int				MAX_USER_LOG_LENGTH	= 500;
+	private static final DateTimeFormatter	DTF					= DateTimeFormatter.ofPattern("MMM dd HH:mm");
 
-	public FieldType				DATATYPE_VOLT8	= null;
+	public FieldType						DATATYPE_VOLT8		= null;
 
-	private static String			version			= "dev";
+	private static String					version				= "dev";
 
-	private List<InvModule>			parts			= new ArrayList<>();
-	private StringEventBus			bus				= new StringEventBus();
-	private Thread					mainthread;
-	private boolean					terminated		= false;
-	private Config					config;
-	private DataModel				model;
-	private ExecutorService			exec;
-	private Timer					timer;
+	private List<InvModule>					parts				= new ArrayList<>();
+	private StringEventBus					bus					= new StringEventBus();
+	private Thread							mainthread;
+	private boolean							terminated			= false;
+	private Config							config;
+	private DataModel						model;
+	private ExecutorService					exec;
+	private Timer							timer;
+	private LinkedList<String>				userLog				= new LinkedList<>();
 
-	private EnvLog					log;
+	private EnvLog							log;
 
-	private File					root;
+	private File							root;
 
 	static {
 		try (InputStream is = Env.class.getResourceAsStream("version.txt")) { // ant script writes this
@@ -149,6 +155,11 @@ public class Env {
 	private void loop() {
 		long lastTimer = System.currentTimeMillis();
 		long t2err = 0;
+
+		userLog(null, "InvMon started");
+
+		for (int i = 0; i < 100; ++i)
+			userLog(null, "MEssage  " + i);
 
 		for (;;) {
 			if (terminated)
@@ -278,6 +289,24 @@ public class Env {
 		if (f.isAbsolute())
 			return f;
 		return new File(root, path);
+	}
+
+	public void userLog(InvModule sender, String msg) {
+		synchronized (userLog) {
+			while (userLog.size() > MAX_USER_LOG_LENGTH)
+				userLog.removeLast();
+			if (sender == null)
+				userLog.addFirst(LocalDateTime.now().format(DTF) + " " + msg);
+			else
+				userLog.addFirst(LocalDateTime.now().format(DTF) + " [" + InvUtil.padLeft(sender.getId(), 10) + "] " + msg);
+		}
+	}
+
+	public List<String> copyUserLog(List<String> out) {
+		synchronized (userLog) {
+			out.addAll(userLog);
+		}
+		return out;
 	}
 
 }

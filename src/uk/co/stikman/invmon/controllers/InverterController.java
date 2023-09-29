@@ -15,28 +15,14 @@ import uk.co.stikman.invmon.PollData;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
 import uk.co.stikman.log.StikLog;
 
-public class InverterController extends InvModule {
+public abstract class InverterController extends InvModule {
 	private static final StikLog	LOGGER		= StikLog.getLogger(InverterController.class);
 	private File					file;
 	private Map<String, String>		properties	= new HashMap<>();
 	private long					lastUpdate;
-	private ControllerLogic			logic;
 
 	public InverterController(String id, Env env) {
 		super(id, env);
-	}
-
-	@Override
-	public void configure(Element root) throws InvMonException {
-		String s = InvUtil.getAttrib(root, "type");
-		if ("red_csv".equals(s)) {
-			logic = new RedControllerLogic(this);
-		} else if ("stik1".equals(s)) {
-			logic = new StikControllerLogic(this);
-		} else
-			throw new InvMonException("<InverterController> type attribute is not recognised: " + s);
-
-		logic.config(root);
 	}
 
 	@Subscribe(Events.TIMER_UPDATE_MINUTE)
@@ -45,19 +31,14 @@ public class InverterController extends InvModule {
 		// fires every minute
 		//
 		try {
-			logic.run();
+			run();
 		} catch (InvMonException e) {
 			LOGGER.error(e);
 		}
 	}
 
-	@Subscribe(Events.POST_DATA)
-	public void poll(PollData data) {
-		logic.acceptPollData(data);
+	protected void run() throws InvMonException {
+
 	}
 
-	@Override
-	public String toString() {
-		return logic.toString();
-	}
 }

@@ -501,6 +501,10 @@ table.data .total td {
 	font-size: 75%;
 }
 
+.popup {
+	z-index: 99999;
+}
+
 .modalglass {
 	backdrop-filter: blur(5px);
 	background: rgba(0, 0, 0, 30%);
@@ -512,6 +516,7 @@ table.data .total td {
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	z-index: 99999;
 }
 
 .modalglass>.content {
@@ -527,7 +532,6 @@ table.data .total td {
 	display: flex;
 	flex-direction: column;
 	gap: 8px;
-	z-index: 99999;
 }
 
 .logindialog .bottombar {
@@ -561,6 +565,31 @@ table.data .total td {
 	white-space: pre;
 	overflow: hidden;
 	font-size: 80%;
+}
+
+
+.logwidget .txt, .logpopup .txt {
+	white-space: pre;
+	height: 100%;
+	overflow: auto;
+	font-size: 80%;
+	background: #eee;
+	border-top: 1px solid rgba(0, 0, 0, 30%);
+	border-left: 1px solid rgba(0, 0, 0, 30%);
+	border-right: 1px solid rgba(255, 255, 255, 30%);
+	border-bottom: 1px solid rgba(255, 255, 255, 30%);
+	padding: 3px;
+	margin: 8px;
+}
+
+.logpopup .outer {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+}
+
+.logpopup .outer .button {
+	flex: 0 0 auto;
 }
 
 .Menu {

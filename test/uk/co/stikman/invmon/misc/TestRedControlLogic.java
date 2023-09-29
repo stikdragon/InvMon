@@ -13,8 +13,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import uk.co.stikman.invmon.InvMonException;
-import uk.co.stikman.invmon.controllers.RedControllerLogic;
-import uk.co.stikman.invmon.controllers.RedControllerLogic.State;
+import uk.co.stikman.invmon.controllers.RedSystemController;
+import uk.co.stikman.invmon.controllers.SimpleInverterController.State;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
 import uk.co.stikman.invmon.util.TestUtils;
 
@@ -27,9 +27,9 @@ public class TestRedControlLogic {
 		File csv = TestUtils.resourceToTempFile(this.getClass(), "red_csv_sample1.csv");
 		
 		Element el = loadTestConfigSection("Test1");
-		RedControllerLogic x = new RedControllerLogic(null);
+		RedSystemController x = new RedSystemController(null, null);
 		el.setAttribute("csv", csv.getAbsolutePath());
-		x.config(el);
+		x.configure(el);
 
 		//
 		// run some scenarios to test the behaviour
@@ -53,9 +53,9 @@ public class TestRedControlLogic {
 		// non-trivial.  window is 2200-0200
 		//
 		el = loadTestConfigSection("Test2");
-		x = new RedControllerLogic(null);
+		x = new RedSystemController(null, null);
 		el.setAttribute("csv", csv.getAbsolutePath());
-		x.config(el);
+		x.configure(el);
 		Assert.assertEquals(State.NOT_CHARGING, x.run(LocalDateTime.parse("2023-01-04 20:00", dtf), 60)); // not in window; above thresh%
 		Assert.assertEquals(State.NOT_CHARGING, x.run(LocalDateTime.parse("2023-01-04 21:00", dtf), 40)); // not in window; below thresh%
 		Assert.assertEquals(State.NOT_CHARGING, x.run(LocalDateTime.parse("2023-01-04 22:00", dtf), 60)); // not in window; above thresh%

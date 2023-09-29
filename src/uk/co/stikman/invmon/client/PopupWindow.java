@@ -10,7 +10,7 @@ public class PopupWindow {
 	
 	public PopupWindow() {
 		root = InvMon.div("modalglass");
-		window = InvMon.div("content");
+		window = InvMon.div("content", "popup");
 		root.appendChild(window);
 	}
 	
