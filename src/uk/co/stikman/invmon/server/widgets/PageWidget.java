@@ -12,6 +12,7 @@ import uk.co.stikman.invmon.inverter.util.InvUtil;
 import uk.co.stikman.invmon.server.PageLayout;
 import uk.co.stikman.invmon.server.UserSesh;
 import uk.co.stikman.invmon.server.ViewOptions;
+import uk.co.stikman.invmon.server.WebUtils;
 
 public abstract class PageWidget {
 	private final PageLayout	owner;
@@ -22,15 +23,6 @@ public abstract class PageWidget {
 	private int					width;
 	private int					height;
 	private String				title;
-
-	/**
-	 * keys for associating objects with a user session. in particular the cached
-	 * ones are used to avoid re-querying the database for multiple hits with a
-	 * single page
-	 */
-	public static final String	GLOBAL_VIEW_OPTIONS		= "gvo";
-	public static final String	CACHED_QUERY_RESULTS	= "cqr";
-	public static final String	CACHED_LAST_RECORD		= "clr";
 
 	public PageWidget(PageLayout owner) {
 		this.owner = owner;
@@ -79,8 +71,8 @@ public abstract class PageWidget {
 
 	protected void ensureCachedResults(UserSesh sesh) {
 		synchronized (sesh) {
-			ViewOptions opts = sesh.getData(GLOBAL_VIEW_OPTIONS);
-			QueryResults qr = sesh.getData(CACHED_QUERY_RESULTS);
+			ViewOptions opts = sesh.getData(WebUtils.GLOBAL_VIEW_OPTIONS);
+			QueryResults qr = sesh.getData(WebUtils.CACHED_QUERY_RESULTS);
 			if (qr == null) {
 				long end = System.currentTimeMillis();
 				long start = end - (long) opts.getDuration() * 1000 * 60;
@@ -94,8 +86,8 @@ public abstract class PageWidget {
 
 				try {
 					QueryResults aggr = datalogger.query(start, end, 100, flds.asList());
-					sesh.putData(CACHED_QUERY_RESULTS, aggr);
-					sesh.putData(CACHED_LAST_RECORD, datalogger.getLastRecord());
+					sesh.putData(WebUtils.CACHED_QUERY_RESULTS, aggr);
+					sesh.putData(WebUtils.CACHED_LAST_RECORD, datalogger.getLastRecord());
 				} catch (MiniDbException e) {
 					throw new RuntimeException(e);
 				}
@@ -108,9 +100,9 @@ public abstract class PageWidget {
 	}
 
 	public static ViewOptions getViewOpts(UserSesh sesh) {
-		ViewOptions viewopts = sesh.getData(PageWidget.GLOBAL_VIEW_OPTIONS);
+		ViewOptions viewopts = sesh.getData(WebUtils.GLOBAL_VIEW_OPTIONS);
 		if (viewopts == null)
-			sesh.putData(PageWidget.GLOBAL_VIEW_OPTIONS, viewopts = new ViewOptions());
+			sesh.putData(WebUtils.GLOBAL_VIEW_OPTIONS, viewopts = new ViewOptions());
 		return viewopts;
 	}
 

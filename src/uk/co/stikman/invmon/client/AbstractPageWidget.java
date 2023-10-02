@@ -162,7 +162,7 @@ public abstract class AbstractPageWidget {
 	}
 
 	protected void api(String api, JSONObject args, Consumer<JSONObject> response) {
-		api(api, args, response, ex -> System.err.println(ex.toString()));
+		api(api, args, response, ex -> InvMon.getErrorPopup().addMessage("Error: " + ex.getMessage()));
 	}
 
 	protected void api(String api, JSONObject args, Consumer<JSONObject> response, Consumer<Exception> error) {
@@ -170,6 +170,13 @@ public abstract class AbstractPageWidget {
 		jo.put("id", getId());
 		jo.put("api", api);
 		jo.put("args", args);
-		getOwner().post("api", jo, response, error);
+		//
+		// api errors are wrapped up in JSON responses
+		//
+		getOwner().post("api", jo, response, errmsg -> {
+			JSONObject jo2 = new JSONObject(errmsg);
+			String msg = jo2.getString("error");
+			error.accept(new RPCError(msg));
+		});
 	}
 }

@@ -25,31 +25,33 @@ public abstract class ClientPage {
 
 	protected void post(String api, JSONObject args, Consumer<JSONObject> response) {
 		post(api, args, response, e -> {
-			ClientUtil.handleError(e);
+			ClientUtil.handleError(new RPCError(e));
 		});
 	}
 
-	protected void post(String api, JSONObject args, Consumer<JSONObject> response, Consumer<Exception> onerror) {
+	protected void post(String api, JSONObject args, Consumer<JSONObject> response, Consumer<String> onerror) {
 		http("POST", api, args, response, onerror);
 	}
 
 	protected void fetch(String api, JSONObject args, Consumer<JSONObject> response) {
 		fetch(api, args, response, e -> {
-			ClientUtil.handleError(e);
+			ClientUtil.handleError(new RPCError(e));
 		});
 	}
 
-	protected void fetch(String api, JSONObject args, Consumer<JSONObject> response, Consumer<Exception> onerror) {
+	protected void fetch(String api, JSONObject args, Consumer<JSONObject> response, Consumer<String> onerror) {
 		http("GET", api, args, response, onerror);
 	}
 
-	private void http(String method, String api, JSONObject args, Consumer<JSONObject> response, Consumer<Exception> onerror) {
+	private void http(String method, String api, JSONObject args, Consumer<JSONObject> response, Consumer<String> onerror) {
 		XMLHttpRequest xhr = XMLHttpRequest.create();
 		xhr.onComplete(() -> {
-			if (xhr.getStatus() != 200)
-				onerror.accept(new RPCError(xhr.getStatusText()));
-			else
+			if (xhr.getStatus() != 200) {
+				String err = method.equals("POST") ? xhr.getResponseText() : xhr.getStatusText();
+				onerror.accept(err);
+			} else {
 				response.accept(new JSONObject(xhr.getResponseText()));
+			}
 		});
 
 		if (method.equals("POST")) {

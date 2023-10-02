@@ -31,7 +31,7 @@ public class LoginDialog extends PopupWindow {
 		div = InvMon.div("pair");
 		div.appendChild(InvMon.text("Password"));
 		getContent().appendChild(div);
-		
+
 		txtPass = InvMon.element("input");
 		txtPass.setType("password");
 		div.appendChild(txtPass);
@@ -66,7 +66,7 @@ public class LoginDialog extends PopupWindow {
 			owner.getBus().fire(Events.USER_LOGGED_IN, u);
 			close();
 		}, err -> {
-			Window.alert("Login failed: " + err.toString());
+			ClientUtil.handleError(new RPCError("Login failed: " + err));
 			close();
 		});
 	}

@@ -18,8 +18,8 @@ public class LogWidget extends AbstractPageWidget {
 	protected void refresh(boolean nomask) {
 		if (!nomask)
 			frame.showGlass();
-		getOwner().fetch("fetchLog", new JSONObject(), result -> {
-			txt.setTextContent(result.getString("log"));
+		api("fetch", new JSONObject(), res -> {
+			txt.setTextContent(res.getString("log"));
 			frame.hideOverlays();
 		}, err -> {
 			frame.showError(err.getMessage());

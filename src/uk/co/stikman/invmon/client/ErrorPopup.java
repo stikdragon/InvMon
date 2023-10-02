@@ -5,14 +5,14 @@ import org.teavm.jso.dom.html.HTMLElement;
 
 public class ErrorPopup {
 
-	private HTMLElement root;
-	private HTMLElement content;
+	private HTMLElement	root;
+	private HTMLElement	content;
 
 	public ErrorPopup() {
 		root = InvMon.div("errorpopup");
-		HTMLElement el = InvMon.div("title");
-		el.setInnerText("Errors:");
-		root.appendChild(el);
+		//		HTMLElement el = InvMon.div("title");
+		//		el.setInnerText("Errors:");
+		//		root.appendChild(el);
 		content = InvMon.div("content");
 		root.appendChild(content);
 	}
@@ -29,5 +29,8 @@ public class ErrorPopup {
 		HTMLElement x = InvMon.div("msg");
 		x.setInnerText(msg);
 		content.appendChild(x);
+		Window.setTimeout(() -> x.getClassList().add("fadeout"), 3500);
+		Window.setTimeout(() -> content.removeChild(x), 4000);
+		show();
 	}
 }

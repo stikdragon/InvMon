@@ -2,6 +2,7 @@ package uk.co.stikman.invmon.server;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.w3c.dom.Element;
 
@@ -28,6 +29,10 @@ public class Users {
 
 	public User findByName(String name) {
 		return users.stream().filter(x -> name.equals(x.getName())).findFirst().orElse(null);
+	}
+
+	public User getByName(String name) {
+		return users.stream().filter(x -> name.equals(x.getName())).findFirst().orElseThrow(() -> new NoSuchElementException());
 	}
 
 }

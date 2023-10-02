@@ -10,6 +10,7 @@ import uk.co.stikman.invmon.server.HTMLBuilder;
 import uk.co.stikman.invmon.server.InvMonClientError;
 import uk.co.stikman.invmon.server.PageLayout;
 import uk.co.stikman.invmon.server.UserSesh;
+import uk.co.stikman.invmon.server.WebUtils;
 import uk.co.stikman.log.StikLog;
 
 public class GaugeWidget extends PageWidget {
@@ -39,7 +40,7 @@ public class GaugeWidget extends PageWidget {
 	@Override
 	public JSONObject executeApi(UserSesh sesh, String api, JSONObject args) {
 		try {
-			DBRecord rec = sesh.getData(PageWidget.CACHED_LAST_RECORD);
+			DBRecord rec = sesh.getData(WebUtils.CACHED_LAST_RECORD);
 			if (rec == null)
 				throw new InvMonClientError("No data");
 

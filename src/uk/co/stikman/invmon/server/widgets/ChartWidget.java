@@ -19,6 +19,7 @@ import uk.co.stikman.invmon.server.HeaderBitPF;
 import uk.co.stikman.invmon.server.PageLayout;
 import uk.co.stikman.invmon.server.Series;
 import uk.co.stikman.invmon.server.UserSesh;
+import uk.co.stikman.invmon.server.WebUtils;
 
 public class ChartWidget extends PageWidget {
 
@@ -93,8 +94,8 @@ public class ChartWidget extends PageWidget {
 		// make sure we've got the current cached result set for this session
 		//
 		ensureCachedResults(sesh);
-		QueryResults qr = sesh.getData(CACHED_QUERY_RESULTS);
-		DBRecord lastrec = sesh.getData(CACHED_LAST_RECORD);
+		QueryResults qr = sesh.getData(WebUtils.CACHED_QUERY_RESULTS);
+		DBRecord lastrec = sesh.getData(WebUtils.CACHED_LAST_RECORD);
 
 		opts.setSize(args.getInt("w"), args.getInt("h"));
 		HTMLBuilder html = new HTMLBuilder();

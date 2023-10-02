@@ -46,7 +46,7 @@ public class ControlsWidget extends AbstractPageWidget {
 			ev.stopPropagation();
 			MouseEvent ev2 = (MouseEvent) ev;
 			Menu mnu = new Menu();
-			mnu.addItem("Login", null);
+			mnu.addItem("Login", () -> getOwner().doLogin());
 			mnu.addItem("Show log..", this::showLogWindow);
 			mnu.showAt(ev2.getClientX(), ev2.getClientY());
 		});
@@ -60,7 +60,7 @@ public class ControlsWidget extends AbstractPageWidget {
 	}
 
 	private void showLogWindow() {
-		getOwner().fetch("fetchLog", new JSONObject(), result -> {
+		getOwner().fetch("fetchUserLog", new JSONObject(), result -> {
 			LogPopup wnd = new LogPopup(getOwner(), result.getString("log"));
 			wnd.showModal();
 		}, err -> {

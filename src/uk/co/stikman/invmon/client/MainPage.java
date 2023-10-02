@@ -28,7 +28,7 @@ public class MainPage extends ClientPage {
 	private static Map<String, Function<ClientPage, AbstractPageWidget>>	pageTypes			= new HashMap<>();
 
 	static {
-		pageTypes.put("timesel", TimeSelector::new);
+		pageTypes.put("timesel", TimeSelectorWidget::new);
 		pageTypes.put("infobit", InfoBitWidget::new);
 		pageTypes.put("chart", ChartWidget::new);
 		pageTypes.put("serverside", ServerRenderedWidget::new);
@@ -79,11 +79,11 @@ public class MainPage extends ClientPage {
 				w.construct(root);
 				widgets.add(w);
 
-				if (w instanceof TimeSelector) {
+				if (w instanceof TimeSelectorWidget) {
 					String param = ClientUtil.getURLParam("dur", null);
 					if (param != null)
-						((TimeSelector) w).setCurrent(Integer.parseInt(param));
-					((TimeSelector) w).setOnChange(this::setDataRange);
+						((TimeSelectorWidget) w).setCurrent(Integer.parseInt(param));
+					((TimeSelectorWidget) w).setOnChange(this::setDataRange);
 				}
 			}
 

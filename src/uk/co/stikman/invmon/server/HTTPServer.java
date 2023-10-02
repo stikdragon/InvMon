@@ -83,10 +83,11 @@ public class HTTPServer extends InvModule {
 
 		mappings.add(new HandlerMapping("api", this::executeApi));
 		mappings.add(new HandlerMapping("toString", this::toStringHandler));
+		mappings.add(new HandlerMapping("setParams", this::setParams));
+		mappings.add(new HandlerMapping("fetchUserLog", this::fetchUserLog));
 
 		mappings.add(new HandlerMapping("getConfig", this::getConfig));
 		mappings.add(new HandlerMapping("invalidateResults", this::invalidateResults));
-		mappings.add(new HandlerMapping("fetchLog", this::fetchLog));
 		mappings.add(new HandlerMapping("login", this::login));
 		mappings.add(new HandlerMapping("logout", this::logout));
 
@@ -183,12 +184,28 @@ public class HTTPServer extends InvModule {
 		}
 	}
 
+	private InvMonHTTPResponse setParams(String url, UserSesh sesh, InvMonHTTPRequest session) throws Exception {
+		if (!session.getMethod().equals("POST"))
+			throw new Exception("Must be POST");
+		String s = session.getBodyAsString();
+		JSONObject args = new JSONObject(s);
+		int dur = args.getInt("dur");
+		int off = args.getInt("off");
+		ViewOptions global = PageWidget.getViewOpts(sesh);
+		global.setDuration(dur);
+		global.setOffset(off);
+		//		global.setLayout(this.layoutConfig.getPage(jo.optString("page", null)));
+		sesh.putData(WebUtils.CACHED_QUERY_RESULTS, null);
+		sesh.putData(WebUtils.CACHED_LAST_RECORD, null);
+		return new InvMonHTTPResponse("{}");
+	}
+
 	private InvMonHTTPResponse toStringHandler(String url, UserSesh sesh, InvMonHTTPRequest session) throws Exception {
 		return new InvMonHTTPResponse("TODO: not implemented");
 	}
 
 	private InvMonHTTPResponse logout(String url, UserSesh sesh, InvMonHTTPRequest session) throws Exception {
-		sesh.putData("authed-user", null);
+		sesh.setAuthedUserSession(null);
 		return new InvMonHTTPResponse("{}");
 	}
 
@@ -198,7 +215,7 @@ public class HTTPServer extends InvModule {
 		String s = session.getBodyAsString();
 		JSONObject jo = new JSONObject(s);
 		try {
-			User u = users.findByName(jo.getString("user"));
+			User u = users.getByName(jo.getString("user"));
 			if (!u.getPass().equals(jo.getString("pass")))
 				throw new InvMonException("Incorrect password");
 
@@ -211,7 +228,7 @@ public class HTTPServer extends InvModule {
 
 		} catch (Exception e) {
 			LOGGER.error("Login for user [" + jo.getString("user") + "] failed because: " + e.getMessage(), e);
-			throw new InvMonException("Login failed"); // don't pass any details back here 
+			throw new InvMonClientError("Login failed"); // don't pass any details back here 
 		}
 
 	}
@@ -298,7 +315,10 @@ public class HTTPServer extends InvModule {
 			return new InvMonHTTPResponse(Status.NOT_FOUND, "text/html", "404 Not Found: " + nfe.getMessage());
 		} catch (Exception e) {
 			LOGGER.error(e);
-			return new InvMonHTTPResponse(Status.INTERNAL_ERROR, "text/html", "Internal Error");
+			if (e instanceof InvMonClientError)
+				return new InvMonHTTPResponse(Status.INTERNAL_ERROR, "text/plain", e.getMessage());
+			else
+				return new InvMonHTTPResponse(Status.INTERNAL_ERROR, "text/plain", "Internal Error");
 		}
 	}
 
@@ -312,16 +332,16 @@ public class HTTPServer extends InvModule {
 	}
 
 	private InvMonHTTPResponse invalidateResults(String url, UserSesh sesh, InvMonHTTPRequest request) {
-		sesh.putData(PageWidget.CACHED_QUERY_RESULTS, null);
-		sesh.putData(PageWidget.CACHED_LAST_RECORD, null);
+		sesh.putData(WebUtils.CACHED_QUERY_RESULTS, null);
+		sesh.putData(WebUtils.CACHED_LAST_RECORD, null);
 		return new InvMonHTTPResponse(new JSONObject().put("result", "OK").toString());
 	}
 
-	private InvMonHTTPResponse fetchLog(String url, UserSesh sesh, InvMonHTTPRequest request) throws InvMonException {
+	private InvMonHTTPResponse fetchUserLog(String url, UserSesh sesh, InvMonHTTPRequest request) throws InvMonException {
 		JSONObject res = new JSONObject();
 		List<String> lst = getEnv().copyUserLog(new ArrayList<>());
 		res.put("log", lst.stream().collect(Collectors.joining("\n")));
-		return new InvMonHTTPResponse(Status.OK, "text/json", res.toString());
+		return new InvMonHTTPResponse(res.toString());
 	}
 
 	private InvMonHTTPResponse getConfig(String url, UserSesh sesh, InvMonHTTPRequest request) throws InvMonException {

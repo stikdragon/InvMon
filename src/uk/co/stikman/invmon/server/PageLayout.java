@@ -27,7 +27,7 @@ import uk.co.stikman.invmon.server.widgets.PVTableWidget;
 import uk.co.stikman.invmon.server.widgets.PageWidget;
 import uk.co.stikman.invmon.server.widgets.StikSystemControllerWidget;
 import uk.co.stikman.invmon.server.widgets.TextSummaryWidget;
-import uk.co.stikman.invmon.server.widgets.TimeSelPageWidget;
+import uk.co.stikman.invmon.server.widgets.TimeSelectorWidget;
 
 public class PageLayout {
 
@@ -44,7 +44,7 @@ public class PageLayout {
 		TYPES.put("chart", ChartWidget::new);
 		TYPES.put("table-pv", PVTableWidget::new);
 		TYPES.put("infobit", InfoBitWidget::new);
-		TYPES.put("timesel", TimeSelPageWidget::new);
+		TYPES.put("timesel", TimeSelectorWidget::new);
 		TYPES.put("controls", ControlsWidget::new);
 		TYPES.put("energysummary", DailyPowerSummaryWidget::new);
 		TYPES.put("dial", GaugeWidget::new);

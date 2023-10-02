@@ -477,12 +477,10 @@ table.data .total td {
 }
 
 .errorpopup {
-	position: absolute;
-	right: 10;
-	bottom: 10;
+	position: fixed;
+	right: 6px;
+	bottom: 6px;
 	width: 400px;
-	height: 400px;
-	background-color: #ffdddd;
 	display: flex;
 	flex-direction: column;
 }
@@ -495,7 +493,25 @@ table.data .total td {
 
 .errorpopup>.content {
 	flex: 1;
+	gap: 6px;
+	display: flex;
+	flex-direction: column;
 	overflow: auto;
+}
+
+.errorpopup>.content .msg {
+	background-color: #ffdddd;
+	background-image: url("warning.png");
+	background-repeat: no-repeat;
+	background-position: 6px center;
+	border: 2px solid #ffaaaa;
+	font-size: 12px;
+	padding: 6px;
+	padding-left: 32px;
+}
+.errorpopup>.content .msg.fadeout {
+	transition: opacity 0.5s;
+	opacity: 0%;
 }
 
 #summary .tiny {

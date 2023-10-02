@@ -5,7 +5,7 @@ import java.util.List;
 
 import org.teavm.jso.dom.html.HTMLElement;
 
-public class TimeSelector extends AbstractPageWidget {
+public class TimeSelectorWidget extends AbstractPageWidget {
 
 	public interface UpdateDataOptionsHandler {
 		void updateDataOptions(int offset, int duration);
@@ -15,7 +15,7 @@ public class TimeSelector extends AbstractPageWidget {
 	private List<HTMLElement>			items	= new ArrayList<>();
 	private UpdateDataOptionsHandler	onChange;
 
-	public TimeSelector(ClientPage owner) {
+	public TimeSelectorWidget(ClientPage owner) {
 		super(owner);
 	}
 
