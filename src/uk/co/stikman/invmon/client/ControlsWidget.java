@@ -3,7 +3,6 @@ package uk.co.stikman.invmon.client;
 import org.json.JSONObject;
 import org.teavm.jso.dom.events.MouseEvent;
 import org.teavm.jso.dom.html.HTMLElement;
-import org.teavm.jso.dom.xml.Node;
 
 import uk.co.stikman.invmon.Events;
 

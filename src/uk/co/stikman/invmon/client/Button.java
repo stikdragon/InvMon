@@ -18,6 +18,10 @@ public class Button {
 		root.appendChild(inner);
 	}
 
+	public void addStyleClass(String cls) {
+		root.getClassList().add(cls);
+	}
+
 	public HTMLElement getElement() {
 		return root;
 	}

@@ -2,7 +2,6 @@ package uk.co.stikman.invmon.client;
 
 import org.json.JSONObject;
 import org.teavm.jso.dom.html.HTMLElement;
-import org.teavm.jso.dom.xml.Node;
 
 import uk.co.stikman.invmon.Events;
 
@@ -42,12 +41,14 @@ public class InverterControlWidgetStik extends AbstractPageWidget {
 		div.appendChild(boostButton("1hr", 60).getElement());
 		div.appendChild(boostButton("2hr", 120).getElement());
 		div.appendChild(boostButton("4hr", 240).getElement());
+		div.appendChild(boostButton("Reset", 0).getElement());
 	}
 
 	private Button boostButton(String title, int mins) {
 		Button b = new Button(title);
+		b.addStyleClass("mini");
 		b.setOnClick(x -> {
-			api("stikCtrlBoost", new JSONObject().put("duration", mins), resp -> getOwner().getBus().fire(Events.REFRESH_NOW, null));
+			api("setBoost", new JSONObject().put("duration", mins), resp -> getOwner().getBus().fire(Events.REFRESH_NOW, null));
 		});
 		return b;
 	}

@@ -10,11 +10,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Map.Entry;
+import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -24,19 +24,13 @@ import uk.co.stikman.eventbus.Subscribe;
 import uk.co.stikman.invmon.EmbeddedServer;
 import uk.co.stikman.invmon.Env;
 import uk.co.stikman.invmon.Events;
-import uk.co.stikman.invmon.FieldNameList;
 import uk.co.stikman.invmon.HTTPServicer;
 import uk.co.stikman.invmon.InvModule;
 import uk.co.stikman.invmon.InvMonException;
 import uk.co.stikman.invmon.InvMonHTTPRequest;
 import uk.co.stikman.invmon.PollData;
 import uk.co.stikman.invmon.client.res.ClientRes;
-import uk.co.stikman.invmon.controllers.StikSystemController;
 import uk.co.stikman.invmon.datalog.DBRecord;
-import uk.co.stikman.invmon.datalog.DataLogger;
-import uk.co.stikman.invmon.datalog.MiniDbException;
-import uk.co.stikman.invmon.datalog.QueryResults;
-import uk.co.stikman.invmon.datamodel.Field;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
 import uk.co.stikman.invmon.nanohttpd.NanoHTTPD;
 import uk.co.stikman.invmon.nanohttpd.NanoHTTPD.Response.Status;
@@ -96,8 +90,6 @@ public class HTTPServer extends InvModule {
 		mappings.add(new HandlerMapping("login", this::login));
 		mappings.add(new HandlerMapping("logout", this::logout));
 
-		mappings.add(new HandlerMapping("stikCtrlBoost", this::stikControlBoost));
-
 		env.submitTimerTask(() -> env.submitTask(this::tidySessions), 60000);
 	}
 
@@ -133,9 +125,9 @@ public class HTTPServer extends InvModule {
 	}
 
 	/**
-	 * "execute" returns a JSONObject specific to the widget. if everything is ok
-	 * then the status response is 400, otherwise you will get 500 and a JSONObject
-	 * that looks like <code>{"error":"Message goes here"}</code>
+	 * "execute" returns a JSONObject specific to the widget. if everything is
+	 * ok then the status response is 400, otherwise you will get 500 and a
+	 * JSONObject that looks like <code>{"error":"Message goes here"}</code>
 	 * 
 	 * @param url
 	 * @param sesh
@@ -170,7 +162,10 @@ public class HTTPServer extends InvModule {
 			for (PageWidget wij : layout.getWidgets()) {
 				if (wij.getId().equals(id)) {
 					JSONObject result = wij.executeApi(sesh, api, args);
-					return new InvMonHTTPResponse(result.toString());
+					if (result == null)
+						return new InvMonHTTPResponse("{}");
+					else
+						return new InvMonHTTPResponse(result.toString());
 				}
 			}
 			throw new NoSuchElementException("Widget [" + id + "] not found");
@@ -179,7 +174,11 @@ public class HTTPServer extends InvModule {
 			JSONObject res = new JSONObject();
 			LOGGER.error("Exception while executing api [" + api + "] on [" + id + "]");
 			LOGGER.error(e);
-			res.put("contentHtml", "Internal Error"); // TODO: some exceptions are safe to return, but in general they aren't.  work them out
+			if (e instanceof InvMonClientError) {
+				res.put("error", e.getMessage());
+			} else {
+				res.put("error", "Internal Error");
+			}
 			return new InvMonHTTPResponse(Status.INTERNAL_ERROR, "text/plain", res.toString());
 		}
 	}
@@ -204,7 +203,7 @@ public class HTTPServer extends InvModule {
 				throw new InvMonException("Incorrect password");
 
 			AuthedSession as = authedSessions.createNew(u);
-			sesh.putData("authed-user", as);
+			sesh.setAuthedUserSession(as);
 			JSONObject res = new JSONObject();
 			res.put("name", jo.getString("user"));
 			res.put("token", as.getUid());
@@ -323,17 +322,6 @@ public class HTTPServer extends InvModule {
 		List<String> lst = getEnv().copyUserLog(new ArrayList<>());
 		res.put("log", lst.stream().collect(Collectors.joining("\n")));
 		return new InvMonHTTPResponse(Status.OK, "text/json", res.toString());
-	}
-
-	private InvMonHTTPResponse stikControlBoost(String url, UserSesh sesh, InvMonHTTPRequest request) throws InvMonException {
-		JSONObject jo = new JSONObject(request.getBodyAsString());
-		int dur = jo.getInt("duration");
-		String id = jo.getString("id"); // this is the id of the widget on screen
-		ViewOptions vo = PageWidget.getViewOpts(sesh);
-		StikSystemControllerWidget wij = vo.getLayout().getWidgetById(id);
-		StikSystemController mod = getEnv().getModule(wij.getModuleName());
-		mod.setBoost(dur);
-		return new InvMonHTTPResponse(new JSONObject().put("result", "OK").toString());
 	}
 
 	private InvMonHTTPResponse getConfig(String url, UserSesh sesh, InvMonHTTPRequest request) throws InvMonException {

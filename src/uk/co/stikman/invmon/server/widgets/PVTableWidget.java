@@ -12,7 +12,6 @@ import uk.co.stikman.invmon.inverter.util.InvUtil;
 import uk.co.stikman.invmon.server.HTMLBuilder;
 import uk.co.stikman.invmon.server.PageLayout;
 import uk.co.stikman.invmon.server.UserSesh;
-import uk.co.stikman.invmon.server.WidgetExecuteContext;
 
 public class PVTableWidget extends PageWidget {
 
@@ -25,6 +24,7 @@ public class PVTableWidget extends PageWidget {
 
 	@Override
 	public JSONObject executeApi(UserSesh sesh, String api, JSONObject args) {
+		ensureCachedResults(sesh);
 		DBRecord rec = sesh.getData(CACHED_LAST_RECORD);
 		HTMLBuilder html = new HTMLBuilder();
 		DataModel mdl = getOwner().getEnv().getModel();

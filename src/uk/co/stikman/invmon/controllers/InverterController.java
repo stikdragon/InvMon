@@ -4,15 +4,11 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.w3c.dom.Element;
-
 import uk.co.stikman.eventbus.Subscribe;
 import uk.co.stikman.invmon.Env;
 import uk.co.stikman.invmon.Events;
 import uk.co.stikman.invmon.InvModule;
 import uk.co.stikman.invmon.InvMonException;
-import uk.co.stikman.invmon.PollData;
-import uk.co.stikman.invmon.inverter.util.InvUtil;
 import uk.co.stikman.log.StikLog;
 
 public abstract class InverterController extends InvModule {

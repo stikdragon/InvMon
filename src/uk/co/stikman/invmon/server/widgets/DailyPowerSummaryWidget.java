@@ -8,14 +8,12 @@ import java.util.List;
 import org.json.JSONObject;
 import org.w3c.dom.Element;
 
-import uk.co.stikman.invmon.datalog.DataLogger;
 import uk.co.stikman.invmon.datalog.QueryRecord;
 import uk.co.stikman.invmon.datalog.QueryResults;
 import uk.co.stikman.invmon.datamodel.DataModel;
 import uk.co.stikman.invmon.server.HTMLBuilder;
 import uk.co.stikman.invmon.server.PageLayout;
 import uk.co.stikman.invmon.server.UserSesh;
-import uk.co.stikman.invmon.server.WidgetExecuteContext;
 import uk.co.stikman.log.StikLog;
 
 public class DailyPowerSummaryWidget extends PageWidget {

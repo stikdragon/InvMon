@@ -1,14 +1,14 @@
-package uk.co.stikman.invmon.server;
+package uk.co.stikman.invmon.server.widgets;
 
 import org.json.JSONObject;
-import org.teavm.jso.dom.html.HTMLElement;
 import org.w3c.dom.Element;
 
-import uk.co.stikman.invmon.InvModule;
 import uk.co.stikman.invmon.controllers.StikSystemController;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
-import uk.co.stikman.invmon.server.widgets.PageWidget;
-import uk.co.stikman.invmon.server.widgets.TextSummaryWidget;
+import uk.co.stikman.invmon.server.InvMonClientError;
+import uk.co.stikman.invmon.server.PageLayout;
+import uk.co.stikman.invmon.server.UserRole;
+import uk.co.stikman.invmon.server.UserSesh;
 import uk.co.stikman.log.StikLog;
 
 public class StikSystemControllerWidget extends PageWidget {
@@ -22,15 +22,20 @@ public class StikSystemControllerWidget extends PageWidget {
 
 	@Override
 	public JSONObject executeApi(UserSesh sesh, String api, JSONObject args) {
-		try {
+		if (api.equals("summary")) {
 			JSONObject jo = new JSONObject();
 			StikSystemController mod = getOwner().getEnv().getModule(moduleName);
 			jo.put("summary", mod.toString());
 			return jo;
-		} catch (Exception e) {
-			LOGGER.error(e);
-			throw new RuntimeException("Error rendering summary", e);
-		}
+		} else if (api.equals("setBoost")) {
+			sesh.requireUserRole(UserRole.ADMIN);
+
+			int dur = args.getInt("duration");
+			StikSystemController mod = getOwner().getEnv().getModule(moduleName);
+			mod.setBoost(dur);
+			return null;
+		} else
+			throw new InvMonClientError("Unknown Controller API: " + api);
 	}
 
 	@Override

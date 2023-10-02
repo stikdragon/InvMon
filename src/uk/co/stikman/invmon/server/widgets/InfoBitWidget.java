@@ -8,13 +8,11 @@ import java.util.Date;
 import org.json.JSONObject;
 
 import uk.co.stikman.invmon.Env;
-import uk.co.stikman.invmon.InvModule;
 import uk.co.stikman.invmon.datalog.DataLogger;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
 import uk.co.stikman.invmon.server.HTMLBuilder;
 import uk.co.stikman.invmon.server.PageLayout;
 import uk.co.stikman.invmon.server.UserSesh;
-import uk.co.stikman.invmon.server.WidgetExecuteContext;
 
 public class InfoBitWidget extends PageWidget {
 

@@ -10,6 +10,7 @@ public class UserSesh {
 	private final String		id;
 	private long				lastTouched;
 	private Map<String, Object>	data		= new HashMap<>();
+	private AuthedSession		authedSession;
 
 	public UserSesh() {
 		super();
@@ -43,4 +44,25 @@ public class UserSesh {
 	public String toString() {
 		return id;
 	}
+
+	public void setAuthedUserSession(AuthedSession as) {
+		this.authedSession = as;
+	}
+
+	public AuthedSession getAuthedUserSession() {
+		return authedSession;
+	}
+
+	/**
+	 * makes sure there is a user logged in, and they have the given role
+	 * 
+	 * @param role
+	 */
+	public void requireUserRole(UserRole role) {
+		if (authedSession == null)
+			throw new InvMonClientError("User not logged in");
+		if (authedSession.getUser().getRole() != role)
+			throw new InvMonClientError("User not authorised");
+	}
+
 }

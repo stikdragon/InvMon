@@ -4,7 +4,6 @@ import org.json.JSONObject;
 import org.w3c.dom.Element;
 
 import uk.co.stikman.invmon.FieldNameList;
-import uk.co.stikman.invmon.InvModule;
 import uk.co.stikman.invmon.datalog.DataLogger;
 import uk.co.stikman.invmon.datalog.MiniDbException;
 import uk.co.stikman.invmon.datalog.QueryResults;
@@ -13,7 +12,6 @@ import uk.co.stikman.invmon.inverter.util.InvUtil;
 import uk.co.stikman.invmon.server.PageLayout;
 import uk.co.stikman.invmon.server.UserSesh;
 import uk.co.stikman.invmon.server.ViewOptions;
-import uk.co.stikman.invmon.server.WidgetExecuteContext;
 
 public abstract class PageWidget {
 	private final PageLayout	owner;

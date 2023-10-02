@@ -27,7 +27,7 @@ public class ServerRenderedWidget extends AbstractPageWidget {
 		args.put("h", h);
 		if (!nomask)
 			frame.showGlass();
-		getOwner().post("api", args, result -> {
+		api("execute", args, result -> {
 			frame.content.setInnerHTML(result.getString("html"));
 			frame.hideOverlays();
 		}, err -> {

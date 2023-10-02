@@ -52,6 +52,14 @@ h3 {
 	column-gap: 10px;
 }
 
+.button.mini {
+	padding: 2px;
+	font-size: 13px;
+	border-radius: 2px;
+	border: 1px solid rgba(0, 0, 0, 0.2);
+	margin: 1px;
+}
+
 .togglebutton.selected {
 	background: linear-gradient(0deg, rgba(127, 127, 127, 0.3) 0%, rgba(0, 0, 0, 0.2) 100%);
 	padding-top: 7px;
@@ -574,7 +582,6 @@ table.data .total td {
 	font-size: 80%;
 }
 
-
 .ctrl_sunk {
 	height: 100%;
 	overflow: auto;
@@ -618,8 +625,8 @@ table.data .total td {
 
 .MenuItem {
 	cursor: pointer;
-	
 }
+
 .MenuItem:hover {
 	cursor: pointer;
 	background: rgba(0, 0, 0, 20%);
@@ -629,4 +636,4 @@ table.data .total td {
 	display: flex;
 	height: 100%;
 	flex-direction: column;
-} 
+}

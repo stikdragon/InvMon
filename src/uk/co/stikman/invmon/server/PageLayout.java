@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -26,6 +25,7 @@ import uk.co.stikman.invmon.server.widgets.InfoBitWidget;
 import uk.co.stikman.invmon.server.widgets.LogWidget;
 import uk.co.stikman.invmon.server.widgets.PVTableWidget;
 import uk.co.stikman.invmon.server.widgets.PageWidget;
+import uk.co.stikman.invmon.server.widgets.StikSystemControllerWidget;
 import uk.co.stikman.invmon.server.widgets.TextSummaryWidget;
 import uk.co.stikman.invmon.server.widgets.TimeSelPageWidget;
 

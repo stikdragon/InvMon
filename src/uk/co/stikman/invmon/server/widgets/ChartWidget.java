@@ -19,7 +19,6 @@ import uk.co.stikman.invmon.server.HeaderBitPF;
 import uk.co.stikman.invmon.server.PageLayout;
 import uk.co.stikman.invmon.server.Series;
 import uk.co.stikman.invmon.server.UserSesh;
-import uk.co.stikman.invmon.server.WidgetExecuteContext;
 
 public class ChartWidget extends PageWidget {
 

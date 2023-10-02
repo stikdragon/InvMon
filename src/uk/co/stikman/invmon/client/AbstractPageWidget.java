@@ -166,11 +166,10 @@ public abstract class AbstractPageWidget {
 	}
 
 	protected void api(String api, JSONObject args, Consumer<JSONObject> response, Consumer<Exception> error) {
-		if (args == null)
-			args = new JSONObject();
-		args.put("id", getId());
-		args.put("name", api);
-		args.put("args", args);
-		getOwner().post("api", args, response, error);
+		JSONObject jo = new JSONObject();
+		jo.put("id", getId());
+		jo.put("api", api);
+		jo.put("args", args);
+		getOwner().post("api", jo, response, error);
 	}
 }

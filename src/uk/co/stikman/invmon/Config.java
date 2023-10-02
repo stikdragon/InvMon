@@ -5,14 +5,11 @@ import static uk.co.stikman.invmon.inverter.util.InvUtil.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import uk.co.stikman.invmon.controllers.InverterController;
 import uk.co.stikman.invmon.controllers.RedSystemController;
 import uk.co.stikman.invmon.controllers.StikSystemController;
 import uk.co.stikman.invmon.datalog.DataLogger;

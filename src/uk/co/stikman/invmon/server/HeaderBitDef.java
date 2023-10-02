@@ -10,7 +10,6 @@ import uk.co.stikman.invmon.datalog.DBRecord;
 import uk.co.stikman.invmon.datamodel.Field;
 import uk.co.stikman.invmon.inverter.util.Format;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
-import uk.co.stikman.table.DataRecord;
 
 public class HeaderBitDef {
 	private String			text;
