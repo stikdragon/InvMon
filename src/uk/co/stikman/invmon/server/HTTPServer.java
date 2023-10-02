@@ -29,6 +29,7 @@ import uk.co.stikman.invmon.InvMonException;
 import uk.co.stikman.invmon.InvMonHTTPRequest;
 import uk.co.stikman.invmon.PollData;
 import uk.co.stikman.invmon.client.res.ClientRes;
+import uk.co.stikman.invmon.controllers.StikSystemController;
 import uk.co.stikman.invmon.datalog.DBRecord;
 import uk.co.stikman.invmon.datalog.DataLogger;
 import uk.co.stikman.invmon.datalog.MiniDbException;
@@ -88,6 +89,7 @@ public class HTTPServer extends InvModule {
 		urlMappings.put("getInfoBit", this::getInfoBit);
 		urlMappings.put("invalidateResults", this::invalidateResults);
 		urlMappings.put("fetchLog", this::fetchLog);
+		urlMappings.put("stikCtrlBoost", this::stikControlBoost);
 
 		urlMappings.put("login", this::login);
 		urlMappings.put("logout", this::logout);
@@ -132,11 +134,7 @@ public class HTTPServer extends InvModule {
 		if (name == null)
 			throw new NotFoundException("No chart name");
 
-		ViewOptions viewopts = sesh.getData(GLOBAL_VIEW_OPTIONS);
-		if (viewopts == null) {
-			viewopts = new ViewOptions();
-			sesh.putData(GLOBAL_VIEW_OPTIONS, viewopts);
-		}
+		ViewOptions viewopts = getViewOpts(sesh);
 		ChartRenderConfig opts = new ChartRenderConfig();
 		opts.setDuration(viewopts.getDuration());
 		opts.setOffset(viewopts.getOffset());
@@ -307,9 +305,7 @@ public class HTTPServer extends InvModule {
 		if (name == null)
 			throw new NotFoundException("No widget name");
 
-		ViewOptions viewopts = sesh.getData(GLOBAL_VIEW_OPTIONS);
-		if (viewopts == null)
-			sesh.putData(GLOBAL_VIEW_OPTIONS, viewopts = new ViewOptions());
+		ViewOptions viewopts = getViewOpts(sesh);
 		PageLayout layout = viewopts.getLayout();
 		if (layout == null)
 			layout = layoutConfig.getDefaultPage();
@@ -317,13 +313,18 @@ public class HTTPServer extends InvModule {
 		return new InvMonHTTPResponse(Status.OK, "text/html", layout.getWidgetById(name).execute(null, ctx).toString());
 	}
 
+	private ViewOptions getViewOpts(UserSesh sesh) {
+		ViewOptions viewopts = sesh.getData(GLOBAL_VIEW_OPTIONS);
+		if (viewopts == null)
+			sesh.putData(GLOBAL_VIEW_OPTIONS, viewopts = new ViewOptions());
+		return viewopts;
+	}
+
 	private InvMonHTTPResponse setParams(String url, UserSesh sesh, InvMonHTTPRequest request) throws InvMonException {
 		JSONObject jo = new JSONObject(request.getBodyAsString());
 		int dur = jo.getInt("dur");
 		int off = jo.getInt("off");
-		ViewOptions global = sesh.getData(GLOBAL_VIEW_OPTIONS);
-		if (global == null)
-			sesh.putData(GLOBAL_VIEW_OPTIONS, global = new ViewOptions());
+		ViewOptions global = getViewOpts(sesh);
 		global.setDuration(dur);
 		global.setOffset(off);
 		global.setLayout(this.layoutConfig.getPage(jo.optString("page", null)));
@@ -352,6 +353,17 @@ public class HTTPServer extends InvModule {
 		List<String> lst = getEnv().copyUserLog(new ArrayList<>());
 		res.put("log", lst.stream().collect(Collectors.joining("\n")));
 		return new InvMonHTTPResponse(Status.OK, "text/json", res.toString());
+	}
+
+	private InvMonHTTPResponse stikControlBoost(String url, UserSesh sesh, InvMonHTTPRequest request) throws InvMonException {
+		JSONObject jo = new JSONObject(request.getBodyAsString());
+		int dur = jo.getInt("duration");
+		String id = jo.getString("id"); // this is the id of the widget on screen
+		ViewOptions vo = getViewOpts(sesh);
+		StikSystemControllerWidget wij = vo.getLayout().getWidgetById(id);
+		StikSystemController mod = getEnv().getModule(wij.getModuleName());
+		mod.setBoost(dur);
+		return new InvMonHTTPResponse(new JSONObject().put("result", "OK").toString());
 	}
 
 	private InvMonHTTPResponse getConfig(String url, UserSesh sesh, InvMonHTTPRequest request) throws InvMonException {

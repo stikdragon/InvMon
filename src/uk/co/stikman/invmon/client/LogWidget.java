@@ -32,6 +32,7 @@ public class LogWidget extends AbstractPageWidget {
 		outer = InvMon.div("scroller");
 		txt = InvMon.text("-");
 		txt.getClassList().add("txt");
+		txt.getClassList().add("ctrl_sunk");
 		frame.content.appendChild(txt);
 	}
 

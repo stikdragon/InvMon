@@ -3,13 +3,12 @@ package uk.co.stikman.invmon.client;
 import org.json.JSONObject;
 import org.teavm.jso.dom.html.HTMLElement;
 
-public class InverterControlWidget extends AbstractPageWidget {
-
+public class TextSummaryWidget extends AbstractPageWidget {
 	private StandardFrame	frame;
 	private String			name;
 	private HTMLElement		txt;
 
-	public InverterControlWidget(ClientPage owner) {
+	public TextSummaryWidget(ClientPage owner) {
 		super(owner);
 	}
 
@@ -29,7 +28,7 @@ public class InverterControlWidget extends AbstractPageWidget {
 
 	@Override
 	protected void construct(HTMLElement parent) {
-		frame = createStandardFrame(parent, true, "invertercontrolswidget");
+		frame = createStandardFrame(parent, true, "text-summary");
 		txt = InvMon.text("-");
 		txt.getClassList().add("txt");
 		frame.content.appendChild(txt);
@@ -40,5 +39,4 @@ public class InverterControlWidget extends AbstractPageWidget {
 		super.configure(obj);
 		this.name = obj.getString("title");
 	}
-
 }

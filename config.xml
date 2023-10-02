@@ -11,7 +11,7 @@
 			<Property id="some_key">1234</Property>
 		</Properties>
 
-		<InverterController id="invcon1" type="stik" startTime="00:30" endTime="04:30" inverter="invA" />
+		<InverterController id="invcon1" type="stik" startTime="23:30" endTime="04:30" inverter="invA" />
 
 <!-- 		<SerialRepeater id="serialout1" port="COM8" baud="9600">
 			<Field width="3" scale="100.0">BATT_SOC</Field>

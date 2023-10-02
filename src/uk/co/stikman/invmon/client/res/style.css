@@ -17,6 +17,13 @@ h2 {
 	margin: 0;
 }
 
+h3 {
+	margin: 0;
+	font-size: 13px;
+	font-weight: bold;
+	color: rgba(0, 0, 0, 80%);
+}
+
 .fill {
 	flex: 1 1 0;
 }
@@ -561,18 +568,16 @@ table.data .total td {
 	margin: -16px;
 }
 
-.invertercontrolswidget .txt {
+.txt {
 	white-space: pre;
 	overflow: hidden;
 	font-size: 80%;
 }
 
 
-.logwidget .txt, .logpopup .txt {
-	white-space: pre;
+.ctrl_sunk {
 	height: 100%;
 	overflow: auto;
-	font-size: 80%;
 	background: #eee;
 	border-top: 1px solid rgba(0, 0, 0, 30%);
 	border-left: 1px solid rgba(0, 0, 0, 30%);
@@ -580,6 +585,11 @@ table.data .total td {
 	border-bottom: 1px solid rgba(255, 255, 255, 30%);
 	padding: 3px;
 	margin: 8px;
+}
+
+.sysctrlstik .btns {
+	display: flex;
+	flex-direction: row;
 }
 
 .logpopup .outer {
@@ -614,3 +624,9 @@ table.data .total td {
 	cursor: pointer;
 	background: rgba(0, 0, 0, 20%);
 }
+
+.sysctrlstik .content {
+	display: flex;
+	height: 100%;
+	flex-direction: column;
+} 

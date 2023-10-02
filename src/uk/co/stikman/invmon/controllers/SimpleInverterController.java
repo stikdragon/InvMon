@@ -40,7 +40,7 @@ public abstract class SimpleInverterController extends InverterController {
 			inv.setOutputMode(state == State.CHARGING ? OutputMode.UTIL_SOL_BAT : OutputMode.SOL_BAT_UTIL);
 		}
 
-		userLog("Charge State changed to: [" + state.name() + "]. " + hint);
+		userLog("Charge State changed to: [" + state.name() + "]. (" + hint + ")");
 		currentState = state;
 	}
 

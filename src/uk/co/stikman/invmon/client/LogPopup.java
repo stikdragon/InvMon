@@ -16,6 +16,7 @@ public class LogPopup extends PopupWindow {
 
 		txt = InvMon.text("-");
 		txt.getClassList().add("txt");
+		txt.getClassList().add("ctrl_sunk");
 		txt.setTextContent(log);
 		box.appendChild(txt);
 

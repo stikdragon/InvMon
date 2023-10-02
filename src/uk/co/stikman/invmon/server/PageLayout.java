@@ -21,10 +21,10 @@ import uk.co.stikman.invmon.server.widgets.ControlsWidget;
 import uk.co.stikman.invmon.server.widgets.DailyPowerSummaryWidget;
 import uk.co.stikman.invmon.server.widgets.GaugeWidget;
 import uk.co.stikman.invmon.server.widgets.InfoBitWidget;
-import uk.co.stikman.invmon.server.widgets.InverterControlWidget;
 import uk.co.stikman.invmon.server.widgets.LogWidget;
 import uk.co.stikman.invmon.server.widgets.PVTableWidget;
 import uk.co.stikman.invmon.server.widgets.PageWidget;
+import uk.co.stikman.invmon.server.widgets.TextSummaryWidget;
 import uk.co.stikman.invmon.server.widgets.TimeSelPageWidget;
 
 public class PageLayout {
@@ -45,7 +45,8 @@ public class PageLayout {
 		TYPES.put("controls", ControlsWidget::new);
 		TYPES.put("energysummary", DailyPowerSummaryWidget::new);
 		TYPES.put("dial", GaugeWidget::new);
-		TYPES.put("invcontrol", InverterControlWidget::new);
+		TYPES.put("text-summary", TextSummaryWidget::new);
+		TYPES.put("stik-controller", StikSystemControllerWidget::new);
 		TYPES.put("log", LogWidget::new);
 	}
 
@@ -99,10 +100,11 @@ public class PageLayout {
 		return id;
 	}
 
-	public PageWidget getWidgetById(String name) {
+	@SuppressWarnings("unchecked")
+	public <T extends PageWidget> T getWidgetById(String name) {
 		for (PageWidget wij : getWidgets())
 			if (wij.getId().equals(name))
-				return wij;
+				return (T) wij;
 		throw new NoSuchElementException("Widget [" + name + "] not found");
 	}
 

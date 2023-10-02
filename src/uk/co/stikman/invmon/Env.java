@@ -158,9 +158,6 @@ public class Env {
 
 		userLog(null, "InvMon started");
 
-		for (int i = 0; i < 100; ++i)
-			userLog(null, "MEssage  " + i);
-
 		for (;;) {
 			if (terminated)
 				return;
