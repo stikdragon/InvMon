@@ -7,6 +7,8 @@ It's not perfectly implemented, i've been doing it in a big rush so there's some
 
 Runs against Java8, which has been a bit of a nuisance at times.  This is required because there doesn't seem to be a 9+ JVM that works on a Pi Zero's ARM chip.  Since i no longer run it on a Pi i might relax this requirement eventually. 
 
+It's got a bit out of hand and if i'd know how much work i'd end up putting into this i probably would have perservered with home assistant instead.  It has been quite good fun tho.
+
 ## Stuff to do
 - I want to integrate it with a BMS, but first i need to build a BMS.  The data model is already set up to support individual cell voltages, but by default the fields are all turned off. 
 - Run as a windows service (in progress)
