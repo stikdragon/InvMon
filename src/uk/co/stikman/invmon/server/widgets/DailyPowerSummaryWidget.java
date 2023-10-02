@@ -13,11 +13,13 @@ import uk.co.stikman.invmon.datalog.QueryRecord;
 import uk.co.stikman.invmon.datalog.QueryResults;
 import uk.co.stikman.invmon.datamodel.DataModel;
 import uk.co.stikman.invmon.server.HTMLBuilder;
+import uk.co.stikman.invmon.server.PageLayout;
 import uk.co.stikman.invmon.server.UserSesh;
 import uk.co.stikman.invmon.server.WidgetExecuteContext;
 import uk.co.stikman.log.StikLog;
 
 public class DailyPowerSummaryWidget extends PageWidget {
+
 	private static final StikLog	LOGGER					= StikLog.getLogger(DailyPowerSummaryWidget.class);
 	private static final String		DAILY_POWER_USAGE_SET	= "daily-power-qr";
 	private static final long		REQUERY_INTERVAL		= 30000;											// in ms
@@ -44,20 +46,23 @@ public class DailyPowerSummaryWidget extends PageWidget {
 
 	}
 
+	public DailyPowerSummaryWidget(PageLayout owner) {
+		super(owner);
+	}
+
 	@Override
-	public JSONObject execute(JSONObject params, WidgetExecuteContext ctx) {
+	public JSONObject executeApi(UserSesh sesh, String api, JSONObject args) {
 		//
 		// so we can't use the normal cached recordset because it's going to be for a differet
 		// time range, so we'll manage our own here instead
 		//
 		try {
-			UserSesh sesh = ctx.getSession();
 			OurData qr = sesh.getData(DAILY_POWER_USAGE_SET);
 			if (qr != null)
 				if (System.currentTimeMillis() - qr.timestamp > REQUERY_INTERVAL)
 					qr = null;
 			if (qr == null) {
-				DataModel mdl = ctx.getOwner().getEnv().getModel();
+				DataModel mdl = getOwner().getEnv().getModel();
 				List<String> flds = new ArrayList<>();
 				flds.add("PV_TOTAL_P");
 				flds.add("LOAD_P");
@@ -69,10 +74,9 @@ public class DailyPowerSummaryWidget extends PageWidget {
 				//
 				// requery from previous midnight to now
 				//
-				DataLogger datalogger = ctx.getOwner().getTargetModule();
 				ZonedDateTime now = ZonedDateTime.now(ZoneId.systemDefault());
 				ZonedDateTime midnight = now.toLocalDate().atStartOfDay(ZoneId.systemDefault());
-				QueryResults data = datalogger.query(midnight.toEpochSecond() * 1000, now.toEpochSecond() * 1000, 1000, flds);
+				QueryResults data = getDatalogger().query(midnight.toEpochSecond() * 1000, now.toEpochSecond() * 1000, 1000, flds);
 				qr = new OurData(data);
 				sesh.putData(DAILY_POWER_USAGE_SET, qr);
 
@@ -88,7 +92,7 @@ public class DailyPowerSummaryWidget extends PageWidget {
 				for (QueryRecord r : data.getRecords()) {
 					qr.totalPV += r.getFloat(fpv) * slicewidth;
 					qr.totalLoad += r.getFloat(fload) * slicewidth;
-					float f =  r.getFloat(fbi) * r.getFloat(fbv) * slicewidth;
+					float f = r.getFloat(fbi) * r.getFloat(fbv) * slicewidth;
 					if (f < 0.0f)
 						qr.battOut += -f;
 					else

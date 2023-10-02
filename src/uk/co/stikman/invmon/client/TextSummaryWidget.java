@@ -5,7 +5,7 @@ import org.teavm.jso.dom.html.HTMLElement;
 
 public class TextSummaryWidget extends AbstractPageWidget {
 	private StandardFrame	frame;
-	private String			name;
+	private String			title;
 	private HTMLElement		txt;
 
 	public TextSummaryWidget(ClientPage owner) {
@@ -18,7 +18,7 @@ public class TextSummaryWidget extends AbstractPageWidget {
 		args.put("name", getId());
 		if (!nomask)
 			frame.showGlass();
-		getOwner().fetch("executeChart", args, result -> {
+		api("get", args, result -> {
 			txt.setTextContent(result.getString("summary"));
 			frame.hideOverlays();
 		}, err -> {
@@ -29,6 +29,7 @@ public class TextSummaryWidget extends AbstractPageWidget {
 	@Override
 	protected void construct(HTMLElement parent) {
 		frame = createStandardFrame(parent, true, "text-summary");
+		frame.setTitle(title);
 		txt = InvMon.text("-");
 		txt.getClassList().add("txt");
 		frame.content.appendChild(txt);
@@ -37,6 +38,6 @@ public class TextSummaryWidget extends AbstractPageWidget {
 	@Override
 	public void configure(JSONObject obj) {
 		super.configure(obj);
-		this.name = obj.getString("title");
+		this.title = obj.getString("title");
 	}
 }

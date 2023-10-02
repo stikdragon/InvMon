@@ -7,6 +7,7 @@ import java.util.NoSuchElementException;
 
 import org.w3c.dom.Element;
 
+import uk.co.stikman.invmon.Env;
 import uk.co.stikman.invmon.InvMonException;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
 
@@ -14,7 +15,7 @@ public class HttpLayoutConfig {
 	private List<PageLayout>	pages	= new ArrayList<>();
 	private PageLayout			defaultPage;
 
-	public void configure(Element root) throws InvMonException {
+	public void configure(Env env, Element root) throws InvMonException {
 		for (Element el : InvUtil.getElements(root, "Page")) {
 			if (!InvUtil.getElements(el).isEmpty())
 				throw new InvMonException("<Page> configuration elements must be in their own file");
@@ -23,7 +24,7 @@ public class HttpLayoutConfig {
 			if (s == null)
 				throw new InvMonException("<Page> configuration element must have a `source` attribute");
 
-			PageLayout pl = new PageLayout(new File(s));
+			PageLayout pl = new PageLayout(env, new File(s));
 			pl.configure(el);
 			if (pl.isDefault())
 				defaultPage = pl;

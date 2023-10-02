@@ -16,11 +16,15 @@ public class StikSystemControllerWidget extends PageWidget {
 	private static final StikLog	LOGGER	= StikLog.getLogger(TextSummaryWidget.class);
 	private String					moduleName;
 
+	public StikSystemControllerWidget(PageLayout owner) {
+		super(owner);
+	}
+
 	@Override
-	public JSONObject execute(JSONObject params, WidgetExecuteContext ctx) {
+	public JSONObject executeApi(UserSesh sesh, String api, JSONObject args) {
 		try {
 			JSONObject jo = new JSONObject();
-			StikSystemController mod = ctx.getOwner().getEnv().getModule(moduleName);
+			StikSystemController mod = getOwner().getEnv().getModule(moduleName);
 			jo.put("summary", mod.toString());
 			return jo;
 		} catch (Exception e) {
@@ -43,4 +47,5 @@ public class StikSystemControllerWidget extends PageWidget {
 	public String getModuleName() {
 		return moduleName;
 	}
+
 }

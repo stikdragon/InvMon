@@ -19,14 +19,14 @@ public class ChartWidget extends AbstractPageWidget {
 	@Override
 	protected void refresh(boolean nomask) {
 		JSONObject args = new JSONObject();
-		args.put("name", getId());
 		int w = frame.content.getOffsetWidth() - 20;
 		int h = frame.content.getOffsetHeight() - 20;
 		args.put("w", w); // padding is 20... TODO: work it out properly
 		args.put("h", h);
 		if (!nomask)
 			frame.showGlass();
-		getOwner().fetch("executeChart", args, result -> {
+
+		api("execute", args, result -> {
 			ChartOptions opts = new ChartOptions();
 			opts.fromJSON(result.getJSONObject("config"));
 
@@ -57,6 +57,7 @@ public class ChartWidget extends AbstractPageWidget {
 		}, err -> {
 			frame.showError(err.getMessage());
 		});
+
 	}
 
 	@Override

@@ -3,22 +3,25 @@ package uk.co.stikman.invmon.server.widgets;
 import org.json.JSONObject;
 
 import uk.co.stikman.invmon.server.HTMLBuilder;
+import uk.co.stikman.invmon.server.InvMonClientError;
+import uk.co.stikman.invmon.server.PageLayout;
+import uk.co.stikman.invmon.server.UserSesh;
 import uk.co.stikman.invmon.server.WidgetExecuteContext;
 
 public class ControlsWidget extends PageWidget {
-	
-	@Override
-	public JSONObject execute(JSONObject params, WidgetExecuteContext data) {
-		HTMLBuilder html = new HTMLBuilder();
-		html.append("Controls");
-		JSONObject jo = new JSONObject();
-		jo.put("html", html.toString());
-		return jo;
+
+	public ControlsWidget(PageLayout owner) {
+		super(owner);
 	}
 
 	@Override
 	public String getClientWidgetType() {
 		return "controls";
+	}
+
+	@Override
+	public JSONObject executeApi(UserSesh sesh, String api, JSONObject args) {
+		throw new InvMonClientError("Unknown API");
 	}
 
 }

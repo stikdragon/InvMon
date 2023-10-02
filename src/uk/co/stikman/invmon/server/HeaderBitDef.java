@@ -5,9 +5,12 @@ import java.util.List;
 
 import org.w3c.dom.Element;
 
+import uk.co.stikman.invmon.Env;
+import uk.co.stikman.invmon.datalog.DBRecord;
 import uk.co.stikman.invmon.datamodel.Field;
 import uk.co.stikman.invmon.inverter.util.Format;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
+import uk.co.stikman.table.DataRecord;
 
 public class HeaderBitDef {
 	private String			text;
@@ -22,11 +25,11 @@ public class HeaderBitDef {
 		}
 	}
 
-	public String execute(WidgetExecuteContext data) {
+	public String execute(Env env, DBRecord lastrec) {
 		Number[] vals = new Number[fields.size()];
 		for (int i = 0; i < fields.size(); ++i) {
-			Field f = data.getOwner().getEnv().getModel().get(fields.get(i));
-			vals[i] = data.getMostRecent().getNumber(f);
+			Field f = env.getModel().get(fields.get(i));
+			vals[i] = lastrec.getNumber(f);
 		}
 
 		Format fmt = new Format(text);

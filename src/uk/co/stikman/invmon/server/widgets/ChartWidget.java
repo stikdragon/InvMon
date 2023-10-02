@@ -7,6 +7,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.w3c.dom.Element;
 
+import uk.co.stikman.invmon.datalog.DBRecord;
+import uk.co.stikman.invmon.datalog.QueryResults;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
 import uk.co.stikman.invmon.server.Axis;
 import uk.co.stikman.invmon.server.ChartOptions;
@@ -14,7 +16,9 @@ import uk.co.stikman.invmon.server.DataSet;
 import uk.co.stikman.invmon.server.HTMLBuilder;
 import uk.co.stikman.invmon.server.HeaderBitDef;
 import uk.co.stikman.invmon.server.HeaderBitPF;
+import uk.co.stikman.invmon.server.PageLayout;
 import uk.co.stikman.invmon.server.Series;
+import uk.co.stikman.invmon.server.UserSesh;
 import uk.co.stikman.invmon.server.WidgetExecuteContext;
 
 public class ChartWidget extends PageWidget {
@@ -22,6 +26,10 @@ public class ChartWidget extends PageWidget {
 	private ChartOptions		opts;
 	private String				cssClass;
 	private List<HeaderBitDef>	headerBits	= new ArrayList<>();
+
+	public ChartWidget(PageLayout owner) {
+		super(owner);
+	}
 
 	@Override
 	public void configure(Element root) {
@@ -81,14 +89,21 @@ public class ChartWidget extends PageWidget {
 	}
 
 	@Override
-	public JSONObject execute(JSONObject params, WidgetExecuteContext qr) {
-		opts.setSize(params.getInt("w"), params.getInt("h"));
+	public JSONObject executeApi(UserSesh sesh, String api, JSONObject args) {
+		//
+		// make sure we've got the current cached result set for this session
+		//
+		ensureCachedResults(sesh);
+		QueryResults qr = sesh.getData(CACHED_QUERY_RESULTS);
+		DBRecord lastrec = sesh.getData(CACHED_LAST_RECORD);
+
+		opts.setSize(args.getInt("w"), args.getInt("h"));
 		HTMLBuilder html = new HTMLBuilder();
-		DataSet ds = qr.getResults().asDataSet();
+		DataSet ds = qr.asDataSet();
 
 		JSONArray jarr = new JSONArray();
 		for (HeaderBitDef hb : headerBits)
-			jarr.put(hb.execute(qr));
+			jarr.put(hb.execute(getOwner().getEnv(), lastrec));
 
 		JSONObject jo = new JSONObject();
 		jo.put("html", html.toString());

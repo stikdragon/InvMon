@@ -10,7 +10,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.Map.Entry;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.Set;
 
@@ -47,52 +49,54 @@ public class HTTPServer extends InvModule {
 		InvMonHTTPResponse fetch(String url, UserSesh sesh, InvMonHTTPRequest http) throws Exception;
 	}
 
-	private static final StikLog			LOGGER					= StikLog.getLogger(HTTPServer.class);
+	public class HandlerMapping {
+		private final Pattern		pattern;
+		private final FetchMethod	method;
 
-	/**
-	 * keys for associating objects with a user session. in particular the
-	 * cached ones are used to avoid re-querying the database for multiple hits
-	 * with a single page
-	 */
-	public static final String				GLOBAL_VIEW_OPTIONS		= "gvo";
-	public static final String				CACHED_QUERY_RESULTS	= "cqr";
-	public static final String				CACHED_LAST_RECORD		= "clr";
+		public HandlerMapping(String match, FetchMethod method) {
+			super();
+			this.pattern = Pattern.compile("^" + match + "$");
+			this.method = method;
+		}
 
-	private DataLogger						datalogger;
-	private int								port;
-	private final Map<String, FetchMethod>	urlMappings				= new HashMap<>();
-	private Map<String, UserSesh>			sessions				= new HashMap<>();
-	private HttpLayoutConfig				layoutConfig;
-	private Users							users					= new Users();
-	private AuthedSessions					authedSessions			= new AuthedSessions();
+		public boolean test(String resource) {
+			return pattern.matcher(resource).matches();
+		}
 
-	private EmbeddedServer					embeddedSvr;
+		public FetchMethod getMethod() {
+			return method;
+		}
+
+	}
+
+	private static final StikLog		LOGGER			= StikLog.getLogger(HTTPServer.class);
+
+	private int							port;
+	private final List<HandlerMapping>	mappings		= new ArrayList<>();
+	private Map<String, UserSesh>		sessions		= new HashMap<>();
+	private HttpLayoutConfig			layoutConfig;
+	private Users						users			= new Users();
+	private AuthedSessions				authedSessions	= new AuthedSessions();
+
+	private EmbeddedServer				embeddedSvr;
 
 	public HTTPServer(String id, Env env) {
 		super(id, env);
-		urlMappings.put("loading.gif", this::resource);
-		urlMappings.put("background.png", this::resource);
-		urlMappings.put("ticked.png", this::resource);
-		urlMappings.put("unticked.png", this::resource);
-		urlMappings.put("style.css", this::resource);
-		urlMappings.put("index.html", this::resource);
-		urlMappings.put("classes.js", this::resource);
-		urlMappings.put("resize.png", this::resource);
-		urlMappings.put("cog.png", this::resource);
+		mappings.add(new HandlerMapping(".*\\.(gif|png|css|html|js|svg)", this::resource));
 
-		urlMappings.put("log", this::logPage);
-		urlMappings.put("data", this::dataPage);
+		mappings.add(new HandlerMapping("log", this::logPage));
+		mappings.add(new HandlerMapping("data", this::dataPage));
 
-		urlMappings.put("executeChart", this::executeChart);
-		urlMappings.put("getConfig", this::getConfig);
-		urlMappings.put("setParams", this::setParams);
-		urlMappings.put("getInfoBit", this::getInfoBit);
-		urlMappings.put("invalidateResults", this::invalidateResults);
-		urlMappings.put("fetchLog", this::fetchLog);
-		urlMappings.put("stikCtrlBoost", this::stikControlBoost);
+		mappings.add(new HandlerMapping("api", this::executeApi));
+		mappings.add(new HandlerMapping("toString", this::toStringHandler));
 
-		urlMappings.put("login", this::login);
-		urlMappings.put("logout", this::logout);
+		mappings.add(new HandlerMapping("getConfig", this::getConfig));
+		mappings.add(new HandlerMapping("invalidateResults", this::invalidateResults));
+		mappings.add(new HandlerMapping("fetchLog", this::fetchLog));
+		mappings.add(new HandlerMapping("login", this::login));
+		mappings.add(new HandlerMapping("logout", this::logout));
+
+		mappings.add(new HandlerMapping("stikCtrlBoost", this::stikControlBoost));
 
 		env.submitTimerTask(() -> env.submitTask(this::tidySessions), 60000);
 	}
@@ -128,40 +132,60 @@ public class HTTPServer extends InvModule {
 		return new InvMonHTTPResponse(html);
 	}
 
-	private InvMonHTTPResponse executeChart(String url, UserSesh sesh, InvMonHTTPRequest session) throws Exception {
-		JSONObject jo = new JSONObject(URLDecoder.decode(session.getQueryParameterString(), StandardCharsets.UTF_8.name()));
-		String name = jo.getString("name");
-		if (name == null)
-			throw new NotFoundException("No chart name");
+	/**
+	 * "execute" returns a JSONObject specific to the widget. if everything is ok
+	 * then the status response is 400, otherwise you will get 500 and a JSONObject
+	 * that looks like <code>{"error":"Message goes here"}</code>
+	 * 
+	 * @param url
+	 * @param sesh
+	 * @param session
+	 * @return
+	 * @throws Exception
+	 */
+	private InvMonHTTPResponse executeApi(String url, UserSesh sesh, InvMonHTTPRequest session) throws Exception {
+		String api = null;
+		String id = null;
+		try {
+			String data;
+			if (session.isMethod("POST"))
+				data = session.getBodyAsString();
+			else
+				data = URLDecoder.decode(session.getQueryParameterString(), StandardCharsets.UTF_8.name());
+			JSONObject jo = data == null ? new JSONObject() : new JSONObject(data);
+			JSONObject args = new JSONObject(jo.optString("args", "{}"));
+			id = jo.getString("id");
+			api = jo.getString("api");
 
-		ViewOptions viewopts = getViewOpts(sesh);
-		ChartRenderConfig opts = new ChartRenderConfig();
-		opts.setDuration(viewopts.getDuration());
-		opts.setOffset(viewopts.getOffset());
-		opts.setWidth(jo.optInt("w", 700));
-		opts.setHeight(jo.optInt("h", 300));
+			if (id == null)
+				throw new NotFoundException("No Widget ID");
+			if (api == null)
+				throw new NotFoundException("No API Specified");
 
-		ensureCachedResults(sesh);
-		QueryResults qr = sesh.getData(CACHED_QUERY_RESULTS);
-		DBRecord lastrec = sesh.getData(CACHED_LAST_RECORD);
+			ViewOptions viewopts = PageWidget.getViewOpts(sesh);
+			PageLayout layout = viewopts.getLayout();
+			if (layout == null)
+				layout = layoutConfig.getDefaultPage();
 
-		PageLayout layout = viewopts.getLayout();
-		if (layout == null)
-			layout = layoutConfig.getDefaultPage();
-
-		WidgetExecuteContext ctx = new WidgetExecuteContext(this, sesh, qr, lastrec);
-		for (PageWidget wij : layout.getWidgets()) {
-			if (wij.getId().equals(name)) {
-				JSONObject result = wij.execute(jo, ctx);
-				return new InvMonHTTPResponse(result.toString());
+			for (PageWidget wij : layout.getWidgets()) {
+				if (wij.getId().equals(id)) {
+					JSONObject result = wij.executeApi(sesh, api, args);
+					return new InvMonHTTPResponse(result.toString());
+				}
 			}
-		}
+			throw new NoSuchElementException("Widget [" + id + "] not found");
 
-		JSONObject res = new JSONObject();
-		HTMLBuilder html = new HTMLBuilder();
-		html.append("Widget [" + name + "] not found");
-		res.put("contentHtml", html.toString());
-		return new InvMonHTTPResponse(res.toString());
+		} catch (Exception e) {
+			JSONObject res = new JSONObject();
+			LOGGER.error("Exception while executing api [" + api + "] on [" + id + "]");
+			LOGGER.error(e);
+			res.put("contentHtml", "Internal Error"); // TODO: some exceptions are safe to return, but in general they aren't.  work them out
+			return new InvMonHTTPResponse(Status.INTERNAL_ERROR, "text/plain", res.toString());
+		}
+	}
+
+	private InvMonHTTPResponse toStringHandler(String url, UserSesh sesh, InvMonHTTPRequest session) throws Exception {
+		return new InvMonHTTPResponse("TODO: not implemented");
 	}
 
 	private InvMonHTTPResponse logout(String url, UserSesh sesh, InvMonHTTPRequest session) throws Exception {
@@ -193,44 +217,17 @@ public class HTTPServer extends InvModule {
 
 	}
 
-	private void ensureCachedResults(UserSesh sesh) {
-		synchronized (sesh) {
-			ViewOptions opts = sesh.getData(GLOBAL_VIEW_OPTIONS);
-			QueryResults qr = sesh.getData(CACHED_QUERY_RESULTS);
-			if (qr == null) {
-				long end = System.currentTimeMillis();
-				long start = end - (long) opts.getDuration() * 1000 * 60;
-				FieldNameList flds = new FieldNameList();
-				//
-				// add everything except timestamp, i guess
-				//
-				for (Field f : getEnv().getModel())
-					if (!f.getId().equals("TIMESTAMP"))
-						flds.add(f.getId());
-
-				try {
-					QueryResults aggr = datalogger.query(start, end, 100, flds.asList());
-					sesh.putData(CACHED_QUERY_RESULTS, aggr);
-					sesh.putData(CACHED_LAST_RECORD, datalogger.getLastRecord());
-				} catch (MiniDbException e) {
-					throw new RuntimeException(e);
-				}
-			}
-		}
-	}
-
 	@Override
 	public void configure(Element config) throws InvMonException {
 		this.port = Integer.parseInt(InvUtil.getAttrib(config, "port"));
 		layoutConfig = new HttpLayoutConfig();
-		layoutConfig.configure(config);
+		layoutConfig.configure(getEnv(), config);
 		users.configure(config);
 	}
 
 	@Override
 	public void start() throws InvMonException {
 		super.start();
-		this.datalogger = getEnv().getModule("datalogger");
 
 		HTTPServicer intf = new HTTPServicer() {
 			@Override
@@ -269,7 +266,14 @@ public class HTTPServer extends InvModule {
 				url = "/index.html";
 			url = url.substring(1);
 
-			FetchMethod m = urlMappings.get(url);
+			FetchMethod m = null;
+			for (HandlerMapping x : mappings) {
+				if (x.test(url)) {
+					m = x.getMethod();
+					break;
+				}
+			}
+
 			if (m == null)
 				throw new NotFoundException("Not found");
 
@@ -299,40 +303,6 @@ public class HTTPServer extends InvModule {
 		}
 	}
 
-	private InvMonHTTPResponse getInfoBit(String url, UserSesh sesh, InvMonHTTPRequest request) throws Exception {
-		JSONObject jo = new JSONObject(URLDecoder.decode(request.getQueryParameterString(), StandardCharsets.UTF_8.name()));
-		String name = jo.getString("name");
-		if (name == null)
-			throw new NotFoundException("No widget name");
-
-		ViewOptions viewopts = getViewOpts(sesh);
-		PageLayout layout = viewopts.getLayout();
-		if (layout == null)
-			layout = layoutConfig.getDefaultPage();
-		WidgetExecuteContext ctx = new WidgetExecuteContext(this, sesh, null, null);
-		return new InvMonHTTPResponse(Status.OK, "text/html", layout.getWidgetById(name).execute(null, ctx).toString());
-	}
-
-	private ViewOptions getViewOpts(UserSesh sesh) {
-		ViewOptions viewopts = sesh.getData(GLOBAL_VIEW_OPTIONS);
-		if (viewopts == null)
-			sesh.putData(GLOBAL_VIEW_OPTIONS, viewopts = new ViewOptions());
-		return viewopts;
-	}
-
-	private InvMonHTTPResponse setParams(String url, UserSesh sesh, InvMonHTTPRequest request) throws InvMonException {
-		JSONObject jo = new JSONObject(request.getBodyAsString());
-		int dur = jo.getInt("dur");
-		int off = jo.getInt("off");
-		ViewOptions global = getViewOpts(sesh);
-		global.setDuration(dur);
-		global.setOffset(off);
-		global.setLayout(this.layoutConfig.getPage(jo.optString("page", null)));
-		sesh.putData(CACHED_QUERY_RESULTS, null);
-		sesh.putData(CACHED_LAST_RECORD, null);
-		return new InvMonHTTPResponse(new JSONObject().put("result", "OK").toString());
-	}
-
 	private static JSONObject decodeQueryParams(InvMonHTTPRequest request) {
 		try {
 			JSONObject jo = new JSONObject(URLDecoder.decode(request.getQueryParameterString(), StandardCharsets.UTF_8.name()));
@@ -343,8 +313,8 @@ public class HTTPServer extends InvModule {
 	}
 
 	private InvMonHTTPResponse invalidateResults(String url, UserSesh sesh, InvMonHTTPRequest request) {
-		sesh.putData(CACHED_QUERY_RESULTS, null);
-		sesh.putData(CACHED_LAST_RECORD, null);
+		sesh.putData(PageWidget.CACHED_QUERY_RESULTS, null);
+		sesh.putData(PageWidget.CACHED_LAST_RECORD, null);
 		return new InvMonHTTPResponse(new JSONObject().put("result", "OK").toString());
 	}
 
@@ -359,7 +329,7 @@ public class HTTPServer extends InvModule {
 		JSONObject jo = new JSONObject(request.getBodyAsString());
 		int dur = jo.getInt("duration");
 		String id = jo.getString("id"); // this is the id of the widget on screen
-		ViewOptions vo = getViewOpts(sesh);
+		ViewOptions vo = PageWidget.getViewOpts(sesh);
 		StikSystemControllerWidget wij = vo.getLayout().getWidgetById(id);
 		StikSystemController mod = getEnv().getModule(wij.getModuleName());
 		mod.setBoost(dur);
@@ -416,10 +386,6 @@ public class HTTPServer extends InvModule {
 		synchronized (sessions) {
 
 		}
-	}
-
-	public DataLogger getTargetModule() {
-		return datalogger;
 	}
 
 }

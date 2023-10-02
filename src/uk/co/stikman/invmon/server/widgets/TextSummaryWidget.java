@@ -5,18 +5,25 @@ import org.w3c.dom.Element;
 
 import uk.co.stikman.invmon.InvModule;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
+import uk.co.stikman.invmon.server.PageLayout;
+import uk.co.stikman.invmon.server.UserSesh;
 import uk.co.stikman.invmon.server.WidgetExecuteContext;
 import uk.co.stikman.log.StikLog;
 
 public class TextSummaryWidget extends PageWidget {
+
 	private static final StikLog	LOGGER	= StikLog.getLogger(TextSummaryWidget.class);
 	private String					moduleName;
 
+	public TextSummaryWidget(PageLayout owner) {
+		super(owner);
+	}
+
 	@Override
-	public JSONObject execute(JSONObject params, WidgetExecuteContext ctx) {
+	public JSONObject executeApi(UserSesh sesh, String api, JSONObject args) {
 		try {
 			JSONObject jo = new JSONObject();
-			InvModule mod = ctx.getOwner().getEnv().getModule(moduleName);
+			InvModule mod = getOwner().getEnv().getModule(moduleName);
 			jo.put("summary", mod.toString());
 			return jo;
 		} catch (Exception e) {

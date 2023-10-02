@@ -8,11 +8,14 @@ import uk.co.stikman.invmon.datamodel.Field;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
 import uk.co.stikman.invmon.server.HTMLBuilder;
 import uk.co.stikman.invmon.server.HTTPServer;
+import uk.co.stikman.invmon.server.InvMonClientError;
+import uk.co.stikman.invmon.server.PageLayout;
 import uk.co.stikman.invmon.server.UserSesh;
 import uk.co.stikman.invmon.server.WidgetExecuteContext;
 import uk.co.stikman.log.StikLog;
 
 public class GaugeWidget extends PageWidget {
+
 	private static final StikLog LOGGER = StikLog.getLogger(GaugeWidget.class);
 
 	public enum Mode {
@@ -31,15 +34,18 @@ public class GaugeWidget extends PageWidget {
 	private float					arcsize	= 200.0f;
 	private ValueFormat				valueFormat;
 
-	@Override
-	public JSONObject execute(JSONObject params, WidgetExecuteContext ctx) {
-		try {
-			UserSesh sesh = ctx.getSession();
-			DBRecord rec = sesh.getData(HTTPServer.CACHED_LAST_RECORD);
-			if (rec == null)
-				throw new RuntimeException("No data");
+	public GaugeWidget(PageLayout owner) {
+		super(owner);
+	}
 
-			Field f = ctx.getOwner().getEnv().getModel().get(fieldname);
+	@Override
+	public JSONObject executeApi(UserSesh sesh, String api, JSONObject args) {
+		try {
+			DBRecord rec = sesh.getData(PageWidget.CACHED_LAST_RECORD);
+			if (rec == null)
+				throw new InvMonClientError("No data");
+
+			Field f = getOwner().getEnv().getModel().get(fieldname);
 			float src = rec.getFloat(f);
 			float value = src;
 			//

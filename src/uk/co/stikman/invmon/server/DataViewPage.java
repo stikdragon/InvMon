@@ -8,8 +8,10 @@ import java.util.stream.Collectors;
 
 import org.threeten.bp.OffsetDateTime;
 
+import uk.co.stikman.invmon.InvModule;
 import uk.co.stikman.invmon.InvMonHTTPRequest;
 import uk.co.stikman.invmon.client.res.ClientRes;
+import uk.co.stikman.invmon.datalog.DataLogger;
 import uk.co.stikman.invmon.datalog.QueryResults;
 import uk.co.stikman.invmon.datamodel.DataModel;
 import uk.co.stikman.invmon.datamodel.Field;
@@ -37,7 +39,6 @@ public class DataViewPage {
 			if (session.getParameters().isEmpty())
 				return showHelp();
 
-
 			String s = session.optParam("dur", "1h");
 			if (!s.matches("-?[0-9]+[smhdw]"))
 				throw new IllegalArgumentException("'duration' is not correct");
@@ -59,7 +60,7 @@ public class DataViewPage {
 				start = OffsetDateTime.parse(s).toEpochSecond() * 1000;
 			else
 				dur *= -1;
-			
+
 			int count = -1;
 			s = session.optParam("count", null);
 			if (s != null)
@@ -89,9 +90,15 @@ public class DataViewPage {
 				fields = model.getFields().stream().map(Field::getId).collect(Collectors.toList());
 			fields.remove("TIMESTAMP"); // we always add this already
 
+			DataLogger data = null;
+			for (InvModule m : owner.getEnv().getModules())
+				if (m instanceof DataLogger)
+					data = (DataLogger) m;
+			if (data == null)
+				throw new InvMonClientError("Cannot find a DataLogger module");
 			DataTable dt;
 			if (count != -1) {
-				QueryResults res = owner.getTargetModule().query(start, end, count, fields);
+				QueryResults res = data.query(start, end, count, fields);
 				dt = res.toDataTable();
 			} else {
 				dt = new DataTable();
@@ -104,7 +111,7 @@ public class DataViewPage {
 				for (String f : fields)
 					flds[i++] = model.get(f);
 				System.out.println("from/to: " + start + "  -  " + end);
-				owner.getTargetModule().forEachRecordIn(start, end, r -> {
+				data.forEachRecordIn(start, end, r -> {
 					DataRecord rec = dt.addRecord();
 					rec.setValue(0, Long.toString(r.getTimestamp()));
 					for (int j = 1; j < flds.length; ++j)

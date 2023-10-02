@@ -9,9 +9,7 @@ import uk.co.stikman.invmon.Events;
 public class InverterControlWidgetStik extends AbstractPageWidget {
 
 	private StandardFrame	frame;
-	private String			name;
 	private HTMLElement		txt;
-	private String id;
 
 	public InverterControlWidgetStik(ClientPage owner) {
 		super(owner);
@@ -19,11 +17,9 @@ public class InverterControlWidgetStik extends AbstractPageWidget {
 
 	@Override
 	protected void refresh(boolean nomask) {
-		JSONObject args = new JSONObject();
-		args.put("name", getId());
 		if (!nomask)
 			frame.showGlass();
-		getOwner().fetch("executeChart", args, result -> {
+		api("summary", null, result -> {
 			txt.setTextContent(result.getString("summary"));
 			frame.hideOverlays();
 		}, err -> {
@@ -51,7 +47,7 @@ public class InverterControlWidgetStik extends AbstractPageWidget {
 	private Button boostButton(String title, int mins) {
 		Button b = new Button(title);
 		b.setOnClick(x -> {
-			getOwner().post("stikCtrlBoost", new JSONObject().put("id", id).put("duration", mins), resp -> getOwner().getBus().fire(Events.REFRESH_NOW, null));
+			api("stikCtrlBoost", new JSONObject().put("duration", mins), resp -> getOwner().getBus().fire(Events.REFRESH_NOW, null));
 		});
 		return b;
 	}
@@ -59,8 +55,6 @@ public class InverterControlWidgetStik extends AbstractPageWidget {
 	@Override
 	public void configure(JSONObject obj) {
 		super.configure(obj);
-		this.name = obj.getString("title");
-		this.id = obj.getString("id");
 	}
 
 }

@@ -1,6 +1,5 @@
 package uk.co.stikman.invmon.client;
 
-import org.json.JSONObject;
 import org.teavm.jso.dom.html.HTMLElement;
 
 public class InfoBitWidget extends AbstractPageWidget {
@@ -20,9 +19,7 @@ public class InfoBitWidget extends AbstractPageWidget {
 
 	@Override
 	protected void refresh(boolean nomask) {
-		JSONObject args = new JSONObject();
-		args.put("name", getId());
-		getOwner().fetch("getInfoBit", args, result -> root.setInnerHTML(result.getString("html")));
+		api("get", null, result -> root.setInnerHTML(result.getString("html")));
 	}
 
 }

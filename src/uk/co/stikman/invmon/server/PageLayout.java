@@ -9,11 +9,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import uk.co.stikman.invmon.Env;
 import uk.co.stikman.invmon.InvMonException;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
 import uk.co.stikman.invmon.server.widgets.ChartWidget;
@@ -29,13 +31,14 @@ import uk.co.stikman.invmon.server.widgets.TimeSelPageWidget;
 
 public class PageLayout {
 
-	private boolean											def					= false;
-	private String											id;
-	private List<PageWidget>								widgets				= new ArrayList<>();
-	private File											file;
-	private long											lastModifiedTime	= 0;
+	private final Env													env;
+	private final File													file;
+	private boolean														def					= false;
+	private String														id;
+	private List<PageWidget>											widgets				= new ArrayList<>();
+	private long														lastModifiedTime	= 0;
 
-	private static final Map<String, Supplier<PageWidget>>	TYPES				= new HashMap<>();
+	private static final Map<String, Function<PageLayout, PageWidget>>	TYPES				= new HashMap<>();
 
 	static {
 		TYPES.put("chart", ChartWidget::new);
@@ -50,7 +53,8 @@ public class PageLayout {
 		TYPES.put("log", LogWidget::new);
 	}
 
-	public PageLayout(File file) {
+	public PageLayout(Env env, File file) {
+		this.env = env;
 		this.file = file;
 	}
 
@@ -73,10 +77,10 @@ public class PageLayout {
 		widgets.clear();
 		for (Element el : InvUtil.getElements(root, "Widget")) {
 			String cls = InvUtil.getAttrib(el, "class");
-			Supplier<PageWidget> ctor = TYPES.get(cls);
+			Function<PageLayout, PageWidget> ctor = TYPES.get(cls);
 			if (ctor == null)
 				throw new NoSuchElementException("Widget class [" + cls + "] not found");
-			PageWidget w = ctor.get();
+			PageWidget w = ctor.apply(this);
 			w.configure(el);
 			widgets.add(w);
 		}
@@ -114,6 +118,10 @@ public class PageLayout {
 
 	public long getLastModifiedTime() {
 		return lastModifiedTime;
+	}
+
+	public Env getEnv() {
+		return env;
 	}
 
 }

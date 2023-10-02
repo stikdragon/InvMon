@@ -1,5 +1,7 @@
 package uk.co.stikman.invmon.client;
 
+import java.util.function.Consumer;
+
 import org.json.JSONObject;
 import org.teavm.jso.dom.html.HTMLElement;
 
@@ -93,11 +95,11 @@ public abstract class AbstractPageWidget {
 
 		HTMLElement inner = InvMon.div("gridframeinner");
 		root.appendChild(inner);
-		
+
 		StandardFrame a = new StandardFrame(header);
 		if (header) {
 			inner.appendChild(a.getHeader());
-			if (name != null) 
+			if (name != null)
 				a.setTitle(name);
 			DragHelper dh = new DragHelper(a.getHeader());
 			dh.setDragStartHandler(() -> {
@@ -148,7 +150,6 @@ public abstract class AbstractPageWidget {
 
 		}
 
-		
 		a.content = el2;
 		a.glass = elGlass;
 		a.error = elError;
@@ -160,4 +161,16 @@ public abstract class AbstractPageWidget {
 		return name;
 	}
 
+	protected void api(String api, JSONObject args, Consumer<JSONObject> response) {
+		api(api, args, response, ex -> System.err.println(ex.toString()));
+	}
+
+	protected void api(String api, JSONObject args, Consumer<JSONObject> response, Consumer<Exception> error) {
+		if (args == null)
+			args = new JSONObject();
+		args.put("id", getId());
+		args.put("name", api);
+		args.put("args", args);
+		getOwner().post("api", args, response, error);
+	}
 }

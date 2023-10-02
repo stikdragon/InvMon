@@ -10,6 +10,14 @@ import org.teavm.jso.dom.html.HTMLElement;
 
 import uk.co.stikman.invmon.Events;
 
+/**
+ * a page is a collection of Widget objects. Most widgets have a corresponding
+ * instance on the server, which is linked by its ID. a widget can make a call
+ * to its back end object
+ * 
+ * @author stik
+ *
+ */
 public abstract class ClientPage {
 	private ReallySimpleEventBus bus = new ReallySimpleEventBus();
 
@@ -52,7 +60,7 @@ public abstract class ClientPage {
 			} else {
 				xhr.send();
 			}
-			
+
 		} else {
 			if (args != null)
 				xhr.open("GET", api + "?" + TURLEncoder.encode(args.toString(), StandardCharsets.UTF_8));
