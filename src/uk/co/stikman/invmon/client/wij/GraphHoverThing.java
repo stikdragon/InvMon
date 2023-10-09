@@ -1,9 +1,10 @@
-package uk.co.stikman.invmon.client;
+package uk.co.stikman.invmon.client.wij;
 
 import org.teavm.jso.dom.events.MouseEvent;
 import org.teavm.jso.dom.html.HTMLElement;
 import org.teavm.jso.dom.xml.Element;
 
+import uk.co.stikman.invmon.client.InvMon;
 import uk.co.stikman.invmon.server.Axis;
 import uk.co.stikman.invmon.server.ChartOptions;
 import uk.co.stikman.invmon.server.HTMLBuilder;

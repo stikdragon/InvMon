@@ -39,7 +39,7 @@ public abstract class ClientPage {
 		});
 	}
 
-	protected void fetch(String api, JSONObject args, Consumer<JSONObject> response, Consumer<String> onerror) {
+	public void fetch(String api, JSONObject args, Consumer<JSONObject> response, Consumer<String> onerror) {
 		http("GET", api, args, response, onerror);
 	}
 

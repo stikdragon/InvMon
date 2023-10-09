@@ -14,6 +14,14 @@ import org.teavm.jso.browser.Window;
 import org.teavm.jso.dom.html.HTMLElement;
 
 import uk.co.stikman.invmon.Events;
+import uk.co.stikman.invmon.client.wij.ChartWidget;
+import uk.co.stikman.invmon.client.wij.ControlsWidget;
+import uk.co.stikman.invmon.client.wij.InfoBitWidget;
+import uk.co.stikman.invmon.client.wij.InverterControlWidgetStik;
+import uk.co.stikman.invmon.client.wij.LogWidget;
+import uk.co.stikman.invmon.client.wij.ServerRenderedWidget;
+import uk.co.stikman.invmon.client.wij.TextSummaryWidget;
+import uk.co.stikman.invmon.client.wij.TimeSelectorWidget;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
 
 public class MainPage extends ClientPage {

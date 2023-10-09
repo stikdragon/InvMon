@@ -1,9 +1,12 @@
-package uk.co.stikman.invmon.client;
+package uk.co.stikman.invmon.client.wij;
 
 import org.teavm.jso.dom.html.HTMLAnchorElement;
 import org.teavm.jso.dom.html.HTMLElement;
 
 import uk.co.stikman.invmon.Events;
+import uk.co.stikman.invmon.client.ClientPage;
+import uk.co.stikman.invmon.client.InvMon;
+import uk.co.stikman.invmon.client.LoggedInUser;
 
 public class UserWidget {
 

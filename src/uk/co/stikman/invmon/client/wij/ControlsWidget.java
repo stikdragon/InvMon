@@ -1,4 +1,4 @@
-package uk.co.stikman.invmon.client;
+package uk.co.stikman.invmon.client.wij;
 
 import org.json.JSONObject;
 import org.teavm.jso.dom.events.MouseEvent;
@@ -13,7 +13,6 @@ import uk.co.stikman.invmon.client.LogPopup;
 import uk.co.stikman.invmon.client.Menu;
 import uk.co.stikman.invmon.client.StandardFrame;
 import uk.co.stikman.invmon.client.ToggleButton;
-import uk.co.stikman.invmon.client.UserWidget;
 
 public class ControlsWidget extends AbstractPageWidget {
 

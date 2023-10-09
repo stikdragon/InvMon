@@ -1,8 +1,13 @@
-package uk.co.stikman.invmon.client;
+package uk.co.stikman.invmon.client.wij;
 
 import java.util.function.Consumer;
 
 import org.teavm.jso.dom.html.HTMLElement;
+
+import uk.co.stikman.invmon.client.Button;
+import uk.co.stikman.invmon.client.ClientPage;
+import uk.co.stikman.invmon.client.InvMon;
+import uk.co.stikman.invmon.client.PopupWindow;
 
 public class StikBoostMenu extends PopupWindow {
 
