@@ -5,6 +5,15 @@ import org.teavm.jso.dom.events.MouseEvent;
 import org.teavm.jso.dom.html.HTMLElement;
 
 import uk.co.stikman.invmon.Events;
+import uk.co.stikman.invmon.client.AbstractPageWidget;
+import uk.co.stikman.invmon.client.Button;
+import uk.co.stikman.invmon.client.ClientPage;
+import uk.co.stikman.invmon.client.InvMon;
+import uk.co.stikman.invmon.client.LogPopup;
+import uk.co.stikman.invmon.client.Menu;
+import uk.co.stikman.invmon.client.StandardFrame;
+import uk.co.stikman.invmon.client.ToggleButton;
+import uk.co.stikman.invmon.client.UserWidget;
 
 public class ControlsWidget extends AbstractPageWidget {
 

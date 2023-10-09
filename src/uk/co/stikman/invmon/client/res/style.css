@@ -509,6 +509,7 @@ table.data .total td {
 	padding: 6px;
 	padding-left: 32px;
 }
+
 .errorpopup>.content .msg.fadeout {
 	transition: opacity 0.5s;
 	opacity: 0%;
@@ -652,4 +653,27 @@ table.data .total td {
 	display: flex;
 	height: 100%;
 	flex-direction: column;
+}
+
+.boostdialog {
+	width: 300px;
+	display: flex;
+	flex-direction: column;
+}
+
+.boostdialog .buttons {
+	display: flex;
+	flex-direction: column;
+	background: rgba(0, 0, 0, 5%);
+	border-radius: 5px;
+	padding: 8px;
+	margin: 4px;
+	gap: 2px;
+}
+
+.boostdialog .buttons.reset {
+	background: rgba(255, 0, 255, 5%);
+}
+.boostdialog .buttons.cancel {
+	background: rgba(255, 0, 0, 5%);
 }

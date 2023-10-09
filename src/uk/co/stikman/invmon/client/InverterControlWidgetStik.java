@@ -4,6 +4,12 @@ import org.json.JSONObject;
 import org.teavm.jso.dom.html.HTMLElement;
 
 import uk.co.stikman.invmon.Events;
+import uk.co.stikman.invmon.client.AbstractPageWidget;
+import uk.co.stikman.invmon.client.Button;
+import uk.co.stikman.invmon.client.ClientPage;
+import uk.co.stikman.invmon.client.InvMon;
+import uk.co.stikman.invmon.client.StandardFrame;
+import uk.co.stikman.invmon.client.StikBoostMenu;
 
 public class InverterControlWidgetStik extends AbstractPageWidget {
 
@@ -36,21 +42,20 @@ public class InverterControlWidgetStik extends AbstractPageWidget {
 		frame.content.appendChild(InvMon.div("fill"));
 		frame.content.appendChild(InvMon.text2("h3", "Boost:"));
 
-		HTMLElement div = InvMon.div("btns");
-		frame.content.appendChild(div);
-		div.appendChild(boostButton("1hr", 60).getElement());
-		div.appendChild(boostButton("2hr", 120).getElement());
-		div.appendChild(boostButton("4hr", 240).getElement());
-		div.appendChild(boostButton("Reset", 0).getElement());
-	}
-
-	private Button boostButton(String title, int mins) {
-		Button b = new Button(title);
+		Button b = new Button("+");
 		b.addStyleClass("mini");
 		b.setOnClick(x -> {
-			api("setBoost", new JSONObject().put("duration", mins), resp -> getOwner().getBus().fire(Events.REFRESH_NOW, null));
+			showBoostMenu();
 		});
-		return b;
+		frame.content.appendChild(b.getElement());
+
+	}
+
+	private void showBoostMenu() {
+		StikBoostMenu dlg = new StikBoostMenu(this.getOwner(), dur -> {
+			api("setBoost", new JSONObject().put("duration", dur.intValue()), resp -> getOwner().getBus().fire(Events.REFRESH_NOW, null));
+		});
+		dlg.showModal();
 	}
 
 	@Override

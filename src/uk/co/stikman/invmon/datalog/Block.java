@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.io.input.CountingInputStream;
+
 import uk.co.stikman.log.StikLog;
 
 public class Block {
@@ -54,7 +56,7 @@ public class Block {
 		// read contents first
 		//
 		if (file.exists()) {
-			try (DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(file)))) {
+			try (DataInputStream dis = new DataInputStream(new CountingInputStream(new BufferedInputStream(new FileInputStream(file))))) {
 				if (dis.readInt() != MAGIC_NUMBER)
 					throw new IOException("Stream is not a database file");
 				int ver = dis.readInt();
@@ -146,6 +148,7 @@ public class Block {
 
 	/**
 	 * will return <code>null</code> if this block is closed
+	 * 
 	 * @return
 	 */
 	public List<DBRecord> getRecords() {
