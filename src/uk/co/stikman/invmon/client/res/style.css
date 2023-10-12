@@ -597,6 +597,7 @@ table.data .total td {
 	white-space: pre;
 	overflow: hidden;
 	font-size: 80%;
+	user-select: text;
 }
 
 .ctrl_sunk {
@@ -616,13 +617,13 @@ table.data .total td {
 	flex-direction: row;
 }
 
-.logpopup .outer {
+.textpopup .outer {
 	display: flex;
 	flex-direction: column;
 	height: 100%;
 }
 
-.logpopup .outer .button {
+.textpopup .outer .button {
 	flex: 0 0 auto;
 }
 

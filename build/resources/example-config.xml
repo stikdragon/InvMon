@@ -39,6 +39,9 @@
 
 			<Page id="main" default="true" source="example-page.xml" />
 			<!-- <Page id="kitchenscreen" source="kitchen1.xml" /> -->
+
+               <!-- change this password.  the whole element is commented out for safety at the moment -->
+               <!-- <User name="bob" password="28ghp93h84gp984h" role="admin" /> -->
         </HTTPServer>
 
     </Modules>

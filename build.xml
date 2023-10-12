@@ -1,7 +1,7 @@
 <project default="compile" xmlns:ivy="antlib:org.apache.ivy.ant">
 
 <!--	<property name="version" value="dev" /> -->
- <property name="version" value="0.18" /> 
+ <property name="version" value="0.19" /> 
 
 	<target name="clean">
 		<delete dir="build/classes" />
@@ -72,7 +72,7 @@
 		<zip destfile="dist\invmon-${version}.zip">
 			<zipfileset dir="dist" includes="invmon-${version}.jar" />
 			<zipfileset dir="lib/ivy" prefix="lib" includes="commons-io-2.7.jar,json-20200518.jar,nanohttpd-2.3.1.jar" />
-			<zipfileset dir="lib/provided" prefix="lib" includes="stikutils-1.5-jdk8.jar,jSerialComm-2.9.3-beta1.jar" />
+			<zipfileset dir="lib/provided" prefix="lib" includes="stikutils-1.5-jdk8.jar,jSerialComm-2.10.3.jar" />
 			<zipfileset dir="build/resources" includes="*.xml" />
 			<zipfileset dir="temp" includes="start.*" />
 		</zip>

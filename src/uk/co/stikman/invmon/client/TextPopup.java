@@ -2,14 +2,14 @@ package uk.co.stikman.invmon.client;
 
 import org.teavm.jso.dom.html.HTMLElement;
 
-public class LogPopup extends PopupWindow {
+public class TextPopup extends PopupWindow {
 
 	private HTMLElement	txt;
 	private HTMLElement	box;
 
-	public LogPopup(ClientPage owner, String log) {
+	public TextPopup(ClientPage owner, String log) {
 		super(800, 600);
-		getContent().getClassList().add("logpopup");
+		getContent().getClassList().add("textpopup");
 
 		box = InvMon.div("outer");
 		getContent().appendChild(box);

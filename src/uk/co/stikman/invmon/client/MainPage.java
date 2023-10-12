@@ -25,15 +25,15 @@ import uk.co.stikman.invmon.client.wij.TimeSelectorWidget;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
 
 public class MainPage extends ClientPage {
-	private HTMLElement														root;
+	private HTMLElement													root;
 
-	private List<AbstractPageWidget>										widgets				= new ArrayList<>();
-	private int																gridSize;
+	private List<AbstractPageWidget>									widgets				= new ArrayList<>();
+	private int															gridSize;
 
-	private Boolean															doAutoRefresh		= false;
+	private Boolean														doAutoRefresh		= false;
 
-	private boolean															lastRequestFinished	= true;
-	private static Map<String, Function<ClientPage, AbstractPageWidget>>	pageTypes			= new HashMap<>();
+	private boolean														lastRequestFinished	= true;
+	private static Map<String, Function<MainPage, AbstractPageWidget>>	pageTypes			= new HashMap<>();
 
 	static {
 		pageTypes.put("timesel", TimeSelectorWidget::new);
@@ -79,7 +79,7 @@ public class MainPage extends ClientPage {
 			JSONArray arr = result.getJSONArray("widgets");
 			for (int i = 0; i < arr.length(); ++i) {
 				JSONObject obj = arr.getJSONObject(i);
-				Function<ClientPage, AbstractPageWidget> s = pageTypes.get(obj.getString("type"));
+				Function<MainPage, AbstractPageWidget> s = pageTypes.get(obj.getString("type"));
 				if (s == null)
 					throw new NoSuchElementException("Unknown widget: " + obj.getString("type"));
 				AbstractPageWidget w = s.apply(this);
@@ -120,6 +120,10 @@ public class MainPage extends ClientPage {
 		jo.put("dur", duration);
 		jo.put("page", lc.get("layout"));
 		post("setParams", jo, res -> widgets.forEach(w -> w.refresh(false)));
+	}
+
+	public List<AbstractPageWidget> getWidgets() {
+		return widgets;
 	}
 
 }

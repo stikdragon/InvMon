@@ -9,7 +9,8 @@ import uk.co.stikman.invmon.client.AbstractPageWidget;
 import uk.co.stikman.invmon.client.Button;
 import uk.co.stikman.invmon.client.ClientPage;
 import uk.co.stikman.invmon.client.InvMon;
-import uk.co.stikman.invmon.client.LogPopup;
+import uk.co.stikman.invmon.client.MainPage;
+import uk.co.stikman.invmon.client.TextPopup;
 import uk.co.stikman.invmon.client.Menu;
 import uk.co.stikman.invmon.client.StandardFrame;
 import uk.co.stikman.invmon.client.ToggleButton;
@@ -18,9 +19,11 @@ public class ControlsWidget extends AbstractPageWidget {
 
 	private StandardFrame	frame;
 	private String			name;
+	private MainPage		owner;
 
-	public ControlsWidget(ClientPage owner) {
+	public ControlsWidget(MainPage owner) {
 		super(owner);
+		this.owner = owner;
 	}
 
 	@Override
@@ -56,6 +59,7 @@ public class ControlsWidget extends AbstractPageWidget {
 			Menu mnu = new Menu();
 			mnu.addItem("Login", () -> getOwner().doLogin());
 			mnu.addItem("Show log..", this::showLogWindow);
+			mnu.addItem("Show layout", this::showLayout);
 			mnu.showAt(ev2.getClientX(), ev2.getClientY());
 		});
 		return el;
@@ -69,11 +73,25 @@ public class ControlsWidget extends AbstractPageWidget {
 
 	private void showLogWindow() {
 		getOwner().fetch("fetchUserLog", new JSONObject(), result -> {
-			LogPopup wnd = new LogPopup(getOwner(), result.getString("log"));
+			TextPopup wnd = new TextPopup(getOwner(), result.getString("log"));
 			wnd.showModal();
 		}, err -> {
-			
+
 		});
+	}
+
+	private void showLayout() {
+		int gs = owner.getGridSize();
+		StringBuilder sb = new StringBuilder();
+		for (AbstractPageWidget w : owner.getWidgets()) {
+			sb.append(w.getId()).append(": ").append(w.getName()).append(" - ");
+			sb.append((int) (w.getX() / gs)).append(", ");
+			sb.append((int) (w.getY() / gs)).append(", ");
+			sb.append((int) (w.getWidth() / gs)).append(", ");
+			sb.append((int) (w.getHeight() / gs)).append("\n");
+		}
+		TextPopup wnd = new TextPopup(getOwner(), sb.toString());
+		wnd.showModal();
 	}
 
 }

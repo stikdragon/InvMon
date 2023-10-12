@@ -47,8 +47,6 @@ public class StikSystemController extends SimpleInverterController {
 				in = w;
 		}
 
-		System.out.println(new Date().toString() + " Run.  boost==" + boostRemaining);
-
 		long ts = now.toEpochSecond(ZoneOffset.UTC);
 		if (in != null) { // in a window, so do the boost stuff
 			if (boostRemaining > 0) {
