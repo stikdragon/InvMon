@@ -78,6 +78,7 @@ public class PIP8048MAX implements InverterModel {
 	}
 
 	private String recv() throws IOException {
+		byte[] buf = null;
 		try (InputStream is = port.getInputStream()) {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			//
@@ -96,7 +97,7 @@ public class PIP8048MAX implements InverterModel {
 			// so all responses start with a ( char, then the data, then a CRC, then 
 			// the <cr> we've already stripped off 
 			//
-			byte[] buf = baos.toByteArray();
+			buf = baos.toByteArray();
 			log("recv: " + formatHex(buf));
 
 			if (buf.length < 4)
@@ -109,6 +110,10 @@ public class PIP8048MAX implements InverterModel {
 			if (calcCrc("(" + s) != crc)
 				throw new CommunicationError("Corrupt response, checksum did not match");
 			return s;
+		} catch (Exception e) {
+			LOGGER.error(e.getMessage());
+			LOGGER.error("Receive Buffer: " + formatHex(buf));
+			throw e;
 		}
 	}
 
@@ -131,15 +136,31 @@ public class PIP8048MAX implements InverterModel {
 			LOGGER.info(s);
 	}
 
-	private String formatHex(byte[] buf) {
+	private static String formatHex(byte[] buf) {
 		StringBuilder sb = new StringBuilder();
+		int cnt = 0;
 		for (byte b : buf) {
+			if (cnt++ > 100)
+				break;
+			int n = b & 0xff;
+			if (n < 32 || n > 127)
+				sb.append(".");
+			else
+				sb.append((char) n);
+		}
+		sb.append(" [");
+
+		cnt = 0;
+		for (byte b : buf) {
+			if (cnt++ > 100)
+				break;
 			int n = b & 0xff;
 			if (n <= 0xf)
 				sb.append("0");
 			sb.append(Integer.toHexString(n).toUpperCase());
 			sb.append(" ");
 		}
+		sb.append("]");
 		return sb.toString();
 	}
 
@@ -262,7 +283,7 @@ public class PIP8048MAX implements InverterModel {
 			send("POP02");
 		else if (mode == OutputMode.UTIL_SOL_BAT)
 			send("POP00");
-		
+
 		String resp = recv();
 		if (!"ACK".equals(resp))
 			throw new IOException("Setting OutputMode (`POP` Command) failed with reponse: " + resp);

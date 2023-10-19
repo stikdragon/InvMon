@@ -72,6 +72,14 @@ public class Env {
 			log.setFormat(new InvMonLogFormatter());
 			log.enableLevel(Level.DEBUG, true);
 			StikLog.addTarget(log);
+			try {
+				FileLogTarget flt = new FileLogTarget(new File("log.txt"));
+				flt.setFormat(new InvMonLogFormatter());
+				flt.enableLevel(Level.DEBUG, true);
+				StikLog.addTarget(flt);
+			} catch (IOException e) {
+				throw new InvMonException("Failed to start up file logger: " + e.getMessage(), e);
+			}
 
 			LOGGER.info("Starting InvMon...");
 			listPorts();
