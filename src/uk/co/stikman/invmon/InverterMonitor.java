@@ -13,8 +13,10 @@ public abstract class InverterMonitor extends InvModule {
 
 	@Subscribe(Events.POLL_SOURCES)
 	public void poll(PollData data) {
-		Sample dp = createDataPoint(data.getTimestamp());
-		data.add(getId(), dp);
+		synchronized (this) {
+			Sample dp = createDataPoint(data.getTimestamp());
+			data.add(getId(), dp);
+		}
 	}
 
 	public abstract void setOutputMode(OutputMode mode) throws InvMonException;

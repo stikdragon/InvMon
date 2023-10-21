@@ -10,11 +10,12 @@ import uk.co.stikman.invmon.inverter.util.InvUtil;
 
 public abstract class SimpleInverterController extends InverterController {
 	public enum State {
+		UNKNOWN,
 		NOT_CHARGING,
 		CHARGING
 	}
 
-	private State	currentState	= State.NOT_CHARGING;
+	private State	currentState	= State.UNKNOWN;
 	private String	inverterId;
 
 	public SimpleInverterController(String id, Env env) {

@@ -106,4 +106,9 @@ public class StikSystemController extends SimpleInverterController {
 		super.start();
 		userLog("Stik's control logic initialised");
 	}
+
+	public void setForceChargeMode(boolean b) throws InvMonException {
+		userLog("Forcing charge state to: " + b);
+		setCharging(b ? State.CHARGING : State.NOT_CHARGING, getId());
+	}
 }

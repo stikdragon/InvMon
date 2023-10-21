@@ -1,8 +1,10 @@
 package uk.co.stikman.invmon.server.widgets;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.w3c.dom.Element;
 
+import uk.co.stikman.invmon.InvMonException;
 import uk.co.stikman.invmon.controllers.StikSystemController;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
 import uk.co.stikman.invmon.server.InvMonClientError;
@@ -33,6 +35,15 @@ public class StikSystemControllerWidget extends PageWidget {
 			int dur = args.getInt("duration");
 			StikSystemController mod = getOwner().getEnv().getModule(moduleName);
 			mod.setBoost(dur);
+			return null;
+		} else if (api.equals("forceCharge")) {
+			sesh.requireUserRole(UserRole.ADMIN);
+			StikSystemController mod = getOwner().getEnv().getModule(moduleName);
+			try {
+				mod.setForceChargeMode(args.getBoolean("state"));
+			} catch (Exception e) {
+				throw new InvMonClientError("Failed: " + e.getMessage(), e);
+			}
 			return null;
 		} else
 			throw new InvMonClientError("Unknown Controller API: " + api);

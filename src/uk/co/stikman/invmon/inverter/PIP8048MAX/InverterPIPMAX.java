@@ -114,10 +114,12 @@ public class InverterPIPMAX extends InverterMonitor {
 
 	@Override
 	public void setOutputMode(OutputMode mode) throws InvMonException {
-		try {
-			inv.setOutputMode(mode);
-		} catch (Exception e) {
-			throw new InvMonException(e);
+		synchronized (this) {
+			try {
+				inv.setOutputMode(mode);
+			} catch (Exception e) {
+				throw new InvMonException(e);
+			}
 		}
 	}
 

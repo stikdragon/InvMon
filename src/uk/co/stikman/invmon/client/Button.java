@@ -11,11 +11,17 @@ public class Button {
 	private HTMLElement	inner;
 
 	public Button(String caption) {
+		this(caption, null);
+	}
+
+	public Button(String caption, Consumer<Button> onclick) {
 		this.caption = caption;
 		this.root = InvMon.div("button");
 		inner = InvMon.div("content");
 		inner.setTextContent(caption);
 		root.appendChild(inner);
+		if (onclick != null)
+			setOnClick(onclick);
 	}
 
 	public void addStyleClass(String cls) {

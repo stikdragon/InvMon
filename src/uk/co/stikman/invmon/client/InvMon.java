@@ -4,6 +4,7 @@ import org.teavm.jso.browser.Window;
 import org.teavm.jso.dom.html.HTMLDocument;
 import org.teavm.jso.dom.html.HTMLElement;
 import org.teavm.jso.dom.xml.Element;
+import org.teavm.jso.dom.xml.Node;
 
 public class InvMon {
 
@@ -76,6 +77,12 @@ public class InvMon {
 	public static HTMLElement text(String text) {
 		HTMLElement el = div();
 		el.setTextContent(text);
+		return el;
+	}
+
+	public static Node text(String text, String csscls) {
+		HTMLElement el = text(text);
+		el.getClassList().add(csscls);
 		return el;
 	}
 }

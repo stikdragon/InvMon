@@ -281,12 +281,13 @@ public class PIP8048MAX implements InverterModel {
 	}
 
 	public void setOutputMode(OutputMode mode) throws IOException {
+		String resp;
 		if (mode == OutputMode.SOL_BAT_UTIL)
-			send("POP02");
+			resp = query("POP02");
 		else if (mode == OutputMode.UTIL_SOL_BAT)
-			send("POP00");
-
-		String resp = recv();
+			resp = query("POP00");
+		else
+			throw new IllegalArgumentException("Unknown output mode: " + mode);
 		if (!"ACK".equals(resp))
 			throw new IOException("Setting OutputMode (`POP` Command) failed with reponse: " + resp);
 	}

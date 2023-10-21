@@ -1,5 +1,7 @@
 package uk.co.stikman.invmon.client.wij;
 
+import java.util.function.Consumer;
+
 import org.json.JSONObject;
 import org.teavm.jso.dom.html.HTMLElement;
 
@@ -39,7 +41,6 @@ public class InverterControlWidgetStik extends AbstractPageWidget {
 		frame.content.appendChild(txt);
 
 		frame.content.appendChild(InvMon.div("fill"));
-		frame.content.appendChild(InvMon.text2("h3", "Boost:"));
 
 		Button b = new Button("+");
 		b.addStyleClass("mini");
@@ -48,6 +49,19 @@ public class InverterControlWidgetStik extends AbstractPageWidget {
 		});
 		frame.content.appendChild(b.getElement());
 
+		HTMLElement div = InvMon.div("horiz");
+		frame.content.appendChild(div);
+		div.appendChild(InvMon.text("Charge:", "txt"));
+		b = new Button("On", x -> forceCharge(true));
+		b.addStyleClass("mini");
+		div.appendChild(b.getElement());
+		b = new Button("Off", x -> forceCharge(false));
+		b.addStyleClass("mini");
+		div.appendChild(b.getElement());
+	}
+
+	private void forceCharge(boolean b) {
+		api("forceCharge", new JSONObject().put("state", b), resp -> getOwner().getBus().fire(Events.REFRESH_NOW, null));
 	}
 
 	private void showBoostMenu() {
