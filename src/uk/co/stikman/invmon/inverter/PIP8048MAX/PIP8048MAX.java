@@ -137,6 +137,8 @@ public class PIP8048MAX implements InverterModel {
 	}
 
 	private static String formatHex(byte[] buf) {
+		if (buf == null)
+			return "-null-";
 		StringBuilder sb = new StringBuilder();
 		int cnt = 0;
 		for (byte b : buf) {
