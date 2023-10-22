@@ -18,6 +18,7 @@ import uk.co.stikman.invmon.remote.JSONRecv;
 import uk.co.stikman.invmon.remote.JSONSend;
 import uk.co.stikman.invmon.serialrepeater.SerialRepeater;
 import uk.co.stikman.invmon.server.HTTPServer;
+import uk.co.stikman.log.Level;
 
 public class Config {
 
@@ -44,7 +45,9 @@ public class Config {
 	private boolean																		allowConversion	= false;
 	private File																		modelFile;
 	private long																		lastModified;
+	private String																		logFileName;
 	private final static List<Pair<InvModuleTypeMatcher, Class<? extends InvModule>>>	thingtypes		= new ArrayList<>();
+	private boolean																		logDebug;
 
 	static {
 		thingtypes.add(new Pair<>(new SimpleMatcher("Inverter"), InverterPIPMAX.class));
@@ -66,6 +69,12 @@ public class Config {
 		this.updatePeriod = Integer.parseInt(getAttrib(eset, "updatePeriod"));
 		this.allowConversion = Boolean.parseBoolean(getAttrib(eset, "allowConversion"));
 		this.modelFile = new File(getAttrib(eset, "model"));
+
+		Element elog = getElement(eset, "Logging", true);
+		if (elog != null) {
+			logFileName = getAttrib(elog, "file");
+			logDebug = Boolean.parseBoolean(getAttrib(elog, "debug", null));
+		}
 
 		Element emod = getElement(doc.getDocumentElement(), "Modules");
 		for (Element el : getElements(emod)) {
@@ -106,6 +115,14 @@ public class Config {
 
 	public long lastFileModified() {
 		return lastModified;
+	}
+
+	public String getLogFileName() {
+		return logFileName;
+	}
+
+	public boolean isLogDebug() {
+		return logDebug;
 	}
 
 }

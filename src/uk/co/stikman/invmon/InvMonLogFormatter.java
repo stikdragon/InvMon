@@ -7,7 +7,7 @@ import uk.co.stikman.log.LogFormat;
 
 public class InvMonLogFormatter extends LogFormat {
 
-	private SimpleDateFormat	dateFormat	= new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+	private SimpleDateFormat	dateFormat	= new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 	@Override
 	public String format(LogEntry le) {

@@ -7,8 +7,11 @@ import uk.co.stikman.invmon.InvMonException;
 import uk.co.stikman.invmon.InverterMonitor;
 import uk.co.stikman.invmon.inverter.PIP8048MAX.OutputMode;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
+import uk.co.stikman.log.StikLog;
 
 public abstract class SimpleInverterController extends InverterController {
+	private static final StikLog LOGGER = StikLog.getLogger(SimpleInverterController.class);
+
 	public enum State {
 		UNKNOWN,
 		NOT_CHARGING,
@@ -30,6 +33,8 @@ public abstract class SimpleInverterController extends InverterController {
 	protected void setCharging(State state, String hint) throws InvMonException {
 		if (currentState == state) // no change
 			return;
+
+		LOGGER.debug("setCharging: " + state + " (\"" + hint + "\")");
 
 		//
 		// send to inverter

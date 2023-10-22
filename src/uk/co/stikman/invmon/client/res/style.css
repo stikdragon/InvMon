@@ -464,7 +464,7 @@ table.data .total td {
 	height: 32px;
 }
 
-.error {
+.gridframe .error {
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -476,7 +476,7 @@ table.data .total td {
 	align-items: center;
 }
 
-.error .message {
+.gridframe .error .message {
 	width: 80%;
 	background-color: rgba(255, 255, 255, 80%);
 	padding: 10px;
@@ -681,6 +681,70 @@ table.data .total td {
 .boostdialog .buttons.reset {
 	background: rgba(255, 0, 255, 5%);
 }
+
 .boostdialog .buttons.cancel {
 	background: rgba(255, 0, 0, 5%);
+}
+
+.consoledialog {
+	width: 75%;
+	height: 75%;
+	display: flex;
+	flex-direction: column;
+	font-size: 75%;
+}
+
+.consoledialog>.console {
+	flex: 1;
+	background: #333;
+	border-top: 1px solid #000;
+	border-left: 1px solid #000;
+	border-right: 1px solid #777;
+	border-bottom: 1px solid #777;
+	padding: 3px;
+	overflow-y: scroll;
+}
+
+.consoledialog>input {
+	flex: 0;
+	background: #555;
+	color: white;
+}
+
+.consoledialog>.console {
+	color: #ddd;
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+
+.consoledialog>.console>.result {
+	white-space: pre-wrap;
+	padding: 3px 0;
+}
+
+.consoledialog>.console>.result:hover {
+	background-color: rgba(0, 0, 0, 25%);
+}
+
+.consoledialog>.console>.result.error {
+	background-color: #955;
+	border: 1px solid red;
+}
+
+.consoledialog>.topbar {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	padding-bottom: 4px;
+	font-weight: bold;
+}
+
+.consoledialog>.topbar>.close {
+	opacity: 50%;
+	cursor: pointer;
+}
+
+.consoledialog>.topbar>.close:hover {
+	opacity: 100%;
 }

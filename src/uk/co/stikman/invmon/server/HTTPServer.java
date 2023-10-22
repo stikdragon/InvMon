@@ -21,6 +21,7 @@ import org.json.JSONObject;
 import org.w3c.dom.Element;
 
 import uk.co.stikman.eventbus.Subscribe;
+import uk.co.stikman.invmon.ConsoleResponse;
 import uk.co.stikman.invmon.EmbeddedServer;
 import uk.co.stikman.invmon.Env;
 import uk.co.stikman.invmon.Events;
@@ -85,6 +86,8 @@ public class HTTPServer extends InvModule {
 		mappings.add(new HandlerMapping("toString", this::toStringHandler));
 		mappings.add(new HandlerMapping("setParams", this::setParams));
 		mappings.add(new HandlerMapping("fetchUserLog", this::fetchUserLog));
+
+		mappings.add(new HandlerMapping("console", this::execConsoleCommand));
 
 		mappings.add(new HandlerMapping("getConfig", this::getConfig));
 		mappings.add(new HandlerMapping("invalidateResults", this::invalidateResults));
@@ -335,6 +338,48 @@ public class HTTPServer extends InvModule {
 		sesh.putData(WebUtils.CACHED_QUERY_RESULTS, null);
 		sesh.putData(WebUtils.CACHED_LAST_RECORD, null);
 		return new InvMonHTTPResponse(new JSONObject().put("result", "OK").toString());
+	}
+
+	private InvMonHTTPResponse execConsoleCommand(String url, UserSesh sesh, InvMonHTTPRequest request) throws Exception {
+		if (!request.getMethod().equals("POST"))
+			throw new Exception("Must be POST");
+
+		String s = request.getBodyAsString();
+		LOGGER.info("Console command: " + s);
+		JSONObject jo = new JSONObject(s);
+		try {
+			sesh.requireUserRole(UserRole.ADMIN);
+			JSONObject res = new JSONObject();
+
+			//
+			// find the Console object that should be hanging around, otherwise 
+			// make one
+			//
+			Console c;
+			synchronized (sesh) {
+				c = sesh.getData("console");
+				if (c == null)
+					sesh.putData("console", c = new Console(getEnv()));
+			}
+
+			String cmd = jo.getString("cmd");
+			if (cmd == null || cmd.isBlank()) {
+				res.put("status", "ok");
+				res.put("result", "-no input-");
+			} else {
+				ConsoleResponse output = c.execute(cmd.trim());
+				res.put("status", "ok");
+				res.put("result", output.getText());
+			}
+			return new InvMonHTTPResponse(res.toString());
+
+		} catch (Exception e) {
+			LOGGER.error("Console command: [" + s + "] failed: " + e.getMessage(), e);
+			JSONObject res = new JSONObject();
+			res.put("status", "error");
+			res.put("error", e.getMessage());
+			return new InvMonHTTPResponse(res.toString());
+		}
 	}
 
 	private InvMonHTTPResponse fetchUserLog(String url, UserSesh sesh, InvMonHTTPRequest request) throws InvMonException {

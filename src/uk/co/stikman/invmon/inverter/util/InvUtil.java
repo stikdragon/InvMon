@@ -69,7 +69,7 @@ public class InvUtil {
 		}
 	}
 
-	public static Element getElement(Element root, String name) {
+	public static Element getElement(Element root, String name, boolean allowmissing) {
 		Node n = root.getFirstChild();
 		while (n != null) {
 			if (n instanceof Element)
@@ -77,7 +77,13 @@ public class InvUtil {
 					return (Element) n;
 			n = n.getNextSibling();
 		}
+		if (allowmissing)
+			return null;
 		throw new NoSuchElementException("Child element called [" + name + "] not found");
+	}
+	
+	public static Element getElement(Element root, String name) {
+		return getElement(root, name, false);
 	}
 
 	public static List<Element> getElements(Element root, String name) {

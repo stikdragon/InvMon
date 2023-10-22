@@ -30,6 +30,7 @@ import uk.co.stikman.table.DataTable;
 
 public class Env {
 	private static final StikLog			LOGGER				= StikLog.getLogger(Env.class);
+	private static final StikLog			UL_LOGGER			= StikLog.getLogger("UserLog");
 	private static final int				MAX_USER_LOG_LENGTH	= 500;
 	private static final DateTimeFormatter	DTF					= DateTimeFormatter.ofPattern("MMM dd HH:mm");
 
@@ -62,23 +63,34 @@ public class Env {
 	public void start(File root) throws InvMonException {
 		try {
 			this.root = root;
+			config = new Config();
+			try {
+				config.loadFromFile(new File(root, "config.xml"));
+			} catch (IOException e) {
+				throw new InvMonException("Failed to load config: " + e.getMessage(), e);
+			}
+			
 			StikLog.clearTargets();
 			ConsoleLogTarget tgt = new ConsoleLogTarget();
 			tgt.setFormat(new InvMonLogFormatter());
-			tgt.enableLevel(Level.DEBUG, true);
+			tgt.enableLevel(Level.DEBUG, config.isLogDebug());
 			StikLog.addTarget(tgt);
+
 
 			log = new EnvLog();
 			log.setFormat(new InvMonLogFormatter());
-			log.enableLevel(Level.DEBUG, true);
+			log.enableLevel(Level.DEBUG, false);
 			StikLog.addTarget(log);
-			try {
-				FileLogTarget flt = new FileLogTarget(new File("log.txt"));
-				flt.setFormat(new InvMonLogFormatter());
-				flt.enableLevel(Level.DEBUG, true);
-				StikLog.addTarget(flt);
-			} catch (IOException e) {
-				throw new InvMonException("Failed to start up file logger: " + e.getMessage(), e);
+
+			if (config.getLogFileName() != null) {
+				try {
+					FileLogTarget flt = new FileLogTarget(new File(config.getLogFileName()));
+					flt.setFormat(new InvMonLogFormatter());
+					flt.enableLevel(Level.DEBUG, config.isLogDebug());
+					StikLog.addTarget(flt);
+				} catch (IOException e) {
+					throw new InvMonException("Failed to start up file logger: " + e.getMessage(), e);
+				}
 			}
 
 			LOGGER.info("Starting InvMon...");
@@ -86,13 +98,6 @@ public class Env {
 			timer = new Timer();
 			exec = Executors.newFixedThreadPool(4);
 			bus.setImmediateMode(true);
-
-			config = new Config();
-			try {
-				config.loadFromFile(new File(root, "config.xml"));
-			} catch (IOException e) {
-				throw new InvMonException("Failed to load config: " + e.getMessage(), e);
-			}
 
 			//
 			// load model and configure it for the combination of devices we've got
@@ -297,6 +302,7 @@ public class Env {
 	}
 
 	public void userLog(InvModule sender, String msg) {
+		UL_LOGGER.info((sender == null ? "" : (sender.getId() + "/")) + msg);
 		synchronized (userLog) {
 			while (userLog.size() > MAX_USER_LOG_LENGTH)
 				userLog.removeLast();

@@ -33,7 +33,7 @@ public class TextSummaryWidget extends PageWidget {
 
 	@Override
 	public String getClientWidgetType() {
-		return "stik-controller";
+		return "text-summary";
 	}
 
 	@Override

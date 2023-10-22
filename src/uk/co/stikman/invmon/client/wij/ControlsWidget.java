@@ -60,6 +60,7 @@ public class ControlsWidget extends AbstractPageWidget {
 			mnu.addItem("Login", () -> getOwner().doLogin());
 			mnu.addItem("Show log..", this::showLogWindow);
 			mnu.addItem("Show layout", this::showLayout);
+			mnu.addItem("Console..", this::showConsole);
 			mnu.showAt(ev2.getClientX(), ev2.getClientY());
 		});
 		return el;
@@ -80,6 +81,10 @@ public class ControlsWidget extends AbstractPageWidget {
 		});
 	}
 
+	private void showConsole() {
+		owner.showConsole();
+	}
+	
 	private void showLayout() {
 		int gs = owner.getGridSize();
 		StringBuilder sb = new StringBuilder();

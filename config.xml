@@ -1,6 +1,8 @@
 <InvMon>
 
-	<Settings updatePeriod="1000" allowConversion="true" model="model.xml" />
+	<Settings updatePeriod="1000" allowConversion="true" model="model.xml">
+		<Logging file="log.txt" debug="true" />
+	</Settings>
 
 	<Modules>
 
@@ -11,7 +13,8 @@
 			<Property id="some_key">1234</Property>
 		</Properties>
 
-		<InverterController id="invcon1" type="stik" startTime="23:30" endTime="04:30" inverter="invA" />
+		<!-- <InverterController id="invcon1" type="stik" startTime="23:30" endTime="04:30" inverter="invA" /> -->
+		<InverterController id="invcon1" type="red" startTime="23:30" endTime="04:30" inverter="invA" csv="thresholds.csv" />
 
 <!-- 		<SerialRepeater id="serialout1" port="COM8" baud="9600">
 			<Field width="3" scale="100.0">BATT_SOC</Field>

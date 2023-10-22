@@ -19,18 +19,20 @@ import uk.co.stikman.invmon.InvMonException;
 import uk.co.stikman.invmon.PollData;
 import uk.co.stikman.invmon.inverter.util.FileBackedDataTable;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
+import uk.co.stikman.log.StikLog;
 import uk.co.stikman.table.CSVImporter;
 import uk.co.stikman.table.DataRecord;
 
 public class RedSystemController extends SimpleInverterController {
 
-	private FileBackedDataTable	csv;
+	private static final StikLog	LOGGER				= StikLog.getLogger(RedSystemController.class);
+	private FileBackedDataTable		csv;
 
-	private DateTimeFormatter	dtf;
-	private Set<TimeWindow>		completedWindows	= new HashSet<>();
-	private LocalTime			start;
-	private LocalTime			end;
-	private int					soc;
+	private DateTimeFormatter		dtf;
+	private Set<TimeWindow>			completedWindows	= new HashSet<>();
+	private LocalTime				start;
+	private LocalTime				end;
+	private int						soc;
 
 	public RedSystemController(String id, Env env) {
 		super(id, env);
@@ -128,6 +130,7 @@ public class RedSystemController extends SimpleInverterController {
 		State currentState = getCurrentState();
 		int threshold = getTodayThreshold(getCurrentDayNumber(now.toLocalDate()));
 		String hint = "thr=" + threshold + "%,  soc=" + soc + "%";
+		LOGGER.debug(String.format("Run:wnd==%s, soc=%d, thr=%d, cs=%s", in, soc, threshold, currentState));
 		if (!inWindow) {
 			if (currentState == State.CHARGING) {
 				setCharging(State.NOT_CHARGING, hint);

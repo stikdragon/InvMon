@@ -80,7 +80,7 @@ public class InvMon {
 		return el;
 	}
 
-	public static Node text(String text, String csscls) {
+	public static HTMLElement text(String text, String csscls) {
 		HTMLElement el = text(text);
 		el.getClassList().add(csscls);
 		return el;

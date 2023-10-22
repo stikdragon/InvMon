@@ -33,6 +33,8 @@ public class MainPage extends ClientPage {
 	private Boolean														doAutoRefresh		= false;
 
 	private boolean														lastRequestFinished	= true;
+
+	private ConsolePopup												console;
 	private static Map<String, Function<MainPage, AbstractPageWidget>>	pageTypes			= new HashMap<>();
 
 	static {
@@ -124,6 +126,13 @@ public class MainPage extends ClientPage {
 
 	public List<AbstractPageWidget> getWidgets() {
 		return widgets;
+	}
+
+	public void showConsole() {
+		if (console != null)
+			return;
+		console = new ConsolePopup(this, v -> console = null);
+		console.showModal();
 	}
 
 }
