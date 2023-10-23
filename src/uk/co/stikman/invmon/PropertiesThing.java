@@ -14,6 +14,7 @@ import org.w3c.dom.Element;
 import uk.co.stikman.eventbus.Subscribe;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
 import uk.co.stikman.log.StikLog;
+import uk.co.stikman.table.DataTable;
 
 public class PropertiesThing extends InvModule {
 	private static final StikLog	LOGGER		= StikLog.getLogger(PropertiesThing.class);
@@ -86,6 +87,14 @@ public class PropertiesThing extends InvModule {
 				throw new NoSuchElementException("Property [" + key + "] is not defined");
 			return null;
 		}
+	}
+
+	@Override
+	public String toString() {
+		DataTable dt = new DataTable();
+		dt.addFields("Key", "Value");
+		properties.entrySet().forEach(e -> dt.addRecord(e.getKey(), e.getValue()));
+		return dt.toString();
 	}
 
 }

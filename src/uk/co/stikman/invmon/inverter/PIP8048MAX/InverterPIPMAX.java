@@ -1,11 +1,14 @@
 package uk.co.stikman.invmon.inverter.PIP8048MAX;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.w3c.dom.Element;
 
 import com.fazecast.jSerialComm.SerialPort;
 
+import uk.co.stikman.invmon.ConsoleHelpInfo;
+import uk.co.stikman.invmon.ConsoleResponse;
 import uk.co.stikman.invmon.Env;
 import uk.co.stikman.invmon.InvModType;
 import uk.co.stikman.invmon.InvMonException;
@@ -14,6 +17,7 @@ import uk.co.stikman.invmon.ModType;
 import uk.co.stikman.invmon.Sample;
 import uk.co.stikman.invmon.datamodel.InverterMode;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
+import uk.co.stikman.invmon.server.Console;
 import uk.co.stikman.log.StikLog;
 import uk.co.stikman.table.DataTable;
 
@@ -121,6 +125,19 @@ public class InverterPIPMAX extends InverterMonitor {
 				throw new InvMonException(e);
 			}
 		}
+	}
+
+	@Override
+	public ConsoleResponse consoleCommand(Console console, String cmd) throws InvMonException {
+		if (cmd.equals("qpigs")) 
+			return new ConsoleResponse(inv.getLastQPIGS());
+		return super.consoleCommand(console, cmd);
+	}
+
+	@Override
+	protected void populateCommandHelp(List<ConsoleHelpInfo> lst) {
+		super.populateCommandHelp(lst);
+		lst.add(new ConsoleHelpInfo("qpigs", "show the last QPIGS response received"));
 	}
 
 }

@@ -19,6 +19,7 @@ public class PIP8048MAX implements InverterModel {
 	private SerialPort				port;
 	private long					started;
 	private boolean					logSerialData	= false;
+	private String					lastQPIGS		= "n/a";
 
 	public PIP8048MAX() {
 		started = System.currentTimeMillis();
@@ -252,8 +253,11 @@ public class PIP8048MAX implements InverterModel {
 
 	public DeviceStatus getStatus() {
 		DeviceStatus s = new DeviceStatus();
-		s.fromTemplateResultPart1(TPL_QPIGS.apply(query("QPIGS")));
-		s.fromTemplateResultPart2(TPL_QPIGS2.apply(query("QPIGS2")));
+		String qp1 = query("QPIGS");
+		String qp2 = query("QPIGS2");
+		s.fromTemplateResultPart1(TPL_QPIGS.apply(qp1));
+		s.fromTemplateResultPart2(TPL_QPIGS2.apply(qp2));
+		lastQPIGS = "QPIGS: " + qp1 + "\nQPIGS2: " + qp2;
 		return s;
 	}
 
@@ -290,6 +294,10 @@ public class PIP8048MAX implements InverterModel {
 			throw new IllegalArgumentException("Unknown output mode: " + mode);
 		if (!"ACK".equals(resp))
 			throw new IOException("Setting OutputMode (`POP` Command) failed with reponse: " + resp);
+	}
+
+	public String getLastQPIGS() {
+		return lastQPIGS;
 	}
 
 }

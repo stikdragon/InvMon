@@ -1,12 +1,18 @@
 package uk.co.stikman.invmon.controllers;
 
+import java.util.List;
+
 import org.w3c.dom.Element;
 
+import uk.co.stikman.invmon.ConsoleHelpInfo;
+import uk.co.stikman.invmon.ConsoleResponse;
 import uk.co.stikman.invmon.Env;
 import uk.co.stikman.invmon.InvMonException;
 import uk.co.stikman.invmon.InverterMonitor;
 import uk.co.stikman.invmon.inverter.PIP8048MAX.OutputMode;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
+import uk.co.stikman.invmon.server.Console;
+import uk.co.stikman.invmon.server.UserRole;
 import uk.co.stikman.log.StikLog;
 
 public abstract class SimpleInverterController extends InverterController {
@@ -56,6 +62,23 @@ public abstract class SimpleInverterController extends InverterController {
 
 	public State getCurrentState() {
 		return currentState;
+	}
+
+	@Override
+	public ConsoleResponse consoleCommand(Console console, String cmd) throws InvMonException {
+		if (cmd.equals("set charge on") || cmd.equals("set charge off")) {
+			console.getSession().requireUserRole(UserRole.ADMIN);
+			setCharging(State.CHARGING, "forced by console user");
+			return new ConsoleResponse("ok");
+		} else
+			return super.consoleCommand(console, cmd);
+	}
+
+	@Override
+	protected void populateCommandHelp(List<ConsoleHelpInfo> lst) {
+		super.populateCommandHelp(lst);
+		lst.add(new ConsoleHelpInfo("set charge on", "force inverter charge state on"));
+		lst.add(new ConsoleHelpInfo("set charge off", "force inverter charge state off"));
 	}
 
 }

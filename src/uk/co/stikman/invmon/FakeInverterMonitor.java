@@ -1,10 +1,13 @@
 package uk.co.stikman.invmon;
 
+import java.util.List;
+
 import org.w3c.dom.Element;
 
 import uk.co.stikman.invmon.datamodel.InverterMode;
 import uk.co.stikman.invmon.inverter.BatteryChargeStage;
 import uk.co.stikman.invmon.inverter.PIP8048MAX.OutputMode;
+import uk.co.stikman.invmon.server.Console;
 import uk.co.stikman.log.StikLog;
 
 @ModType(InvModType.INVERTER)
@@ -59,5 +62,21 @@ public class FakeInverterMonitor extends InverterMonitor {
 	public void setOutputMode(OutputMode mode) {
 		LOGGER.info("Output mode set to: " + mode);
 	}
+	
+	@Override
+	protected void populateCommandHelp(List<ConsoleHelpInfo> lst) {
+		super.populateCommandHelp(lst);
+		lst.add(new ConsoleHelpInfo("qpigs", "show the last QPIGS response received (FAKE)"));
+	}
+
+	@Override
+	public ConsoleResponse consoleCommand(Console console, String cmd) throws InvMonException {
+		if (cmd.equals("qpigs")) {
+			return new ConsoleResponse("QPIGS RESPONSE 1234.0 123 125.5 125 6236 01001100 etc...");
+		}
+		return super.consoleCommand(console, cmd);
+	}
+	
+	
 
 }

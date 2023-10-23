@@ -705,29 +705,25 @@ table.data .total td {
 	overflow-y: scroll;
 }
 
-.consoledialog>input {
-	flex: 0;
-	background: #555;
-	color: white;
-}
-
-.consoledialog>.console {
+.consoledialog .console {
 	color: #ddd;
 	display: flex;
 	flex-direction: column;
 	gap: 2px;
 }
 
-.consoledialog>.console>.result {
+.consoledialog .console .result {
 	white-space: pre-wrap;
 	padding: 3px 0;
 }
-
-.consoledialog>.console>.result:hover {
+.consoledialog .console .result.sent {
+	color: #8d8;
+}
+.consoledialog .console .result:hover {
 	background-color: rgba(0, 0, 0, 25%);
 }
 
-.consoledialog>.console>.result.error {
+.consoledialog .console .result.error {
 	background-color: #955;
 	border: 1px solid red;
 }
@@ -740,6 +736,34 @@ table.data .total td {
 	font-weight: bold;
 }
 
+.consoledialog>.bottom {
+	display: flex;
+	flex: 0;
+}
+
+.consoledialog .bottom .x1 {
+	background: #333;
+	flex: 0 0 100px;
+	align-items: center;
+	display: flex;
+	padding: 4px;
+}
+
+.consoledialog>.bottom .module {
+	color: #999;
+}
+
+.consoledialog>.bottom input {
+	flex: 1;
+	color: white;
+	background: #333;
+	border-top: 1px solid #000;
+	border-left: 1px solid #000;
+	border-right: 1px solid #777;
+	border-bottom: 1px solid #777;
+	padding: 3px;
+}
+
 .consoledialog>.topbar>.close {
 	opacity: 50%;
 	cursor: pointer;
@@ -747,4 +771,8 @@ table.data .total td {
 
 .consoledialog>.topbar>.close:hover {
 	opacity: 100%;
+}
+
+textarea:focus, input:focus {
+	outline: none;
 }

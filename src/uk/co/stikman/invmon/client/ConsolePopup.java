@@ -7,12 +7,12 @@ import org.teavm.jso.dom.events.KeyboardEvent;
 import org.teavm.jso.dom.html.HTMLElement;
 import org.teavm.jso.dom.html.HTMLImageElement;
 import org.teavm.jso.dom.html.HTMLInputElement;
-import org.teavm.jso.dom.xml.Node;
 
 public class ConsolePopup extends PopupWindow {
 	private ClientPage			owner;
 	private HTMLInputElement	inputline;
 	private HTMLElement			container;
+	private HTMLElement			lblModule;
 
 	public ConsolePopup(ClientPage owner, Consumer<ConsolePopup> onclose) {
 		super();
@@ -21,9 +21,6 @@ public class ConsolePopup extends PopupWindow {
 		getContent().getClassList().add("consoledialog");
 
 		container = InvMon.div("console");
-		inputline = InvMon.element("input");
-		inputline.setType("text");
-		inputline.addEventListener("keyup", ev -> keyUp(ev.cast()));
 
 		HTMLElement top = InvMon.div("topbar");
 		top.appendChild(InvMon.text("Console (type \"help\" for help)"));
@@ -32,13 +29,27 @@ public class ConsolePopup extends PopupWindow {
 		btn.setSrc("close.png");
 		top.appendChild(btn);
 		btn.addEventListener("click", ev -> {
-			onclose.accept(this);
+			if (onclose != null)
+				onclose.accept(this);
 			close();
 		});
 
+		HTMLElement bottom = InvMon.div("bottom");
+		inputline = InvMon.element("input");
+		inputline.setType("text");
+		inputline.addEventListener("keyup", ev -> keyUp(ev.cast()));
+
+		lblModule = InvMon.div("module");
+		lblModule.setTextContent("");
+		HTMLElement d2 = InvMon.div("x1");
+		d2.appendChild(lblModule);
+
+		bottom.appendChild(d2);
+		bottom.appendChild(inputline);
+
 		getContent().appendChild(top);
 		getContent().appendChild(container);
-		getContent().appendChild(inputline);
+		getContent().appendChild(bottom);
 	}
 
 	private void keyUp(KeyboardEvent ev) {
@@ -48,10 +59,17 @@ public class ConsolePopup extends PopupWindow {
 			//
 			JSONObject req = new JSONObject();
 			req.put("cmd", inputline.getValue());
+
+			HTMLElement sent = InvMon.text(lblModule.getTextContent() + " > " + inputline.getValue(), "result");
+			sent.getClassList().add("sent");
+			container.appendChild(sent);
+
 			inputline.setValue("");
 			owner.post("console", req, resp -> {
 				if (resp.getString("status").equals("ok")) {
 					container.appendChild(InvMon.text(resp.getString("result"), "result"));
+					if (resp.has("module"))
+						lblModule.setTextContent(resp.getString("module"));
 				} else if (resp.getString("status").equals("error")) {
 					HTMLElement txt = InvMon.text(resp.getString("error"), "result");
 					txt.getClassList().add("error");
@@ -59,7 +77,6 @@ public class ConsolePopup extends PopupWindow {
 				}
 				container.setScrollTop(container.getScrollHeight());
 			});
-
 		}
 	}
 

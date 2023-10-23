@@ -86,6 +86,7 @@ public class HTTPServer extends InvModule {
 		mappings.add(new HandlerMapping("toString", this::toStringHandler));
 		mappings.add(new HandlerMapping("setParams", this::setParams));
 		mappings.add(new HandlerMapping("fetchUserLog", this::fetchUserLog));
+		mappings.add(new HandlerMapping("getUserDetails", this::getUserDetails));
 
 		mappings.add(new HandlerMapping("console", this::execConsoleCommand));
 
@@ -348,7 +349,6 @@ public class HTTPServer extends InvModule {
 		LOGGER.info("Console command: " + s);
 		JSONObject jo = new JSONObject(s);
 		try {
-			sesh.requireUserRole(UserRole.ADMIN);
 			JSONObject res = new JSONObject();
 
 			//
@@ -359,17 +359,17 @@ public class HTTPServer extends InvModule {
 			synchronized (sesh) {
 				c = sesh.getData("console");
 				if (c == null)
-					sesh.putData("console", c = new Console(getEnv()));
+					sesh.putData("console", c = new Console(getEnv(), sesh));
 			}
 
 			String cmd = jo.getString("cmd");
+			res.put("status", "ok");
 			if (cmd == null || cmd.isBlank()) {
-				res.put("status", "ok");
 				res.put("result", "-no input-");
 			} else {
 				ConsoleResponse output = c.execute(cmd.trim());
-				res.put("status", "ok");
 				res.put("result", output.getText());
+				res.put("module", output.getActiveModule() == null ? "" : output.getActiveModule().getId());
 			}
 			return new InvMonHTTPResponse(res.toString());
 
@@ -380,6 +380,13 @@ public class HTTPServer extends InvModule {
 			res.put("error", e.getMessage());
 			return new InvMonHTTPResponse(res.toString());
 		}
+	}
+
+	private InvMonHTTPResponse getUserDetails(String url, UserSesh sesh, InvMonHTTPRequest request) throws InvMonException {
+		AuthedSession u = sesh.getAuthedUserSession();
+		if (u == null)
+			return new InvMonHTTPResponse(Status.OK, "text/json", "{}");
+		return new InvMonHTTPResponse(Status.OK, "text/json", new JSONObject().put("name", u.getUser().getName()).put("token", u.getUid()).toString());
 	}
 
 	private InvMonHTTPResponse fetchUserLog(String url, UserSesh sesh, InvMonHTTPRequest request) throws InvMonException {

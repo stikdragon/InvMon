@@ -59,6 +59,16 @@ public class MainPage extends ClientPage {
 				if (doAutoRefresh)
 					refresh(true);
 		}, 5000);
+
+		fetch("getUserDetails", new JSONObject(), resp -> {
+			if (resp.has("name")) {
+				LoggedInUser u = new LoggedInUser();
+				u.setName(resp.getString("name"));
+				u.setToken(resp.getString("token"));
+				InvMon.INSTANCE.setUser(u);
+				getBus().fire(Events.USER_LOGGED_IN, u);				
+			}
+		});
 	}
 
 	@Override
@@ -129,9 +139,8 @@ public class MainPage extends ClientPage {
 	}
 
 	public void showConsole() {
-		if (console != null)
-			return;
-		console = new ConsolePopup(this, v -> console = null);
+		if (console == null)
+			console = new ConsolePopup(this, null);
 		console.showModal();
 	}
 
