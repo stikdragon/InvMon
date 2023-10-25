@@ -143,7 +143,7 @@ public class RedSystemController extends SimpleInverterController {
 					completedWindows.add(in);
 				}
 			} else {
-				if (currentState == State.NOT_CHARGING) {
+				if (currentState != State.CHARGING) {
 					if (!completedWindows.contains(in)) {
 						setCharging(State.CHARGING, hint);
 					}
