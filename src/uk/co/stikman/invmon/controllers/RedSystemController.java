@@ -54,12 +54,12 @@ public class RedSystemController extends SimpleInverterController {
 	}
 
 	@Subscribe(Events.POST_DATA)
-	public void poll(PollData data) {
+	public synchronized void poll(PollData data) {
 		soc = (int) (100.0f * data.get(getInverterId()).getFloat("soc"));
 	}
 
 	@Override
-	public String toString() {
+	public synchronized String toString() {
 		try {
 			int today = getCurrentDayNumber(LocalDate.now());
 			StringBuilder sb = new StringBuilder();
@@ -104,7 +104,7 @@ public class RedSystemController extends SimpleInverterController {
 	//  yes         yes             not_charging    set charge, if not completed
 	//  yes         yes             charging         
 	//
-	public State run(LocalDateTime now, int soc) throws InvMonException {
+	public synchronized State run(LocalDateTime now, int soc) throws InvMonException {
 		//
 		// see if we're in a time window, then check if we're under the target
 		// SoC% and switch on if so.  If we hit the target, mark today as finished

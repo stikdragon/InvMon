@@ -46,8 +46,10 @@ public class PropertiesThing extends InvModule {
 	}
 
 	private void propsFromDom(Element root) {
-		for (Element el : InvUtil.getElements(root, "Property"))
-			properties.put(InvUtil.getAttrib(el, "id"), el.getTextContent());
+		synchronized (properties) {
+			for (Element el : InvUtil.getElements(root, "Property"))
+				properties.put(InvUtil.getAttrib(el, "id"), el.getTextContent());
+		}
 	}
 
 	private void loadFromFile() throws IOException {
@@ -60,7 +62,7 @@ public class PropertiesThing extends InvModule {
 	}
 
 	@Subscribe(Events.TIMER_UPDATE_PERIOD)
-	public void postData() {
+	public void timer() {
 		if (file != null) {
 			//
 			// check the source file for updates
@@ -80,12 +82,14 @@ public class PropertiesThing extends InvModule {
 	}
 
 	public String getProperty(String key, boolean allowMissing) {
-		if (properties.containsKey(key)) {
-			return properties.get(key);
-		} else {
-			if (!allowMissing)
-				throw new NoSuchElementException("Property [" + key + "] is not defined");
-			return null;
+		synchronized(properties) {
+			if (properties.containsKey(key)) {
+				return properties.get(key);
+			} else {
+				if (!allowMissing)
+					throw new NoSuchElementException("Property [" + key + "] is not defined");
+				return null;
+			}
 		}
 	}
 
@@ -93,7 +97,9 @@ public class PropertiesThing extends InvModule {
 	public String toString() {
 		DataTable dt = new DataTable();
 		dt.addFields("Key", "Value");
-		properties.entrySet().forEach(e -> dt.addRecord(e.getKey(), e.getValue()));
+		synchronized(properties) {
+			properties.entrySet().forEach(e -> dt.addRecord(e.getKey(), e.getValue()));
+		}
 		return dt.toString();
 	}
 

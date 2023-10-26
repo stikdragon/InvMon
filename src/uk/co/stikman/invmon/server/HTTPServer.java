@@ -310,10 +310,12 @@ public class HTTPServer extends InvModule {
 			}
 			sesh.touch();
 
-			InvMonHTTPResponse res = m.fetch(url, sesh, http);
-			if (setSeshCookie)
-				res.addHeader("Set-Cookie", "sesh=" + sesh.getId());
-			return res;
+			synchronized(sesh) {
+				InvMonHTTPResponse res = m.fetch(url, sesh, http);
+				if (setSeshCookie)
+					res.addHeader("Set-Cookie", "sesh=" + sesh.getId());
+				return res;
+			}
 
 		} catch (NotFoundException nfe) {
 			return new InvMonHTTPResponse(Status.NOT_FOUND, "text/html", "404 Not Found: " + nfe.getMessage());

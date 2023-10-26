@@ -76,58 +76,60 @@ public class ConsoleOutput extends InvModule {
 
 	@Subscribe(Events.LOGGER_RECORD_COMMITED)
 	public void postData(DBRecord rec) {
-		if (firstTime) {
-			output.clear();
-			firstTime = false;
+		synchronized (output) {
+			if (firstTime) {
+				output.clear();
+				firstTime = false;
+			}
+			output.beginFrame();
+			output.hideCursor();
+
+			float battv = rec.getFloat(fieldBatteryV);
+			float batti = rec.getFloat(fieldBatteryI);
+			output.moveTopLeft();
+			output.print("        Battery: ").printFloat(battv, 2, 1, "V").print(" (").printFloat(rec.getFloat(fieldStateOfCharge) * 100.0f, 2, 1, "%").print(")").spaces(4).newline();
+			String colour = "";
+			InverterMode mode = rec.getEnum(fieldMode, InverterMode.class);
+			switch (mode) {
+				case CHARGING:
+					colour = ConsoleTextOutput.BRIGHT_GREEN;
+					break;
+				case DISCHARGING:
+				case ERROR:
+					colour = ConsoleTextOutput.BRIGHT_RED;
+					break;
+				case OFFLINE:
+					colour = ConsoleTextOutput.BRIGHT_BLACK;
+					break;
+			}
+			String s = mode.name();
+			if (mode == InverterMode.CHARGING)
+				s += " - " + rec.getEnum(fieldChargeState, BatteryChargeStage.class).name().replaceFirst("CHARGE_", "");
+			output.print("Battery current: ").printFloat(Math.abs(batti), 2, 1, "A").print("  [ ").color(colour).print(s).reset().print(" ]").spaces(4).newline();
+			float pf = rec.getFloat(fieldLoadPF);
+			VIFReading loadvif = rec.getVIF(fieldLoad);
+			output.print("           Load: ").printInt(loadvif.getP(), 5, "W").print(" (active: ").printInt(loadvif.getP() * pf, 5, "W").print(" PF: ").printFloat(pf, 1, 2).print(")").spaces(4).newline();
+
+			//
+			// solar stuff
+			//				
+			float totp = 0.0f;
+			for (FieldVIF f : fieldPv) {
+				String name = f.getV().getId().substring(0, f.getV().getId().length() - 2);
+				float p = rec.getFloat(f.getV()) * rec.getFloat(f.getI());
+				totp += p;
+				output.print("            " + name + ": ").printInt(p, 5, "W").print(" - ").printInt(rec.getFloat(f.getV()), 3, "V").print(" @ ").printFloat(rec.getFloat(f.getI()), 2, 1, "A").spaces(4).newline();
+			}
+			output.print("       PV Total: ").printInt(totp, 5, "W").spaces(4).newline();
+
+			output.print("    Temperature: ").printFloat(Math.max(rec.getFloat(fieldTemperature1), rec.getFloat(fieldTemperature2)), 2, 1, "C").spaces(4).newline();
+			output.print("    Bus Voltage: ").printInt(rec.getFloat(fieldBusVoltage), 3, "V").spaces(4).newline();
+
+			output.print("       Status1 : ").color(ConsoleTextOutput.BRIGHT_PURPLE).print(rec.getString(fieldMisc)).reset().spaces(4).newline();
+
+			output.showCursor();
+			output.endFrame();
 		}
-		output.beginFrame();
-		output.hideCursor();
-
-		float battv = rec.getFloat(fieldBatteryV);
-		float batti = rec.getFloat(fieldBatteryI);
-		output.moveTopLeft();
-		output.print("        Battery: ").printFloat(battv, 2, 1, "V").print(" (").printFloat(rec.getFloat(fieldStateOfCharge) * 100.0f, 2, 1, "%").print(")").spaces(4).newline();
-		String colour = "";
-		InverterMode mode = rec.getEnum(fieldMode, InverterMode.class);
-		switch (mode) {
-			case CHARGING:
-				colour = ConsoleTextOutput.BRIGHT_GREEN;
-				break;
-			case DISCHARGING:
-			case ERROR:
-				colour = ConsoleTextOutput.BRIGHT_RED;
-				break;
-			case OFFLINE:
-				colour = ConsoleTextOutput.BRIGHT_BLACK;
-				break;
-		}
-		String s = mode.name();
-		if (mode == InverterMode.CHARGING)
-			s += " - " + rec.getEnum(fieldChargeState, BatteryChargeStage.class).name().replaceFirst("CHARGE_", "");
-		output.print("Battery current: ").printFloat(Math.abs(batti), 2, 1, "A").print("  [ ").color(colour).print(s).reset().print(" ]").spaces(4).newline();
-		float pf = rec.getFloat(fieldLoadPF);
-		VIFReading loadvif = rec.getVIF(fieldLoad);
-		output.print("           Load: ").printInt(loadvif.getP(), 5, "W").print(" (active: ").printInt(loadvif.getP() * pf, 5, "W").print(" PF: ").printFloat(pf, 1, 2).print(")").spaces(4).newline();
-
-		//
-		// solar stuff
-		//				
-		float totp = 0.0f;
-		for (FieldVIF f : fieldPv) {
-			String name = f.getV().getId().substring(0, f.getV().getId().length() - 2);
-			float p = rec.getFloat(f.getV()) * rec.getFloat(f.getI());
-			totp += p;
-			output.print("            " + name + ": ").printInt(p, 5, "W").print(" - ").printInt(rec.getFloat(f.getV()), 3, "V").print(" @ ").printFloat(rec.getFloat(f.getI()), 2, 1, "A").spaces(4).newline();
-		}
-		output.print("       PV Total: ").printInt(totp, 5, "W").spaces(4).newline();
-
-		output.print("    Temperature: ").printFloat(Math.max(rec.getFloat(fieldTemperature1), rec.getFloat(fieldTemperature2)), 2, 1, "C").spaces(4).newline();
-		output.print("    Bus Voltage: ").printInt(rec.getFloat(fieldBusVoltage), 3, "V").spaces(4).newline();
-
-		output.print("       Status1 : ").color(ConsoleTextOutput.BRIGHT_PURPLE).print(rec.getString(fieldMisc)).reset().spaces(4).newline();
-
-		output.showCursor();
-		output.endFrame();
 	}
 
 }
