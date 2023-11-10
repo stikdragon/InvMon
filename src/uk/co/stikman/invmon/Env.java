@@ -29,28 +29,29 @@ import uk.co.stikman.log.StikLog;
 import uk.co.stikman.table.DataTable;
 
 public class Env {
-	private static final StikLog			LOGGER				= StikLog.getLogger(Env.class);
-	private static final StikLog			UL_LOGGER			= StikLog.getLogger("UserLog");
-	private static final int				MAX_USER_LOG_LENGTH	= 500;
-	private static final DateTimeFormatter	DTF					= DateTimeFormatter.ofPattern("MMM dd HH:mm");
+	private static final StikLog			LOGGER					= StikLog.getLogger(Env.class);
+	private static final StikLog			UL_LOGGER				= StikLog.getLogger("UserLog");
+	private static final int				MAX_USER_LOG_LENGTH		= 500;
+	private static final DateTimeFormatter	DTF						= DateTimeFormatter.ofPattern("MMM dd HH:mm");
 
-	public FieldType						DATATYPE_VOLT8		= null;
+	public FieldType						DATATYPE_VOLT8			= null;
 
-	private static String					version				= "dev";
+	private static String					version					= "dev";
 
-	private List<InvModule>					parts				= new ArrayList<>();
-	private StringEventBus					bus					= new StringEventBus();
+	private List<InvModule>					parts					= new ArrayList<>();
+	private StringEventBus					bus						= new StringEventBus();
 	private Thread							mainthread;
-	private boolean							terminated			= false;
+	private boolean							terminated				= false;
 	private Config							config;
 	private DataModel						model;
 	private ExecutorService					exec;
 	private Timer							timer;
-	private LinkedList<String>				userLog				= new LinkedList<>();
+	private LinkedList<String>				userLog					= new LinkedList<>();
 
 	private EnvLog							log;
 
 	private File							root;
+	private RateLimiter						mainLoopErrorRateLimit	= new RateLimiter(300, 600);					// 300 errors in 10 minutes will shut it down
 
 	static {
 		try (InputStream is = Env.class.getResourceAsStream("version.txt")) { // ant script writes this
@@ -69,13 +70,12 @@ public class Env {
 			} catch (IOException e) {
 				throw new InvMonException("Failed to load config: " + e.getMessage(), e);
 			}
-			
+
 			StikLog.clearTargets();
 			ConsoleLogTarget tgt = new ConsoleLogTarget();
 			tgt.setFormat(new InvMonLogFormatter());
 			tgt.enableLevel(Level.DEBUG, config.isLogDebug());
 			StikLog.addTarget(tgt);
-
 
 			log = new EnvLog();
 			log.setFormat(new InvMonLogFormatter());
@@ -175,26 +175,39 @@ public class Env {
 			if (terminated)
 				return;
 
-			//
-			// do timer events
-			//
-			bus.fire(Events.TIMER_UPDATE_PERIOD);
+			try {
 
-			long dt = System.currentTimeMillis() - lastTimer;
-			lastTimer = System.currentTimeMillis();
-			t2err += dt;
-			if (t2err >= 60 * 1000) {
-				while (t2err >= 60 * 1000)
-					t2err -= 60 * 1000;
-				bus.fire(Events.TIMER_UPDATE_MINUTE);
+				//
+				// do timer events
+				//
+				bus.fire(Events.TIMER_UPDATE_PERIOD);
+
+				long dt = System.currentTimeMillis() - lastTimer;
+				lastTimer = System.currentTimeMillis();
+				t2err += dt;
+				if (t2err >= 60 * 1000) {
+					while (t2err >= 60 * 1000)
+						t2err -= 60 * 1000;
+					bus.fire(Events.TIMER_UPDATE_MINUTE);
+				}
+
+				//
+				// poll inverters and post data to anything listening
+				//
+				PollData data = new PollData();
+				bus.fire(Events.POLL_SOURCES, data);
+				bus.fire(Events.POST_DATA, data);
+			} catch (Exception e) {
+				LOGGER.error(e);
+				mainLoopErrorRateLimit.trigger();
+				if (mainLoopErrorRateLimit.test()) {
+					LOGGER.error("!!! -------------------------------");
+					LOGGER.error("ERROR RATE LIMIT EXCEEDED, QUITTING");
+					LOGGER.error("!!! -------------------------------");
+					break;
+				}
+
 			}
-
-			//
-			// poll inverters and post data to anything listening
-			//
-			PollData data = new PollData();
-			bus.fire(Events.POLL_SOURCES, data);
-			bus.fire(Events.POST_DATA, data);
 
 			//
 			// wait for the update period 

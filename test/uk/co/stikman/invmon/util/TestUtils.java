@@ -1,5 +1,8 @@
 package uk.co.stikman.invmon.util;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -10,6 +13,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.teavm.apachecommons.io.FileUtils;
 
+import uk.co.stikman.invmon.RateLimiter;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
 import uk.co.stikman.utils.StreamUtil;
 
@@ -31,4 +35,33 @@ public class TestUtils {
 			return f;
 		}
 	}
+
+	//@formatter:off
+	@Test
+	public void testRateLimiter() {
+		long[] time = new long[1];
+		RateLimiter x = new RateLimiter(5, 10, () -> time[0]); // 5 events during 10s
+		
+		time[0] = 1000;		x.trigger();    assertFalse(x.test());
+		time[0] = 1100;		x.trigger();    assertFalse(x.test());
+		time[0] = 1200;		x.trigger();    assertFalse(x.test());
+		time[0] = 1300;		x.trigger();    assertFalse(x.test());
+		time[0] = 1400;		x.trigger();    assertTrue(x.test());
+		time[0] = 1500;		x.trigger();    assertTrue(x.test());
+		
+		x = new RateLimiter(5, 1, () -> time[0]); // 5 events during 1s
+		
+		time[0] = 1000;		x.trigger();    assertFalse(x.test());
+		time[0] = 1100;		x.trigger();    assertFalse(x.test());
+		time[0] = 1200;		x.trigger();    assertFalse(x.test());
+		time[0] = 1300;		x.trigger();    assertFalse(x.test());
+		time[0] = 2001;		x.trigger();    assertFalse(x.test());
+		time[0] = 2500;		x.trigger();    assertFalse(x.test());
+		time[0] = 2600;		x.trigger();    assertFalse(x.test());
+		time[0] = 2700;		x.trigger();    assertFalse(x.test());
+		time[0] = 2800;		x.trigger();    assertTrue(x.test());
+
+	}
+	//@formatter:on
+
 }
