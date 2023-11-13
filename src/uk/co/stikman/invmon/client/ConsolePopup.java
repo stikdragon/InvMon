@@ -1,7 +1,10 @@
 package uk.co.stikman.invmon.client;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.teavm.jso.dom.events.KeyboardEvent;
 import org.teavm.jso.dom.html.HTMLElement;
@@ -9,10 +12,13 @@ import org.teavm.jso.dom.html.HTMLImageElement;
 import org.teavm.jso.dom.html.HTMLInputElement;
 
 public class ConsolePopup extends PopupWindow {
+	private static final String STORAGE_KEY = "console-history";
 	private ClientPage			owner;
 	private HTMLInputElement	inputline;
 	private HTMLElement			container;
 	private HTMLElement			lblModule;
+	private int					historyIndex;
+	private List<String>		history	= new ArrayList<>();
 
 	public ConsolePopup(ClientPage owner, Consumer<ConsolePopup> onclose) {
 		super();
@@ -50,15 +56,32 @@ public class ConsolePopup extends PopupWindow {
 		getContent().appendChild(top);
 		getContent().appendChild(container);
 		getContent().appendChild(bottom);
+		
+		String s = ClientUtil.getLocalStorageItem(STORAGE_KEY);
+		if (s != null) {
+			JSONArray arr = new JSONArray(s);
+			for (int i = 0; i < arr.length(); ++i)
+				history.add(arr.getString(i));
+			historyIndex = history.size();
+		}
+		
 	}
 
 	private void keyUp(KeyboardEvent ev) {
+		if (ev.getCode().equals("ArrowUp")) {
+			selectHistoryCommand(-1);
+			ev.preventDefault();
+		} else if (ev.getCode().equals("ArrowDown")) {
+			selectHistoryCommand(1);
+			ev.preventDefault();
+		}
 		if (ev.getKey().equals("Enter")) {
 			//
 			// send it
 			//
 			JSONObject req = new JSONObject();
 			req.put("cmd", inputline.getValue());
+			addHistoryItem(inputline.getValue());
 
 			HTMLElement sent = InvMon.text(lblModule.getTextContent() + " > " + inputline.getValue(), "result");
 			sent.getClassList().add("sent");
@@ -77,13 +100,31 @@ public class ConsolePopup extends PopupWindow {
 				}
 				container.setScrollTop(container.getScrollHeight());
 			});
+			ev.preventDefault();
 		}
+	}
+
+	private void addHistoryItem(String value) {
+		history.add(value);
+		historyIndex = history.size(); 	
+		JSONArray arr = new JSONArray();
+		history.forEach(arr::put);
+		ClientUtil.setLocalStorageItem(STORAGE_KEY, arr.toString());
+	}
+
+	private void selectHistoryCommand(int d) {
+		historyIndex += d;
+		if (historyIndex < 0)
+			historyIndex = 0;
+		if (historyIndex > history.size())
+			historyIndex = history.size();
+		String cmd =  historyIndex >= history.size() ? "" : history.get(historyIndex);
+		inputline.setValue(cmd);
 	}
 
 	@Override
 	public void showModal() {
 		super.showModal();
 		inputline.focus();
-
 	}
 }
