@@ -33,7 +33,10 @@ public class InverterPIPMAX extends InverterMonitor {
 
 	@Override
 	public Sample createDataPoint(long ts) {
-		DeviceStatus sts = inv.getStatus();
+		DeviceStatus sts;
+		synchronized(inv) {
+			sts = inv.getStatus();
+		}
 		float current = sts.getBatteryChargeI();
 		boolean charging = true;
 		if (sts.getBatteryDischargeI() > current) {
@@ -118,7 +121,7 @@ public class InverterPIPMAX extends InverterMonitor {
 
 	@Override
 	public void setOutputMode(OutputMode mode) throws InvMonException {
-		synchronized (this) {
+		synchronized (inv) {
 			try {
 				inv.setOutputMode(mode);
 			} catch (Exception e) {

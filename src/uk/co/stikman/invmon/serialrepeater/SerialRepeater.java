@@ -158,7 +158,9 @@ public class SerialRepeater extends InvModule {
 	@Override
 	public void terminate() {
 		output.terminate();
-		super.terminate();
+		synchronized(output) {
+			super.terminate();
+		}
 	}
 
 	@Subscribe(Events.LOGGER_RECORD_COMMITED)
@@ -173,7 +175,9 @@ public class SerialRepeater extends InvModule {
 			sep = ",";
 			sb.append(oe.eval(getEnv(), rec));
 		}
-		output.send(sb.toString());
+		synchronized(output) {
+			output.send(sb.toString());
+		}
 	}
 
 }

@@ -32,9 +32,11 @@ import uk.co.stikman.table.DataTable;
  * Every record is stored against a TIMESTAMP, which is a <code>long</code>
  * representing the number of ms since the epoch (ie. the same thing
  * <code>System.currentTimeMillis()</code> returns)
+ * </p>
  * 
- * 
- * 
+ * <p>
+ * It is thread safe, so you don't need to worry about synchronisation
+ * </p>
  * @author stik
  *
  */

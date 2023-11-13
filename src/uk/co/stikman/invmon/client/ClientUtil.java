@@ -2,6 +2,7 @@ package uk.co.stikman.invmon.client;
 
 import java.util.NoSuchElementException;
 
+import org.teavm.jso.JSBody;
 import org.teavm.jso.browser.Location;
 
 public class ClientUtil {
@@ -50,5 +51,14 @@ public class ClientUtil {
 		pop.addMessage("Error: " + e.getMessage());
 		pop.show();
 	}
+
+	@JSBody(params = { "key", "value" }, script = "localStorage.setItem(key, value);")
+	public static native void setLocalStorageItem(String key, String value);
+
+	@JSBody(params = "key", script = "return localStorage.getItem(key);")
+	public static native String getLocalStorageItem(String key);
+
+	@JSBody(params = "key", script = "localStorage.removeItem(key);")
+	public static native void removeLocalStorageItem(String key);
 
 }

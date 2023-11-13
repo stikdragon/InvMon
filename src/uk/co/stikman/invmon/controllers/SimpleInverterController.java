@@ -36,7 +36,7 @@ public abstract class SimpleInverterController extends InverterController {
 		inverterId = InvUtil.getAttrib(root, "inverter", null);
 	}
 
-	protected void setCharging(State state, String hint) throws InvMonException {
+	protected synchronized void setCharging(State state, String hint) throws InvMonException {
 		if (currentState == state) // no change
 			return;
 

@@ -40,6 +40,7 @@ public class GaugeWidget extends PageWidget {
 	@Override
 	public JSONObject executeApi(UserSesh sesh, String api, JSONObject args) {
 		try {
+			ensureCachedResults(sesh);
 			DBRecord rec = sesh.getData(WebUtils.CACHED_LAST_RECORD);
 			if (rec == null)
 				throw new InvMonClientError("No data");

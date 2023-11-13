@@ -31,7 +31,7 @@ public class StikSystemController extends SimpleInverterController {
 		run(LocalDateTime.now());
 	}
 
-	private void run(LocalDateTime now) throws InvMonException {
+	private synchronized void run(LocalDateTime now) throws InvMonException {
 		//
 		// if we're in the window, and there's some boost minutes remaining then
 		// switch to charge mode
@@ -79,7 +79,7 @@ public class StikSystemController extends SimpleInverterController {
 	}
 
 	@Override
-	public String toString() {
+	public synchronized String toString() {
 		try {
 			StringBuilder sb = new StringBuilder();
 			sb.append("  Time: ").append(dtf.format(LocalTime.now())).append("\n");
@@ -96,7 +96,7 @@ public class StikSystemController extends SimpleInverterController {
 		}
 	}
 
-	public void setBoost(int minutes) {
+	public synchronized void setBoost(int minutes) {
 		userLog("Boosting for " + minutes + " minutes (within window)");
 		boostRemaining = minutes;
 	}
@@ -107,7 +107,7 @@ public class StikSystemController extends SimpleInverterController {
 		userLog("Stik's control logic initialised");
 	}
 
-	public void setForceChargeMode(boolean b) throws InvMonException {
+	public synchronized void setForceChargeMode(boolean b) throws InvMonException {
 		userLog("Forcing charge state to: " + b);
 		setCharging(b ? State.CHARGING : State.NOT_CHARGING, getId());
 	}

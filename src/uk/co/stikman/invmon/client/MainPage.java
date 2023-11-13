@@ -11,6 +11,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.teavm.jso.browser.Location;
 import org.teavm.jso.browser.Window;
+import org.teavm.jso.dom.events.KeyboardEvent;
 import org.teavm.jso.dom.html.HTMLElement;
 
 import uk.co.stikman.invmon.Events;
@@ -66,7 +67,18 @@ public class MainPage extends ClientPage {
 				u.setName(resp.getString("name"));
 				u.setToken(resp.getString("token"));
 				InvMon.INSTANCE.setUser(u);
-				getBus().fire(Events.USER_LOGGED_IN, u);				
+				getBus().fire(Events.USER_LOGGED_IN, u);
+			}
+		});
+
+		//
+		// bind a global keypress for the console
+		//
+		root.getOwnerDocument().addEventListener("keydown", ev -> {
+			KeyboardEvent ev2 = ev.cast();
+			if (ev2.isCtrlKey() && ev2.isShiftKey() && ev2.getCode().equals("KeyA")) {
+				showConsole();
+				ev2.preventDefault();
 			}
 		});
 	}
