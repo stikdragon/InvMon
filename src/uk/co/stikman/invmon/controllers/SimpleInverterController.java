@@ -68,7 +68,7 @@ public abstract class SimpleInverterController extends InverterController {
 	public ConsoleResponse consoleCommand(Console console, String cmd) throws InvMonException {
 		if (cmd.equals("set charge on") || cmd.equals("set charge off")) {
 			console.getSession().requireUserRole(UserRole.ADMIN);
-			setCharging(State.CHARGING, "forced by console user");
+			setCharging(cmd.endsWith("off") ? State.NOT_CHARGING : State.CHARGING, "forced by console user");
 			return new ConsoleResponse("ok");
 		} else
 			return super.consoleCommand(console, cmd);
