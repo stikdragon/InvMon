@@ -1,5 +1,6 @@
 package uk.co.stikman.invmon.inverter.PIP8048MAX;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -34,7 +35,7 @@ public class InverterPIPMAX extends InverterMonitor {
 	@Override
 	public Sample createDataPoint(long ts) {
 		DeviceStatus sts;
-		synchronized(inv) {
+		synchronized (inv) {
 			sts = inv.getStatus();
 		}
 		float current = sts.getBatteryChargeI();
@@ -132,8 +133,54 @@ public class InverterPIPMAX extends InverterMonitor {
 
 	@Override
 	public ConsoleResponse consoleCommand(Console console, String cmd) throws InvMonException {
-		if (cmd.equals("qpigs")) 
+		if (cmd.equals("qpigs"))
 			return new ConsoleResponse(inv.getLastQPIGS());
+
+		try {
+			if (cmd.startsWith("set float voltage")) {
+				String s = cmd.substring(18);
+				float v = Float.parseFloat(s);
+				synchronized (inv) {
+					inv.setFloatVoltage(v);
+				}
+				return new ConsoleResponse("OK");
+			}
+			
+			if (cmd.startsWith("set bulk voltage")) {
+				String s = cmd.substring(17);
+				float v = Float.parseFloat(s);
+				synchronized (inv) {
+					inv.setBulkVoltage(v);
+				}
+				return new ConsoleResponse("OK");
+			}
+
+			if (cmd.startsWith("set output prio ")) {
+				String s = cmd.substring(16);
+				synchronized (inv) {
+					inv.setOutputMode(OutputMode.fromShort(s));
+				}
+				return new ConsoleResponse("OK");
+			}
+
+			if (cmd.equals("info")) {
+				synchronized (inv) {
+					DeviceStatus ds = inv.getStatus();
+					return new ConsoleResponse(ds.toString());
+				}
+			}
+
+			if (cmd.equals("settings")) {
+				synchronized (inv) {
+					DeviceRatingInfo x = inv.getDeviceRatingInfo();
+					return new ConsoleResponse(x.toString());
+				}
+			}
+
+		} catch (IOException e) {
+			throw new InvMonException(e);
+		}
+
 		return super.consoleCommand(console, cmd);
 	}
 
@@ -141,6 +188,11 @@ public class InverterPIPMAX extends InverterMonitor {
 	protected void populateCommandHelp(List<ConsoleHelpInfo> lst) {
 		super.populateCommandHelp(lst);
 		lst.add(new ConsoleHelpInfo("qpigs", "show the last QPIGS response received"));
+		lst.add(new ConsoleHelpInfo("set float voltage [v]", "set the float charge voltage"));
+		lst.add(new ConsoleHelpInfo("set bulk voltage [v]", "set the bulk charge voltage"));
+		lst.add(new ConsoleHelpInfo("set output prio [mode]", "set output priority to SBU or USB"));
+		lst.add(new ConsoleHelpInfo("info", "read QPIGS datafrom inverter (current status)"));
+		lst.add(new ConsoleHelpInfo("settings", "read QPIRI settings (mostly settings)"));
 	}
 
 }

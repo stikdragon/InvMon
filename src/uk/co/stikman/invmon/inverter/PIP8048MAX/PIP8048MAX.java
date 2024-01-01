@@ -300,4 +300,20 @@ public class PIP8048MAX implements InverterModel {
 		return lastQPIGS;
 	}
 
+	public void setFloatVoltage(float v) throws IOException {
+		if (v < 48 || v > 63)
+			throw new IOException("Invalid value: " + v);
+		String resp = query("PBFT" + String.format("%04.1f", v));
+		if (!"ACK".equals(resp))
+			throw new IOException("Setting Float Voltage (`PBFT` Command) failed with reponse: " + resp);
+	}
+	
+	public void setBulkVoltage(float v) throws IOException {
+		if (v < 48 || v > 63)
+			throw new IOException("Invalid value: " + v);
+		String resp = query("PCVV" + String.format("%04.1f", v));
+		if (!"ACK".equals(resp))
+			throw new IOException("Setting Float Voltage (`PCVV` Command) failed with reponse: " + resp);
+	}
+	
 }
