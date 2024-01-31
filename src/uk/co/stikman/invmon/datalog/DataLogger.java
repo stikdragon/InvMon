@@ -90,6 +90,20 @@ public class DataLogger extends InvModule {
 			throw new MiniDbException("Database needs conversion, but [allowConversion] is not set to [true] in the <Settings> element of the config file");
 		LOGGER.info("  (This may take a long time)");
 
+		File fold = new File(file.toString() + ".old");
+		if (fold.exists()) {
+			LOGGER.error("");
+			LOGGER.error("=====================================");
+			LOGGER.error("");
+			LOGGER.error("We will rename the old database to " + fold.getName() + " but there is already a file");
+			LOGGER.error("by that name.  This probably left over from a prior upgrade process.  You must ");
+			LOGGER.error("delete these *.old files first.");
+			LOGGER.error("");
+			LOGGER.error("=====================================");
+			LOGGER.error("");
+			throw new MiniDbException("*.old database already exists");
+		}
+
 		//
 		// make a new DB with a temp name, convert into it, if it's
 		// ok then delete the old one and rename
@@ -131,7 +145,7 @@ public class DataLogger extends InvModule {
 				for (int i = 0; i < oldDb.getRecordCount(); ++i) {
 					if (System.currentTimeMillis() - lastT > 1500) {
 						lastT = System.currentTimeMillis();
-						LOGGER.info("Converting record [" + i + "] of [" + oldDb.getRecordCount() + "]...");
+						LOGGER.info(String.format("%.1f%% Converting record [%d] of [%d]", (float) (100 * i) / oldDb.getRecordCount(), i, oldDb.getRecordCount()));
 						//						LOGGER.info("Open blocks: " + oldDb.getOpenBlocks()  + ",  " + newDb.getOpenBlocks());
 					}
 
@@ -316,6 +330,7 @@ public class DataLogger extends InvModule {
 
 						switch (srcfld.getType().getBaseType()) {
 							case FLOAT:
+							case FLOAT8:
 								float f = dbrec.getFloat(srcfld);
 								if (!Float.isFinite(f))
 									f = 0.0f;
@@ -401,7 +416,7 @@ public class DataLogger extends InvModule {
 			throw new MiniDbException("Range is smaller than 0");
 		IntRange range = db.getRecordRange(tsStart, tsEnd);
 		if (range.isValid()) {
-			for (int idx = range.getLow(); idx < range.getHigh(); ++idx) 
+			for (int idx = range.getLow(); idx < range.getHigh(); ++idx)
 				callback.accept(db.getRecord(idx));
 		}
 	}

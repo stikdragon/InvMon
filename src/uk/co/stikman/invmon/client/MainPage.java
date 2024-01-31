@@ -15,6 +15,7 @@ import org.teavm.jso.dom.events.KeyboardEvent;
 import org.teavm.jso.dom.html.HTMLElement;
 
 import uk.co.stikman.invmon.Events;
+import uk.co.stikman.invmon.client.wij.BMSStatusWidget;
 import uk.co.stikman.invmon.client.wij.ChartWidget;
 import uk.co.stikman.invmon.client.wij.ControlsWidget;
 import uk.co.stikman.invmon.client.wij.InfoBitWidget;
@@ -47,6 +48,7 @@ public class MainPage extends ClientPage {
 		pageTypes.put("text-summary", TextSummaryWidget::new);
 		pageTypes.put("log", LogWidget::new);
 		pageTypes.put("stik-controller", InverterControlWidgetStik::new);
+		pageTypes.put("bms-status", BMSStatusWidget::new);
 	}
 
 	public MainPage() {

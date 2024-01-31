@@ -7,6 +7,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.fazecast.jSerialComm.SerialPort;
 
@@ -38,13 +40,19 @@ public class StikBMSSerialInterface {
 	private DataOutputStream	outputstream;
 	private DataInputStream		inputstream;
 	private SerialPort			serial;
+	private int					baud;
 
-	public StikBMSSerialInterface(String port) {
-		this.serial = SerialPort.getCommPort(port);
+	public StikBMSSerialInterface(String port, int baud) {
+		this(SerialPort.getCommPort(port), baud);
+	}
+
+	public StikBMSSerialInterface(SerialPort port, int baud) {
+		this.serial = port;
+		this.baud = baud;
 	}
 
 	public void open() throws IOException {
-		serial.setBaudRate(9600);
+		serial.setBaudRate(baud);
 		serial.setNumStopBits(1);
 		serial.setNumDataBits(8);
 		serial.setComPortTimeouts(SerialPort.TIMEOUT_READ_BLOCKING, 2000, 0);
@@ -103,8 +111,9 @@ public class StikBMSSerialInterface {
 	}
 
 	private void testConnected() throws IOException {
-		if (serial == null)
+		if (serial == null || !serial.isOpen())
 			throw new IOException("Not connected");
+
 	}
 
 	public int queryProtocol() throws IOException {
@@ -133,7 +142,7 @@ public class StikBMSSerialInterface {
 			float[] v = new float[cnt];
 			for (int i = 0; i < cnt; ++i)
 				v[i] = dis.readFloat();
-			
+
 			//
 			// then temps
 			//
@@ -172,6 +181,25 @@ public class StikBMSSerialInterface {
 		if (res[0] == 'O' && res[1] == 'K')
 			return;
 		throw new IOException("Response was not 'OK'");
+	}
+
+	public List<CalibFactor> getCalibFactors() throws IOException {
+		List<CalibFactor> lst = new ArrayList<>();
+		byte[] res = query("QC");
+		DataInputStream dis = new DataInputStream(new ByteArrayInputStream(res));
+		int cnt = dis.readShort();
+		if (cnt != 1)
+			throw new IOException("Expected only one current shunt");
+		float f = dis.readFloat();
+		lst.add(new CalibFactor("i0", f));
+
+		cnt = dis.readShort();
+		for (int i = 0; i < cnt; ++i) {
+			f = dis.readFloat();
+			lst.add(new CalibFactor("v" + i, f));
+		}
+
+		return lst;
 	}
 
 }

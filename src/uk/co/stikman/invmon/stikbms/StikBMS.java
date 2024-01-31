@@ -1,0 +1,366 @@
+package uk.co.stikman.invmon.stikbms;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
+import java.util.function.Consumer;
+
+import org.w3c.dom.Element;
+
+import com.fazecast.jSerialComm.SerialPort;
+
+import uk.co.stikman.eventbus.Subscribe;
+import uk.co.stikman.invmon.ConsoleHelpInfo;
+import uk.co.stikman.invmon.ConsoleResponse;
+import uk.co.stikman.invmon.ConsoleResponseStatus;
+import uk.co.stikman.invmon.Env;
+import uk.co.stikman.invmon.Events;
+import uk.co.stikman.invmon.InvModule;
+import uk.co.stikman.invmon.InvMonException;
+import uk.co.stikman.invmon.PollData;
+import uk.co.stikman.invmon.Sample;
+import uk.co.stikman.invmon.datalog.IntRange;
+import uk.co.stikman.invmon.inverter.util.InvUtil;
+import uk.co.stikman.invmon.server.Console;
+import uk.co.stikman.log.StikLog;
+import uk.co.stikman.table.DataRecord;
+import uk.co.stikman.table.DataTable;
+
+public class StikBMS extends InvModule {
+	private static final StikLog	LOGGER			= StikLog.getLogger(StikBMS.class);
+	private SerialPort				port;
+	private int						baud;
+	private List<BatteryData>		batteryData		= new ArrayList<>();
+	private int						numBatteries	= 1;
+	private int						cellsPerBatt	= 16;
+	private Lock					lock			= new ReentrantLock();
+
+	public StikBMS(String id, Env env) {
+		super(id, env);
+	}
+
+	@Subscribe(Events.POLL_SOURCES)
+	public void poll(PollData data) throws InvMonException {
+		synchronized (this) {
+			try {
+				StikBMSSerialInterface bms = createBMS();
+				try {
+					BMSMetrics m = bms.queryMetrics();
+					//
+					// so this returns N cell voltages, we need to divide that up into the banks
+					//
+					if (m.getVoltages().length != numBatteries * cellsPerBatt)
+						throw new InvMonException("Incorrect cell count received from BMS: " + m.getVoltages().length + ". Expected " + numBatteries * cellsPerBatt);
+
+					for (int i = 0; i < m.getVoltages().length; ++i) {
+						BatteryData b = batteryData.get(i / cellsPerBatt);
+						float[] cells = b.getCellVoltages();
+						cells[i % cellsPerBatt] = m.getVoltages()[i];
+						b.setTemperature(0.0f);
+						if (m.getTemperatures().length > 0)
+							b.setTemperature(m.getTemperatures()[0]);
+						b.setCurrent(0.0f); // how do we do this
+					}
+
+					//
+					// that's absolute voltages, so now we need to turn them into relative ones
+					//
+					for (BatteryData b : batteryData) {
+						float[] cells = b.getCellVoltages();
+						b.setPackVoltage(cells[cellsPerBatt - 1]);
+						for (int i = cells.length - 1; i > 1; --i) {
+							cells[i] = cells[i] - cells[i - 1];
+						}
+					}
+
+					//
+					// since we only want to present as a single battery we'll average them out
+					// or pick the first one
+					//
+					Sample dp = new Sample(data.getTimestamp());
+					BatteryData b = batteryData.get(0);
+					for (int i = 0; i < cellsPerBatt; ++i)
+						dp.put("c" + (i + 1), b.getCellVoltages()[i]);
+					dp.put("i", m.getCurrent());
+					dp.put("temp", b.getTemperature());
+					dp.put("soc", 50.0f); // TODO: how do we estimate this?
+					dp.put("v", b.getPackVoltage());
+
+					data.add(getId(), dp);
+
+				} finally {
+					releaseBMS(bms);
+				}
+			} catch (Exception e) {
+				throw new InvMonException("Failed to poll StikBMS: " + e.getMessage(), e);
+			}
+		}
+	}
+
+	@Override
+	public void configure(Element config) throws InvMonException {
+		numBatteries = Integer.parseInt(InvUtil.getAttrib(config, "batteryCount", "1"));
+		cellsPerBatt = Integer.parseInt(InvUtil.getAttrib(config, "cellCount", "16"));
+		baud = Integer.parseInt(InvUtil.getAttrib(config, "baud", "9600"));
+
+		String portName = InvUtil.getAttrib(config, "port");
+		this.port = null;
+		for (SerialPort p : SerialPort.getCommPorts()) {
+			if (p.getSystemPortName().equals(portName))
+				this.port = p;
+		}
+		if (port == null) {
+			//
+			// print a list of serial ports in a nice table
+			//
+			LOGGER.error("Cannot find port [" + portName + "]");
+			LOGGER.info("Available ports:");
+			DataTable dt = new DataTable();
+			dt.addFields("Num", "Port", "Path", "Description");
+			int i = 0;
+			SerialPort[] ports = SerialPort.getCommPorts();
+			for (SerialPort x : ports)
+				dt.addRecord(Integer.toString(++i), x.getSystemPortName(), x.getSystemPortPath(), x.getDescriptivePortName());
+			for (String s : dt.toString().split("\\R"))
+				LOGGER.info(s);
+
+			throw new NoSuchElementException("Cannot find port [" + portName + "]");
+		}
+	}
+
+	@Override
+	public void start() throws InvMonException {
+		super.start();
+		//
+		// have a few goes at connecting because the recv buffer at the other end could
+		// be in any old state that we don't know about
+		//
+		Exception fin = null;
+		int v = -1;
+		for (int i = 0; i < 3; ++i) {
+			try {
+				StikBMSSerialInterface bms = createBMS();
+				try {
+					v = bms.queryProtocol();
+				} finally {
+					releaseBMS(bms);
+				}
+			} catch (Exception e) {
+				LOGGER.warn("Error connecting to BMS: " + e.getMessage());
+				LOGGER.info("  trying again...");
+				fin = e;
+			}
+		}
+		if (fin != null)
+			throw new InvMonException(fin);
+		if (v != 1)
+			throw new InvMonException("Can only connect to v0.1 StikBMS unit");
+
+		batteryData = new ArrayList<>();
+		for (int i = 0; i < numBatteries; ++i)
+			batteryData.add(new BatteryData(i, cellsPerBatt));
+	}
+
+	private StikBMSSerialInterface createBMS() throws IOException {
+		lock.lock();
+		StikBMSSerialInterface x = new StikBMSSerialInterface(port, baud);
+		x.open();
+		return x;
+	}
+
+	private void releaseBMS(StikBMSSerialInterface bms) throws IOException {
+		bms.close();
+		lock.unlock();
+	}
+
+	@Override
+	public void terminate() {
+		super.terminate();
+	}
+
+	public SerialPort getPort() {
+		return port;
+	}
+
+	public List<BatteryData> getBatteryData() {
+		return batteryData;
+	}
+
+	public int getNumBatteries() {
+		return numBatteries;
+	}
+
+	public int getCellsPerBatt() {
+		return cellsPerBatt;
+	}
+
+	@Override
+	public ConsoleResponse consoleCommand(Console console, String cmd) throws InvMonException {
+		try {
+			if (cmd.equals("info"))
+				return runConsoleInfo(console, cmd);
+			if (cmd.startsWith("calib"))
+				return runCalibStuff(console, cmd);
+		} catch (Exception e) {
+			return new ConsoleResponse(ConsoleResponseStatus.ERROR, e.toString());
+		}
+		return super.consoleCommand(console, cmd);
+	}
+
+	private ConsoleResponse runCalibStuff(Console console, String cmd) throws IOException {
+		if (cmd.equals("calib"))
+			return new ConsoleResponse("""
+					CALIBRATE CELL VOLTAGES:
+					========================
+					    calib cell reset
+					    calib cell all [voltage]
+					    calib cell [ID]=[voltage]
+
+					Write a calibration factor back to the BMS.  You tell the BMS what the voltage
+					on a particular channel really is by measuring it accurately.  This allows it to
+					calibrate its ADCs.   The easiest way to do this is to connect all the channels
+					to the highest cell (eg. the +ve terminal of the battery pack) at once, and then
+					tell use the "all" method.  this way you only have to make one measurement.
+
+					It's important the battery is in a very steady state when you do this.  It's best
+					to leave the battery disconnected from any load so that you can depend on the
+					voltage you measured not changing in the time it takes you to issue the command.
+
+					Eg. if you measure the total pack voltage as 53.45v then issue the command:
+
+					    calib cell all 53.45
+
+					You can do this cell-by-cell as well, if you want.  Cells start at index 1.
+
+					    calib cell 4=13.34, 5=16.66, 6=20.02
+
+					The "reset" option sets all the factors back to 1.0, which is "uncalibrated"
+
+					CALIBRATE CURRENT SHUNT:
+					========================
+					    calib shunt reset
+					    calib shunt [current]
+
+					Similar to above, this calibrates the current shunt ADC.  This is more difficult
+					to achieve as you need a steady current flowing.  The easiest way to do this is
+					probably to have the system running a constant load, like a space heater that's
+					been left to settle for a couple of minutes.   You need an accurate way of
+					measuring the current flowing from the battery.  For example, if you measure
+					85.2A flowing then issue the command:
+
+					    calib shunt 85.2
+
+					You can also do:
+
+					    calib show
+
+					  which lists all the current calibration constants.  This isn't very useful.
+
+					NOTE: changing calibration factors stores them in EEPROM memory in the BMS.  this
+					has a limited number of write-cycles, so don't do this many thousands of times
+
+
+					""");
+
+		if (cmd.equals("calib show")) {
+			StikBMSSerialInterface bms = createBMS();
+			try {
+				DataTable dt = new DataTable();
+				dt.addFields("Factor", "Value");
+				for (CalibFactor x : bms.getCalibFactors())
+					dt.addRecord(x.getName(), String.format("%.5f", x.getValue()));
+				return new ConsoleResponse(dt.toString());
+			} finally {
+				releaseBMS(bms);
+			}
+		}
+
+		if (cmd.startsWith("calib cell all ")) {
+			String val = cmd.substring("calib cell all ".length()).trim();
+			if (val.endsWith("v") || val.endsWith("V"))
+				val = val.substring(0, val.length() - 1);
+			Float f = Float.parseFloat(val);
+			List<IFPair> lst = new ArrayList<>();
+			for (int i = 0; i < numBatteries * cellsPerBatt; ++i)
+				lst.add(new IFPair(i, f));
+			StringBuffer sb = new StringBuffer();
+			applyCalibrationFactors(CalibTarget.VOLTAGE, lst, s -> sb.append(s).append("\n"));
+			return new ConsoleResponse(sb.toString());
+		}
+
+		return new ConsoleResponse("what");
+
+	}
+
+	/**
+	 * expect the indexes in <code>lst</code> to be 0-based. if <code>log</code> is
+	 * not null it'll log stuff to it
+	 * 
+	 * @param tgt
+	 * @param lst
+	 * @throws IOException
+	 */
+	private void applyCalibrationFactors(CalibTarget tgt, List<IFPair> lst, Consumer<String> log) throws IOException {
+		if (log == null)
+			log = s -> {
+			};
+		StikBMSSerialInterface bms = createBMS();
+		try {
+			//
+			// get the current reported voltages and work out how much to adjust
+			// them to get the measured voltage
+			//
+			BMSMetrics cur = bms.queryMetrics();
+			int count = 0;
+			for (IFPair p : lst) {
+				float v = cur.getVoltages()[p.getI()];
+				if (v <= 0.01f) { // let's avoid getting absurdly large factors here
+					log.accept("WARN: Cell [" + (p.getI() + 1) + "] reports 0.0v, skipping calib for this one");
+					continue;
+				}
+				float f = p.getF() / v;
+				bms.setCalibFactor(tgt, p.getI(), f);
+				++count;
+			}
+			log.accept("Set [" + count + "] calib factors.");
+		} finally {
+			releaseBMS(bms);
+		}
+
+	}
+
+	private ConsoleResponse runConsoleInfo(Console console, String cmd) {
+
+		DataTable dt = new DataTable();
+		dt.addField("Cell");
+		for (BatteryData bi : batteryData)
+			dt.addField("B" + bi.getId());
+		for (int i = 0; i < cellsPerBatt; ++i) {
+			DataRecord r = dt.addRecord();
+			r.setValue(0, Integer.toString(i));
+			int j = 0;
+			for (BatteryData bi : batteryData)
+				r.setValue(++j, String.format("%.2fV", bi.getCellVoltages()[i]));
+		}
+
+		ConsoleResponse res = new ConsoleResponse(dt.toString());
+		return res;
+	}
+
+	@Override
+	protected void populateCommandHelp(List<ConsoleHelpInfo> lst) {
+		super.populateCommandHelp(lst);
+		lst.add(new ConsoleHelpInfo("info", "show latest data received"));
+		lst.add(new ConsoleHelpInfo("calib", "set calibration factors for the BMS. Type 'calib' with no arguments for help"));
+	}
+
+	@Override
+	public String toString() {
+		return "Port=" + port.getSystemPortName() + " @ " + baud + "\nCellsPerBatt=" + cellsPerBatt + ",  Batteries=" + numBatteries;
+	}
+
+}

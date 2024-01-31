@@ -74,4 +74,9 @@ public class FieldType {
 
 		throw new IllegalArgumentException("Type [" + type.toUpperCase() + "] is not recognised");
 	}
+
+	@Override
+	public String toString() {
+		return name;
+	}
 }

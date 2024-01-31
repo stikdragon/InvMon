@@ -18,6 +18,7 @@ import uk.co.stikman.invmon.remote.JSONRecv;
 import uk.co.stikman.invmon.remote.JSONSend;
 import uk.co.stikman.invmon.serialrepeater.SerialRepeater;
 import uk.co.stikman.invmon.server.HTTPServer;
+import uk.co.stikman.invmon.stikbms.StikBMS;
 import uk.co.stikman.log.Level;
 
 public class Config {
@@ -61,6 +62,7 @@ public class Config {
 		thingtypes.add(new Pair<>(new SimpleMatcher("Properties"), PropertiesThing.class));
 		thingtypes.add(new Pair<>(el -> el.getTagName().equals("InverterController") && "stik".equals(el.getAttribute("type")), StikSystemController.class));
 		thingtypes.add(new Pair<>(el -> el.getTagName().equals("InverterController") && "red".equals(el.getAttribute("type")), RedSystemController.class));
+		thingtypes.add(new Pair<>(new SimpleMatcher("StikBMS"), StikBMS.class));
 	}
 
 	public void loadFromFile(File f) throws IOException {

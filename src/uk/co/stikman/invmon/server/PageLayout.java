@@ -17,6 +17,7 @@ import org.w3c.dom.Element;
 import uk.co.stikman.invmon.Env;
 import uk.co.stikman.invmon.InvMonException;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
+import uk.co.stikman.invmon.server.widgets.BMSStatusWidget;
 import uk.co.stikman.invmon.server.widgets.ChartWidget;
 import uk.co.stikman.invmon.server.widgets.ControlsWidget;
 import uk.co.stikman.invmon.server.widgets.DailyPowerSummaryWidget;
@@ -50,6 +51,7 @@ public class PageLayout {
 		TYPES.put("dial", GaugeWidget::new);
 		TYPES.put("text-summary", TextSummaryWidget::new);
 		TYPES.put("stik-controller", StikSystemControllerWidget::new);
+		TYPES.put("bms-status", BMSStatusWidget::new);
 		TYPES.put("log", LogWidget::new);
 	}
 

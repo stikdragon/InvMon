@@ -66,6 +66,7 @@ public class QueryResults {
 			} else {
 				switch (f.getType().getBaseType()) {
 					case FLOAT:
+					case FLOAT8:
 						r.add(ZERO_F);
 						break;
 					case STRING:

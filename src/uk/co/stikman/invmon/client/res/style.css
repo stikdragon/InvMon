@@ -776,3 +776,25 @@ table.data .total td {
 textarea:focus, input:focus {
 	outline: none;
 }
+
+
+.bms-status .cells {
+	display: flex;
+	flex-direction: column;;
+}
+
+.bms-status .cells .row {
+	display: flex;
+	flex-direction: row;
+}
+.bms-status .cells .row div {
+	width: 55px;
+	text-align: center;
+	font-size: 12px;
+	font-weight: bold;
+	color: #606060;
+	margin: 3px;
+	padding: 3px;
+	background: rgba(0, 0, 0, 10%);
+}
+

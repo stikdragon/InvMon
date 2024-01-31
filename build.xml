@@ -36,7 +36,7 @@
 		<echo file="build/classes/uk/co/stikman/invmon/version.txt" append="false">${version}</echo>
 	</target>
 
-	<target name="teavm">
+	<target name="teavm" description="run TeaVM compiler">
 		<java failonerror="true" fork="true" classname="org.teavm.cli.TeaVMRunner">
 			<classpath>
 				<path refid="cp" />
