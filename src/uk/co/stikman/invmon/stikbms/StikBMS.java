@@ -2,6 +2,7 @@ package uk.co.stikman.invmon.stikbms;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.locks.Lock;
@@ -35,6 +36,7 @@ public class StikBMS extends InvModule {
 	private SerialPort				port;
 	private int						baud;
 	private List<BatteryData>		batteryData		= new ArrayList<>();
+	private float[]					tempSensors;
 	private int						numBatteries	= 1;
 	private int						cellsPerBatt	= 16;
 	private Lock					lock			= new ReentrantLock();
@@ -66,16 +68,21 @@ public class StikBMS extends InvModule {
 						b.setCurrent(0.0f); // how do we do this
 					}
 
+					for (float f : m.getVoltages()) {
+						if (f > 0.5f)
+							System.out.print(String.format("%05.2f ", f));
+						else
+							System.out.print("  -   ");
+					}
+					System.out.println();
 					//
 					// that's absolute voltages, so now we need to turn them into relative ones
 					//
-					for (BatteryData b : batteryData) {
-						float[] cells = b.getCellVoltages();
-						b.setPackVoltage(cells[cellsPerBatt - 1]);
-						for (int i = cells.length - 1; i > 1; --i) {
-							cells[i] = cells[i] - cells[i - 1];
-						}
-					}
+					/*
+					 * for (BatteryData b : batteryData) { float[] cells = b.getCellVoltages();
+					 * b.setPackVoltage(cells[cellsPerBatt - 1]); for (int i = cells.length - 1; i >
+					 * 1; --i) { cells[i] = cells[i] - cells[i - 1]; } }
+					 */
 
 					//
 					// since we only want to present as a single battery we'll average them out
@@ -238,6 +245,11 @@ public class StikBMS extends InvModule {
 
 					    calib cell 4=13.34, 5=16.66, 6=20.02
 
+					Also
+
+						calib offset all -0.05
+						calib offset 4=-0.05, 7=-0.03
+
 					The "reset" option sets all the factors back to 1.0, which is "uncalibrated"
 
 					CALIBRATE CURRENT SHUNT:
@@ -279,6 +291,16 @@ public class StikBMS extends InvModule {
 			}
 		}
 
+		if (cmd.equals("calib reset")) {
+			StikBMSSerialInterface bms = createBMS();
+			try {
+				bms.resetCalib();
+				return new ConsoleResponse("OK");
+			} finally {
+				releaseBMS(bms);
+			}
+		}
+
 		if (cmd.startsWith("calib cell all ")) {
 			String val = cmd.substring("calib cell all ".length()).trim();
 			if (val.endsWith("v") || val.endsWith("V"))
@@ -289,6 +311,30 @@ public class StikBMS extends InvModule {
 				lst.add(new IFPair(i, f));
 			StringBuffer sb = new StringBuffer();
 			applyCalibrationFactors(CalibTarget.VOLTAGE, lst, s -> sb.append(s).append("\n"));
+			return new ConsoleResponse(sb.toString());
+		} else if (cmd.startsWith("calib cell ")) {
+			String val = cmd.substring(11).replaceAll(" *", "");
+			String bits[] = val.split(",");
+			List<IFPair> lst = new ArrayList<>();
+			for (String bit : bits) {
+				String[] ab = bit.split("=");
+				int cell = Integer.parseInt(ab[0]);
+				float volt = Float.parseFloat(ab[1]);
+				lst.add(new IFPair(cell, volt));
+			}
+			StringBuffer sb = new StringBuffer();
+			applyCalibrationFactors(CalibTarget.VOLTAGE, lst, s -> sb.append(s).append("\n"));
+			return new ConsoleResponse(sb.toString());
+		} else if (cmd.startsWith("calib offset all ")) {
+			String val = cmd.substring("calib offset all ".length()).trim();
+			if (val.endsWith("v") || val.endsWith("V"))
+				val = val.substring(0, val.length() - 1);
+			Float f = Float.parseFloat(val);
+			List<IFPair> lst = new ArrayList<>();
+			for (int i = 0; i < numBatteries * cellsPerBatt; ++i)
+				lst.add(new IFPair(i, f));
+			StringBuffer sb = new StringBuffer();
+			applyCalibrationFactors(CalibTarget.OFFSET, lst, s -> sb.append(s).append("\n"));
 			return new ConsoleResponse(sb.toString());
 		}
 
@@ -317,12 +363,16 @@ public class StikBMS extends InvModule {
 			BMSMetrics cur = bms.queryMetrics();
 			int count = 0;
 			for (IFPair p : lst) {
-				float v = cur.getVoltages()[p.getI()];
-				if (v <= 0.01f) { // let's avoid getting absurdly large factors here
-					log.accept("WARN: Cell [" + (p.getI() + 1) + "] reports 0.0v, skipping calib for this one");
-					continue;
+				float f = p.getF();
+				if (tgt == CalibTarget.VOLTAGE) {
+					float v = cur.getVoltages()[p.getI()];
+					if (v <= 0.01f) { // let's avoid getting absurdly large factors here
+						log.accept("WARN: Cell [" + (p.getI() + 1) + "] reports 0.0v, skipping calib for this one");
+						continue;
+					}
+					f = p.getF() / v;
 				}
-				float f = p.getF() / v;
+
 				bms.setCalibFactor(tgt, p.getI(), f);
 				++count;
 			}

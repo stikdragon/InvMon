@@ -42,6 +42,8 @@ public class StikBMSSerialInterface {
 	private SerialPort			serial;
 	private int					baud;
 
+	private static final int	CRC16_POLY	= 0x1021;
+
 	public StikBMSSerialInterface(String port, int baud) {
 		this(SerialPort.getCommPort(port), baud);
 	}
@@ -79,20 +81,43 @@ public class StikBMSSerialInterface {
 
 		serial.getOutputStream().write(0x00); // write a 0 to start
 		outputstream.write(query);
-		outputstream.writeShort(0); // checksum todo
+		outputstream.writeShort(calcCrc16(query));
 		outputstream.flush();
 		serial.getOutputStream().write(0x00); // write a 0 as an end marker
 		serial.getOutputStream().flush();
 
 		int len = inputstream.readUnsignedShort();
-		inputstream.readUnsignedShort(); // checksum, todo
+		int crc = inputstream.readUnsignedShort(); // checksum, todo
 		byte[] buf = new byte[len];
 		inputstream.readFully(buf);
+
+		short x = calcCrc16(buf);
+		if (x != crc)
+			throw new IOException("Checksums did not match");
+
 		if (len == 4) {
 			if (new String(buf, StandardCharsets.US_ASCII).startsWith("ERR"))
 				throw new IOException("Device reports error code: " + formatErrorMessage((char) buf[3]) + " (code: '" + (char) buf[3] + "')");
 		}
 		return buf;
+	}
+
+	private short calcCrc16(byte[] buf) {
+		int crc = 0xFFFF;
+
+		for (byte b : buf) {
+			crc ^= (b & 0xFF) << 8;
+			for (int i = 0; i < 8; ++i) {
+				if ((crc & 0x8000) != 0) {
+					crc = (crc << 1) ^ CRC16_POLY;
+				} else {
+					crc <<= 1;
+				}
+			}
+		}
+
+		return (short) (crc & 0xFFFF);
+
 	}
 
 	private static String formatErrorMessage(char ch) {
@@ -168,7 +193,20 @@ public class StikBMSSerialInterface {
 		DataOutputStream dos = new DataOutputStream(baos);
 		dos.writeByte('S');
 		dos.writeByte('C');
-		dos.writeByte(target == CalibTarget.CURRENT ? 'A' : 'V');
+		switch (target) {
+			case CURRENT:
+				dos.writeByte('A');
+				break;
+			case OFFSET:
+				dos.writeByte('O');
+				break;
+			case VOLTAGE:
+				dos.writeByte('V');
+				break;
+			default:
+				throw new IllegalStateException();
+
+		}
 		dos.writeByte(idx);
 		dos.writeFloat(val);
 		dos.flush();
