@@ -12,6 +12,8 @@ import java.util.List;
 
 import com.fazecast.jSerialComm.SerialPort;
 
+import uk.co.stikman.utils.Utils;
+
 public class StikBMSSerialInterface {
 
 	public class BMSOutputStream extends OutputStream {
@@ -87,13 +89,13 @@ public class StikBMSSerialInterface {
 		serial.getOutputStream().flush();
 
 		int len = inputstream.readUnsignedShort();
-		int crc = inputstream.readUnsignedShort(); // checksum, todo
+		short crc = (short) inputstream.readUnsignedShort(); // checksum, todo
 		byte[] buf = new byte[len];
 		inputstream.readFully(buf);
 
 		short x = calcCrc16(buf);
 		if (x != crc)
-			throw new IOException("Checksums did not match");
+			throw new IOException(String.format("Checksums did not match (%04x / %04x)", crc, x));
 
 		if (len == 4) {
 			if (new String(buf, StandardCharsets.US_ASCII).startsWith("ERR"))
@@ -101,9 +103,9 @@ public class StikBMSSerialInterface {
 		}
 		return buf;
 	}
-
-	private short calcCrc16(byte[] buf) {
-		int crc = 0xFFFF;
+	
+	private static short calcCrc16(byte[] buf) {
+		int crc = 0;
 
 		for (byte b : buf) {
 			crc ^= (b & 0xFF) << 8;
@@ -119,7 +121,7 @@ public class StikBMSSerialInterface {
 		return (short) (crc & 0xFFFF);
 
 	}
-
+	
 	private static String formatErrorMessage(char ch) {
 		switch (ch) {
 			case 'I':
@@ -203,6 +205,9 @@ public class StikBMSSerialInterface {
 			case VOLTAGE:
 				dos.writeByte('V');
 				break;
+			case VOLTAGE_RAW:
+				dos.writeByte('R');
+				break;
 			default:
 				throw new IllegalStateException();
 
@@ -236,6 +241,9 @@ public class StikBMSSerialInterface {
 			f = dis.readFloat();
 			lst.add(new CalibFactor("v" + i, f));
 		}
+		
+		f = dis.readFloat();
+		lst.add(new CalibFactor("offset", f));
 
 		return lst;
 	}
