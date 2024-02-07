@@ -72,6 +72,7 @@ public class HTTPServer extends InvModule {
 	private HttpLayoutConfig			layoutConfig;
 	private Users						users			= new Users();
 	private AuthedSessions				authedSessions	= new AuthedSessions();
+	private int							requestCounter	= 0;
 
 	private EmbeddedServer				embeddedSvr;
 
@@ -130,9 +131,9 @@ public class HTTPServer extends InvModule {
 	}
 
 	/**
-	 * "execute" returns a JSONObject specific to the widget. if everything is
-	 * ok then the status response is 400, otherwise you will get 500 and a
-	 * JSONObject that looks like <code>{"error":"Message goes here"}</code>
+	 * "execute" returns a JSONObject specific to the widget. if everything is ok
+	 * then the status response is 400, otherwise you will get 500 and a JSONObject
+	 * that looks like <code>{"error":"Message goes here"}</code>
 	 * 
 	 * @param url
 	 * @param sesh
@@ -278,6 +279,7 @@ public class HTTPServer extends InvModule {
 
 	private InvMonHTTPResponse serve(InvMonHTTPRequest http) {
 		try {
+			++requestCounter;
 			if (!http.isMethod("GET") && !http.isMethod("POST"))
 				throw new Exception("Unsupported method");
 
@@ -310,7 +312,7 @@ public class HTTPServer extends InvModule {
 			}
 			sesh.touch();
 
-			synchronized(sesh) {
+			synchronized (sesh) {
 				InvMonHTTPResponse res = m.fetch(url, sesh, http);
 				if (setSeshCookie)
 					res.addHeader("Set-Cookie", "sesh=" + sesh.getId());
@@ -371,6 +373,7 @@ public class HTTPServer extends InvModule {
 			} else {
 				ConsoleResponse output = c.execute(cmd.trim());
 				res.put("result", output.getText());
+				res.put("formatted", output.isFormatted());
 				res.put("module", output.getActiveModule() == null ? "" : output.getActiveModule().getId());
 			}
 			return new InvMonHTTPResponse(res.toString());
@@ -448,6 +451,11 @@ public class HTTPServer extends InvModule {
 		synchronized (sessions) {
 
 		}
+	}
+
+	@Override
+	public String toString() {
+		return "HTTPServer running on port " + port + ".  Served " + requestCounter + " requests";
 	}
 
 }

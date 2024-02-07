@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.w3c.dom.Element;
@@ -30,12 +31,13 @@ import uk.co.stikman.invmon.inverter.util.InvUtil;
 import uk.co.stikman.log.StikLog;
 
 public class DataLogger extends InvModule {
-	private static final StikLog	LOGGER	= StikLog.getLogger(DataLogger.class);
+	private static final StikLog	LOGGER					= StikLog.getLogger(DataLogger.class);
 	private MiniDB					db;
 	private File					lock;
 	private File					file;
 	private int						blockSize;
 	private int						cachedBlocks;
+	private Set<String>				suppressedErrorMessages	= new HashSet<>();
 
 	public DataLogger(String id, Env env) {
 		super(id, env);
@@ -235,8 +237,18 @@ public class DataLogger extends InvModule {
 			if (f.getSource() != null) {
 				String[] bits = InvUtil.splitPair(f.getSource(), '.');
 				Sample src = data.get(bits[0]);
-				if (src == null)
-					throw new NoSuchElementException("Source [" + f.getSource() + "] was not found in the samples returned by active modules");
+
+				if (src == null) {
+					//
+					// show an error the first time, then ignore in future
+					//
+					String s = "Source [" + f.getSource() + ":" + bits[1] + "] was not found in the samples returned by active modules";
+					if (!suppressedErrorMessages.contains(s)) {
+						LOGGER.error(s);
+						suppressedErrorMessages.add(s);
+					}
+					continue;
+				}
 				switch (f.getType().getBaseType()) {
 					case FLOAT:
 						rec.setFloat(f, src.getFloat(bits[1]));

@@ -78,11 +78,14 @@ public class StikBMS extends InvModule {
 					//
 					// that's absolute voltages, so now we need to turn them into relative ones
 					//
-					/*
-					 * for (BatteryData b : batteryData) { float[] cells = b.getCellVoltages();
-					 * b.setPackVoltage(cells[cellsPerBatt - 1]); for (int i = cells.length - 1; i >
-					 * 1; --i) { cells[i] = cells[i] - cells[i - 1]; } }
-					 */
+
+					for (BatteryData b : batteryData) {
+						float[] cells = b.getCellVoltages();
+						b.setPackVoltage(cells[cellsPerBatt - 1]);
+						for (int i = cells.length - 1; i > 1; --i) {
+							cells[i] = cells[i] - cells[i - 1];
+						}
+					}
 
 					//
 					// since we only want to present as a single battery we'll average them out
@@ -213,7 +216,7 @@ public class StikBMS extends InvModule {
 			if (cmd.startsWith("calib"))
 				return runCalibStuff(console, cmd);
 		} catch (Exception e) {
-			return new ConsoleResponse(ConsoleResponseStatus.ERROR, e.toString());
+			return new ConsoleResponse(ConsoleResponseStatus.ERROR, e.toString(), false);
 		}
 		return super.consoleCommand(console, cmd);
 	}
@@ -221,57 +224,57 @@ public class StikBMS extends InvModule {
 	private ConsoleResponse runCalibStuff(Console console, String cmd) throws IOException {
 		if (cmd.equals("calib"))
 			return new ConsoleResponse("""
-					CALIBRATE CELL VOLTAGES:
+					^3CALIBRATE CELL VOLTAGES^x:
 					========================
-					    calib cell reset
-					    calib cell all [voltage]
-					    calib cell [ID]=[voltage]
+					    ^5calib cell reset
+					    calib cell all ^2[voltage]^x
+					    calib cell ^2[ID]^5=^2[voltage]^x
 
 					Write a calibration factor back to the BMS.  You tell the BMS what the voltage
 					on a particular channel really is by measuring it accurately.  This allows it to
 					calibrate its ADCs.   The easiest way to do this is to connect all the channels
-					to the highest cell (eg. the +ve terminal of the battery pack) at once, and then
-					tell use the "all" method.  this way you only have to make one measurement.
+					to the highest cell (eg. the ^5+ve^x terminal of the battery pack) at once, and then
+					tell use the "^5all^x" method.  this way you only have to make one measurement.
 
 					It's important the battery is in a very steady state when you do this.  It's best
 					to leave the battery disconnected from any load so that you can depend on the
 					voltage you measured not changing in the time it takes you to issue the command.
 
-					Eg. if you measure the total pack voltage as 53.45v then issue the command:
+					Eg. if you measure the total pack voltage as ^553.45v^x then issue the command:
 
-					    calib cell all 53.45
+					    ^5calib cell all 53.45^x
 
-					You can do this cell-by-cell as well, if you want.  Cells start at index 1.
+					You can do this cell-by-cell as well, if you want.  Cells start at index ^51^x.
 
-					    calib cell 4=13.34, 5=16.66, 6=20.02
+					    ^5calib cell 4=13.34, 5=16.66, 6=20.02^x
 
 					Also
 
-					    calib offset -0.05
-					    calib raw all 13.5          // set the factor directly (advanced command)
-					    calib raw 0=13.5, 1=14.1, 2=13.9
+					    ^5calib offset -0.05
+					    calib raw all 13.5^x        ^4  // set the factor directly (advanced command)^x
+					    ^5calib raw 0=13.5, 1=14.1, 2=13.9
 
-					The "reset" option sets all the factors back to 1.0, which is "uncalibrated"
+					The "^5reset^x" option sets all the factors back to ^51.0^x, which is "uncalibrated"
 
-					CALIBRATE CURRENT SHUNT:
+					^3CALIBRATE CURRENT SHUNT^x:
 					========================
-					    calib shunt reset
-					    calib shunt [current]
+					    ^5calib shunt reset
+					    calib shunt ^2[current]^x
 
 					Similar to above, this calibrates the current shunt ADC.  This is more difficult
 					to achieve as you need a steady current flowing.  The easiest way to do this is
 					probably to have the system running a constant load, like a space heater that's
 					been left to settle for a couple of minutes.   You need an accurate way of
 					measuring the current flowing from the battery.  For example, if you measure
-					85.2A flowing then issue the command:
+					^585.2A^x flowing then issue the command:
 
-					    calib shunt 85.2
+					    ^5calib shunt 85.2^x
 
 					You can also do:
 
-					    calib show
+					    ^5calib show^x
 
-					  which lists all the current calibration constants.  This isn't very useful.
+					               which lists all the current calibration constants.  This isn't very useful.
 
 					NOTE: changing calibration factors stores them in EEPROM memory in the BMS.  this
 					has a limited number of write-cycles, so don't do this many tens of thousands of times

@@ -12,7 +12,7 @@
 		<Properties id="props" source="stuff.xml">
 			<Property id="some_key">1234</Property>
 		</Properties>
-		<StikBMS id="bms1" port="COM10" baud="9600" batteryCount="2"  cellCount="16" />
+		<!-- <StikBMS id="bms1" port="COM10" baud="9600" batteryCount="2"  cellCount="16" /> -->
 		<InverterController id="invcon1" type="stik" startTime="23:30" endTime="04:30" inverter="invA" />
 		<!-- <InverterController id="invcon1" type="red" startTime="23:30" endTime="04:30" inverter="invA" csv="thresholds.csv" /> -->
 
