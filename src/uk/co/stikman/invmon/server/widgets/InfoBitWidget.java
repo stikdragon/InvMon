@@ -23,7 +23,7 @@ public class InfoBitWidget extends PageWidget {
 
 	@Override
 	public JSONObject executeApi(UserSesh sesh, String api, JSONObject args) {
-		if ("execute".equals(api)) {
+		if ("get".equals(api)) {
 			HTMLBuilder html = new HTMLBuilder();
 			html.append("<div class=\"tiny\"><div class=\"a\">Local Time: </div><div class=\"b\">").append(new Date().toString()).append("</div></div>");
 			html.append("<div class=\"tiny\"><div class=\"a\">Version: </div><div class=\"b\">").append(Env.getVersion()).append("</div></div>");

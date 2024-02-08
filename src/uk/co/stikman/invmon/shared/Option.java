@@ -1,8 +1,14 @@
 package uk.co.stikman.invmon.shared;
 
+import org.json.JSONObject;
+
 public abstract class Option {
 	private final String	name;
-	private final String	display;
+	private String			display;
+
+	public Option(String name) {
+		this(name, null);
+	}
 
 	public Option(String name, String display) {
 		super();
@@ -19,4 +25,13 @@ public abstract class Option {
 	}
 
 	public abstract OptionType getType();
+
+	public void toJSON(JSONObject root) {
+		root.put("display", display);
+		root.put("type", getType().name());
+	}
+
+	public void fromJSON(JSONObject root) {
+		display = root.getString("display");
+	}
 }

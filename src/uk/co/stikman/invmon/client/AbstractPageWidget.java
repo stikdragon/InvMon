@@ -7,6 +7,8 @@ import org.teavm.jso.dom.events.Event;
 import org.teavm.jso.dom.events.MouseEvent;
 import org.teavm.jso.dom.html.HTMLElement;
 
+import uk.co.stikman.invmon.shared.WidgetConfigOptions;
+
 public abstract class AbstractPageWidget {
 
 	private final ClientPage	owner;
@@ -108,7 +110,17 @@ public abstract class AbstractPageWidget {
 
 	protected void configure() {
 		InvMon.INSTANCE.mask();
-		api(id, null, null);
+		api("getConfig", null, res -> {
+			InvMon.INSTANCE.unmask();
+			WidgetConfigOptions co = new WidgetConfigOptions();
+			co.fromJSON(res);
+			ConfigPopupWindow wnd = new ConfigPopupWindow(getOwner(), co, ok -> {
+			});
+			wnd.showModal();
+		}, err -> {
+			InvMon.INSTANCE.unmask();
+			InvMon.getErrorPopup().addMessage(err.getMessage());
+		});
 	}
 
 	protected StandardFrame createStandardFrame(HTMLElement parent, boolean header, String mainclass) {

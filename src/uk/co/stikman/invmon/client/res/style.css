@@ -50,7 +50,8 @@ h3 {
 	padding: 5px;
 	border: 2px solid rgba(0, 0, 0, 0.2);
 	border-radius: 5px;
-	background: linear-gradient(0deg, rgba(0, 0, 0, 0.1) 0%, rgba(255, 255, 255, 0.1) 100%);
+	background: linear-gradient(0deg, rgba(0, 0, 0, 0.1) 0%,
+		rgba(255, 255, 255, 0.1) 100%);
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -67,7 +68,8 @@ h3 {
 }
 
 .togglebutton.selected {
-	background: linear-gradient(0deg, rgba(127, 127, 127, 0.3) 0%, rgba(0, 0, 0, 0.2) 100%);
+	background: linear-gradient(0deg, rgba(127, 127, 127, 0.3) 0%,
+		rgba(0, 0, 0, 0.2) 100%);
 	padding-top: 7px;
 	padding-left: 7px;
 	padding-bottom: 3px;
@@ -716,9 +718,11 @@ table.data .total td {
 	white-space: pre-wrap;
 	padding: 3px 0;
 }
+
 .consoledialog .console .result.sent {
 	color: #8d8;
 }
+
 .consoledialog .console .result:hover {
 	background-color: rgba(0, 0, 0, 25%);
 }
@@ -775,4 +779,18 @@ table.data .total td {
 
 textarea:focus, input:focus {
 	outline: none;
+}
+
+.config-dialog {
+	
+}
+
+.config-dialog .list {
+	display: flex;
+	flex-direction: column;
+}
+
+.config-dialog .list .row {
+	display: flex;
+	flex-direction: row;
 }

@@ -59,7 +59,7 @@ public class DevMode {
 		//
 		Path dir = Files.createTempDirectory("invmonteavm");
 		System.out.println("Building to temp: " + dir.toString());
-		Args args = new Args(new String[] { "-mainclass", InvMon.class.getName(), "-output", dir.toString() });
+		Args args = new Args(new String[] { "-mainclass", InvMon.class.getName(), "-output", dir.toString(), "-obfuscatedJS", "false" });
 		new Builder(args).compile();
 		outputJS = dir.resolve("classes.js").toFile();
 	}

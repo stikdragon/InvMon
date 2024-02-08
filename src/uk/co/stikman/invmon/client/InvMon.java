@@ -89,4 +89,9 @@ public class InvMon {
 	public void mask() {
 		// TODO: mask
 	}
+
+	public void unmask() {
+		// TODO mask
+		
+	}
 }
