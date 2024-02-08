@@ -75,6 +75,17 @@ public class PageLayout {
 		}
 	}
 
+	public void saveToSource() throws InvMonException {
+		try {
+			MiniDOM doc = new MiniDOM();
+			toDOM(doc);
+			InvUtil.writeMiniDOM(doc, file);
+			lastModifiedTime = file.lastModified();
+		} catch (IOException e) {
+			throw new InvMonException("Failed to save config for page: " + getId() + " because: " + e.getMessage(), e);
+		}
+	}
+	
 	public void fromDOM(MDElement root) {
 		widgets.clear();
 		for (MDElement el : root.getElements("Widget")) {
@@ -132,5 +143,7 @@ public class PageLayout {
 	public Env getEnv() {
 		return env;
 	}
+
+
 
 }

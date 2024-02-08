@@ -3,6 +3,8 @@ package uk.co.stikman.invmon.client;
 import java.util.function.Consumer;
 
 import org.json.JSONObject;
+import org.teavm.jso.dom.events.Event;
+import org.teavm.jso.dom.events.MouseEvent;
 import org.teavm.jso.dom.html.HTMLElement;
 
 public abstract class AbstractPageWidget {
@@ -83,6 +85,32 @@ public abstract class AbstractPageWidget {
 		return owner;
 	}
 
+	protected void mouseClick(Event event) {
+		MouseEvent ev = event.cast();
+
+	}
+
+	protected void showContextMenu(Event event) {
+		MouseEvent ev = event.cast();
+
+		if (ev.getButton() == MouseEvent.RIGHT_BUTTON) {
+			ev.stopPropagation();
+			ev.preventDefault();
+			Menu mnu = new Menu();
+			mnu.addItem("Configure...", this::configure);
+			mnu.showAt(ev.getClientX(), ev.getClientY());
+		}
+	}
+
+	protected void showMenu(Event event) {
+		event.preventDefault();
+	}
+
+	protected void configure() {
+		InvMon.INSTANCE.mask();
+		api(id, null, null);
+	}
+
 	protected StandardFrame createStandardFrame(HTMLElement parent, boolean header, String mainclass) {
 		root = InvMon.div();
 		if (mainclass != null)
@@ -90,7 +118,6 @@ public abstract class AbstractPageWidget {
 		parent.appendChild(root);
 		root.getClassList().add("gridframe");
 		root.setId(getId());
-		root.addEventListener("mousedown", ev -> root.getStyle().setProperty("z-index", Integer.toString(++zIndexCounter)));
 		doLayout(root);
 
 		HTMLElement inner = InvMon.div("gridframeinner");
@@ -109,7 +136,7 @@ public abstract class AbstractPageWidget {
 			dh.setDragHandler((nx, ny) -> {
 				nx += startX;
 				ny += startY;
-				int gs = ((MainPage) owner).getGridSize();
+				int gs = ((StandardPage) owner).getGridSize();
 				x = gs * (int) (nx / gs);
 				y = gs * (int) (ny / gs);
 				doLayout(root);
@@ -142,7 +169,7 @@ public abstract class AbstractPageWidget {
 			dh.setDragHandler((nx, ny) -> {
 				nx += startW;
 				ny += startH;
-				int gs = ((MainPage) owner).getGridSize();
+				int gs = ((StandardPage) owner).getGridSize();
 				width = gs * (int) (nx / gs);
 				height = gs * (int) (ny / gs);
 				doLayout(root);
@@ -154,6 +181,15 @@ public abstract class AbstractPageWidget {
 		a.glass = elGlass;
 		a.error = elError;
 		a.hideOverlays();
+
+		root.addEventListener("contextmenu", this::showMenu);
+		root.addEventListener("mousedown", ev -> root.getStyle().setProperty("z-index", Integer.toString(++zIndexCounter)));
+		if (header)
+			a.getHeader().addEventListener("mousedown", this::showContextMenu);
+		else
+			root.addEventListener("mousedown", this::showContextMenu);
+		root.addEventListener("click", this::mouseClick);
+
 		return a;
 	}
 

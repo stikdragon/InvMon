@@ -32,16 +32,17 @@ public class Menu {
 		root.getStyle().setProperty("left", x + "px");
 		root.getStyle().setProperty("top", y + "px");
 		dch = ev -> {
+			System.out.println("click");
 			if (!contains(root, (HTMLElement) ev.getTarget())) {
 				hide();
 			}
 		};
-		InvMon.getDocument().addEventListener("click", dch);
+		InvMon.getDocument().addEventListener("mousedown", dch); // why doesn't this capture right click???
 	}
 
 	public void hide() {
 		if (dch != null)
-			InvMon.getDocument().removeEventListener("click", dch);
+			InvMon.getDocument().removeEventListener("mousedown", dch);
 		dch = null;
 		InvMon.getDocument().getBody().removeChild(root);
 	}

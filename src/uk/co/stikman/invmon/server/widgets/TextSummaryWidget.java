@@ -23,15 +23,19 @@ public class TextSummaryWidget extends PageWidget {
 
 	@Override
 	public JSONObject executeApi(UserSesh sesh, String api, JSONObject args) {
-		try {
-			JSONObject jo = new JSONObject();
-			InvModule mod = getOwner().getEnv().getModule(moduleName);
-			jo.put("summary", mod.toString());
-			return jo;
-		} catch (Exception e) {
-			LOGGER.error(e);
-			throw new RuntimeException("Error rendering summary", e);
+		if ("execute".equals(api)) {
+			try {
+				JSONObject jo = new JSONObject();
+				InvModule mod = getOwner().getEnv().getModule(moduleName);
+				jo.put("summary", mod.toString());
+				return jo;
+			} catch (Exception e) {
+				LOGGER.error(e);
+				throw new RuntimeException("Error rendering summary", e);
+			}
 		}
+
+		return super.executeApi(sesh, api, args);
 	}
 
 	@Override

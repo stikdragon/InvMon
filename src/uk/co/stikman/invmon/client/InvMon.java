@@ -45,7 +45,7 @@ public class InvMon {
 	}
 
 	public void go() {
-		MainPage mainpage = new MainPage();
+		StandardPage mainpage = new StandardPage();
 		getDocument().getBody().appendChild(mainpage.getElement());
 		mainpage.load();
 	}
@@ -84,5 +84,9 @@ public class InvMon {
 		HTMLElement el = text(text);
 		el.getClassList().add(csscls);
 		return el;
+	}
+
+	public void mask() {
+		// TODO: mask
 	}
 }

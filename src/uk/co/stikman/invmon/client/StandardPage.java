@@ -25,18 +25,24 @@ import uk.co.stikman.invmon.client.wij.TextSummaryWidget;
 import uk.co.stikman.invmon.client.wij.TimeSelectorWidget;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
 
-public class MainPage extends ClientPage {
-	private HTMLElement													root;
+/**
+ * a standard page that contains widgets
+ * 
+ * @author stik
+ *
+ */
+public class StandardPage extends ClientPage {
+	private HTMLElement														root;
 
-	private List<AbstractPageWidget>									widgets				= new ArrayList<>();
-	private int															gridSize;
+	private List<AbstractPageWidget>										widgets				= new ArrayList<>();
+	private int																gridSize;
 
-	private Boolean														doAutoRefresh		= false;
+	private Boolean															doAutoRefresh		= false;
 
-	private boolean														lastRequestFinished	= true;
+	private boolean															lastRequestFinished	= true;
 
-	private ConsolePopup												console;
-	private static Map<String, Function<MainPage, AbstractPageWidget>>	pageTypes			= new HashMap<>();
+	private ConsolePopup													console;
+	private static Map<String, Function<StandardPage, AbstractPageWidget>>	pageTypes			= new HashMap<>();
 
 	static {
 		pageTypes.put("timesel", TimeSelectorWidget::new);
@@ -47,10 +53,9 @@ public class MainPage extends ClientPage {
 		pageTypes.put("text-summary", TextSummaryWidget::new);
 		pageTypes.put("log", LogWidget::new);
 		pageTypes.put("stik-controller", InverterControlWidgetStik::new);
-		pageTypes.put("stik-controller", InverterControlWidgetStik::new);
 	}
 
-	public MainPage() {
+	public StandardPage() {
 		super();
 		root = InvMon.div("mainpage");
 		getBus().subscribe(Events.AUTOREFRESH_CHANGED, data -> doAutoRefresh = (Boolean) data);
@@ -104,7 +109,7 @@ public class MainPage extends ClientPage {
 			JSONArray arr = result.getJSONArray("widgets");
 			for (int i = 0; i < arr.length(); ++i) {
 				JSONObject obj = arr.getJSONObject(i);
-				Function<MainPage, AbstractPageWidget> s = pageTypes.get(obj.getString("type"));
+				Function<StandardPage, AbstractPageWidget> s = pageTypes.get(obj.getString("type"));
 				if (s == null)
 					throw new NoSuchElementException("Unknown widget: " + obj.getString("type"));
 				AbstractPageWidget w = s.apply(this);

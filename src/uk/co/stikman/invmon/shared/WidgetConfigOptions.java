@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import org.json.JSONObject;
+
 import uk.co.stikman.invmon.inverter.util.StringerInputStream;
 import uk.co.stikman.invmon.inverter.util.StringerOutputStream;
 
@@ -20,6 +22,14 @@ public class WidgetConfigOptions {
 
 	public void fromStream(StringerInputStream sis) {
 
+	}
+	
+	public void toJSON(JSONObject root) {
+		
+	}
+	
+	public void fromJSON(JSONObject root) {
+		
 	}
 
 	public void add(Option opt) {

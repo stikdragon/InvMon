@@ -9,7 +9,7 @@ import uk.co.stikman.invmon.client.AbstractPageWidget;
 import uk.co.stikman.invmon.client.Button;
 import uk.co.stikman.invmon.client.ClientPage;
 import uk.co.stikman.invmon.client.InvMon;
-import uk.co.stikman.invmon.client.MainPage;
+import uk.co.stikman.invmon.client.StandardPage;
 import uk.co.stikman.invmon.client.TextPopup;
 import uk.co.stikman.invmon.client.Menu;
 import uk.co.stikman.invmon.client.StandardFrame;
@@ -19,9 +19,9 @@ public class ControlsWidget extends AbstractPageWidget {
 
 	private StandardFrame	frame;
 	private String			name;
-	private MainPage		owner;
+	private StandardPage		owner;
 
-	public ControlsWidget(MainPage owner) {
+	public ControlsWidget(StandardPage owner) {
 		super(owner);
 		this.owner = owner;
 	}

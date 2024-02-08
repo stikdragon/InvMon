@@ -11,11 +11,16 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -58,6 +63,34 @@ public class InvUtil {
 			throw new FileNotFoundException(file.toString());
 		try (FileInputStream fis = new FileInputStream(file)) {
 			return loadXML(fis);
+		}
+	}
+
+	public static void writeMiniDOM(MiniDOM mini, File file) throws IOException {
+		try {
+			Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+
+			convertElement(mini, doc.getDocumentElement());
+
+			TransformerFactory xf = TransformerFactory.newInstance();
+			Transformer tf = xf.newTransformer();
+			tf.setOutputProperty(javax.xml.transform.OutputKeys.INDENT, "yes"); // Set 
+			//            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2"); // Set indentation amount
+			DOMSource src = new DOMSource(doc);
+			StreamResult sr = new StreamResult(file);
+			tf.transform(src, sr);
+		} catch (Exception e) {
+			throw new IOException("Failed to write XML: " + e.getMessage(), e);
+		}
+	}
+
+	private static void convertElement(MDElement src, Element target) {
+		for (Entry<String, String> pair : src.getAttribs().entrySet())
+			target.setAttribute(pair.getKey(), pair.getValue());
+		for (MDElement x : src) {
+			Element y = target.getOwnerDocument().createElement(x.getName());
+			convertElement(x, y);
+			target.appendChild(y);
 		}
 	}
 

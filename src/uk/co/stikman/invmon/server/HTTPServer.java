@@ -104,8 +104,6 @@ public class HTTPServer extends InvModule {
 		return new InvMonHTTPResponse(Status.OK, NanoHTTPD.getMimeTypeForFile(url), r.makeStream(), r.getSize());
 	}
 
-
-
 	private InvMonHTTPResponse dataPage(String url, UserSesh sesh, InvMonHTTPRequest session) throws Exception {
 		return new DataViewPage(this).exec(url, sesh, session);
 	}
@@ -114,6 +112,7 @@ public class HTTPServer extends InvModule {
 		String html = new LogPage(getEnv(), sesh).exec();
 		return new InvMonHTTPResponse(html);
 	}
+
 
 	/**
 	 * "execute" returns a JSONObject specific to the widget. if everything is ok
@@ -130,12 +129,7 @@ public class HTTPServer extends InvModule {
 		String api = null;
 		String id = null;
 		try {
-			String data;
-			if (session.isMethod("POST"))
-				data = session.getBodyAsString();
-			else
-				data = URLDecoder.decode(session.getQueryParameterString(), StandardCharsets.UTF_8.name());
-			JSONObject jo = data == null ? new JSONObject() : new JSONObject(data);
+			JSONObject jo = getRequestJSONObject(session);
 			JSONObject args = new JSONObject(jo.optString("args", "{}"));
 			id = jo.getString("id");
 			api = jo.getString("api");
@@ -172,6 +166,16 @@ public class HTTPServer extends InvModule {
 			}
 			return new InvMonHTTPResponse(Status.INTERNAL_ERROR, "text/plain", res.toString());
 		}
+	}
+
+	private JSONObject getRequestJSONObject(InvMonHTTPRequest session) throws UnsupportedEncodingException {
+		String data;
+		if (session.isMethod("POST"))
+			data = session.getBodyAsString();
+		else
+			data = URLDecoder.decode(session.getQueryParameterString(), StandardCharsets.UTF_8.name());
+		JSONObject jo = data == null ? new JSONObject() : new JSONObject(data);
+		return jo;
 	}
 
 	private InvMonHTTPResponse setParams(String url, UserSesh sesh, InvMonHTTPRequest session) throws Exception {
@@ -240,7 +244,7 @@ public class HTTPServer extends InvModule {
 	public void start() throws InvMonException {
 		super.start();
 
-		if (devmode!=null)
+		if (devmode != null)
 			mappings.add(new HandlerMapping("classes\\.js", devmode::serve));
 		mappings.add(new HandlerMapping(".*\\.(gif|png|css|html|js|svg)", this::resource));
 

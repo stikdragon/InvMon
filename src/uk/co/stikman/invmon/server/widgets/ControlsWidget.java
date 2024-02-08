@@ -19,11 +19,6 @@ public class ControlsWidget extends PageWidget {
 	}
 
 	@Override
-	public JSONObject executeApi(UserSesh sesh, String api, JSONObject args) {
-		throw new InvMonClientError("Unknown API");
-	}
-
-	@Override
 	public WidgetConfigOptions getConfigOptions() {
 		WidgetConfigOptions wco = new WidgetConfigOptions();
 		return wco;

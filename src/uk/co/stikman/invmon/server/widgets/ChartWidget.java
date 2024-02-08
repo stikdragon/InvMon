@@ -94,28 +94,32 @@ public class ChartWidget extends PageWidget {
 
 	@Override
 	public JSONObject executeApi(UserSesh sesh, String api, JSONObject args) {
-		//
-		// make sure we've got the current cached result set for this session
-		//
-		ensureCachedResults(sesh);
-		QueryResults qr = sesh.getData(WebUtils.CACHED_QUERY_RESULTS);
-		DBRecord lastrec = sesh.getData(WebUtils.CACHED_LAST_RECORD);
+		if ("execute".equals(api)) {
+			//
+			// make sure we've got the current cached result set for this session
+			//
+			ensureCachedResults(sesh);
+			QueryResults qr = sesh.getData(WebUtils.CACHED_QUERY_RESULTS);
+			DBRecord lastrec = sesh.getData(WebUtils.CACHED_LAST_RECORD);
 
-		opts.setSize(args.getInt("w"), args.getInt("h"));
-		HTMLBuilder html = new HTMLBuilder();
-		DataSet ds = qr.asDataSet();
+			opts.setSize(args.getInt("w"), args.getInt("h"));
+			HTMLBuilder html = new HTMLBuilder();
+			DataSet ds = qr.asDataSet();
 
-		JSONArray jarr = new JSONArray();
-		for (HeaderBitDef hb : headerBits)
-			jarr.put(hb.execute(getOwner().getEnv(), lastrec));
+			JSONArray jarr = new JSONArray();
+			for (HeaderBitDef hb : headerBits)
+				jarr.put(hb.execute(getOwner().getEnv(), lastrec));
 
-		JSONObject jo = new JSONObject();
-		jo.put("html", html.toString());
-		jo.put("titleBits", jarr);
-		jo.put("config", opts.toJSON());
-		jo.put("css", cssClass);
-		jo.put("data", ds.toJSON());
-		return jo;
+			JSONObject jo = new JSONObject();
+			jo.put("html", html.toString());
+			jo.put("titleBits", jarr);
+			jo.put("config", opts.toJSON());
+			jo.put("css", cssClass);
+			jo.put("data", ds.toJSON());
+			return jo;
+		}
+
+		return super.executeApi(sesh, api, args);
 	}
 
 	@Override
@@ -137,6 +141,5 @@ public class ChartWidget extends PageWidget {
 	@Override
 	public void applyConfigOptions(WidgetConfigOptions opts) {
 	}
-	
-	
+
 }

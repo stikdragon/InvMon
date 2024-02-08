@@ -33,26 +33,30 @@ public class PVTableWidget extends PageWidget {
 
 	@Override
 	public JSONObject executeApi(UserSesh sesh, String api, JSONObject args) {
-		ensureCachedResults(sesh);
-		DBRecord rec = sesh.getData(WebUtils.CACHED_LAST_RECORD);
-		HTMLBuilder html = new HTMLBuilder();
-		DataModel mdl = getOwner().getEnv().getModel();
-		html.append("<table class=\"data\">");
-		html.append("<tr><td></td><th>P</th><th>V</th><th>I</th></tr>");
-		for (int i = 0; i < fieldNames.size(); ++i) {
-			html.append("<tr>");
-			html.append("<th>").append(descriptions.get(i)).append("</th>");
-			html.append("<td><span class=\"b\">").append((int) rec.getFloat(mdl.get(fieldNames.get(i) + "_P"))).append("</span>W</td>");
-			html.append("<td><span class=\"b\">").append((int) rec.getFloat(mdl.get(fieldNames.get(i) + "_V"))).append("</span>V</td>");
-			html.append(String.format("<td><span class=\"b\">%.1f</span>A</td>", rec.getFloat(mdl.get(fieldNames.get(i) + "_I"))));
-			html.append("</tr>");
+		if ("execute".equals(api)) {
+			ensureCachedResults(sesh);
+			DBRecord rec = sesh.getData(WebUtils.CACHED_LAST_RECORD);
+			HTMLBuilder html = new HTMLBuilder();
+			DataModel mdl = getOwner().getEnv().getModel();
+			html.append("<table class=\"data\">");
+			html.append("<tr><td></td><th>P</th><th>V</th><th>I</th></tr>");
+			for (int i = 0; i < fieldNames.size(); ++i) {
+				html.append("<tr>");
+				html.append("<th>").append(descriptions.get(i)).append("</th>");
+				html.append("<td><span class=\"b\">").append((int) rec.getFloat(mdl.get(fieldNames.get(i) + "_P"))).append("</span>W</td>");
+				html.append("<td><span class=\"b\">").append((int) rec.getFloat(mdl.get(fieldNames.get(i) + "_V"))).append("</span>V</td>");
+				html.append(String.format("<td><span class=\"b\">%.1f</span>A</td>", rec.getFloat(mdl.get(fieldNames.get(i) + "_I"))));
+				html.append("</tr>");
+			}
+
+			html.append("<tr class=\"total\"><th>Total</th><td colspan=\"3\"><span class=\"b\">").append((int) rec.getFloat(mdl.get("PV_TOTAL_P"))).append("</span>W</td></tr>");
+			html.append("</table>");
+			JSONObject jo = new JSONObject();
+			jo.put("html", html.toString());
+			return jo;
 		}
 
-		html.append("<tr class=\"total\"><th>Total</th><td colspan=\"3\"><span class=\"b\">").append((int) rec.getFloat(mdl.get("PV_TOTAL_P"))).append("</span>W</td></tr>");
-		html.append("</table>");
-		JSONObject jo = new JSONObject();
-		jo.put("html", html.toString());
-		return jo;
+		return super.executeApi(sesh, api, args);
 	}
 
 	@Override

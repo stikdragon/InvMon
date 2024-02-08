@@ -22,20 +22,21 @@ public class LogWidget extends PageWidget {
 
 	@Override
 	public JSONObject executeApi(UserSesh sesh, String api, JSONObject args) {
-		if (!api.equals("fetch"))
-			throw new RuntimeException("Unknown method");
+		if (api.equals("fetch")) {
 
-		JSONObject res = new JSONObject();
-		List<String> lst = getOwner().getEnv().copyUserLog(new ArrayList<>());
-		res.put("log", lst.stream().collect(Collectors.joining("\n")));
-		return res;
+			JSONObject res = new JSONObject();
+			List<String> lst = getOwner().getEnv().copyUserLog(new ArrayList<>());
+			res.put("log", lst.stream().collect(Collectors.joining("\n")));
+			return res;
+		}
+
+		return super.executeApi(sesh, api, args);
 	}
 
 	@Override
 	public String getClientWidgetType() {
 		return "log";
 	}
-
 
 	@Override
 	public WidgetConfigOptions getConfigOptions() {

@@ -45,62 +45,66 @@ public class GaugeWidget extends PageWidget {
 
 	@Override
 	public JSONObject executeApi(UserSesh sesh, String api, JSONObject args) {
-		try {
-			ensureCachedResults(sesh);
-			DBRecord rec = sesh.getData(WebUtils.CACHED_LAST_RECORD);
-			if (rec == null)
-				throw new InvMonClientError("No data");
+		if ("execute".equals(api)) {
+			try {
+				ensureCachedResults(sesh);
+				DBRecord rec = sesh.getData(WebUtils.CACHED_LAST_RECORD);
+				if (rec == null)
+					throw new InvMonClientError("No data");
 
-			Field f = getOwner().getEnv().getModel().get(fieldname);
-			float src = rec.getFloat(f);
-			float value = src;
-			//
-			// normalise this 
-			//
-			if (rangeMin == rangeMax) {
-				value = 0.0f;
-			} else {
-				value -= rangeMin;
-				value /= (rangeMax - rangeMin);
+				Field f = getOwner().getEnv().getModel().get(fieldname);
+				float src = rec.getFloat(f);
+				float value = src;
+				//
+				// normalise this 
+				//
+				if (rangeMin == rangeMax) {
+					value = 0.0f;
+				} else {
+					value -= rangeMin;
+					value /= (rangeMax - rangeMin);
+				}
+
+				value = InvUtil.clamp(value, 0.0f, 1.0f);
+
+				JSONObject jo = new JSONObject();
+				HTMLBuilder html = new HTMLBuilder();
+				html.append("<div class=\"gauge\">");
+				html.append(render(value));
+				html.append("<div class=\"reading\">");
+
+				String s;
+				switch (valueFormat) {
+					case CURRENT:
+						s = String.format("%.2fA", (float) src);
+						break;
+					case VOLTAGE:
+						s = String.format("%.2fV", (float) src);
+						break;
+					case NORMAL:
+						s = String.format("%.2f", (float) src);
+						break;
+					case PERCENT:
+						s = (int) (src * 100.0f) + "%";
+						break;
+					default:
+						s = "?";
+						break;
+				}
+
+				html.append(s);
+				html.append("</div>");
+				html.append("</div>");
+
+				jo.put("html", html.toString());
+				return jo;
+			} catch (Exception e) {
+				LOGGER.error(e);
+				throw new RuntimeException("Error rendering daily summary", e);
 			}
-
-			value = InvUtil.clamp(value, 0.0f, 1.0f);
-
-			JSONObject jo = new JSONObject();
-			HTMLBuilder html = new HTMLBuilder();
-			html.append("<div class=\"gauge\">");
-			html.append(render(value));
-			html.append("<div class=\"reading\">");
-
-			String s;
-			switch (valueFormat) {
-				case CURRENT:
-					s = String.format("%.2fA", (float) src);
-					break;
-				case VOLTAGE:
-					s = String.format("%.2fV", (float) src);
-					break;
-				case NORMAL:
-					s = String.format("%.2f", (float) src);
-					break;
-				case PERCENT:
-					s = (int) (src * 100.0f) + "%";
-					break;
-				default:
-					s = "?";
-					break;
-			}
-
-			html.append(s);
-			html.append("</div>");
-			html.append("</div>");
-
-			jo.put("html", html.toString());
-			return jo;
-		} catch (Exception e) {
-			LOGGER.error(e);
-			throw new RuntimeException("Error rendering daily summary", e);
 		}
+
+		return super.executeApi(sesh, api, args);
 	}
 
 	private String render(float value) {

@@ -52,8 +52,9 @@ public class StikSystemControllerWidget extends PageWidget {
 				throw new InvMonClientError("Failed: " + e.getMessage(), e);
 			}
 			return null;
-		} else
-			throw new InvMonClientError("Unknown Controller API: " + api);
+		}
+
+		return super.executeApi(sesh, api, args);
 	}
 
 	@Override
