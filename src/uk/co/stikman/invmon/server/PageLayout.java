@@ -17,6 +17,8 @@ import org.w3c.dom.Element;
 import uk.co.stikman.invmon.Env;
 import uk.co.stikman.invmon.InvMonException;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
+import uk.co.stikman.invmon.minidom.MDElement;
+import uk.co.stikman.invmon.minidom.MiniDOM;
 import uk.co.stikman.invmon.server.widgets.ChartWidget;
 import uk.co.stikman.invmon.server.widgets.ControlsWidget;
 import uk.co.stikman.invmon.server.widgets.DailyPowerSummaryWidget;
@@ -58,25 +60,25 @@ public class PageLayout {
 		this.file = file;
 	}
 
-	public void configure(Element root) {
-		this.id = InvUtil.getAttrib(root, "id");
-		this.def = Boolean.parseBoolean(InvUtil.getAttrib(root, "default", "false"));
+	public void configure(MDElement root) {
+		this.id = root.getAttrib("id");
+		this.def = Boolean.parseBoolean(root.getAttrib("default", "false"));
 	}
 
 	public void loadFromSource() throws InvMonException {
 		try {
-			Document doc = loadXML(file);
-			fromDOM(doc.getDocumentElement());
+			MiniDOM doc = InvUtil.loadMiniDOM(file);
+			fromDOM(doc);
 			lastModifiedTime = file.lastModified();
 		} catch (IOException e) {
 			throw new InvMonException("Failed to load config for page: " + getId() + " because: " + e.getMessage(), e);
 		}
 	}
 
-	public void fromDOM(Element root) {
+	public void fromDOM(MDElement root) {
 		widgets.clear();
-		for (Element el : InvUtil.getElements(root, "Widget")) {
-			String cls = InvUtil.getAttrib(el, "class");
+		for (MDElement el : root.getElements("Widget")) {
+			String cls = el.getAttrib("class");
 			Function<PageLayout, PageWidget> ctor = TYPES.get(cls);
 			if (ctor == null)
 				throw new NoSuchElementException("Widget class [" + cls + "] not found");
@@ -84,9 +86,16 @@ public class PageLayout {
 			w.configure(el);
 			widgets.add(w);
 		}
-
 	}
 
+	public void toDOM(MiniDOM root) {
+		for (PageWidget w : widgets) {
+			MDElement el = new MDElement("Widget");
+			w.toDOM(el);
+			root.append(el);
+		}
+	}
+	
 	public boolean isDefault() {
 		return def;
 	}

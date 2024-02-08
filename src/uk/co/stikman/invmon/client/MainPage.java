@@ -47,6 +47,7 @@ public class MainPage extends ClientPage {
 		pageTypes.put("text-summary", TextSummaryWidget::new);
 		pageTypes.put("log", LogWidget::new);
 		pageTypes.put("stik-controller", InverterControlWidgetStik::new);
+		pageTypes.put("stik-controller", InverterControlWidgetStik::new);
 	}
 
 	public MainPage() {

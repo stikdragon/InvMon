@@ -10,3 +10,5 @@ temp
 data
 src/uk/co/stikman/invmon/client/res/classes.js
 log.txt
+libsources/*
+libsources

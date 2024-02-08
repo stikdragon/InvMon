@@ -9,10 +9,12 @@ import uk.co.stikman.invmon.datalog.MiniDbException;
 import uk.co.stikman.invmon.datalog.QueryResults;
 import uk.co.stikman.invmon.datamodel.Field;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
+import uk.co.stikman.invmon.minidom.MDElement;
 import uk.co.stikman.invmon.server.PageLayout;
 import uk.co.stikman.invmon.server.UserSesh;
 import uk.co.stikman.invmon.server.ViewOptions;
 import uk.co.stikman.invmon.server.WebUtils;
+import uk.co.stikman.invmon.shared.WidgetConfigOptions;
 
 public abstract class PageWidget {
 	private final PageLayout	owner;
@@ -33,16 +35,22 @@ public abstract class PageWidget {
 		return id;
 	}
 
-	public void configure(Element root) {
-		id = InvUtil.getAttrib(root, "id");
-		String s = InvUtil.getAttrib(root, "layout");
+	public void configure(MDElement root) {
+		id = root.getAttrib("id");
+		String s = root.getAttrib("layout");
 		String[] bits = s.split(",");
 		x = Integer.parseInt(bits[0].trim());
 		y = Integer.parseInt(bits[1].trim());
 		width = Integer.parseInt(bits[2].trim());
 		height = Integer.parseInt(bits[3].trim());
-		title = InvUtil.getAttrib(root, "title", null);
+		title = root.getAttrib("title", null);
 
+	}
+
+	public void toDOM(MDElement root) {
+		root.setAttrib("id", id);
+		root.setAttrib("layout", String.format("%d, %d, %d, %d", x, y, width, height));
+		root.setAttrib("title", title);
 	}
 
 	public abstract JSONObject executeApi(UserSesh sesh, String api, JSONObject args);
@@ -109,5 +117,8 @@ public abstract class PageWidget {
 	public DataLogger getDatalogger() {
 		return datalogger;
 	}
+	
+	public abstract WidgetConfigOptions getConfigOptions();
+	public abstract void applyConfigOptions(WidgetConfigOptions opts);
 
 }

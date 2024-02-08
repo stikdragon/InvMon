@@ -19,16 +19,18 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import uk.co.stikman.invmon.minidom.MDElement;
+import uk.co.stikman.invmon.minidom.MiniDOM;
 import uk.co.stikman.invmon.nanohttpd.NanoHTTPD.IHTTPSession;
 
 public class InvUtil {
 	public static String padLeft(String s, int len) {
 		return padLeft(s, len, ' ');
-
 	}
 
 	public static String padLeft(String s, int len, char pad) {
@@ -59,6 +61,38 @@ public class InvUtil {
 		}
 	}
 
+	public static MiniDOM loadMiniDOM(File file) throws IOException {
+		MiniDOM mini = new MiniDOM();
+		Document doc = loadXML(file);
+		return miniDomFromReal(doc.getDocumentElement());
+	}
+
+	public static MiniDOM miniDomFromReal(Element el) {
+		MiniDOM mini = new MiniDOM();
+		buildMini(mini, el);
+		return mini;
+	}
+
+	private static void buildMini(MDElement out, Element el) {
+		NamedNodeMap attrs = el.getAttributes();
+		if (attrs != null) {
+			for (int i = 0; i < attrs.getLength(); i++) {
+				Node a = attrs.item(i);
+				out.setAttrib(a.getNodeName(), a.getNodeValue());
+			}
+		}
+
+		Node n = el.getFirstChild();
+		while (n != null) {
+			if (n instanceof Element e) {
+				MDElement el2 = new MDElement(e.getTagName());
+				buildMini(el2, e);
+				out.append(el2);
+			}
+			n = n.getNextSibling();
+		}
+	}
+
 	public static Document loadXML(InputStream fis) throws IOException {
 		try {
 			DocumentBuilderFactory f = DocumentBuilderFactory.newInstance();
@@ -81,7 +115,7 @@ public class InvUtil {
 			return null;
 		throw new NoSuchElementException("Child element called [" + name + "] not found");
 	}
-	
+
 	public static Element getElement(Element root, String name) {
 		return getElement(root, name, false);
 	}
@@ -214,6 +248,25 @@ public class InvUtil {
 		if (val > max)
 			return max;
 		return val;
+	}
+
+	public static List<File> getAllFiles(File root, String ext) {
+		List<File> lst = new ArrayList<>();
+		recurseFiles(root, ext, lst);
+		return lst;
+	}
+
+	private static void recurseFiles(File root, String ext, List<File> out) {
+		if (!root.isDirectory())
+			throw new IllegalArgumentException("Root must be directory");
+		for (File f : root.listFiles()) {
+			if (f.isDirectory()) {
+				recurseFiles(f, ext, out);
+			} else {
+				if (f.toString().endsWith(ext))
+					out.add(f);
+			}
+		}
 	}
 
 }

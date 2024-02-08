@@ -10,14 +10,15 @@ import uk.co.stikman.invmon.datalog.DBRecord;
 import uk.co.stikman.invmon.datamodel.Field;
 import uk.co.stikman.invmon.inverter.util.Format;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
+import uk.co.stikman.invmon.minidom.MDElement;
 
 public class HeaderBitDef {
 	private String			text;
 	private List<String>	fields	= new ArrayList<>();
 
-	public void configure(Element root) {
-		text = InvUtil.getAttrib(root, "text");
-		String flds = InvUtil.getAttrib(root, "fields");
+	public void configure(MDElement root) {
+		text = root.getAttrib("text");
+		String flds = root.getAttrib("fields");
 		for (String s : flds.split(",")) {
 			s = s.trim();
 			fields.add(s);

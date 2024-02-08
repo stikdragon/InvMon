@@ -6,11 +6,17 @@ import org.w3c.dom.Element;
 import uk.co.stikman.invmon.datalog.DBRecord;
 import uk.co.stikman.invmon.datamodel.Field;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
+import uk.co.stikman.invmon.minidom.MDElement;
 import uk.co.stikman.invmon.server.HTMLBuilder;
 import uk.co.stikman.invmon.server.InvMonClientError;
 import uk.co.stikman.invmon.server.PageLayout;
 import uk.co.stikman.invmon.server.UserSesh;
 import uk.co.stikman.invmon.server.WebUtils;
+import uk.co.stikman.invmon.shared.OptionEnum;
+import uk.co.stikman.invmon.shared.OptionFloat;
+import uk.co.stikman.invmon.shared.OptionString;
+import uk.co.stikman.invmon.shared.OptionType;
+import uk.co.stikman.invmon.shared.WidgetConfigOptions;
 import uk.co.stikman.log.StikLog;
 
 public class GaugeWidget extends PageWidget {
@@ -190,18 +196,18 @@ public class GaugeWidget extends PageWidget {
 	}
 
 	@Override
-	public void configure(Element root) throws IllegalArgumentException {
+	public void configure(MDElement root) throws IllegalArgumentException {
 		super.configure(root);
-		fieldname = InvUtil.getAttrib(root, "field");
-		mode = Mode.valueOf(InvUtil.getAttrib(root, "mode", "normal").toUpperCase());
-		String s = InvUtil.getAttrib(root, "range");
+		fieldname = root.getAttrib("field");
+		mode = Mode.valueOf(root.getAttrib("mode", "normal").toUpperCase());
+		String s = root.getAttrib("range");
 		int p = s.indexOf(',');
 		if (p == -1)
 			throw new IllegalArgumentException("Range for gauge widget [" + getId() + "] is not correct");
 		rangeMin = Float.parseFloat(s.substring(0, p));
 		rangeMax = Float.parseFloat(s.substring(p + 1));
-		valueFormat = ValueFormat.valueOf(InvUtil.getAttrib(root, "text", "normal").toUpperCase());
-		arcsize = Float.parseFloat(InvUtil.getAttrib(root, "arclength", "210"));
+		valueFormat = ValueFormat.valueOf(root.getAttrib("text", "normal").toUpperCase());
+		arcsize = Float.parseFloat(root.getAttrib("arclength", "210"));
 
 		colours = new ColourBandingOptions();
 		switch (mode) {
@@ -220,6 +226,26 @@ public class GaugeWidget extends PageWidget {
 
 		}
 
+	}
+
+	@Override
+	public WidgetConfigOptions getConfigOptions() {
+		WidgetConfigOptions wco = new WidgetConfigOptions();
+		wco.add(new OptionString("fldname", "Field Name", fieldname, OptionType.STRING));
+		wco.add(new OptionEnum("mode", "Mode", mode.name(), "NORMAL,SPLIT"));
+		wco.add(new OptionFloat("min", "Lower Range", rangeMin));
+		wco.add(new OptionFloat("max", "Upper Range", rangeMax));
+		wco.add(new OptionFloat("arclen", "Arc Length", arcsize));
+		return wco;
+	}
+
+	@Override
+	public void applyConfigOptions(WidgetConfigOptions opts) {
+		fieldname = opts.get("fldname", OptionString.class).getValue();
+		mode = Mode.valueOf(opts.get("mode", OptionEnum.class).getValue());
+		rangeMin = opts.get("min", OptionFloat.class).getValue();
+		rangeMax = opts.get("max", OptionFloat.class).getValue();
+		arcsize = opts.get("arclen", OptionFloat.class).getValue();
 	}
 
 }

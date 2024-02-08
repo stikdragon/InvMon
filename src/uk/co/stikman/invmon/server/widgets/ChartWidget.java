@@ -10,6 +10,7 @@ import org.w3c.dom.Element;
 import uk.co.stikman.invmon.datalog.DBRecord;
 import uk.co.stikman.invmon.datalog.QueryResults;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
+import uk.co.stikman.invmon.minidom.MDElement;
 import uk.co.stikman.invmon.server.Axis;
 import uk.co.stikman.invmon.server.ChartOptions;
 import uk.co.stikman.invmon.server.DataSet;
@@ -20,6 +21,9 @@ import uk.co.stikman.invmon.server.PageLayout;
 import uk.co.stikman.invmon.server.Series;
 import uk.co.stikman.invmon.server.UserSesh;
 import uk.co.stikman.invmon.server.WebUtils;
+import uk.co.stikman.invmon.shared.OptionEnum;
+import uk.co.stikman.invmon.shared.OptionString;
+import uk.co.stikman.invmon.shared.WidgetConfigOptions;
 
 public class ChartWidget extends PageWidget {
 
@@ -32,30 +36,30 @@ public class ChartWidget extends PageWidget {
 	}
 
 	@Override
-	public void configure(Element root) {
+	public void configure(MDElement root) {
 		super.configure(root);
-		cssClass = InvUtil.getAttrib(root, "cssClass", null);
+		cssClass = root.getAttrib("cssClass", null);
 		opts = new ChartOptions();
 
-		for (Element el : InvUtil.getElements(root)) {
-			if (el.getTagName().equals("Series")) {
+		for (MDElement el : root) {
+			if (el.getName().equals("Series")) {
 				List<String> sub = null;
-				if (el.hasAttribute("subfields")) {
+				if (el.hasAttrib("subfields")) {
 					sub = new ArrayList<>();
-					for (String s : el.getAttribute("subfields").split(","))
+					for (String s : el.getAttrib("subfields").split(","))
 						sub.add(s.trim());
 				}
-				String s = InvUtil.getAttrib(el, "axis", "y1");
-				Series ser = opts.addSeries(InvUtil.getAttrib(el, "field"), sub);
+				String s = el.getAttrib("axis", "y1");
+				Series ser = opts.addSeries(el.getAttrib("field"), sub);
 				if (s.equals("y1"))
 					ser.setYAxis(opts.getAxisY1());
 				else if (s.equals("y2"))
 					ser.setYAxis(opts.getAxisY2());
 				else
 					throw new IllegalArgumentException("Unknown axis: " + s);
-			} else if ("Axis".equals(el.getTagName())) {
+			} else if ("Axis".equals(el.getName())) {
 				Axis ax = null;
-				String id = InvUtil.getAttrib(el, "id");
+				String id = el.getAttrib("id");
 				if (id.equals("x1"))
 					ax = opts.getAxisX1();
 				else if (id.equals("y1"))
@@ -64,14 +68,14 @@ public class ChartWidget extends PageWidget {
 					ax = opts.getAxisY2();
 				else
 					throw new IllegalArgumentException("Unknown axis: " + id);
-				if (el.hasAttribute("formatter")) {
-					ax.setFormat(el.getAttribute("formatter"));
+				if (el.hasAttrib("formatter")) {
+					ax.setFormat(el.getAttrib("formatter"));
 				}
-				if (el.hasAttribute("min"))
-					ax.setForceMin(Float.parseFloat(el.getAttribute("min")));
+				if (el.hasAttrib("min"))
+					ax.setForceMin(Float.parseFloat(el.getAttrib("min")));
 				ax.setEnabled(true);
-			} else if ("HeaderBit".equals(el.getTagName())) {
-				String special = InvUtil.getAttrib(el, "special", null);
+			} else if ("HeaderBit".equals(el.getName())) {
+				String special = el.getAttrib("special", null);
 				if (special != null) {
 					if (special.equals("powerfactor"))
 						headerBits.add(new HeaderBitPF());
@@ -83,7 +87,7 @@ public class ChartWidget extends PageWidget {
 					headerBits.add(hb);
 				}
 			} else
-				throw new IllegalArgumentException("Unexpected element in Widget: " + el.getTagName());
+				throw new IllegalArgumentException("Unexpected element in Widget: " + el.getName());
 		}
 
 	}
@@ -123,4 +127,16 @@ public class ChartWidget extends PageWidget {
 		return headerBits;
 	}
 
+	@Override
+	public WidgetConfigOptions getConfigOptions() {
+		WidgetConfigOptions wco = new WidgetConfigOptions();
+		wco.add(new OptionString("todo", "Chart Options", "this is not implemented yet"));
+		return wco;
+	}
+
+	@Override
+	public void applyConfigOptions(WidgetConfigOptions opts) {
+	}
+	
+	
 }

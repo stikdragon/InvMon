@@ -13,6 +13,7 @@ import uk.co.stikman.invmon.inverter.util.InvUtil;
 import uk.co.stikman.invmon.server.HTMLBuilder;
 import uk.co.stikman.invmon.server.PageLayout;
 import uk.co.stikman.invmon.server.UserSesh;
+import uk.co.stikman.invmon.shared.WidgetConfigOptions;
 
 public class InfoBitWidget extends PageWidget {
 
@@ -48,6 +49,15 @@ public class InfoBitWidget extends PageWidget {
 	@Override
 	public String getClientWidgetType() {
 		return "infobit";
+	}
+
+	@Override
+	public WidgetConfigOptions getConfigOptions() {
+		return new WidgetConfigOptions();
+	}
+
+	@Override
+	public void applyConfigOptions(WidgetConfigOptions opts) {
 	}
 
 }

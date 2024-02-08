@@ -30,6 +30,7 @@
 		<DataLogger id="datalogger" file="data\datalog.db" blockSize="400000" cachedBlocks="4" />
 
 		<HTTPServer id="httpserver" port="8083">
+			<DevMode root="C:\Stik\java\InvMon\bin\uk\co\stikman\invmon" />
 			<Page id="main" default="true" source="mainpage.xml" />
 			<Page id="single" default="false" source="singlepage.xml" />
 

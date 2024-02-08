@@ -36,6 +36,7 @@ import uk.co.stikman.invmon.inverter.util.InvUtil;
 import uk.co.stikman.invmon.nanohttpd.NanoHTTPD;
 import uk.co.stikman.invmon.nanohttpd.NanoHTTPD.Response.Status;
 import uk.co.stikman.invmon.server.widgets.PageWidget;
+import uk.co.stikman.invmon.tooling.DevMode;
 import uk.co.stikman.log.StikLog;
 
 public class HTTPServer extends InvModule {
@@ -75,27 +76,10 @@ public class HTTPServer extends InvModule {
 
 	private EmbeddedServer				embeddedSvr;
 
+	private DevMode						devmode			= null;
+
 	public HTTPServer(String id, Env env) {
 		super(id, env);
-		mappings.add(new HandlerMapping(".*\\.(gif|png|css|html|js|svg)", this::resource));
-
-		mappings.add(new HandlerMapping("log", this::logPage));
-		mappings.add(new HandlerMapping("data", this::dataPage));
-
-		mappings.add(new HandlerMapping("api", this::executeApi));
-		mappings.add(new HandlerMapping("toString", this::toStringHandler));
-		mappings.add(new HandlerMapping("setParams", this::setParams));
-		mappings.add(new HandlerMapping("fetchUserLog", this::fetchUserLog));
-		mappings.add(new HandlerMapping("getUserDetails", this::getUserDetails));
-
-		mappings.add(new HandlerMapping("console", this::execConsoleCommand));
-
-		mappings.add(new HandlerMapping("getConfig", this::getConfig));
-		mappings.add(new HandlerMapping("invalidateResults", this::invalidateResults));
-		mappings.add(new HandlerMapping("login", this::login));
-		mappings.add(new HandlerMapping("logout", this::logout));
-
-		env.submitTimerTask(() -> env.submitTask(this::tidySessions), 60000);
 	}
 
 	private void tidySessions() {
@@ -120,6 +104,8 @@ public class HTTPServer extends InvModule {
 		return new InvMonHTTPResponse(Status.OK, NanoHTTPD.getMimeTypeForFile(url), r.makeStream(), r.getSize());
 	}
 
+
+
 	private InvMonHTTPResponse dataPage(String url, UserSesh sesh, InvMonHTTPRequest session) throws Exception {
 		return new DataViewPage(this).exec(url, sesh, session);
 	}
@@ -130,9 +116,9 @@ public class HTTPServer extends InvModule {
 	}
 
 	/**
-	 * "execute" returns a JSONObject specific to the widget. if everything is
-	 * ok then the status response is 400, otherwise you will get 500 and a
-	 * JSONObject that looks like <code>{"error":"Message goes here"}</code>
+	 * "execute" returns a JSONObject specific to the widget. if everything is ok
+	 * then the status response is 400, otherwise you will get 500 and a JSONObject
+	 * that looks like <code>{"error":"Message goes here"}</code>
 	 * 
 	 * @param url
 	 * @param sesh
@@ -240,14 +226,41 @@ public class HTTPServer extends InvModule {
 	@Override
 	public void configure(Element config) throws InvMonException {
 		this.port = Integer.parseInt(InvUtil.getAttrib(config, "port"));
+		Element el = InvUtil.getElement(config, "DevMode", true);
+		if (el != null) {
+			devmode = new DevMode(el);
+
+		}
 		layoutConfig = new HttpLayoutConfig();
-		layoutConfig.configure(getEnv(), config);
+		layoutConfig.configure(getEnv(), InvUtil.miniDomFromReal(config));
 		users.configure(config);
 	}
 
 	@Override
 	public void start() throws InvMonException {
 		super.start();
+
+		if (devmode!=null)
+			mappings.add(new HandlerMapping("classes\\.js", devmode::serve));
+		mappings.add(new HandlerMapping(".*\\.(gif|png|css|html|js|svg)", this::resource));
+
+		mappings.add(new HandlerMapping("log", this::logPage));
+		mappings.add(new HandlerMapping("data", this::dataPage));
+
+		mappings.add(new HandlerMapping("api", this::executeApi));
+		mappings.add(new HandlerMapping("toString", this::toStringHandler));
+		mappings.add(new HandlerMapping("setParams", this::setParams));
+		mappings.add(new HandlerMapping("fetchUserLog", this::fetchUserLog));
+		mappings.add(new HandlerMapping("getUserDetails", this::getUserDetails));
+
+		mappings.add(new HandlerMapping("console", this::execConsoleCommand));
+
+		mappings.add(new HandlerMapping("getConfig", this::getConfig));
+		mappings.add(new HandlerMapping("invalidateResults", this::invalidateResults));
+		mappings.add(new HandlerMapping("login", this::login));
+		mappings.add(new HandlerMapping("logout", this::logout));
+
+		getEnv().submitTimerTask(() -> getEnv().submitTask(this::tidySessions), 60000);
 
 		HTTPServicer intf = new HTTPServicer() {
 			@Override
@@ -310,7 +323,7 @@ public class HTTPServer extends InvModule {
 			}
 			sesh.touch();
 
-			synchronized(sesh) {
+			synchronized (sesh) {
 				InvMonHTTPResponse res = m.fetch(url, sesh, http);
 				if (setSeshCookie)
 					res.addHeader("Set-Cookie", "sesh=" + sesh.getId());

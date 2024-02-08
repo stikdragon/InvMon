@@ -6,16 +6,15 @@ import java.util.stream.Collectors;
 
 import org.json.JSONObject;
 
-import uk.co.stikman.invmon.nanohttpd.NanoHTTPD.Response.Status;
-import uk.co.stikman.invmon.server.InvMonHTTPResponse;
 import uk.co.stikman.invmon.server.PageLayout;
 import uk.co.stikman.invmon.server.UserSesh;
-import uk.co.stikman.log.StikLog;
+import uk.co.stikman.invmon.server.widgets.GaugeWidget.Mode;
+import uk.co.stikman.invmon.shared.OptionEnum;
+import uk.co.stikman.invmon.shared.OptionFloat;
+import uk.co.stikman.invmon.shared.OptionString;
+import uk.co.stikman.invmon.shared.WidgetConfigOptions;
 
 public class LogWidget extends PageWidget {
-
-	private static final StikLog	LOGGER	= StikLog.getLogger(LogWidget.class);
-	private String					controllerName;
 
 	public LogWidget(PageLayout owner) {
 		super(owner);
@@ -37,8 +36,14 @@ public class LogWidget extends PageWidget {
 		return "log";
 	}
 
-	public String getControllerName() {
-		return controllerName;
+
+	@Override
+	public WidgetConfigOptions getConfigOptions() {
+		return new WidgetConfigOptions();
+	}
+
+	@Override
+	public void applyConfigOptions(WidgetConfigOptions opts) {
 	}
 
 }

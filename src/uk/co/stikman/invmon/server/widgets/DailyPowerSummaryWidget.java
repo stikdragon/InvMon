@@ -11,9 +11,11 @@ import org.w3c.dom.Element;
 import uk.co.stikman.invmon.datalog.QueryRecord;
 import uk.co.stikman.invmon.datalog.QueryResults;
 import uk.co.stikman.invmon.datamodel.DataModel;
+import uk.co.stikman.invmon.minidom.MDElement;
 import uk.co.stikman.invmon.server.HTMLBuilder;
 import uk.co.stikman.invmon.server.PageLayout;
 import uk.co.stikman.invmon.server.UserSesh;
+import uk.co.stikman.invmon.shared.WidgetConfigOptions;
 import uk.co.stikman.log.StikLog;
 
 public class DailyPowerSummaryWidget extends PageWidget {
@@ -123,8 +125,17 @@ public class DailyPowerSummaryWidget extends PageWidget {
 	}
 
 	@Override
-	public void configure(Element root) {
+	public void configure(MDElement root) {
 		super.configure(root);
+	}
+
+	@Override
+	public WidgetConfigOptions getConfigOptions() {
+		return new WidgetConfigOptions();
+	}
+
+	@Override
+	public void applyConfigOptions(WidgetConfigOptions opts) {
 	}
 
 }

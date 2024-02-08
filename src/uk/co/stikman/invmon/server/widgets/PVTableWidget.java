@@ -9,10 +9,18 @@ import org.w3c.dom.Element;
 import uk.co.stikman.invmon.datalog.DBRecord;
 import uk.co.stikman.invmon.datamodel.DataModel;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
+import uk.co.stikman.invmon.minidom.MDElement;
 import uk.co.stikman.invmon.server.HTMLBuilder;
 import uk.co.stikman.invmon.server.PageLayout;
 import uk.co.stikman.invmon.server.UserSesh;
 import uk.co.stikman.invmon.server.WebUtils;
+import uk.co.stikman.invmon.server.widgets.GaugeWidget.Mode;
+import uk.co.stikman.invmon.shared.OptionEnum;
+import uk.co.stikman.invmon.shared.OptionFloat;
+import uk.co.stikman.invmon.shared.OptionString;
+import uk.co.stikman.invmon.shared.OptionStringList;
+import uk.co.stikman.invmon.shared.OptionType;
+import uk.co.stikman.invmon.shared.WidgetConfigOptions;
 
 public class PVTableWidget extends PageWidget {
 
@@ -53,9 +61,9 @@ public class PVTableWidget extends PageWidget {
 	}
 
 	@Override
-	public void configure(Element root) {
+	public void configure(MDElement root) {
 		super.configure(root);
-		String fields = InvUtil.getAttrib(root, "fields");
+		String fields = root.getAttrib("fields");
 		for (String fld : fields.split(",")) {
 			String name = fld;
 			int pos = fld.indexOf(':');
@@ -67,6 +75,22 @@ public class PVTableWidget extends PageWidget {
 			fieldNames.add(fld);
 			descriptions.add(name);
 		}
+	}
+
+	@Override
+	public WidgetConfigOptions getConfigOptions() {
+		WidgetConfigOptions wco = new WidgetConfigOptions();
+		wco.add(new OptionStringList("fields", "Fields", fieldNames));
+		wco.add(new OptionStringList("desc", "Descriptions", descriptions));
+		return wco;
+	}
+
+	@Override
+	public void applyConfigOptions(WidgetConfigOptions opts) {
+		fieldNames = new ArrayList<>();
+		descriptions = new ArrayList<>();
+		fieldNames.addAll(opts.get("fields", OptionStringList.class).getValue());
+		descriptions.addAll(opts.get("desc", OptionStringList.class).getValue());
 	}
 
 }
