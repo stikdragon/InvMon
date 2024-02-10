@@ -51,7 +51,7 @@ public class PageLayout {
 		TYPES.add(new Pair<>("text-summary", "TextSummaryWidget"));
 		TYPES.add(new Pair<>("stik-controller", "StikSystemControllerWidget"));
 		TYPES.add(new Pair<>("log", "LogWidget"));
-		TYPES.put(new Pair<>("bms-status", "BMSStatusWidget"));
+		TYPES.add(new Pair<>("bms-status", "BMSStatusWidget"));
 	}
 
 	public PageLayout(Env env, File file) {
