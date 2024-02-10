@@ -89,4 +89,5 @@ public abstract class InvModule {
 		lst.add(new ConsoleHelpInfo("summary", "Summarise the current module"));
 	}
 
+
 }

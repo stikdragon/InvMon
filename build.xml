@@ -1,7 +1,7 @@
 <project default="compile" xmlns:ivy="antlib:org.apache.ivy.ant">
 
-<!--	<property name="version" value="dev" /> -->
- <property name="version" value="0.22.1" /> 
+	<!-- <property name="version" value="dev" /> -->
+ <property name="version" value="0.23" /> 
 
 	<target name="clean">
 		<delete dir="build/classes" />
@@ -25,7 +25,7 @@
 
 	<target name="compile" depends="clean">
 		<mkdir dir="build/classes" />
-		<javac target="15" source="15" srcdir="src" destdir="build/classes" classpathref="cp" includeantruntime="false">
+		<javac target="17" source="17" srcdir="src" destdir="build/classes" classpathref="cp" includeantruntime="false">
 			<exclude name="**/uk/co/stikman/invmon/junk/dischargemonitor/*.java" />
 		</javac>
 		<copy todir="build/classes">
@@ -35,24 +35,21 @@
 		</copy>
 		<echo file="build/classes/uk/co/stikman/invmon/version.txt" append="false">${version}</echo>
 	</target>
-
-	<target name="teavm" description="run TeaVM compiler">
-		<java failonerror="true" fork="true" classname="org.teavm.cli.TeaVMRunner">
+	
+	<target name="teavm">
+		<java failonerror="true" fork="true" classname="uk.co.stikman.invmon.tooling.Builder">
 			<classpath>
 				<path refid="cp" />
-				<!-- <pathelement path="build/classes" /> -->
 				<pathelement path="bin" />
 			</classpath>
 
 			<jvmarg value="-Xmx4g" />
-			<arg line="-t js" />
-			<!-- <arg line="-m" />  -->
-			<!-- <arg line="-G" /> -->
-			<!-- <arg line="-g" /> -->
-			<arg line="-d src/uk/co/stikman/invmon/client/res" />
-			<arg value="uk.co.stikman.invmon.client.InvMon" />
+			<arg line="-sourcemaps true" />
+			<arg line="-mainclass uk.co.stikman.invmon.client.InvMon" />
+			<arg line="-output src/uk/co/stikman/invmon/client/res" />
 		</java>
-	</target>
+	</target>	
+	
 
 	<target name="jar" depends="compile,teavm">
 		<jar destfile="dist\invmon-${version}.jar" basedir="build/classes">

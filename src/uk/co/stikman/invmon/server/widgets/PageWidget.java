@@ -1,28 +1,33 @@
 package uk.co.stikman.invmon.server.widgets;
 
 import org.json.JSONObject;
-import org.w3c.dom.Element;
 
 import uk.co.stikman.invmon.FieldNameList;
+import uk.co.stikman.invmon.InvMonException;
 import uk.co.stikman.invmon.datalog.DataLogger;
 import uk.co.stikman.invmon.datalog.MiniDbException;
 import uk.co.stikman.invmon.datalog.QueryResults;
 import uk.co.stikman.invmon.datamodel.Field;
-import uk.co.stikman.invmon.inverter.util.InvUtil;
+import uk.co.stikman.invmon.minidom.MDElement;
+import uk.co.stikman.invmon.server.InvMonClientError;
 import uk.co.stikman.invmon.server.PageLayout;
 import uk.co.stikman.invmon.server.UserSesh;
 import uk.co.stikman.invmon.server.ViewOptions;
 import uk.co.stikman.invmon.server.WebUtils;
+import uk.co.stikman.invmon.shared.WidgetConfigOptions;
+import uk.co.stikman.log.StikLog;
 
 public abstract class PageWidget {
-	private final PageLayout	owner;
-	private final DataLogger	datalogger;
-	private String				id;
-	private int					x;
-	private int					y;
-	private int					width;
-	private int					height;
-	private String				title;
+	private static final StikLog	LOGGER	= StikLog.getLogger(PageWidget.class);
+
+	private final PageLayout		owner;
+	private final DataLogger		datalogger;
+	private String					id;
+	private int						x;
+	private int						y;
+	private int						width;
+	private int						height;
+	private String					title;
 
 	public PageWidget(PageLayout owner) {
 		this.owner = owner;
@@ -33,19 +38,61 @@ public abstract class PageWidget {
 		return id;
 	}
 
-	public void configure(Element root) {
-		id = InvUtil.getAttrib(root, "id");
-		String s = InvUtil.getAttrib(root, "layout");
+	public void fromDOM(MDElement root) {
+		id = root.getAttrib("id");
+		String s = root.getAttrib("layout");
 		String[] bits = s.split(",");
 		x = Integer.parseInt(bits[0].trim());
 		y = Integer.parseInt(bits[1].trim());
 		width = Integer.parseInt(bits[2].trim());
 		height = Integer.parseInt(bits[3].trim());
-		title = InvUtil.getAttrib(root, "title", null);
+		title = root.getAttrib("title", null);
 
 	}
 
-	public abstract JSONObject executeApi(UserSesh sesh, String api, JSONObject args);
+	public void toDOM(MDElement root) {
+		root.setAttrib("id", id);
+		root.setAttrib("layout", String.format("%d, %d, %d, %d", x, y, width, height));
+		root.setAttrib("title", title);
+	}
+
+	public JSONObject executeApi(UserSesh sesh, String api, JSONObject args) {
+		if ("getConfig".equals(api))
+			return getConfig(args);
+		else if ("setConfig".equals(api))
+			return setConfig(sesh, args);
+		else if ("setPosition".equals(api))
+			return setPosition(args);
+
+		throw new InvMonClientError("API [" + api + "] not supported");
+	}
+
+	private JSONObject setPosition(JSONObject args) {
+		this.x = args.getInt("x");
+		this.y = args.getInt("y");
+		this.width = args.getInt("w");
+		this.height = args.getInt("h");
+		return new JSONObject();
+	}
+
+	private JSONObject setConfig(UserSesh sesh, JSONObject args) {
+		WidgetConfigOptions co = new WidgetConfigOptions();
+		co.fromJSON(args);
+		applyConfigOptions(co);
+		try {
+			getOwner().saveToSource();
+		} catch (InvMonException e) {
+			LOGGER.error("Failed to write page config to disk: " + e.getMessage(), e);
+		}
+		return new JSONObject();
+	}
+
+	private JSONObject getConfig(JSONObject args) {
+		WidgetConfigOptions co = getConfigOptions();
+		JSONObject jo = new JSONObject();
+		co.toJSON(jo);
+		return jo;
+	}
 
 	public int getX() {
 		return x;
@@ -109,5 +156,9 @@ public abstract class PageWidget {
 	public DataLogger getDatalogger() {
 		return datalogger;
 	}
+
+	public abstract WidgetConfigOptions getConfigOptions();
+
+	public abstract void applyConfigOptions(WidgetConfigOptions opts);
 
 }

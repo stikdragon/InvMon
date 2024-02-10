@@ -8,10 +8,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Test;
-import org.teavm.apachecommons.io.FileUtils;
 
 import uk.co.stikman.invmon.RateLimiter;
 import uk.co.stikman.invmon.inverter.util.InvUtil;

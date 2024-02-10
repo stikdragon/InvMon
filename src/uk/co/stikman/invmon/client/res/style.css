@@ -39,6 +39,36 @@ h3 {
 	flex: 1;
 }
 
+.config-button {
+	position: fixed;
+	top: -10px;
+	left: -10px;
+	background-color: #fff;
+	border: 1px solid #ccc;
+	opacity: 50%;
+	border-radius: 30%;
+	width: 34px;
+	height: 34px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	cursor: pointer;
+	transition: transform 0.3s ease, opacity 0.3s ease;
+	z-index: 999999;
+}
+
+.config-button:hover {
+	opacity: 100%;
+	transform: translate(10px, 10px);
+}
+
+.config-button .icon {
+	background-image: url(cog.png);
+	width: 16px;
+	height: 16px;
+	font-size: 24px;
+}
+
 .gridframeinner>.content {
 	flex: 1;
 	overflow: hidden;
@@ -484,7 +514,7 @@ table.data .total td {
 	padding: 10px;
 }
 
-.errorpopup {
+.messagepopup {
 	position: fixed;
 	right: 6px;
 	bottom: 6px;
@@ -493,13 +523,13 @@ table.data .total td {
 	flex-direction: column;
 }
 
-.errorpopup>.title {
+.messagepopup>.title {
 	font-size: 150%;
 	font-weight: bold;
 	flex: 0;
 }
 
-.errorpopup>.content {
+.messagepopup>.content {
 	flex: 1;
 	gap: 6px;
 	display: flex;
@@ -507,9 +537,7 @@ table.data .total td {
 	overflow: auto;
 }
 
-.errorpopup>.content .msg {
-	background-color: #ffdddd;
-	background-image: url("warning.png");
+.messagepopup>.content .msg {
 	background-repeat: no-repeat;
 	background-position: 6px center;
 	border: 2px solid #ffaaaa;
@@ -518,9 +546,21 @@ table.data .total td {
 	padding-left: 32px;
 }
 
-.errorpopup>.content .msg.fadeout {
+.messagepopup>.content .msg.fadeout {
 	transition: opacity 0.5s;
 	opacity: 0%;
+}
+
+.messagepopup>.content .msg.error {
+	background-color: #ffdddd;
+	background-image: url("warning.png");
+}
+.messagepopup>.content .msg.warning {
+	background-color: #ffffdd;
+	background-image: url("warning.png");
+}
+.messagepopup>.content .msg.message {
+	background-color: #ffffff;
 }
 
 #summary .tiny {
@@ -851,4 +891,46 @@ textarea:focus, input:focus {
 	font-size: 12px;
 	font-weight: bold;
 	color: #606060;
+}
+
+.config-dialog {
+	font-size: 80%;
+}
+
+.config-dialog h1 {
+	margin-top: 0;
+}
+
+.config-dialog textarea {
+	width: 200px;
+	height: 100px;
+}
+
+.config-dialog .list {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+.config-dialog .list .row {
+	display: flex;
+	flex-direction: row;
+	gap: 8px;
+	align-items: center;
+	min-height: 26px;
+}
+
+.config-dialog .list .row .left {
+	width: 100px;
+	align-items: right;
+	font-weight: bold;
+	color: #888;
+	text-align: right;
+}
+
+.config-dialog .buttons {
+	padding-top: 12px;
+}
+.config-dialog .buttons .button {
+	min-width: 40px;
 }

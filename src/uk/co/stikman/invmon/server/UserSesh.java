@@ -11,11 +11,17 @@ public class UserSesh {
 	private long				lastTouched;
 	private Map<String, Object>	data		= new HashMap<>();
 	private AuthedSession		authedSession;
+	private HTTPServer			owner;
 
-	public UserSesh() {
+	public UserSesh(HTTPServer httpServer) {
 		super();
 		this.id = Long.toString(System.currentTimeMillis() ^ rng.nextLong(), 36);
+		this.owner = httpServer;
 		touch();
+	}
+
+	public HTTPServer getOwner() {
+		return owner;
 	}
 
 	public void touch() {
@@ -59,9 +65,12 @@ public class UserSesh {
 	 * @param role
 	 */
 	public void requireUserRole(UserRole role) {
-		if (authedSession == null)
-			throw new InvMonClientError("User not logged in");
-		if (authedSession.getUser().getRole() != role)
+		if (getOwner().getSecurityMode() == SecurityMode.ALLOW_ALL)
+			return;
+		UserRole r = UserRole.PUBLIC;
+		if (authedSession != null)
+			r = authedSession.getUser().getRole();
+		if (r.getLevel() < role.getLevel())
 			throw new InvMonClientError("User not authorised");
 	}
 

@@ -334,4 +334,10 @@ public class Env {
 		return out;
 	}
 
+	public List<String> getModuleNames() {
+		List<String> lst = new ArrayList<>();
+		parts.stream().map(x -> x.getId()).forEach(lst::add);
+		return lst;
+	}
+
 }

@@ -5,22 +5,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import org.w3c.dom.Element;
-
 import uk.co.stikman.invmon.Env;
 import uk.co.stikman.invmon.InvMonException;
-import uk.co.stikman.invmon.inverter.util.InvUtil;
+import uk.co.stikman.invmon.minidom.MDElement;
 
 public class HttpLayoutConfig {
 	private List<PageLayout>	pages	= new ArrayList<>();
 	private PageLayout			defaultPage;
 
-	public void configure(Env env, Element root) throws InvMonException {
-		for (Element el : InvUtil.getElements(root, "Page")) {
-			if (!InvUtil.getElements(el).isEmpty())
+	public void configure(Env env, MDElement root) throws InvMonException {
+		for (MDElement el : root.getElements("Page")) {
+			if (el.hasChildren())
 				throw new InvMonException("<Page> configuration elements must be in their own file");
 
-			String s = InvUtil.getAttrib(el, "source", null);
+			String s = el.getAttrib("source", null);
 			if (s == null)
 				throw new InvMonException("<Page> configuration element must have a `source` attribute");
 
@@ -33,7 +31,7 @@ public class HttpLayoutConfig {
 
 		if (defaultPage == null)
 			defaultPage = pages.get(0);
-		
+
 		loadPages();
 
 	}

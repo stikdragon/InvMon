@@ -5,6 +5,8 @@ import java.util.NoSuchElementException;
 import org.teavm.jso.JSBody;
 import org.teavm.jso.browser.Location;
 
+import uk.co.stikman.invmon.client.MessagePopup.Type;
+
 public class ClientUtil {
 	/**
 	 * return parameter, or <code>def</code> if it's not there. see also
@@ -47,9 +49,18 @@ public class ClientUtil {
 	}
 
 	public static void handleError(Exception e) {
-		ErrorPopup pop = InvMon.getErrorPopup();
-		pop.addMessage("Error: " + e.getMessage());
+		System.err.println(e.getMessage());
+		MessagePopup pop = InvMon.getMessagePopup();
+		pop.addMessage("Error: " + e.getMessage(), Type.ERROR);
 		pop.show();
+	}
+
+	public static void handleError(String errmsg) {
+		System.err.println(errmsg);
+		MessagePopup pop = InvMon.getMessagePopup();
+		pop.addMessage("Error: " + errmsg, Type.ERROR);
+		pop.show();
+
 	}
 
 	@JSBody(params = { "key", "value" }, script = "localStorage.setItem(key, value);")

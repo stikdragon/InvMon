@@ -1,4 +1,7 @@
-<ivy-module version="2.0">
+<!DOCTYPE ivy-module [
+	<!ENTITY teavm.version "0.9.0">
+]>
+<ivy-module version="2.0" xmlns:extra="http://ant.apache.org/ivy/extra">
 	<info organisation="uk.co.stikman" module="invmon" />
 
 	<dependencies>
@@ -6,12 +9,22 @@
 		<dependency org="commons-io" name="commons-io" rev="2.7" />
 		<dependency org="com.fazecast" name="jSerialComm" rev="[2.0.0,3.0.0)" />
 		<dependency org="org.nanohttpd" name="nanohttpd" rev="2.3.1" />
-		
-		<dependency org="org.teavm" name="teavm-classlib" rev="0.7.0"/>
-		<dependency org="org.teavm" name="teavm-jso" rev="0.7.0"/>
-		<dependency org="org.teavm" name="teavm-core" rev="0.7.0"/>
-		<dependency org="org.teavm" name="teavm-jso-apis" rev="0.7.0"/>
-		<dependency org="org.teavm" name="teavm-cli" rev="0.7.0"/>	
+
+		<dependency org="org.teavm" name="teavm-classlib" rev="&teavm.version;" />
+		<dependency org="org.teavm" name="teavm-jso" rev="&teavm.version;">
+			<artifact name="teavm-jso" />
+			<artifact name="teavm-jso" extra:classifier="sources" />
+		</dependency>
+		<dependency org="org.teavm" name="teavm-core" rev="&teavm.version;">
+			<artifact name="teavm-core" />
+			<artifact name="teavm-core" extra:classifier="sources" />
+		</dependency>
+		<dependency org="org.teavm" name="teavm-jso-apis" rev="&teavm.version;">
+			<artifact name="teavm-jso-apis" />
+			<artifact name="teavm-jso-apis" extra:classifier="sources" />
+		</dependency>
+		<dependency org="org.teavm" name="teavm-tooling" rev="&teavm.version;" />
+
 	</dependencies>
 
 

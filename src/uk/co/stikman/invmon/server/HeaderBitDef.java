@@ -2,26 +2,30 @@ package uk.co.stikman.invmon.server;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import org.w3c.dom.Element;
+import java.util.stream.Collectors;
 
 import uk.co.stikman.invmon.Env;
 import uk.co.stikman.invmon.datalog.DBRecord;
 import uk.co.stikman.invmon.datamodel.Field;
 import uk.co.stikman.invmon.inverter.util.Format;
-import uk.co.stikman.invmon.inverter.util.InvUtil;
+import uk.co.stikman.invmon.minidom.MDElement;
 
 public class HeaderBitDef {
 	private String			text;
 	private List<String>	fields	= new ArrayList<>();
 
-	public void configure(Element root) {
-		text = InvUtil.getAttrib(root, "text");
-		String flds = InvUtil.getAttrib(root, "fields");
+	public void fromDOM(MDElement root) {
+		text = root.getAttrib("text");
+		String flds = root.getAttrib("fields");
 		for (String s : flds.split(",")) {
 			s = s.trim();
 			fields.add(s);
 		}
+	}
+
+	public void toDOM(MDElement root) {
+		root.setAttrib("text", text);
+		root.setAttrib("fields", fields.stream().collect(Collectors.joining(",")));
 	}
 
 	public String execute(Env env, DBRecord lastrec) {
@@ -35,7 +39,7 @@ public class HeaderBitDef {
 		String s = fmt.format((Object[]) vals);
 		return boldSquareBits(s);
 	}
-	
+
 	protected String boldSquareBits(String s) {
 		//
 		// this is a bit of a hack, oh well - make anything inside [..] bolded

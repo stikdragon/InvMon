@@ -36,9 +36,12 @@ import uk.co.stikman.invmon.inverter.util.InvUtil;
 import uk.co.stikman.invmon.nanohttpd.NanoHTTPD;
 import uk.co.stikman.invmon.nanohttpd.NanoHTTPD.Response.Status;
 import uk.co.stikman.invmon.server.widgets.PageWidget;
+import uk.co.stikman.invmon.tooling.DevMode;
 import uk.co.stikman.log.StikLog;
 
 public class HTTPServer extends InvModule {
+
+	private static final int GRID_SIZE = 40;
 
 	private interface FetchMethod {
 		InvMonHTTPResponse fetch(String url, UserSesh sesh, InvMonHTTPRequest http) throws Exception;
@@ -47,15 +50,21 @@ public class HTTPServer extends InvModule {
 	public class HandlerMapping {
 		private final Pattern		pattern;
 		private final FetchMethod	method;
+		private UserRole			requiredRole;
 
-		public HandlerMapping(String match, FetchMethod method) {
+		public HandlerMapping(String match, UserRole role, FetchMethod method) {
 			super();
+			this.requiredRole = role;
 			this.pattern = Pattern.compile("^" + match + "$");
 			this.method = method;
 		}
 
 		public boolean test(String resource) {
 			return pattern.matcher(resource).matches();
+		}
+
+		public UserRole getRequiredRole() {
+			return requiredRole;
 		}
 
 		public FetchMethod getMethod() {
@@ -76,27 +85,12 @@ public class HTTPServer extends InvModule {
 
 	private EmbeddedServer				embeddedSvr;
 
+	private DevMode						devmode			= null;
+
+	private SecurityMode				securityMode;
+
 	public HTTPServer(String id, Env env) {
 		super(id, env);
-		mappings.add(new HandlerMapping(".*\\.(gif|png|css|html|js|svg)", this::resource));
-
-		mappings.add(new HandlerMapping("log", this::logPage));
-		mappings.add(new HandlerMapping("data", this::dataPage));
-
-		mappings.add(new HandlerMapping("api", this::executeApi));
-		mappings.add(new HandlerMapping("toString", this::toStringHandler));
-		mappings.add(new HandlerMapping("setParams", this::setParams));
-		mappings.add(new HandlerMapping("fetchUserLog", this::fetchUserLog));
-		mappings.add(new HandlerMapping("getUserDetails", this::getUserDetails));
-
-		mappings.add(new HandlerMapping("console", this::execConsoleCommand));
-
-		mappings.add(new HandlerMapping("getConfig", this::getConfig));
-		mappings.add(new HandlerMapping("invalidateResults", this::invalidateResults));
-		mappings.add(new HandlerMapping("login", this::login));
-		mappings.add(new HandlerMapping("logout", this::logout));
-
-		env.submitTimerTask(() -> env.submitTask(this::tidySessions), 60000);
 	}
 
 	private void tidySessions() {
@@ -145,12 +139,7 @@ public class HTTPServer extends InvModule {
 		String api = null;
 		String id = null;
 		try {
-			String data;
-			if (session.isMethod("POST"))
-				data = session.getBodyAsString();
-			else
-				data = URLDecoder.decode(session.getQueryParameterString(), StandardCharsets.UTF_8.name());
-			JSONObject jo = data == null ? new JSONObject() : new JSONObject(data);
+			JSONObject jo = getRequestJSONObject(session);
 			JSONObject args = new JSONObject(jo.optString("args", "{}"));
 			id = jo.getString("id");
 			api = jo.getString("api");
@@ -186,6 +175,27 @@ public class HTTPServer extends InvModule {
 				res.put("error", "Internal Error");
 			}
 			return new InvMonHTTPResponse(Status.INTERNAL_ERROR, "text/plain", res.toString());
+		}
+	}
+
+	/**
+	 * get the body (if POST) or query string (if GET) and decode it as json
+	 * 
+	 * @param session
+	 * @return
+	 * @throws UnsupportedEncodingException
+	 */
+	private JSONObject getRequestJSONObject(InvMonHTTPRequest session) throws InvMonException {
+		try {
+			String data;
+			if (session.isMethod("POST"))
+				data = session.getBodyAsString();
+			else
+				data = URLDecoder.decode(session.getQueryParameterString(), StandardCharsets.UTF_8.name());
+			JSONObject jo = data == null ? new JSONObject() : new JSONObject(data);
+			return jo;
+		} catch (Exception e) {
+			throw new InvMonException("Could not decode request data: " + e.getMessage(), e);
 		}
 	}
 
@@ -241,14 +251,47 @@ public class HTTPServer extends InvModule {
 	@Override
 	public void configure(Element config) throws InvMonException {
 		this.port = Integer.parseInt(InvUtil.getAttrib(config, "port"));
+		Element el = InvUtil.getElement(config, "DevMode", true);
+		if (el != null) {
+			devmode = new DevMode(el);
+		}
 		layoutConfig = new HttpLayoutConfig();
-		layoutConfig.configure(getEnv(), config);
+		layoutConfig.configure(getEnv(), InvUtil.miniDomFromReal(config));
 		users.configure(config);
+		String s = InvUtil.getAttrib(config, "security", "simple-user");
+		securityMode = SecurityMode.valueOf(s.toUpperCase());
+	}
+
+	public SecurityMode getSecurityMode() {
+		return securityMode;
 	}
 
 	@Override
 	public void start() throws InvMonException {
 		super.start();
+
+		if (devmode != null)
+			mappings.add(new HandlerMapping("classes\\.js", UserRole.PUBLIC, devmode::serve));
+		mappings.add(new HandlerMapping(".*\\.(gif|png|css|html|js|svg)", UserRole.PUBLIC, this::resource));
+
+		mappings.add(new HandlerMapping("log", UserRole.PUBLIC, this::logPage));
+		mappings.add(new HandlerMapping("data", UserRole.PUBLIC, this::dataPage));
+
+		mappings.add(new HandlerMapping("api", UserRole.PUBLIC, this::executeApi));
+		mappings.add(new HandlerMapping("toString", UserRole.PUBLIC, this::toStringHandler));
+		mappings.add(new HandlerMapping("setParams", UserRole.PUBLIC, this::setParams));
+		mappings.add(new HandlerMapping("fetchUserLog", UserRole.PUBLIC, this::fetchUserLog));
+		mappings.add(new HandlerMapping("getUserDetails", UserRole.PUBLIC, this::getUserDetails));
+
+		mappings.add(new HandlerMapping("console", UserRole.PUBLIC, this::execConsoleCommand));
+
+		mappings.add(new HandlerMapping("getConfig", UserRole.PUBLIC, this::getConfig));
+		mappings.add(new HandlerMapping("saveConfig", UserRole.ADMIN, this::savePageConfig));
+		mappings.add(new HandlerMapping("invalidateResults", UserRole.PUBLIC, this::invalidateResults));
+		mappings.add(new HandlerMapping("login", UserRole.PUBLIC, this::login));
+		mappings.add(new HandlerMapping("logout", UserRole.PUBLIC, this::logout));
+
+		getEnv().submitTimerTask(() -> getEnv().submitTask(this::tidySessions), 60000);
 
 		HTTPServicer intf = new HTTPServicer() {
 			@Override
@@ -288,10 +331,10 @@ public class HTTPServer extends InvModule {
 				url = "/index.html";
 			url = url.substring(1);
 
-			FetchMethod m = null;
+			HandlerMapping m = null;
 			for (HandlerMapping x : mappings) {
 				if (x.test(url)) {
-					m = x.getMethod();
+					m = x;
 					break;
 				}
 			}
@@ -305,15 +348,17 @@ public class HTTPServer extends InvModule {
 			synchronized (sessions) {
 				sesh = seshId == null ? null : sessions.get(seshId);
 				if (sesh == null) {
-					sesh = new UserSesh();
+					sesh = new UserSesh(this);
 					sessions.put(sesh.getId(), sesh);
 					setSeshCookie = true;
 				}
 			}
 			sesh.touch();
 
+
+			sesh.requireUserRole(m.getRequiredRole());
 			synchronized (sesh) {
-				InvMonHTTPResponse res = m.fetch(url, sesh, http);
+				InvMonHTTPResponse res = m.getMethod().fetch(url, sesh, http);
 				if (setSeshCookie)
 					res.addHeader("Set-Cookie", "sesh=" + sesh.getId());
 				return res;
@@ -327,15 +372,6 @@ public class HTTPServer extends InvModule {
 				return new InvMonHTTPResponse(Status.INTERNAL_ERROR, "text/plain", e.getMessage());
 			else
 				return new InvMonHTTPResponse(Status.INTERNAL_ERROR, "text/plain", "Internal Error");
-		}
-	}
-
-	private static JSONObject decodeQueryParams(InvMonHTTPRequest request) {
-		try {
-			JSONObject jo = new JSONObject(URLDecoder.decode(request.getQueryParameterString(), StandardCharsets.UTF_8.name()));
-			return jo;
-		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException("URLDecoded failed: " + e.getMessage(), e);
 		}
 	}
 
@@ -401,8 +437,21 @@ public class HTTPServer extends InvModule {
 		return new InvMonHTTPResponse(res.toString());
 	}
 
+	private InvMonHTTPResponse savePageConfig(String url, UserSesh sesh, InvMonHTTPRequest request) throws InvMonException {
+		JSONObject opts = getRequestJSONObject(request);
+		String name = opts.optString("page", null);
+		PageLayout pg;
+		if (name == null)
+			pg = layoutConfig.getDefaultPage();
+		else
+			pg = layoutConfig.getPage(name);
+
+		pg.saveToSource();
+		return new InvMonHTTPResponse("{}");
+	}
+
 	private InvMonHTTPResponse getConfig(String url, UserSesh sesh, InvMonHTTPRequest request) throws InvMonException {
-		JSONObject opts = decodeQueryParams(request);
+		JSONObject opts = getRequestJSONObject(request);
 		String name = opts.optString("page", null);
 		PageLayout pg = null;
 		if (name == null)
@@ -410,7 +459,7 @@ public class HTTPServer extends InvModule {
 		else
 			pg = layoutConfig.getPage(name);
 
-		int gs = 40;
+		int gs = GRID_SIZE;
 		JSONObject root = new JSONObject();
 		root.put("gridSize", gs);
 		JSONArray arr = new JSONArray();

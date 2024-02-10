@@ -4,15 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.json.JSONObject;
-import org.w3c.dom.Element;
 
 import uk.co.stikman.invmon.datalog.DBRecord;
 import uk.co.stikman.invmon.datamodel.DataModel;
-import uk.co.stikman.invmon.inverter.util.InvUtil;
+import uk.co.stikman.invmon.minidom.MDElement;
 import uk.co.stikman.invmon.server.HTMLBuilder;
 import uk.co.stikman.invmon.server.PageLayout;
 import uk.co.stikman.invmon.server.UserSesh;
 import uk.co.stikman.invmon.server.WebUtils;
+import uk.co.stikman.invmon.shared.OptionStringList;
+import uk.co.stikman.invmon.shared.WidgetConfigOptions;
 
 public class PVTableWidget extends PageWidget {
 
@@ -25,26 +26,30 @@ public class PVTableWidget extends PageWidget {
 
 	@Override
 	public JSONObject executeApi(UserSesh sesh, String api, JSONObject args) {
-		ensureCachedResults(sesh);
-		DBRecord rec = sesh.getData(WebUtils.CACHED_LAST_RECORD);
-		HTMLBuilder html = new HTMLBuilder();
-		DataModel mdl = getOwner().getEnv().getModel();
-		html.append("<table class=\"data\">");
-		html.append("<tr><td></td><th>P</th><th>V</th><th>I</th></tr>");
-		for (int i = 0; i < fieldNames.size(); ++i) {
-			html.append("<tr>");
-			html.append("<th>").append(descriptions.get(i)).append("</th>");
-			html.append("<td><span class=\"b\">").append((int) rec.getFloat(mdl.get(fieldNames.get(i) + "_P"))).append("</span>W</td>");
-			html.append("<td><span class=\"b\">").append((int) rec.getFloat(mdl.get(fieldNames.get(i) + "_V"))).append("</span>V</td>");
-			html.append(String.format("<td><span class=\"b\">%.1f</span>A</td>", rec.getFloat(mdl.get(fieldNames.get(i) + "_I"))));
-			html.append("</tr>");
+		if ("execute".equals(api)) {
+			ensureCachedResults(sesh);
+			DBRecord rec = sesh.getData(WebUtils.CACHED_LAST_RECORD);
+			HTMLBuilder html = new HTMLBuilder();
+			DataModel mdl = getOwner().getEnv().getModel();
+			html.append("<table class=\"data\">");
+			html.append("<tr><td></td><th>P</th><th>V</th><th>I</th></tr>");
+			for (int i = 0; i < fieldNames.size(); ++i) {
+				html.append("<tr>");
+				html.append("<th>").append(descriptions.get(i)).append("</th>");
+				html.append("<td><span class=\"b\">").append((int) rec.getFloat(mdl.get(fieldNames.get(i) + "_P"))).append("</span>W</td>");
+				html.append("<td><span class=\"b\">").append((int) rec.getFloat(mdl.get(fieldNames.get(i) + "_V"))).append("</span>V</td>");
+				html.append(String.format("<td><span class=\"b\">%.1f</span>A</td>", rec.getFloat(mdl.get(fieldNames.get(i) + "_I"))));
+				html.append("</tr>");
+			}
+
+			html.append("<tr class=\"total\"><th>Total</th><td colspan=\"3\"><span class=\"b\">").append((int) rec.getFloat(mdl.get("PV_TOTAL_P"))).append("</span>W</td></tr>");
+			html.append("</table>");
+			JSONObject jo = new JSONObject();
+			jo.put("html", html.toString());
+			return jo;
 		}
 
-		html.append("<tr class=\"total\"><th>Total</th><td colspan=\"3\"><span class=\"b\">").append((int) rec.getFloat(mdl.get("PV_TOTAL_P"))).append("</span>W</td></tr>");
-		html.append("</table>");
-		JSONObject jo = new JSONObject();
-		jo.put("html", html.toString());
-		return jo;
+		return super.executeApi(sesh, api, args);
 	}
 
 	@Override
@@ -53,9 +58,9 @@ public class PVTableWidget extends PageWidget {
 	}
 
 	@Override
-	public void configure(Element root) {
-		super.configure(root);
-		String fields = InvUtil.getAttrib(root, "fields");
+	public void fromDOM(MDElement root) {
+		super.fromDOM(root);
+		String fields = root.getAttrib("fields");
 		for (String fld : fields.split(",")) {
 			String name = fld;
 			int pos = fld.indexOf(':');
@@ -67,6 +72,34 @@ public class PVTableWidget extends PageWidget {
 			fieldNames.add(fld);
 			descriptions.add(name);
 		}
+	}
+
+	@Override
+	public void toDOM(MDElement root) {
+		super.toDOM(root);
+		StringBuilder sb = new StringBuilder();
+		String sep = "";
+		for (int i = 0; i < fieldNames.size(); ++i) {
+			sb.append(sep).append(fieldNames.get(i)).append(":").append(descriptions.get(i));
+			sep = ",";
+		}
+		root.setAttrib("fields", sb.toString());
+	}
+
+	@Override
+	public WidgetConfigOptions getConfigOptions() {
+		WidgetConfigOptions wco = new WidgetConfigOptions();
+		wco.add(new OptionStringList("fields", "Fields", fieldNames));
+		wco.add(new OptionStringList("desc", "Descriptions", descriptions));
+		return wco;
+	}
+
+	@Override
+	public void applyConfigOptions(WidgetConfigOptions opts) {
+		fieldNames = new ArrayList<>();
+		descriptions = new ArrayList<>();
+		fieldNames.addAll(opts.get("fields", OptionStringList.class).getValue());
+		descriptions.addAll(opts.get("desc", OptionStringList.class).getValue());
 	}
 
 }
