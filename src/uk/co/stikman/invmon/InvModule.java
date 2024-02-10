@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.w3c.dom.Element;
 
-import uk.co.stikman.invmon.minidom.MDElement;
 import uk.co.stikman.invmon.server.Console;
 import uk.co.stikman.invmon.server.InvMonClientError;
 import uk.co.stikman.utils.Utils;

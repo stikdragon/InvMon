@@ -1,7 +1,6 @@
 package uk.co.stikman.invmon.client;
 
 import org.json.JSONObject;
-import org.teavm.jso.browser.Window;
 import org.teavm.jso.dom.html.HTMLElement;
 import org.teavm.jso.dom.html.HTMLInputElement;
 

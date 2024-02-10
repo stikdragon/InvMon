@@ -46,4 +46,8 @@ public class OptionString extends Option {
 		value = root.getString("value");
 	}
 
+	public void setValue(String value) {
+		this.value = value;
+	}
+
 }

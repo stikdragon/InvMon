@@ -69,9 +69,10 @@ public class InvUtil {
 	public static void writeMiniDOM(MiniDOM mini, File file) throws IOException {
 		try {
 			Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-
+			
+			doc.appendChild(doc.createElement("Page"));
 			convertElement(mini, doc.getDocumentElement());
-
+			
 			TransformerFactory xf = TransformerFactory.newInstance();
 			Transformer tf = xf.newTransformer();
 			tf.setOutputProperty(javax.xml.transform.OutputKeys.INDENT, "yes"); // Set 

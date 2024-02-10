@@ -5,11 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import org.w3c.dom.Element;
-
 import uk.co.stikman.invmon.Env;
 import uk.co.stikman.invmon.InvMonException;
-import uk.co.stikman.invmon.inverter.util.InvUtil;
 import uk.co.stikman.invmon.minidom.MDElement;
 
 public class HttpLayoutConfig {

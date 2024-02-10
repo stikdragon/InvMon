@@ -1,7 +1,5 @@
 package uk.co.stikman.invmon.client.wij;
 
-import java.util.function.Consumer;
-
 import org.json.JSONObject;
 import org.teavm.jso.dom.html.HTMLElement;
 

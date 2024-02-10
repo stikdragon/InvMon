@@ -4,7 +4,6 @@ import org.teavm.jso.browser.Window;
 import org.teavm.jso.dom.html.HTMLDocument;
 import org.teavm.jso.dom.html.HTMLElement;
 import org.teavm.jso.dom.xml.Element;
-import org.teavm.jso.dom.xml.Node;
 
 public class InvMon {
 
@@ -13,7 +12,7 @@ public class InvMon {
 	private static Window		browserWindow;
 	private static HTMLDocument	doc;
 	private LoggedInUser		user;
-	private static ErrorPopup	errorPopup;
+	private static MessagePopup	msgPopup;
 
 	//
 	// just a couple of shortcuts
@@ -50,10 +49,10 @@ public class InvMon {
 		mainpage.load();
 	}
 
-	public static ErrorPopup getErrorPopup() {
-		if (errorPopup == null)
-			errorPopup = new ErrorPopup();
-		return errorPopup;
+	public static MessagePopup getMessagePopup() {
+		if (msgPopup == null)
+			msgPopup = new MessagePopup();
+		return msgPopup;
 	}
 
 	public static Element createSvgElement(String type) {

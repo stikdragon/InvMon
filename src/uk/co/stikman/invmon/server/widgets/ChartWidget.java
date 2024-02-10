@@ -2,14 +2,13 @@ package uk.co.stikman.invmon.server.widgets;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.w3c.dom.Element;
 
 import uk.co.stikman.invmon.datalog.DBRecord;
 import uk.co.stikman.invmon.datalog.QueryResults;
-import uk.co.stikman.invmon.inverter.util.InvUtil;
 import uk.co.stikman.invmon.minidom.MDElement;
 import uk.co.stikman.invmon.server.Axis;
 import uk.co.stikman.invmon.server.ChartOptions;
@@ -21,7 +20,6 @@ import uk.co.stikman.invmon.server.PageLayout;
 import uk.co.stikman.invmon.server.Series;
 import uk.co.stikman.invmon.server.UserSesh;
 import uk.co.stikman.invmon.server.WebUtils;
-import uk.co.stikman.invmon.shared.OptionEnum;
 import uk.co.stikman.invmon.shared.OptionString;
 import uk.co.stikman.invmon.shared.WidgetConfigOptions;
 
@@ -36,8 +34,8 @@ public class ChartWidget extends PageWidget {
 	}
 
 	@Override
-	public void configure(MDElement root) {
-		super.configure(root);
+	public void fromDOM(MDElement root) {
+		super.fromDOM(root);
 		cssClass = root.getAttrib("cssClass", null);
 		opts = new ChartOptions();
 
@@ -73,6 +71,8 @@ public class ChartWidget extends PageWidget {
 				}
 				if (el.hasAttrib("min"))
 					ax.setForceMin(Float.parseFloat(el.getAttrib("min")));
+				if (el.hasAttrib("max"))
+					ax.setForceMax(Float.parseFloat(el.getAttrib("max")));
 				ax.setEnabled(true);
 			} else if ("HeaderBit".equals(el.getName())) {
 				String special = el.getAttrib("special", null);
@@ -83,13 +83,56 @@ public class ChartWidget extends PageWidget {
 						throw new IllegalArgumentException("Unknown special HeaderBit type: " + special);
 				} else {
 					HeaderBitDef hb = new HeaderBitDef();
-					hb.configure(el);
+					hb.fromDOM(el);
 					headerBits.add(hb);
 				}
 			} else
 				throw new IllegalArgumentException("Unexpected element in Widget: " + el.getName());
 		}
 
+	}
+
+	@Override
+	public void toDOM(MDElement root) {
+		super.toDOM(root);
+
+		root.setAttrib("cssClass", cssClass);
+		for (Series ser : opts.getSeries()) {
+			MDElement el = root.add("Series");
+			el.setAttrib("field", ser.getField());
+			String s = ser.getSubfields().stream().collect(Collectors.joining(","));
+			if (!s.isEmpty())
+				el.setAttrib("subfields", s);
+			if (ser.getYAxisId() == opts.getAxisY1().getId())
+				el.setAttrib("axis", "y1");
+			else if (ser.getYAxisId() == opts.getAxisY2().getId())
+				el.setAttrib("axis", "y2");
+		}
+
+		writeAxisToDom(root, "x1", opts.getAxisX1());
+		writeAxisToDom(root, "y1", opts.getAxisY1());
+		writeAxisToDom(root, "y2", opts.getAxisY2());
+
+		for (HeaderBitDef hb : headerBits) {
+			MDElement el = root.add("HeaderBit");
+			// TODO: i don't like this bit
+			if (hb instanceof HeaderBitPF)
+				el.setAttrib("special", "powerfactor");
+			else
+				hb.toDOM(el);
+		}
+
+	}
+
+	private void writeAxisToDom(MDElement root, String id, Axis ax) {
+		MDElement el = root.add("Axis");
+		el.setAttrib("id", id);
+		el.setAttrib("formatter", ax.getFormat());
+		if (ax.getForceMin() != null)
+			el.setAttrib("min", ax.getForceMin().floatValue());
+		if (ax.getForceMax() != null)
+			el.setAttrib("max", ax.getForceMax());
+		el.setAttrib("enabled", ax.isEnabled());
 	}
 
 	@Override

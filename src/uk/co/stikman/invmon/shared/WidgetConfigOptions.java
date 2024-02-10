@@ -14,6 +14,10 @@ import uk.co.stikman.invmon.inverter.util.StringerOutputStream;
 public class WidgetConfigOptions implements Iterable<Option> {
 	private List<Option> options = new ArrayList<>();
 
+	public WidgetConfigOptions() {
+		super();
+	}
+
 	public List<Option> getOptions() {
 		return options;
 	}

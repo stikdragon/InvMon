@@ -12,9 +12,11 @@ import org.json.JSONObject;
 import org.teavm.jso.browser.Location;
 import org.teavm.jso.browser.Window;
 import org.teavm.jso.dom.events.KeyboardEvent;
+import org.teavm.jso.dom.events.MouseEvent;
 import org.teavm.jso.dom.html.HTMLElement;
 
 import uk.co.stikman.invmon.Events;
+import uk.co.stikman.invmon.client.MessagePopup.Type;
 import uk.co.stikman.invmon.client.wij.ChartWidget;
 import uk.co.stikman.invmon.client.wij.ControlsWidget;
 import uk.co.stikman.invmon.client.wij.InfoBitWidget;
@@ -42,6 +44,10 @@ public class StandardPage extends ClientPage {
 	private boolean															lastRequestFinished	= true;
 
 	private ConsolePopup													console;
+
+	private HTMLElement														configButton;
+
+	private String															pageName;
 	private static Map<String, Function<StandardPage, AbstractPageWidget>>	pageTypes			= new HashMap<>();
 
 	static {
@@ -87,6 +93,53 @@ public class StandardPage extends ClientPage {
 				ev2.preventDefault();
 			}
 		});
+
+		configButton = InvMon.div("config-button");
+		HTMLElement span = InvMon.element("span", "icon");
+		configButton.appendChild(span);
+		root.appendChild(configButton);
+		configButton.addEventListener("click", ev -> {
+			ev.stopPropagation();
+			MouseEvent ev2 = (MouseEvent) ev;
+			Menu mnu = new Menu();
+			mnu.addItem("Login", () -> doLogin());
+			mnu.addItem("Show log..", this::showLogWindow);
+			mnu.addItem("Show layout", this::showLayout);
+			mnu.addItem("Console..", this::showConsole);
+			mnu.addItem("Save page config", this::savePageConfig);
+			mnu.showAt(ev2.getClientX(), ev2.getClientY());
+		});
+	}
+
+	private void savePageConfig() {
+		JSONObject jo = new JSONObject();
+		jo.put("page", pageName);
+		post("saveConfig", jo, res -> {
+			InvMon.getMessagePopup().addMessage("Saved", Type.MESSAGE);
+		});
+	}
+
+	private void showLogWindow() {
+		fetch("fetchUserLog", new JSONObject(), result -> {
+			TextPopup wnd = new TextPopup(this, result.getString("log"));
+			wnd.showModal();
+		}, err -> {
+			ClientUtil.handleError(err);
+		});
+	}
+
+	private void showLayout() {
+		int gs = getGridSize();
+		StringBuilder sb = new StringBuilder();
+		for (AbstractPageWidget w : getWidgets()) {
+			sb.append(w.getId()).append(": ").append(w.getName()).append(" - ");
+			sb.append((int) (w.getX() / gs)).append(", ");
+			sb.append((int) (w.getY() / gs)).append(", ");
+			sb.append((int) (w.getWidth() / gs)).append(", ");
+			sb.append((int) (w.getHeight() / gs)).append("\n");
+		}
+		TextPopup wnd = new TextPopup(this, sb.toString());
+		wnd.showModal();
 	}
 
 	@Override
@@ -95,15 +148,16 @@ public class StandardPage extends ClientPage {
 	}
 
 	public void load() {
+		Map<String, String> urlparams = InvUtil.getLocationParameters(Window.current().getLocation().getSearch());
 		Map<String, String> hashparams = InvUtil.getLocationParameters(Window.current().getLocation().getHash());
 		setDataRange(hashparams.containsKey("off") ? Integer.parseInt(hashparams.get("off")) : 0, hashparams.containsKey("dur") ? Integer.parseInt(hashparams.get("dur")) : 60);
+		this.pageName = urlparams.get("layout");
 
 		//
 		// query server for layout
 		//
-		Map<String, String> urlparams = InvUtil.getLocationParameters(Window.current().getLocation().getSearch());
 		JSONObject jo = new JSONObject();
-		jo.put("page", urlparams.get("layout"));
+		jo.put("page", pageName);
 		fetch("getConfig", jo, result -> {
 			gridSize = result.getInt("gridSize");
 			JSONArray arr = result.getJSONArray("widgets");

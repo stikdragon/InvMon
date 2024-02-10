@@ -1,6 +1,9 @@
 package uk.co.stikman.invmon;
 
-import static uk.co.stikman.invmon.inverter.util.InvUtil.*;
+import static uk.co.stikman.invmon.inverter.util.InvUtil.getAttrib;
+import static uk.co.stikman.invmon.inverter.util.InvUtil.getElement;
+import static uk.co.stikman.invmon.inverter.util.InvUtil.getElements;
+import static uk.co.stikman.invmon.inverter.util.InvUtil.loadXML;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,7 +21,6 @@ import uk.co.stikman.invmon.remote.JSONRecv;
 import uk.co.stikman.invmon.remote.JSONSend;
 import uk.co.stikman.invmon.serialrepeater.SerialRepeater;
 import uk.co.stikman.invmon.server.HTTPServer;
-import uk.co.stikman.log.Level;
 
 public class Config {
 

@@ -40,7 +40,18 @@ public class MDElement implements Iterable<MDElement> {
 	}
 
 	public void setAttrib(String key, String val) {
-		attribs.put(key, val);
+		if (val == null)
+			attribs.remove(key);
+		else
+			attribs.put(key, val);
+	}
+	
+	public void setAttrib(String key, float f) {
+		setAttrib(key, Float.toString(f));
+	}
+
+	public void setAttrib(String key, boolean b) {
+		setAttrib(key, b ? "true" : "false");
 	}
 
 	public Map<String, String> getAttribs() {
@@ -97,5 +108,13 @@ public class MDElement implements Iterable<MDElement> {
 	public boolean hasChildren() {
 		return !elements.isEmpty();
 	}
+
+	public MDElement add(String name) {
+		MDElement e = new MDElement(name);
+		append(e);
+		return e;
+	}
+
+
 
 }

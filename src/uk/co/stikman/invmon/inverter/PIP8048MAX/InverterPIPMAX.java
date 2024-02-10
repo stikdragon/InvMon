@@ -19,6 +19,7 @@ import uk.co.stikman.invmon.Sample;
 import uk.co.stikman.invmon.datamodel.InverterMode;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
 import uk.co.stikman.invmon.server.Console;
+import uk.co.stikman.invmon.server.UserRole;
 import uk.co.stikman.log.StikLog;
 import uk.co.stikman.table.DataTable;
 
@@ -138,6 +139,7 @@ public class InverterPIPMAX extends InverterMonitor {
 
 		try {
 			if (cmd.startsWith("set float voltage")) {
+				console.getSession().requireUserRole(UserRole.ADMIN);
 				String s = cmd.substring(18);
 				float v = Float.parseFloat(s);
 				synchronized (inv) {
@@ -145,8 +147,9 @@ public class InverterPIPMAX extends InverterMonitor {
 				}
 				return new ConsoleResponse("OK");
 			}
-			
+
 			if (cmd.startsWith("set bulk voltage")) {
+				console.getSession().requireUserRole(UserRole.ADMIN);
 				String s = cmd.substring(17);
 				float v = Float.parseFloat(s);
 				synchronized (inv) {
@@ -156,6 +159,7 @@ public class InverterPIPMAX extends InverterMonitor {
 			}
 
 			if (cmd.startsWith("set output prio ")) {
+				console.getSession().requireUserRole(UserRole.ADMIN);
 				String s = cmd.substring(16);
 				synchronized (inv) {
 					inv.setOutputMode(OutputMode.fromShort(s));

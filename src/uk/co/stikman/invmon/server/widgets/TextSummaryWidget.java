@@ -1,10 +1,8 @@
 package uk.co.stikman.invmon.server.widgets;
 
 import org.json.JSONObject;
-import org.w3c.dom.Element;
 
 import uk.co.stikman.invmon.InvModule;
-import uk.co.stikman.invmon.inverter.util.InvUtil;
 import uk.co.stikman.invmon.minidom.MDElement;
 import uk.co.stikman.invmon.server.PageLayout;
 import uk.co.stikman.invmon.server.UserSesh;
@@ -44,9 +42,15 @@ public class TextSummaryWidget extends PageWidget {
 	}
 
 	@Override
-	public void configure(MDElement root) throws IllegalArgumentException {
-		super.configure(root);
+	public void fromDOM(MDElement root) throws IllegalArgumentException {
+		super.fromDOM(root);
 		this.moduleName = root.getAttrib("module");
+	}
+
+	@Override
+	public void toDOM(MDElement root) {
+		super.toDOM(root);
+		root.setAttrib("module", moduleName);
 	}
 
 	public String getModuleName() {

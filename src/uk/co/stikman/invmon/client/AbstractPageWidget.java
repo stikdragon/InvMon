@@ -3,10 +3,13 @@ package uk.co.stikman.invmon.client;
 import java.util.function.Consumer;
 
 import org.json.JSONObject;
+import org.teavm.jso.browser.Window;
 import org.teavm.jso.dom.events.Event;
 import org.teavm.jso.dom.events.MouseEvent;
 import org.teavm.jso.dom.html.HTMLElement;
 
+import uk.co.stikman.invmon.Events;
+import uk.co.stikman.invmon.client.MessagePopup.Type;
 import uk.co.stikman.invmon.shared.WidgetConfigOptions;
 
 public abstract class AbstractPageWidget {
@@ -28,6 +31,7 @@ public abstract class AbstractPageWidget {
 	private int					startX;
 	private int					startH;
 	private int					startW;
+	private int					lastTimeout		= -1;
 
 	private static int			zIndexCounter	= 0;
 
@@ -99,8 +103,12 @@ public abstract class AbstractPageWidget {
 			ev.stopPropagation();
 			ev.preventDefault();
 			Menu mnu = new Menu();
-			mnu.addItem("Configure...", this::configure);
-			mnu.showAt(ev.getClientX(), ev.getClientY());
+			mnu.addItem("Configure...", this::doConfigureDialog);
+
+			Window window = Window.current();
+			//			int offx = window.getScrollX(); // missing atm
+			int offy = window.getScrollY();
+			mnu.showAt(ev.getClientX(), ev.getClientY() + offy);
 		}
 	}
 
@@ -108,19 +116,28 @@ public abstract class AbstractPageWidget {
 		event.preventDefault();
 	}
 
-	protected void configure() {
+	protected void doConfigureDialog() {
 		InvMon.INSTANCE.mask();
 		api("getConfig", null, res -> {
 			InvMon.INSTANCE.unmask();
 			WidgetConfigOptions co = new WidgetConfigOptions();
 			co.fromJSON(res);
 			ConfigPopupWindow wnd = new ConfigPopupWindow(getOwner(), co, ok -> {
+				JSONObject jo = new JSONObject();
+				ok.toJSON(jo);
+				getOwner().getBus().fire(Events.REFRESH_NOW, null);
+				api("setConfig", jo, v -> reload());
 			});
 			wnd.showModal();
+			
 		}, err -> {
 			InvMon.INSTANCE.unmask();
-			InvMon.getErrorPopup().addMessage(err.getMessage());
+			InvMon.getMessagePopup().addMessage(err.getMessage(), Type.ERROR);
 		});
+	}
+
+	private void reload() {
+
 	}
 
 	protected StandardFrame createStandardFrame(HTMLElement parent, boolean header, String mainclass) {
@@ -151,6 +168,7 @@ public abstract class AbstractPageWidget {
 				int gs = ((StandardPage) owner).getGridSize();
 				x = gs * (int) (nx / gs);
 				y = gs * (int) (ny / gs);
+				layoutUpdated();
 				doLayout(root);
 			});
 
@@ -184,6 +202,7 @@ public abstract class AbstractPageWidget {
 				int gs = ((StandardPage) owner).getGridSize();
 				width = gs * (int) (nx / gs);
 				height = gs * (int) (ny / gs);
+				layoutUpdated();
 				doLayout(root);
 			});
 
@@ -201,8 +220,28 @@ public abstract class AbstractPageWidget {
 		else
 			root.addEventListener("mousedown", this::showContextMenu);
 		root.addEventListener("click", this::mouseClick);
+		elError.addEventListener("mousedown", this::showContextMenu); // add it to the error mask too, so you can configure something you broke
 
 		return a;
+	}
+
+	/**
+	 * we'll set a timeout to send this back to the server, to avoid spamming it
+	 */
+	private void layoutUpdated() {
+		if (lastTimeout != -1)
+			Window.clearTimeout(lastTimeout);
+		lastTimeout = Window.setTimeout(() -> {
+			lastTimeout = -1;
+			JSONObject jo = new JSONObject();
+			int gs = ((StandardPage) owner).getGridSize();
+			jo.put("x", x / gs);
+			jo.put("y", y / gs);
+			jo.put("w", width / gs);
+			jo.put("h", height / gs);
+			api("setPosition", jo, v -> {
+			});
+		}, 500);
 	}
 
 	public String getName() {
@@ -210,7 +249,7 @@ public abstract class AbstractPageWidget {
 	}
 
 	protected void api(String api, JSONObject args, Consumer<JSONObject> response) {
-		api(api, args, response, ex -> InvMon.getErrorPopup().addMessage("Error: " + ex.getMessage()));
+		api(api, args, response, ex -> InvMon.getMessagePopup().addMessage("Error: " + ex.getMessage(), Type.ERROR));
 	}
 
 	protected void api(String api, JSONObject args, Consumer<JSONObject> response, Consumer<Exception> error) {

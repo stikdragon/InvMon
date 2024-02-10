@@ -4,22 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.json.JSONObject;
-import org.w3c.dom.Element;
 
 import uk.co.stikman.invmon.datalog.DBRecord;
 import uk.co.stikman.invmon.datamodel.DataModel;
-import uk.co.stikman.invmon.inverter.util.InvUtil;
 import uk.co.stikman.invmon.minidom.MDElement;
 import uk.co.stikman.invmon.server.HTMLBuilder;
 import uk.co.stikman.invmon.server.PageLayout;
 import uk.co.stikman.invmon.server.UserSesh;
 import uk.co.stikman.invmon.server.WebUtils;
-import uk.co.stikman.invmon.server.widgets.GaugeWidget.Mode;
-import uk.co.stikman.invmon.shared.OptionEnum;
-import uk.co.stikman.invmon.shared.OptionFloat;
-import uk.co.stikman.invmon.shared.OptionString;
 import uk.co.stikman.invmon.shared.OptionStringList;
-import uk.co.stikman.invmon.shared.OptionType;
 import uk.co.stikman.invmon.shared.WidgetConfigOptions;
 
 public class PVTableWidget extends PageWidget {
@@ -65,8 +58,8 @@ public class PVTableWidget extends PageWidget {
 	}
 
 	@Override
-	public void configure(MDElement root) {
-		super.configure(root);
+	public void fromDOM(MDElement root) {
+		super.fromDOM(root);
 		String fields = root.getAttrib("fields");
 		for (String fld : fields.split(",")) {
 			String name = fld;
@@ -79,6 +72,18 @@ public class PVTableWidget extends PageWidget {
 			fieldNames.add(fld);
 			descriptions.add(name);
 		}
+	}
+
+	@Override
+	public void toDOM(MDElement root) {
+		super.toDOM(root);
+		StringBuilder sb = new StringBuilder();
+		String sep = "";
+		for (int i = 0; i < fieldNames.size(); ++i) {
+			sb.append(sep).append(fieldNames.get(i)).append(":").append(descriptions.get(i));
+			sep = ",";
+		}
+		root.setAttrib("fields", sb.toString());
 	}
 
 	@Override

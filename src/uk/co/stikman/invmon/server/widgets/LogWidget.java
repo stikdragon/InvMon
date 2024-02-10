@@ -8,10 +8,6 @@ import org.json.JSONObject;
 
 import uk.co.stikman.invmon.server.PageLayout;
 import uk.co.stikman.invmon.server.UserSesh;
-import uk.co.stikman.invmon.server.widgets.GaugeWidget.Mode;
-import uk.co.stikman.invmon.shared.OptionEnum;
-import uk.co.stikman.invmon.shared.OptionFloat;
-import uk.co.stikman.invmon.shared.OptionString;
 import uk.co.stikman.invmon.shared.WidgetConfigOptions;
 
 public class LogWidget extends PageWidget {

@@ -1,7 +1,8 @@
 package uk.co.stikman.invmon.server.widgets;
 
+import java.util.NoSuchElementException;
+
 import org.json.JSONObject;
-import org.w3c.dom.Element;
 
 import uk.co.stikman.invmon.datalog.DBRecord;
 import uk.co.stikman.invmon.datamodel.Field;
@@ -31,13 +32,13 @@ public class GaugeWidget extends PageWidget {
 		NORMAL, PERCENT, CURRENT, VOLTAGE
 	}
 
-	private ColourBandingOptions	colours	= new ColourBandingOptions();
 	private Mode					mode	= Mode.NORMAL;
 	private String					fieldname;
 	private float					rangeMin;
 	private float					rangeMax;
 	private float					arcsize	= 200.0f;
 	private ValueFormat				valueFormat;
+	private ColourBandingOptions	cachedColourBanding;
 
 	public GaugeWidget(PageLayout owner) {
 		super(owner);
@@ -152,7 +153,7 @@ public class GaugeWidget extends PageWidget {
 			maxX = max(maxX, x0, x1, x2, x3);
 			maxY = max(maxY, y0, y1, y2, y3);
 
-			String c = colours.eval((float) seg / segments);
+			String c = getColours().eval((float) seg / segments);
 			html.append("<path fill=\"" + c + "\" stroke=\"none\" d=\"");
 			html.append(String.format("M %.3f %.3f L %.3f %.3f L %.3f %.3f L %.3f %.3f", x0, y0, x1, y1, x2, y2, x3, y3));
 			html.append("\" />");
@@ -200,8 +201,8 @@ public class GaugeWidget extends PageWidget {
 	}
 
 	@Override
-	public void configure(MDElement root) throws IllegalArgumentException {
-		super.configure(root);
+	public void fromDOM(MDElement root) throws IllegalArgumentException {
+		super.fromDOM(root);
 		fieldname = root.getAttrib("field");
 		mode = Mode.valueOf(root.getAttrib("mode", "normal").toUpperCase());
 		String s = root.getAttrib("range");
@@ -212,31 +213,46 @@ public class GaugeWidget extends PageWidget {
 		rangeMax = Float.parseFloat(s.substring(p + 1));
 		valueFormat = ValueFormat.valueOf(root.getAttrib("text", "normal").toUpperCase());
 		arcsize = Float.parseFloat(root.getAttrib("arclength", "210"));
+		cachedColourBanding = null;
+	}
 
-		colours = new ColourBandingOptions();
-		switch (mode) {
-			case SPLIT:
-				colours.addBand(0.00f, 0.50f, 0xff0000, 0xcccccc);
-				colours.addBand(0.50f, 1.00f, 0xcccccc, 0x00ff00);
-				break;
-			case NORMAL:
-				colours.addBand(0.00f, 0.23f, 0x0000bf, 0x0000bf);
-				colours.addBand(0.23f, 0.45f, 0x0000bf, 0x00bfbf);
-				colours.addBand(0.45f, 0.67f, 0x00bfbf, 0x00bf00);
-				colours.addBand(0.67f, 1.00f, 0x00bf00, 0x00bf00);
-				break;
-			default:
-				break;
-
+	private ColourBandingOptions getColours() {
+		if (cachedColourBanding == null) {
+			ColourBandingOptions colours = new ColourBandingOptions();
+			switch (mode) {
+				case SPLIT:
+					colours.addBand(0.00f, 0.50f, 0xff0000, 0xcccccc);
+					colours.addBand(0.50f, 1.00f, 0xcccccc, 0x00ff00);
+					break;
+				case NORMAL:
+					colours.addBand(0.00f, 0.23f, 0x0000bf, 0x0000bf);
+					colours.addBand(0.23f, 0.45f, 0x0000bf, 0x00bfbf);
+					colours.addBand(0.45f, 0.67f, 0x00bfbf, 0x00bf00);
+					colours.addBand(0.67f, 1.00f, 0x00bf00, 0x00bf00);
+					break;
+				default:
+					throw new NoSuchElementException(mode.name());
+			}
+			cachedColourBanding = colours;
 		}
+		return cachedColourBanding;
+	}
 
+	@Override
+	public void toDOM(MDElement root) {
+		super.toDOM(root);
+		root.setAttrib("field", fieldname);
+		root.setAttrib("mode", mode.name().toLowerCase());
+		root.setAttrib("range", rangeMin + "," + rangeMax);
+		root.setAttrib("text", valueFormat.name().toLowerCase());
+		root.setAttrib("arclength", arcsize);
 	}
 
 	@Override
 	public WidgetConfigOptions getConfigOptions() {
 		WidgetConfigOptions wco = new WidgetConfigOptions();
 		wco.add(new OptionString("fldname", "Field Name", fieldname, OptionType.STRING));
-		wco.add(new OptionEnum("mode", "Mode", mode.name(), "NORMAL,SPLIT"));
+		wco.add(new OptionEnum("mode", "Colour Mode", mode.name(), "NORMAL,SPLIT"));
 		wco.add(new OptionFloat("min", "Lower Range", rangeMin));
 		wco.add(new OptionFloat("max", "Upper Range", rangeMax));
 		wco.add(new OptionFloat("arclen", "Arc Length", arcsize));
@@ -250,6 +266,7 @@ public class GaugeWidget extends PageWidget {
 		rangeMin = opts.get("min", OptionFloat.class).getValue();
 		rangeMax = opts.get("max", OptionFloat.class).getValue();
 		arcsize = opts.get("arclen", OptionFloat.class).getValue();
+		cachedColourBanding = null;
 	}
 
 }

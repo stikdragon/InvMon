@@ -5,7 +5,6 @@ import uk.co.stikman.invmon.Env;
 import uk.co.stikman.invmon.InvModule;
 import uk.co.stikman.invmon.InvMonException;
 import uk.co.stikman.table.DataTable;
-import uk.co.stikman.utils.Utils;
 
 public class Console {
 

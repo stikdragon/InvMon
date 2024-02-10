@@ -34,4 +34,5 @@ public abstract class Option {
 	public void fromJSON(JSONObject root) {
 		display = root.getString("display");
 	}
+
 }

@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.json.JSONObject;
-import org.w3c.dom.Element;
 
 import uk.co.stikman.invmon.datalog.QueryRecord;
 import uk.co.stikman.invmon.datalog.QueryResults;
@@ -125,11 +124,6 @@ public class DailyPowerSummaryWidget extends PageWidget {
 	@Override
 	public String getClientWidgetType() {
 		return "serverside";
-	}
-
-	@Override
-	public void configure(MDElement root) {
-		super.configure(root);
 	}
 
 	@Override

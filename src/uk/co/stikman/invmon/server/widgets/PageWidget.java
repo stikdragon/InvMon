@@ -1,7 +1,6 @@
 package uk.co.stikman.invmon.server.widgets;
 
 import org.json.JSONObject;
-import org.w3c.dom.Element;
 
 import uk.co.stikman.invmon.FieldNameList;
 import uk.co.stikman.invmon.InvMonException;
@@ -9,7 +8,6 @@ import uk.co.stikman.invmon.datalog.DataLogger;
 import uk.co.stikman.invmon.datalog.MiniDbException;
 import uk.co.stikman.invmon.datalog.QueryResults;
 import uk.co.stikman.invmon.datamodel.Field;
-import uk.co.stikman.invmon.inverter.util.InvUtil;
 import uk.co.stikman.invmon.minidom.MDElement;
 import uk.co.stikman.invmon.server.InvMonClientError;
 import uk.co.stikman.invmon.server.PageLayout;
@@ -40,7 +38,7 @@ public abstract class PageWidget {
 		return id;
 	}
 
-	public void configure(MDElement root) {
+	public void fromDOM(MDElement root) {
 		id = root.getAttrib("id");
 		String s = root.getAttrib("layout");
 		String[] bits = s.split(",");
@@ -63,8 +61,18 @@ public abstract class PageWidget {
 			return getConfig(args);
 		else if ("setConfig".equals(api))
 			return setConfig(sesh, args);
+		else if ("setPosition".equals(api))
+			return setPosition(args);
 
 		throw new InvMonClientError("API [" + api + "] not supported");
+	}
+
+	private JSONObject setPosition(JSONObject args) {
+		this.x = args.getInt("x");
+		this.y = args.getInt("y");
+		this.width = args.getInt("w");
+		this.height = args.getInt("h");
+		return new JSONObject();
 	}
 
 	private JSONObject setConfig(UserSesh sesh, JSONObject args) {

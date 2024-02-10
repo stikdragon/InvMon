@@ -70,4 +70,8 @@ public class OptionEnum extends Option {
 		value = root.getString("value");
 	}
 
+	public void setValue(String value) {
+		this.value = value;
+	}
+
 }

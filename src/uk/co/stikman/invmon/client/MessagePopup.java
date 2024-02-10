@@ -3,13 +3,18 @@ package uk.co.stikman.invmon.client;
 import org.teavm.jso.browser.Window;
 import org.teavm.jso.dom.html.HTMLElement;
 
-public class ErrorPopup {
-
+public class MessagePopup {
+	
+	public enum Type {
+		MESSAGE,
+		WARNING,
+		ERROR
+	}
 	private HTMLElement	root;
 	private HTMLElement	content;
 
-	public ErrorPopup() {
-		root = InvMon.div("errorpopup");
+	public MessagePopup() {
+		root = InvMon.div("messagepopup");
 		//		HTMLElement el = InvMon.div("title");
 		//		el.setInnerText("Errors:");
 		//		root.appendChild(el);
@@ -25,8 +30,8 @@ public class ErrorPopup {
 		Window.current().getDocument().getBody().removeChild(root);
 	}
 
-	public void addMessage(String msg) {
-		HTMLElement x = InvMon.div("msg");
+	public void addMessage(String msg, Type type) {
+		HTMLElement x = InvMon.div("msg", type.name().toLowerCase());
 		x.setInnerText(msg);
 		content.appendChild(x);
 		Window.setTimeout(() -> x.getClassList().add("fadeout"), 3500);
