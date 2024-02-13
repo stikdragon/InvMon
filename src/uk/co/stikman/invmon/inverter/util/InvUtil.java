@@ -69,10 +69,10 @@ public class InvUtil {
 	public static void writeMiniDOM(MiniDOM mini, File file) throws IOException {
 		try {
 			Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-			
+
 			doc.appendChild(doc.createElement("Page"));
 			convertElement(mini, doc.getDocumentElement());
-			
+
 			TransformerFactory xf = TransformerFactory.newInstance();
 			Transformer tf = xf.newTransformer();
 			tf.setOutputProperty(javax.xml.transform.OutputKeys.INDENT, "yes"); // Set 
@@ -301,6 +301,61 @@ public class InvUtil {
 					out.add(f);
 			}
 		}
+	}
+
+	public static long parseMilliseconds(String s) {
+		long m = 1;
+		if (s.endsWith("ms")) {
+			s = s.substring(0, s.length() - 2);
+		} else if (s.endsWith("s")) {
+			m = 1000;
+			s = s.substring(0, s.length() - 1);
+		} else if (s.endsWith("m")) {
+			m = 1000 * 60;
+			s = s.substring(0, s.length() - 1);
+		} else if (s.endsWith("h")) {
+			m = 1000 * 60 * 60;
+			s = s.substring(0, s.length() - 1);
+		}
+
+		return Long.parseLong(s) * m;
+	}
+
+	public static float parsePhysical(PhysicalQuantity dim, String s) {
+		try {
+			s = s.trim().toLowerCase();
+
+			String unit = null;
+			switch (dim) {
+				case VOLTAGE:
+					unit = "v";
+					break;
+				case CURRENT:
+					unit = "a";
+					break;
+			}
+
+			if (unit == null)
+				throw new UnsupportedOperationException();
+
+			float f = 1.0f;
+			if (s.endsWith(unit)) {
+				s = s.substring(0, s.length() - 1);
+
+				if (s.endsWith("m")) {
+					f = 0.001f;
+					s = s.substring(0, s.length() - 1);
+				} else if (s.endsWith("u")) {
+					f = 0.000001f;
+					s = s.substring(0, s.length() - 1);
+				}
+			}
+
+			return Float.parseFloat(s) * f;
+		} catch (Exception e) {
+			throw new NumberFormatException("Could not parse [" + s + "] as a " + dim.name() + " because: " + e.getMessage());
+		}
+
 	}
 
 }

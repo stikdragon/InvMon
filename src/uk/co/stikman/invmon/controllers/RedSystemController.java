@@ -17,13 +17,44 @@ import uk.co.stikman.invmon.Env;
 import uk.co.stikman.invmon.Events;
 import uk.co.stikman.invmon.InvMonException;
 import uk.co.stikman.invmon.PollData;
+import uk.co.stikman.invmon.controllers.RedSystemController.SolarKickerConfig;
 import uk.co.stikman.invmon.inverter.util.FileBackedDataTable;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
+import uk.co.stikman.invmon.inverter.util.PhysicalQuantity;
 import uk.co.stikman.log.StikLog;
 import uk.co.stikman.table.CSVImporter;
 import uk.co.stikman.table.DataRecord;
 
 public class RedSystemController extends SimpleInverterController {
+
+	private static class SolarKickerConfig {
+		String	portName;
+		int		minRepeatTime;
+		float	threshV		= -1f;
+		float	threshI		= -1f;
+		int		threshTime	= -1;
+
+		public void parseConfig(Element el) {
+			String s = InvUtil.getAttrib(el, "minimumRepeatTime").trim().toLowerCase();
+			minRepeatTime = (int) InvUtil.parseMilliseconds(s);
+			portName = InvUtil.getAttrib(el, "port");
+			
+			s = InvUtil.getAttrib(el, "condition");
+			String[] bits = s.split(",");
+			for (String t : bits) {
+				t = t.replaceAll("\\s", "").toLowerCase(); // remove whitespace
+				if (t.startsWith("v<")) {
+					threshV = InvUtil.parsePhysical(PhysicalQuantity.VOLTAGE, s.substring(2));
+				} else if (t.startsWith("i>")) {
+					threshI = InvUtil.parsePhysical(PhysicalQuantity.CURRENT, s.substring(2));
+				} else if (t.startsWith("t>")) {
+					threshTime = (int) InvUtil.parseMilliseconds(s.substring(2));
+				} else
+					throw new InvMonException("Invalid condition attribute: " + t);
+			}
+
+		}
+	}
 
 	private static final StikLog	LOGGER				= StikLog.getLogger(RedSystemController.class);
 	private FileBackedDataTable		csv;
@@ -33,6 +64,8 @@ public class RedSystemController extends SimpleInverterController {
 	private LocalTime				start;
 	private LocalTime				end;
 	private int						soc;
+
+	private SolarKickerConfig		solarKicker			= null;											// if null then it's disabled
 
 	public RedSystemController(String id, Env env) {
 		super(id, env);
@@ -51,6 +84,13 @@ public class RedSystemController extends SimpleInverterController {
 		dtf = DateTimeFormatter.ofPattern("HH:mm");
 		start = LocalTime.parse(InvUtil.getAttrib(root, "startTime"), dtf);
 		end = LocalTime.parse(InvUtil.getAttrib(root, "endTime"), dtf);
+
+		Element el = InvUtil.getElement(root, "SolarKicked", true);
+		if (el != null) {
+			solarKicker = new SolarKickerConfig();
+			solarKicker.parseConfig(el);
+		}
+
 	}
 
 	@Subscribe(Events.POST_DATA)

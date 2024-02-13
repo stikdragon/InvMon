@@ -14,7 +14,11 @@
 		</Properties>
 
 		<InverterController id="invcon1" type="stik" startTime="23:30" endTime="04:30" inverter="invA" />
-		<!-- <InverterController id="invcon1" type="red" startTime="23:30" endTime="04:30" inverter="invA" csv="thresholds.csv" /> -->
+		
+		<!-- <InverterController id="invcon1" type="red" startTime="23:30" endTime="04:30" inverter="invA" csv="thresholds.csv">
+			<SolarKicker port="COM1" condition="V < 120V, I > 0.8A, T > 5s" minimumRepeatTime="60s" />
+		</InverterController> -->
+
 
 <!-- 		<SerialRepeater id="serialout1" port="COM8" baud="9600">
 			<Field width="3" scale="100.0">BATT_SOC</Field>
