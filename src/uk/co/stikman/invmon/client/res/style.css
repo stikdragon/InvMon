@@ -921,7 +921,7 @@ textarea:focus, input:focus {
 }
 
 .config-dialog .list .row .left {
-	width: 100px;
+	width: 130px;
 	align-items: right;
 	font-weight: bold;
 	color: #888;
@@ -930,6 +930,8 @@ textarea:focus, input:focus {
 
 .config-dialog .buttons {
 	padding-top: 12px;
+	display: flex;
+	flex-direction: row;
 }
 .config-dialog .buttons .button {
 	min-width: 40px;

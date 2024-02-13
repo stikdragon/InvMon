@@ -12,9 +12,7 @@ import java.util.List;
 
 import com.fazecast.jSerialComm.SerialPort;
 
-import uk.co.stikman.utils.Utils;
-
-public class StikBMSSerialInterface {
+public class StikBMSSerial implements StikBMSInterface {
 
 	public class BMSOutputStream extends OutputStream {
 		private final OutputStream target;
@@ -46,15 +44,16 @@ public class StikBMSSerialInterface {
 
 	private static final int	CRC16_POLY	= 0x1021;
 
-	public StikBMSSerialInterface(String port, int baud) {
+	public StikBMSSerial(String port, int baud) {
 		this(SerialPort.getCommPort(port), baud);
 	}
 
-	public StikBMSSerialInterface(SerialPort port, int baud) {
+	public StikBMSSerial(SerialPort port, int baud) {
 		this.serial = port;
 		this.baud = baud;
 	}
 
+	@Override
 	public void open() throws IOException {
 		serial.setBaudRate(baud);
 		serial.setNumStopBits(1);
@@ -67,6 +66,7 @@ public class StikBMSSerialInterface {
 		inputstream = new DataInputStream(serial.getInputStream());
 	}
 
+	@Override
 	public void close() throws IOException {
 		serial.closePort();
 		serial = null;
@@ -74,11 +74,11 @@ public class StikBMSSerialInterface {
 		outputstream = null;
 	}
 
-	public byte[] query(String query) throws IOException {
+	protected byte[] query(String query) throws IOException {
 		return query(query.getBytes(StandardCharsets.US_ASCII));
 	}
 
-	public byte[] query(byte[] query) throws IOException {
+	protected byte[] query(byte[] query) throws IOException {
 		testConnected();
 
 		serial.getOutputStream().write(0x00); // write a 0 to start
@@ -103,7 +103,7 @@ public class StikBMSSerialInterface {
 		}
 		return buf;
 	}
-	
+
 	private static short calcCrc16(byte[] buf) {
 		int crc = 0;
 
@@ -121,7 +121,7 @@ public class StikBMSSerialInterface {
 		return (short) (crc & 0xFFFF);
 
 	}
-	
+
 	private static String formatErrorMessage(char ch) {
 		switch (ch) {
 			case 'I':
@@ -143,15 +143,18 @@ public class StikBMSSerialInterface {
 
 	}
 
+	@Override
 	public int queryProtocol() throws IOException {
 		String res = new String(query("QP"), StandardCharsets.US_ASCII);
 		return Integer.parseInt(res);
 	}
 
+	@Override
 	public String queryVersion() throws IOException {
 		return new String(query("QQ"), StandardCharsets.US_ASCII);
 	}
 
+	@Override
 	public BMSMetrics queryMetrics() throws IOException {
 		try (DataInputStream dis = new DataInputStream(new ByteArrayInputStream(query("QV")))) {
 			//
@@ -186,10 +189,12 @@ public class StikBMSSerialInterface {
 		}
 	}
 
+	@Override
 	public void resetCalib() throws IOException {
 		checkResultOK(query("C0"));
 	}
 
+	@Override
 	public void setCalibFactor(CalibTarget target, int idx, float val) throws IOException {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		DataOutputStream dos = new DataOutputStream(baos);
@@ -226,6 +231,7 @@ public class StikBMSSerialInterface {
 		throw new IOException("Response was not 'OK'");
 	}
 
+	@Override
 	public List<CalibFactor> getCalibFactors() throws IOException {
 		List<CalibFactor> lst = new ArrayList<>();
 		byte[] res = query("QC");
@@ -241,7 +247,7 @@ public class StikBMSSerialInterface {
 			f = dis.readFloat();
 			lst.add(new CalibFactor("v" + i, f));
 		}
-		
+
 		f = dis.readFloat();
 		lst.add(new CalibFactor("offset", f));
 

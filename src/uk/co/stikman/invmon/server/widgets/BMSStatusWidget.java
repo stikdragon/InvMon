@@ -68,6 +68,12 @@ public class BMSStatusWidget extends PageWidget {
 		this.moduleName = root.getAttrib("module");
 	}
 
+	@Override
+	public void toDOM(MDElement root) {
+		super.toDOM(root);
+		root.setAttrib("module", moduleName);
+	}
+
 	public String getModuleName() {
 		return moduleName;
 	}

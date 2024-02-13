@@ -49,7 +49,7 @@ public class StikBMS extends InvModule {
 	public void poll(PollData data) throws InvMonException {
 		synchronized (this) {
 			try {
-				StikBMSSerialInterface bms = createBMS();
+				StikBMSInterface bms = createBMS();
 				try {
 					BMSMetrics m = bms.queryMetrics();
 					//
@@ -153,7 +153,7 @@ public class StikBMS extends InvModule {
 		int v = -1;
 		for (int i = 0; i < 3; ++i) {
 			try {
-				StikBMSSerialInterface bms = createBMS();
+				StikBMSInterface bms = createBMS();
 				try {
 					v = bms.queryProtocol();
 				} finally {
@@ -175,14 +175,15 @@ public class StikBMS extends InvModule {
 			batteryData.add(new BatteryData(i, cellsPerBatt));
 	}
 
-	private StikBMSSerialInterface createBMS() throws IOException {
+	private StikBMSInterface createBMS() throws IOException {
 		lock.lock();
-		StikBMSSerialInterface x = new StikBMSSerialInterface(port, baud);
+		StikBMSInterface x = new StikBMSSerial(port, baud);
+//		StikBMSInterface x = new StikBMSFakeImpl(port, baud);
 		x.open();
 		return x;
 	}
 
-	private void releaseBMS(StikBMSSerialInterface bms) throws IOException {
+	private void releaseBMS(StikBMSInterface bms) throws IOException {
 		bms.close();
 		lock.unlock();
 	}
@@ -281,7 +282,7 @@ public class StikBMS extends InvModule {
 					""");
 
 		if (cmd.equals("calib show")) {
-			StikBMSSerialInterface bms = createBMS();
+			StikBMSInterface bms = createBMS();
 			try {
 				DataTable dt = new DataTable();
 				dt.addFields("Factor", "Value");
@@ -294,7 +295,7 @@ public class StikBMS extends InvModule {
 		}
 
 		if (cmd.equals("calib reset")) {
-			StikBMSSerialInterface bms = createBMS();
+			StikBMSInterface bms = createBMS();
 			try {
 				bms.resetCalib();
 				return new ConsoleResponse("OK");
@@ -382,7 +383,7 @@ public class StikBMS extends InvModule {
 		if (log == null)
 			log = s -> {
 			};
-		StikBMSSerialInterface bms = createBMS();
+			StikBMSInterface bms = createBMS();
 		try {
 			//
 			// get the current reported voltages and work out how much to adjust
