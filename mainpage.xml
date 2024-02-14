@@ -40,5 +40,5 @@
     <Widget class="energysummary" id="summary" layout="20, 5, 5, 5" title="Energy"/>
     <Widget arclength="210.0" class="dial" field="BATT_SOC" id="soc" layout="25, 10, 5, 5" mode="normal" range="0.0,1.0" text="percent" title="SoC"/>
     <Widget arclength="75.0" class="dial" field="BATT_I" id="batti" layout="20, 10, 5, 5" mode="split" range="-200.0,200.0" text="current" title="Battery Current"/>
-    <Widget class="stik-controller" id="invcon1status" layout="20, 1, 5, 4" module="invcon1" title="Inverter"/>
+    <!-- <Widget class="stik-controller" id="invcon1status" layout="20, 1, 5, 4" module="invcon1" title="Inverter"/> -->
 </Page>

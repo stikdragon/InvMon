@@ -1,7 +1,13 @@
 package uk.co.stikman.invmon;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.json.JSONObject;
 import org.w3c.dom.Element;
 
 import uk.co.stikman.invmon.datamodel.InverterMode;
@@ -46,6 +52,20 @@ public class FakeInverterMonitor extends InverterMonitor {
 		dp.put("busV", (int) (380 + rand(100)));
 		dp.put("loadPF", rand(1.0f));
 		dp.put("soc", 0.52f + rand(0.5f));
+		
+		
+		File f = new File("C:\\junk\\pv.txt");
+		if (f.exists()) {
+			try {
+				String s = FileUtils.readFileToString(f, StandardCharsets.UTF_8);
+				JSONObject jo = new JSONObject(s);
+				dp.put("pv1", jo.getFloat("pv1v"), jo.getFloat("pv1i"), 0);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		
+		
 		return dp;
 	}
 

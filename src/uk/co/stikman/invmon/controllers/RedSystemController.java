@@ -12,60 +12,110 @@ import java.util.Set;
 
 import org.w3c.dom.Element;
 
+import com.fazecast.jSerialComm.SerialPort;
+
 import uk.co.stikman.eventbus.Subscribe;
 import uk.co.stikman.invmon.Env;
 import uk.co.stikman.invmon.Events;
 import uk.co.stikman.invmon.InvMonException;
 import uk.co.stikman.invmon.PollData;
-import uk.co.stikman.invmon.controllers.RedSystemController.SolarKickerConfig;
+import uk.co.stikman.invmon.controllers.SolarKickerConfig.Channel;
 import uk.co.stikman.invmon.inverter.util.FileBackedDataTable;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
-import uk.co.stikman.invmon.inverter.util.PhysicalQuantity;
 import uk.co.stikman.log.StikLog;
 import uk.co.stikman.table.CSVImporter;
 import uk.co.stikman.table.DataRecord;
 
 public class RedSystemController extends SimpleInverterController {
 
-	private static class SolarKickerConfig {
-		String	portName;
-		int		minRepeatTime;
-		float	threshV		= -1f;
-		float	threshI		= -1f;
-		int		threshTime	= -1;
+	/**
+	 * responsible for managing a serial port where we poke the DTR/RTS line high to
+	 * drive a contactor
+	 * 
+	 * @author stik
+	 *
+	 */
+	private class KickerOutputThread extends Thread {
 
-		public void parseConfig(Element el) {
-			String s = InvUtil.getAttrib(el, "minimumRepeatTime").trim().toLowerCase();
-			minRepeatTime = (int) InvUtil.parseMilliseconds(s);
-			portName = InvUtil.getAttrib(el, "port");
-			
-			s = InvUtil.getAttrib(el, "condition");
-			String[] bits = s.split(",");
-			for (String t : bits) {
-				t = t.replaceAll("\\s", "").toLowerCase(); // remove whitespace
-				if (t.startsWith("v<")) {
-					threshV = InvUtil.parsePhysical(PhysicalQuantity.VOLTAGE, s.substring(2));
-				} else if (t.startsWith("i>")) {
-					threshI = InvUtil.parsePhysical(PhysicalQuantity.CURRENT, s.substring(2));
-				} else if (t.startsWith("t>")) {
-					threshTime = (int) InvUtil.parseMilliseconds(s.substring(2));
-				} else
-					throw new InvMonException("Invalid condition attribute: " + t);
+		private boolean	terminated		= false;
+		private boolean	rtsTriggered	= false;
+		private boolean	dtrTriggered	= false;
+
+		@Override
+		public void run() {
+			SerialPort port = SerialPort.getCommPort(solarKicker.portName);
+			port.openPort(9600);
+			port.clearRTS();
+			port.clearDTR();
+			try {
+				for (;;) {
+					if (terminated)
+						return;
+
+					if (rtsTriggered) {
+						rtsTriggered = false;
+						port.setRTS();
+						try {
+							sleep(solarKicker.getContactorTime());
+						} catch (InterruptedException e) {
+							LOGGER.warn("Interrupted while pulsing RTS");
+						}
+						port.clearRTS();
+					}
+					if (terminated)
+						return;
+
+					if (dtrTriggered) {
+						dtrTriggered = false;
+						port.setRTS();
+						try {
+							sleep(solarKicker.getContactorTime());
+						} catch (InterruptedException e) {
+							LOGGER.warn("Interrupted while pulsing DTR");
+						}
+						port.clearRTS();
+					}
+
+					if (terminated)
+						return;
+
+					try {
+						sleep(1000);
+					} catch (InterruptedException e) {
+					}
+				}
+			} finally {
+				port.closePort();
 			}
-
 		}
+
+		public void terminate() {
+			this.terminated = true;
+			interrupt();
+		}
+
+		public void trigger(Channel ch) {
+			if (ch.getAction().equals("rts"))
+				rtsTriggered = true;
+			else if (ch.getAction().equals("dtr"))
+				dtrTriggered = true;
+			interrupt();
+		}
+
 	}
 
-	private static final StikLog	LOGGER				= StikLog.getLogger(RedSystemController.class);
+	private static final StikLog	LOGGER					= StikLog.getLogger(RedSystemController.class);
 	private FileBackedDataTable		csv;
 
 	private DateTimeFormatter		dtf;
-	private Set<TimeWindow>			completedWindows	= new HashSet<>();
+	private Set<TimeWindow>			completedWindows		= new HashSet<>();
 	private LocalTime				start;
 	private LocalTime				end;
 	private int						soc;
 
-	private SolarKickerConfig		solarKicker			= null;											// if null then it's disabled
+	private SolarKickerConfig		solarKicker				= null;											// if null then it's disabled
+	private KickerOutputThread		kickerOutputThread;
+	private Set<Channel>			triggeredKickerChannels	= new HashSet<>();
 
 	public RedSystemController(String id, Env env) {
 		super(id, env);
@@ -85,38 +135,57 @@ public class RedSystemController extends SimpleInverterController {
 		start = LocalTime.parse(InvUtil.getAttrib(root, "startTime"), dtf);
 		end = LocalTime.parse(InvUtil.getAttrib(root, "endTime"), dtf);
 
-		Element el = InvUtil.getElement(root, "SolarKicked", true);
+		Element el = InvUtil.getElement(root, "SolarKicker", true);
 		if (el != null) {
 			solarKicker = new SolarKickerConfig();
 			solarKicker.parseConfig(el);
+			kickerOutputThread = new KickerOutputThread();
 		}
-
 	}
 
 	@Subscribe(Events.POST_DATA)
 	public synchronized void poll(PollData data) {
 		soc = (int) (100.0f * data.get(getInverterId()).getFloat("soc"));
-	}
 
-	@Override
-	public synchronized String toString() {
-		try {
-			int today = getCurrentDayNumber(LocalDate.now());
-			StringBuilder sb = new StringBuilder();
-			sb.append("  Time: ").append(dtf.format(LocalTime.now())).append("\n");
-			sb.append(" State: ").append(getCurrentState()).append("\n");
-			sb.append(" Today: ").append(today).append("\n");
-			sb.append("   SoC: ").append(soc).append("%\n");
-			sb.append("Target: ").append(getTodayThreshold(today)).append("%\n");
-			return sb.toString();
-		} catch (Exception e) {
-			return e.toString();
+		//
+		// if the solar kicker thing is enabled then we need to get 
+		// voltage/current readings for that too and work out if the 
+		// channels need activating or not
+		//
+		if (solarKicker != null) {
+			for (Channel ch : solarKicker.getChannels()) {
+				String inv = ch.getSource().split("\\.")[0];
+				String fld = ch.getSource().split("\\.")[1];
+				float v = data.get(inv).getFloat(fld + "V");
+				float i = data.get(inv).getFloat(fld + "I");
+
+				if (!ch.satisfiesThreshold(v, i))
+					ch.setThreshMetAt(System.currentTimeMillis()); // reset last timer
+				long dt = System.currentTimeMillis() - ch.getThreshMetAt();
+				if (dt > ch.getThreshTime()) {
+					ch.setThreshMetAt(System.currentTimeMillis());
+					triggeredKickerChannels.add(ch);
+				}
+			}
 		}
 	}
 
 	@Override
 	protected void run() throws InvMonException {
-		run(LocalDateTime.now(), soc);
+		if (solarKicker != null)
+			runKicker();
+		runWindowedCharge(LocalDateTime.now(), soc);
+	}
+
+	private void runKicker() {
+		//
+		// send any kicker channels that have activated
+		//
+		triggeredKickerChannels.forEach(ch -> {
+			userLog("SolarKicker conditions met for Channel [" + ch + "], triggering...");
+			kickerOutputThread.trigger(ch);
+		});
+		triggeredKickerChannels.clear();
 	}
 
 	private int getTodayThreshold(int today) throws InvMonException {
@@ -144,7 +213,7 @@ public class RedSystemController extends SimpleInverterController {
 	//  yes         yes             not_charging    set charge, if not completed
 	//  yes         yes             charging         
 	//
-	public synchronized State run(LocalDateTime now, int soc) throws InvMonException {
+	public synchronized State runWindowedCharge(LocalDateTime now, int soc) throws InvMonException {
 		//
 		// see if we're in a time window, then check if we're under the target
 		// SoC% and switch on if so.  If we hit the target, mark today as finished
@@ -197,7 +266,32 @@ public class RedSystemController extends SimpleInverterController {
 	@Override
 	public void start() throws InvMonException {
 		super.start();
+		if (solarKicker != null)
+			kickerOutputThread.start();
 		userLog("\"Red Logic\" initialised");
+	}
+
+	@Override
+	public void terminate() {
+		if (solarKicker != null)
+			kickerOutputThread.terminate();
+		super.terminate();
+	}
+
+	@Override
+	public synchronized String toString() {
+		try {
+			int today = getCurrentDayNumber(LocalDate.now());
+			StringBuilder sb = new StringBuilder();
+			sb.append("  Time: ").append(dtf.format(LocalTime.now())).append("\n");
+			sb.append(" State: ").append(getCurrentState()).append("\n");
+			sb.append(" Today: ").append(today).append("\n");
+			sb.append("   SoC: ").append(soc).append("%\n");
+			sb.append("Target: ").append(getTodayThreshold(today)).append("%\n");
+			return sb.toString();
+		} catch (Exception e) {
+			return e.toString();
+		}
 	}
 
 }

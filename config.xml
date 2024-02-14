@@ -13,11 +13,14 @@
 			<Property id="some_key">1234</Property>
 		</Properties>
 
-		<InverterController id="invcon1" type="stik" startTime="23:30" endTime="04:30" inverter="invA" />
+		<!-- <InverterController id="invcon1" type="stik" startTime="23:30" endTime="04:30" inverter="invA" /> -->
 		
-		<!-- <InverterController id="invcon1" type="red" startTime="23:30" endTime="04:30" inverter="invA" csv="thresholds.csv">
-			<SolarKicker port="COM1" condition="V < 120V, I > 0.8A, T > 5s" minimumRepeatTime="60s" />
-		</InverterController> -->
+		<InverterController id="invcon1" type="red" startTime="23:30" endTime="04:30" inverter="invA" csv="thresholds.csv">
+			<SolarKicker port="COM11" contactorTime="500ms">
+				<Channel action="RTS" source="invA.pv1" condition="V:120V, I:0.8A, T:5s" />
+				<Channel action="DTR" source="invA.pv2" condition="V:120V, I:0.8A, T:5s" />
+			</SolarKicker>
+		</InverterController>
 
 
 <!-- 		<SerialRepeater id="serialout1" port="COM8" baud="9600">

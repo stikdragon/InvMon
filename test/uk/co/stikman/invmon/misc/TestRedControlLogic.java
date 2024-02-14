@@ -36,16 +36,16 @@ public class TestRedControlLogic {
 		//
 		// test data has threshold set to 50% on all days.  window is 1500-1800
 		//
-		Assert.assertEquals(State.NOT_CHARGING, x.run(LocalDateTime.parse("2023-01-04 14:00", dtf), 60)); // not in window; above thresh%
-		Assert.assertEquals(State.NOT_CHARGING, x.run(LocalDateTime.parse("2023-01-04 14:10", dtf), 40)); // not in window
-		Assert.assertEquals(State.CHARGING,     x.run(LocalDateTime.parse("2023-01-04 15:00", dtf), 40)); // in window, under threshold
-		Assert.assertEquals(State.CHARGING,     x.run(LocalDateTime.parse("2023-01-04 15:10", dtf), 45)); // still going
-		Assert.assertEquals(State.CHARGING,     x.run(LocalDateTime.parse("2023-01-04 15:20", dtf), 49)); // about to finish
-		Assert.assertEquals(State.NOT_CHARGING, x.run(LocalDateTime.parse("2023-01-04 15:30", dtf), 55)); // above threshold
-		Assert.assertEquals(State.NOT_CHARGING, x.run(LocalDateTime.parse("2023-01-04 15:40", dtf), 60)); 
-		Assert.assertEquals(State.NOT_CHARGING, x.run(LocalDateTime.parse("2023-01-04 15:50", dtf), 40)); // already done it this window
-		Assert.assertEquals(State.NOT_CHARGING, x.run(LocalDateTime.parse("2023-01-04 22:00", dtf), 40)); // not in window 
-		Assert.assertEquals(State.CHARGING,     x.run(LocalDateTime.parse("2023-01-05 15:20", dtf), 40)); // next day, is allowed again
+		Assert.assertEquals(State.NOT_CHARGING, x.runWindowedCharge(LocalDateTime.parse("2023-01-04 14:00", dtf), 60)); // not in window; above thresh%
+		Assert.assertEquals(State.NOT_CHARGING, x.runWindowedCharge(LocalDateTime.parse("2023-01-04 14:10", dtf), 40)); // not in window
+		Assert.assertEquals(State.CHARGING,     x.runWindowedCharge(LocalDateTime.parse("2023-01-04 15:00", dtf), 40)); // in window, under threshold
+		Assert.assertEquals(State.CHARGING,     x.runWindowedCharge(LocalDateTime.parse("2023-01-04 15:10", dtf), 45)); // still going
+		Assert.assertEquals(State.CHARGING,     x.runWindowedCharge(LocalDateTime.parse("2023-01-04 15:20", dtf), 49)); // about to finish
+		Assert.assertEquals(State.NOT_CHARGING, x.runWindowedCharge(LocalDateTime.parse("2023-01-04 15:30", dtf), 55)); // above threshold
+		Assert.assertEquals(State.NOT_CHARGING, x.runWindowedCharge(LocalDateTime.parse("2023-01-04 15:40", dtf), 60)); 
+		Assert.assertEquals(State.NOT_CHARGING, x.runWindowedCharge(LocalDateTime.parse("2023-01-04 15:50", dtf), 40)); // already done it this window
+		Assert.assertEquals(State.NOT_CHARGING, x.runWindowedCharge(LocalDateTime.parse("2023-01-04 22:00", dtf), 40)); // not in window 
+		Assert.assertEquals(State.CHARGING,     x.runWindowedCharge(LocalDateTime.parse("2023-01-05 15:20", dtf), 40)); // next day, is allowed again
 		
 		
 		//
@@ -56,17 +56,17 @@ public class TestRedControlLogic {
 		x = new RedSystemController(null, null);
 		el.setAttribute("csv", csv.getAbsolutePath());
 		x.configure(el);
-		Assert.assertEquals(State.NOT_CHARGING, x.run(LocalDateTime.parse("2023-01-04 20:00", dtf), 60)); // not in window; above thresh%
-		Assert.assertEquals(State.NOT_CHARGING, x.run(LocalDateTime.parse("2023-01-04 21:00", dtf), 40)); // not in window; below thresh%
-		Assert.assertEquals(State.NOT_CHARGING, x.run(LocalDateTime.parse("2023-01-04 22:00", dtf), 60)); // not in window; above thresh%
-		Assert.assertEquals(State.CHARGING,     x.run(LocalDateTime.parse("2023-01-04 22:00", dtf), 40)); // below thresh%
-		Assert.assertEquals(State.CHARGING,     x.run(LocalDateTime.parse("2023-01-04 23:00", dtf), 40)); 
-		Assert.assertEquals(State.CHARGING,     x.run(LocalDateTime.parse("2023-01-05 00:00", dtf), 40)); 
-		Assert.assertEquals(State.CHARGING,     x.run(LocalDateTime.parse("2023-01-05 01:00", dtf), 45)); 
-		Assert.assertEquals(State.NOT_CHARGING, x.run(LocalDateTime.parse("2023-01-05 01:01", dtf), 55)); 
-		Assert.assertEquals(State.NOT_CHARGING, x.run(LocalDateTime.parse("2023-01-05 01:05", dtf), 45)); // still shouldn't charge as already done
-		Assert.assertEquals(State.NOT_CHARGING, x.run(LocalDateTime.parse("2023-01-05 23:00", dtf), 55)); 
-		Assert.assertEquals(State.CHARGING,     x.run(LocalDateTime.parse("2023-01-05 23:05", dtf), 45)); 
+		Assert.assertEquals(State.NOT_CHARGING, x.runWindowedCharge(LocalDateTime.parse("2023-01-04 20:00", dtf), 60)); // not in window; above thresh%
+		Assert.assertEquals(State.NOT_CHARGING, x.runWindowedCharge(LocalDateTime.parse("2023-01-04 21:00", dtf), 40)); // not in window; below thresh%
+		Assert.assertEquals(State.NOT_CHARGING, x.runWindowedCharge(LocalDateTime.parse("2023-01-04 22:00", dtf), 60)); // not in window; above thresh%
+		Assert.assertEquals(State.CHARGING,     x.runWindowedCharge(LocalDateTime.parse("2023-01-04 22:00", dtf), 40)); // below thresh%
+		Assert.assertEquals(State.CHARGING,     x.runWindowedCharge(LocalDateTime.parse("2023-01-04 23:00", dtf), 40)); 
+		Assert.assertEquals(State.CHARGING,     x.runWindowedCharge(LocalDateTime.parse("2023-01-05 00:00", dtf), 40)); 
+		Assert.assertEquals(State.CHARGING,     x.runWindowedCharge(LocalDateTime.parse("2023-01-05 01:00", dtf), 45)); 
+		Assert.assertEquals(State.NOT_CHARGING, x.runWindowedCharge(LocalDateTime.parse("2023-01-05 01:01", dtf), 55)); 
+		Assert.assertEquals(State.NOT_CHARGING, x.runWindowedCharge(LocalDateTime.parse("2023-01-05 01:05", dtf), 45)); // still shouldn't charge as already done
+		Assert.assertEquals(State.NOT_CHARGING, x.runWindowedCharge(LocalDateTime.parse("2023-01-05 23:00", dtf), 55)); 
+		Assert.assertEquals(State.CHARGING,     x.runWindowedCharge(LocalDateTime.parse("2023-01-05 23:05", dtf), 45)); 
 	}
 
 	private Element loadTestConfigSection(String id) throws IOException {
