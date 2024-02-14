@@ -82,9 +82,8 @@ public class StikBMS extends InvModule {
 					for (BatteryData b : batteryData) {
 						float[] cells = b.getCellVoltages();
 						b.setPackVoltage(cells[cellsPerBatt - 1]);
-						for (int i = cells.length - 1; i > 1; --i) {
-							cells[i] = cells[i] - cells[i - 1];
-						}
+						for (int i = 0; i < cells.length - 1; ++i)
+							cells[i] = cells[i] - cells[i + 1];
 					}
 
 					//
@@ -178,7 +177,7 @@ public class StikBMS extends InvModule {
 	private StikBMSInterface createBMS() throws IOException {
 		lock.lock();
 		StikBMSInterface x = new StikBMSSerial(port, baud);
-//		StikBMSInterface x = new StikBMSFakeImpl(port, baud);
+		//		StikBMSInterface x = new StikBMSFakeImpl(port, baud);
 		x.open();
 		return x;
 	}
@@ -383,7 +382,7 @@ public class StikBMS extends InvModule {
 		if (log == null)
 			log = s -> {
 			};
-			StikBMSInterface bms = createBMS();
+		StikBMSInterface bms = createBMS();
 		try {
 			//
 			// get the current reported voltages and work out how much to adjust
