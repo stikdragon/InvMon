@@ -23,7 +23,7 @@ public class TextSummaryWidget extends AbstractPageWidget {
 		args.put("name", getId());
 		if (!nomask)
 			frame.showGlass();
-		api("get", args, result -> {
+		api("execute", args, result -> {
 			txt.setTextContent(result.getString("summary"));
 			frame.hideOverlays();
 		}, err -> {

@@ -258,7 +258,7 @@ public class HTTPServer extends InvModule {
 		layoutConfig = new HttpLayoutConfig();
 		layoutConfig.configure(getEnv(), InvUtil.miniDomFromReal(config));
 		users.configure(config);
-		String s = InvUtil.getAttrib(config, "security", "simple-user");
+		String s = InvUtil.getAttrib(config, "security", "normal");
 		securityMode = SecurityMode.valueOf(s.toUpperCase());
 	}
 

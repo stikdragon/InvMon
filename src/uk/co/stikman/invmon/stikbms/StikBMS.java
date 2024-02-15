@@ -437,7 +437,7 @@ public class StikBMS extends InvModule {
 			}
 		}
 
-		ConsoleResponse res = new ConsoleResponse(tp.toString(true));
+		ConsoleResponse res = new ConsoleResponse(tp.toString(true), true);
 		return res;
 	}
 
