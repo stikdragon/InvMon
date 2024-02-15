@@ -35,13 +35,11 @@
         <Axis enabled="true" formatter="%d V" id="y2" min="0.0"/>
         <HeaderBit fields="INV_1_TEMP,INV_2_TEMP,INV_1_BUS_V,INV_2_BUS_V" text="( Temp: A [%.1f]C, B [%.1f]C )     ( Bus Voltage: A [%d]V B [%d]V )"/>
     </Widget>
-
     <Widget class="infobit" id="infobit" layout="0, 26, 7, 2"/>
     <Widget class="controls" id="controls" layout="20, 6, 5, 5" title="Control"/>
     <Widget class="energysummary" id="summary" layout="20, 11, 5, 5" title="Energy"/>
     <Widget arclength="210.0" class="dial" field="BATT_SOC" id="soc" layout="20, 16, 5, 5" mode="normal" range="0.0,1.0" text="percent" title="SoC"/>
     <Widget arclength="75.0" class="dial" field="BATT_I" id="batti" layout="20, 21, 5, 4" mode="split" range="-200.0,200.0" text="current" title="Battery Current"/>
     <Widget class="stik-controller" id="invcon1status" layout="25, 21, 5, 4" module="invcon1" title="Inverter"/>
-    <Widget class="bms-status" id="bmsstuff" layout="25, 1, 5, 20" title="BMS" module="bms1" />
-
+    <Widget class="text-summary" id="asdasd" layout="25, 8, 5, 6" module="datalogger" title="Inverter"/>
 </Page>

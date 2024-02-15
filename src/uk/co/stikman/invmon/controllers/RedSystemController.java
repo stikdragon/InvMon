@@ -67,13 +67,13 @@ public class RedSystemController extends SimpleInverterController {
 
 					if (dtrTriggered) {
 						dtrTriggered = false;
-						port.setRTS();
+						port.setDTR();
 						try {
 							sleep(solarKicker.getContactorTime());
 						} catch (InterruptedException e) {
 							LOGGER.warn("Interrupted while pulsing DTR");
 						}
-						port.clearRTS();
+						port.clearDTR();
 					}
 
 					if (terminated)

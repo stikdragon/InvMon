@@ -90,6 +90,9 @@ public class PageLayout {
 		widgets.clear();
 		for (MDElement el : root.getElements("Widget")) {
 			String cls = el.getAttrib("class");
+			String id = el.getAttrib("id", null);
+			if (id != null && findWidgetById(id) != null)
+				throw new InvMonException("Widget [" + id + "] already declared");
 
 			Pair<String, String> p = null;
 			for (Pair<String, String> x : TYPES) {
@@ -152,6 +155,14 @@ public class PageLayout {
 			if (wij.getId().equals(name))
 				return (T) wij;
 		throw new NoSuchElementException("Widget [" + name + "] not found");
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T extends PageWidget> T findWidgetById(String name) {
+		for (PageWidget wij : getWidgets())
+			if (wij.getId().equals(name))
+				return (T) wij;
+		return null;
 	}
 
 	public File getFile() {
