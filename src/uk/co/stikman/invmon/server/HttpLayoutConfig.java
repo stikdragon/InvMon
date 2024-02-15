@@ -52,7 +52,8 @@ public class HttpLayoutConfig {
 		return pages;
 	}
 
-	public PageLayout getDefaultPage() {
+	public PageLayout getDefaultPage() throws InvMonException {
+		loadPages();
 		return defaultPage;
 	}
 

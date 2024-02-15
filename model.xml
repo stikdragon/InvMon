@@ -12,9 +12,9 @@
 
 	<!-- for now i haven't implemented any communication with a BMS, so count is set to 0 to 
 	     effectively disable the battery fields -->
-	<RepeatGroup id="batteries" count="0">
-		<ReplaceToken key="ID" values="1,2" />
-		<ReplaceToken key="SRC" values="invA,invB" />
+	<RepeatGroup id="batteries" count="1">
+		<ReplaceToken key="ID" values="1" />
+		<ReplaceToken key="SRC" values="bms1" />
 	</RepeatGroup>
 
 	<!-- actual fields -->
@@ -34,13 +34,13 @@
 	<Field id="GRID_I" type="current" source="invA.gridI" />
 	<Field id="GRID_F" type="freq" source="invA.gridF" />
 	<Field id="LOAD_F" type="freq" source="invA.loadF" />
-	<Field id="BATT_V" type="voltage" source="invA.battV" />
+	<Field id="BATT_V" type="voltage" source="bms1.v" />
 
 	<Repeat group="inverters">
 		<Field id="INV_$ID$_I" type="current" source="$SRC$.battI" />
 	</Repeat>
 	<Field id="INV_I" type="current" calculatedRepeat="[INV_$ID$_I],sum" repeatGroup="inverters" />
-	<Field id="BATT_SOC" type="float" source="invA.soc" />
+	<Field id="BATT_SOC" type="float" source="bms1.soc" />
 	<Field id="BATT_MODE" type="string,16" source="invA.mode" />
 
 	<Field id="LOAD_V" type="voltage" source="invA.loadV" />
@@ -83,19 +83,11 @@
 		<Field id="BATT_$ID$_C14" type="volt8,1.5,3.0" source="$SRC$.c14" />
 		<Field id="BATT_$ID$_C15" type="volt8,1.5,3.0" source="$SRC$.c15" />
 		<Field id="BATT_$ID$_C16" type="volt8,1.5,3.0" source="$SRC$.c16" />
-		<Field id="BATT_$ID$_C17" type="volt8,1.5,3.0" source="$SRC$.c17" />
-		<Field id="BATT_$ID$_C18" type="volt8,1.5,3.0" source="$SRC$.c18" />
-		<Field id="BATT_$ID$_C19" type="volt8,1.5,3.0" source="$SRC$.c19" />
-		<Field id="BATT_$ID$_C20" type="volt8,1.5,3.0" source="$SRC$.c20" />
-		<Field id="BATT_$ID$_C21" type="volt8,1.5,3.0" source="$SRC$.c21" />
-		<Field id="BATT_$ID$_C22" type="volt8,1.5,3.0" source="$SRC$.c22" />
-		<Field id="BATT_$ID$_C23" type="volt8,1.5,3.0" source="$SRC$.c23" />
-		<Field id="BATT_$ID$_C24" type="volt8,1.5,3.0" source="$SRC$.c24" />
 	</Repeat>
 
 
-	<!-- <Field id="BATT_I" type="current" calculatedRepeat="[BATT_$_I],sum" repeatGroup="batteries" /> -->
-	<Field id="BATT_I" type="current" calculatedRepeat="[INV_$ID$_I],sum" repeatGroup="inverters" />
+	<Field id="BATT_I" type="current" calculatedRepeat="[BATT_$ID$_I],sum" repeatGroup="batteries" />
+	<!-- <Field id="BATT_I" type="current" calculatedRepeat="[INV_$ID$_I],sum" repeatGroup="inverters" /> -->
 
 	<Field id="BATT_P" type="power" calculated="[BATT_I], [BATT_V], *" />
 	<Field id="BATT_I_CHG" type="current" calculated="[BATT_I], !invert, 0, !max" />

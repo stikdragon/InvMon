@@ -748,7 +748,7 @@ table.data .total td {
 }
 
 .consoledialog .console {
-	color: #ddd;
+	color: #b2b2b2;
 	display: flex;
 	flex-direction: column;
 	gap: 2px;
@@ -817,8 +817,80 @@ table.data .total td {
 	opacity: 100%;
 }
 
+.formatted-text {
+	
+}
+
+.formatted-text .sty1 {
+}
+
+.formatted-text .sty2 {
+	color: #f77;	
+}
+
+.formatted-text .sty3 {
+	color: #7f7;	
+}
+
+.formatted-text .sty4 {
+	color: #77f;	
+}
+
+.formatted-text .sty5 {
+	color: #fff;	
+}
+
 textarea:focus, input:focus {
 	outline: none;
+}
+
+.bms-status .cells {
+	display: flex;
+	flex-direction: column;;
+}
+
+.bms-status .cells .row {
+	display: flex;
+	flex-direction: row;
+}
+
+.bms-status .content {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.bms-status .cell {
+	width: 75px;
+	height: 26px;
+	text-align: center;
+	margin: 3px;
+	background: rgba(0, 0, 0, 10%);
+	position: relative;
+}
+
+.bms-status .cell .barouter {
+	height: 100%;
+	position: absolute;
+	bottom: 0;
+	left: 0;
+}
+
+.bms-status .cell .barinner {
+	height: 20px;
+	background: linear-gradient(0deg, rgba(76, 133, 78, 1) 0%,
+		rgba(99, 172, 64, 1) 100%);
+	margin: 3px;
+}
+
+.bms-status .cell .txt {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	font-size: 12px;
+	font-weight: bold;
+	color: #606060;
 }
 
 .config-dialog {
@@ -849,7 +921,7 @@ textarea:focus, input:focus {
 }
 
 .config-dialog .list .row .left {
-	width: 100px;
+	width: 130px;
 	align-items: right;
 	font-weight: bold;
 	color: #888;
@@ -861,7 +933,6 @@ textarea:focus, input:focus {
 	display: flex;
 	flex-direction: row;
 }
-
 .config-dialog .buttons .button {
 	min-width: 40px;
 }

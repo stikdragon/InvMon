@@ -22,6 +22,7 @@
 			</SolarKicker>
 		</InverterController>
 
+		<StikBMS id="bms1" port="COM12" baud="9600" batteryCount="2"  cellCount="16" />
 
 <!-- 		<SerialRepeater id="serialout1" port="COM8" baud="9600">
 			<Field width="3" scale="100.0">BATT_SOC</Field>

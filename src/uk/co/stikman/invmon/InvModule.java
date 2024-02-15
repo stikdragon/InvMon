@@ -68,9 +68,9 @@ public abstract class InvModule {
 			for (ConsoleHelpInfo x : lst) {
 				String[] lines = x.getDetail().split("\n");
 				for (int i = 0; i < lines.length; ++i)
-					sb.append(Utils.padString(i == 0 ? x.getCommand() : "", ' ', max)).append(i == 0 ? "- " : "  ").append(lines[i]).append("\n");
+					sb.append("^5").append(Utils.padString(i == 0 ? x.getCommand() : "", ' ', max)).append("^x").append(i == 0 ? "- " : "  ").append(lines[i]).append("\n");
 			}
-			return new ConsoleResponse(sb.toString());
+			return new ConsoleResponse(sb.toString(), true);
 		}
 
 		if (cmd.equals("summary"))
@@ -78,7 +78,7 @@ public abstract class InvModule {
 
 		if (cmd.equals("exit")) {
 			console.setActiveModule(null);
-			return new ConsoleResponse(ConsoleResponseStatus.OK, "Selected module: -none-");
+			return new ConsoleResponse(ConsoleResponseStatus.OK, "Selected module: -none-", false);
 		}
 		throw new InvMonClientError("Unknown command: " + cmd);
 	}

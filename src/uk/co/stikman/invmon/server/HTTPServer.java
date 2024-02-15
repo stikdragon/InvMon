@@ -81,6 +81,7 @@ public class HTTPServer extends InvModule {
 	private HttpLayoutConfig			layoutConfig;
 	private Users						users			= new Users();
 	private AuthedSessions				authedSessions	= new AuthedSessions();
+	private int							requestCounter	= 0;
 
 	private EmbeddedServer				embeddedSvr;
 
@@ -257,7 +258,7 @@ public class HTTPServer extends InvModule {
 		layoutConfig = new HttpLayoutConfig();
 		layoutConfig.configure(getEnv(), InvUtil.miniDomFromReal(config));
 		users.configure(config);
-		String s = InvUtil.getAttrib(config, "security", "simple-user");
+		String s = InvUtil.getAttrib(config, "security", "normal");
 		securityMode = SecurityMode.valueOf(s.toUpperCase());
 	}
 
@@ -321,6 +322,7 @@ public class HTTPServer extends InvModule {
 
 	private InvMonHTTPResponse serve(InvMonHTTPRequest http) {
 		try {
+			++requestCounter;
 			if (!http.isMethod("GET") && !http.isMethod("POST"))
 				throw new Exception("Unsupported method");
 
@@ -352,6 +354,7 @@ public class HTTPServer extends InvModule {
 				}
 			}
 			sesh.touch();
+
 
 			sesh.requireUserRole(m.getRequiredRole());
 			synchronized (sesh) {
@@ -406,6 +409,7 @@ public class HTTPServer extends InvModule {
 			} else {
 				ConsoleResponse output = c.execute(cmd.trim());
 				res.put("result", output.getText());
+				res.put("formatted", output.isFormatted());
 				res.put("module", output.getActiveModule() == null ? "" : output.getActiveModule().getId());
 			}
 			return new InvMonHTTPResponse(res.toString());
@@ -496,6 +500,11 @@ public class HTTPServer extends InvModule {
 		synchronized (sessions) {
 
 		}
+	}
+
+	@Override
+	public String toString() {
+		return "HTTPServer running on port " + port + ".  Served " + requestCounter + " requests";
 	}
 
 }

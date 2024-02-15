@@ -65,7 +65,8 @@ public class ToggleButton {
 			root.getClassList().add("selected");
 		else
 			root.getClassList().remove("selected");
-		img.setSrc(state ? imageOn : imageOff);
+		if (img != null)
+			img.setSrc(state ? imageOn : imageOff);
 	}
 
 }

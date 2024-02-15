@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <Page>
     <Widget class="timesel" id="timeselector" layout="0, 0, 25, 1"/>
-    <Widget class="chart" cssClass="pv" id="pvChart" layout="0, 1, 20, 13" title="PV Power">
+    <Widget class="chart" cssClass="pv" id="pvChart" layout="0, 1, 20, 7" title="PV Power">
         <Series axis="y1" field="PV_TOTAL_P" subfields="PVA_1_P,PVB_1_P,PVA_2_P,PVB_2_P"/>
         <Axis enabled="true" id="x1"/>
         <Axis enabled="true" formatter="%d W" id="y1" min="0.0"/>
         <Axis enabled="true" id="y2"/>
         <HeaderBit fields="PV_TOTAL_P" text="Total: [%d]W"/>
     </Widget>
-    <Widget class="table-pv" fields="PVA_1:Roof,PVB_1:Lawn,PVA_2:Shed" id="pvTable" layout="25, 0, 5, 5" title="PV Power"/>
-    <Widget class="chart" cssClass="load" id="loadChart" layout="0, 14, 20, 7" title="Load">
+    <Widget class="table-pv" fields="PVA_1:Roof,PVB_1:Lawn,PVA_2:Shed" id="pvTable" layout="20, 1, 5, 5" title="PV Power"/>
+    <Widget class="chart" cssClass="load" id="loadChart" layout="0, 8, 20, 7" title="Load">
         <Series axis="y1" field="LOAD_P" subfields="LOAD_1_P,LOAD_2_P"/>
         <Axis enabled="true" id="x1"/>
         <Axis enabled="true" formatter="%d W" id="y1" min="0.0"/>
@@ -17,7 +17,7 @@
         <HeaderBit fields="LOAD_P,LOAD_V,LOAD_I" text="Load: [%d]W ([%.2f]V @ [%.2f]A)"/>
         <HeaderBit special="powerfactor"/>
     </Widget>
-    <Widget class="chart" cssClass="battery" id="batteryChart" layout="0, 21, 34, 7" title="Battery">
+    <Widget class="chart" cssClass="battery" id="batteryChart" layout="0, 15, 20, 6" title="Battery">
         <Series axis="y1" field="BATT_I_CHG"/>
         <Series axis="y1" field="BATT_I_DIS"/>
         <Series axis="y2" field="BATT_V"/>
@@ -26,7 +26,7 @@
         <Axis enabled="true" formatter="%.1f V" id="y2" max="65.0" min="35.0"/>
         <HeaderBit fields="BATT_P,BATT_V,BATT_I" text="Battery: [%d]W ([%.2f]V @ [%.2f]A)"/>
     </Widget>
-    <Widget class="chart" cssClass="temperature" id="busChart" layout="20, 15, 14, 6" title="Bus/Temps">
+    <Widget class="chart" cssClass="temperature" id="busChart" layout="0, 21, 20, 4" title="Bus/Temps">
         <Series axis="y1" field="INV_1_TEMP"/>
         <Series axis="y1" field="INV_2_TEMP"/>
         <Series axis="y2" field="INV_1_BUS_V"/>
@@ -35,10 +35,13 @@
         <Axis enabled="true" formatter="%d V" id="y2" min="0.0"/>
         <HeaderBit fields="INV_1_TEMP,INV_2_TEMP,INV_1_BUS_V,INV_2_BUS_V" text="( Temp: A [%.1f]C, B [%.1f]C )     ( Bus Voltage: A [%d]V B [%d]V )"/>
     </Widget>
-    <Widget class="infobit" id="infobit" layout="0, 26, 20, 2"/>
-    <Widget class="controls" id="controls" layout="31, 5, 5, 5" title="Control"/>
-    <Widget class="energysummary" id="summary" layout="20, 5, 5, 5" title="Energy"/>
-    <Widget arclength="210.0" class="dial" field="BATT_SOC" id="soc" layout="25, 10, 5, 5" mode="normal" range="0.0,1.0" text="percent" title="SoC"/>
-    <Widget arclength="75.0" class="dial" field="BATT_I" id="batti" layout="20, 10, 5, 5" mode="split" range="-200.0,200.0" text="current" title="Battery Current"/>
-    <!-- <Widget class="stik-controller" id="invcon1status" layout="20, 1, 5, 4" module="invcon1" title="Inverter"/> -->
+
+    <Widget class="infobit" id="infobit" layout="0, 26, 7, 2"/>
+    <Widget class="controls" id="controls" layout="20, 6, 5, 5" title="Control"/>
+    <Widget class="energysummary" id="summary" layout="20, 11, 5, 5" title="Energy"/>
+    <Widget arclength="210.0" class="dial" field="BATT_SOC" id="soc" layout="20, 16, 5, 5" mode="normal" range="0.0,1.0" text="percent" title="SoC"/>
+    <Widget arclength="75.0" class="dial" field="BATT_I" id="batti" layout="20, 21, 5, 4" mode="split" range="-200.0,200.0" text="current" title="Battery Current"/>
+    <Widget class="stik-controller" id="invcon1status" layout="25, 21, 5, 4" module="invcon1" title="Inverter"/>
+    <Widget class="bms-status" id="bmsstuff" layout="25, 1, 5, 20" title="BMS" module="bms1" />
+
 </Page>

@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.w3c.dom.Element;
@@ -30,12 +31,13 @@ import uk.co.stikman.invmon.inverter.util.InvUtil;
 import uk.co.stikman.log.StikLog;
 
 public class DataLogger extends InvModule {
-	private static final StikLog	LOGGER	= StikLog.getLogger(DataLogger.class);
+	private static final StikLog	LOGGER					= StikLog.getLogger(DataLogger.class);
 	private MiniDB					db;
 	private File					lock;
 	private File					file;
 	private int						blockSize;
 	private int						cachedBlocks;
+	private Set<String>				suppressedErrorMessages	= new HashSet<>();
 
 	public DataLogger(String id, Env env) {
 		super(id, env);
@@ -90,6 +92,20 @@ public class DataLogger extends InvModule {
 			throw new MiniDbException("Database needs conversion, but [allowConversion] is not set to [true] in the <Settings> element of the config file");
 		LOGGER.info("  (This may take a long time)");
 
+		File fold = new File(file.toString() + ".old");
+		if (fold.exists()) {
+			LOGGER.error("");
+			LOGGER.error("=====================================");
+			LOGGER.error("");
+			LOGGER.error("We will rename the old database to " + fold.getName() + " but there is already a file");
+			LOGGER.error("by that name.  This probably left over from a prior upgrade process.  You must ");
+			LOGGER.error("delete these *.old files first.");
+			LOGGER.error("");
+			LOGGER.error("=====================================");
+			LOGGER.error("");
+			throw new MiniDbException("*.old database already exists");
+		}
+
 		//
 		// make a new DB with a temp name, convert into it, if it's
 		// ok then delete the old one and rename
@@ -131,7 +147,7 @@ public class DataLogger extends InvModule {
 				for (int i = 0; i < oldDb.getRecordCount(); ++i) {
 					if (System.currentTimeMillis() - lastT > 1500) {
 						lastT = System.currentTimeMillis();
-						LOGGER.info("Converting record [" + i + "] of [" + oldDb.getRecordCount() + "]...");
+						LOGGER.info(String.format("%.1f%% Converting record [%d] of [%d]", (float) (100 * i) / oldDb.getRecordCount(), i, oldDb.getRecordCount()));
 						//						LOGGER.info("Open blocks: " + oldDb.getOpenBlocks()  + ",  " + newDb.getOpenBlocks());
 					}
 
@@ -221,8 +237,18 @@ public class DataLogger extends InvModule {
 			if (f.getSource() != null) {
 				String[] bits = InvUtil.splitPair(f.getSource(), '.');
 				Sample src = data.get(bits[0]);
-				if (src == null)
-					throw new NoSuchElementException("Source [" + f.getSource() + "] was not found in the samples returned by active modules");
+
+				if (src == null) {
+					//
+					// show an error the first time, then ignore in future
+					//
+					String s = "Source [" + f.getSource() + ":" + bits[1] + "] was not found in the samples returned by active modules";
+					if (!suppressedErrorMessages.contains(s)) {
+						LOGGER.error(s);
+						suppressedErrorMessages.add(s);
+					}
+					continue;
+				}
 				switch (f.getType().getBaseType()) {
 					case FLOAT:
 						rec.setFloat(f, src.getFloat(bits[1]));
@@ -316,6 +342,7 @@ public class DataLogger extends InvModule {
 
 						switch (srcfld.getType().getBaseType()) {
 							case FLOAT:
+							case FLOAT8:
 								float f = dbrec.getFloat(srcfld);
 								if (!Float.isFinite(f))
 									f = 0.0f;
@@ -401,7 +428,7 @@ public class DataLogger extends InvModule {
 			throw new MiniDbException("Range is smaller than 0");
 		IntRange range = db.getRecordRange(tsStart, tsEnd);
 		if (range.isValid()) {
-			for (int idx = range.getLow(); idx < range.getHigh(); ++idx) 
+			for (int idx = range.getLow(); idx < range.getHigh(); ++idx)
 				callback.accept(db.getRecord(idx));
 		}
 	}

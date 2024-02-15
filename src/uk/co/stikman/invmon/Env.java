@@ -135,6 +135,7 @@ public class Env {
 			mainthread = new Thread(this::loop);
 			mainthread.start();
 			LOGGER.info("Ready");
+			
 		} catch (Throwable th) {
 			try {
 				terminate();

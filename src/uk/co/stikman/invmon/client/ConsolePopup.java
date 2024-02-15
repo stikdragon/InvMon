@@ -10,15 +10,17 @@ import org.teavm.jso.dom.events.KeyboardEvent;
 import org.teavm.jso.dom.html.HTMLElement;
 import org.teavm.jso.dom.html.HTMLImageElement;
 import org.teavm.jso.dom.html.HTMLInputElement;
+import org.teavm.jso.dom.xml.Element;
+import org.teavm.jso.dom.xml.Node;
 
 public class ConsolePopup extends PopupWindow {
-	private static final String STORAGE_KEY = "console-history";
+	private static final String	STORAGE_KEY	= "console-history";
 	private ClientPage			owner;
 	private HTMLInputElement	inputline;
 	private HTMLElement			container;
 	private HTMLElement			lblModule;
 	private int					historyIndex;
-	private List<String>		history	= new ArrayList<>();
+	private List<String>		history		= new ArrayList<>();
 
 	public ConsolePopup(ClientPage owner, Consumer<ConsolePopup> onclose) {
 		super();
@@ -56,7 +58,7 @@ public class ConsolePopup extends PopupWindow {
 		getContent().appendChild(top);
 		getContent().appendChild(container);
 		getContent().appendChild(bottom);
-		
+
 		String s = ClientUtil.getLocalStorageItem(STORAGE_KEY);
 		if (s != null) {
 			JSONArray arr = new JSONArray(s);
@@ -64,7 +66,7 @@ public class ConsolePopup extends PopupWindow {
 				history.add(arr.getString(i));
 			historyIndex = history.size();
 		}
-		
+
 	}
 
 	private void keyUp(KeyboardEvent ev) {
@@ -90,7 +92,7 @@ public class ConsolePopup extends PopupWindow {
 			inputline.setValue("");
 			owner.post("console", req, resp -> {
 				if (resp.getString("status").equals("ok")) {
-					container.appendChild(InvMon.text(resp.getString("result"), "result"));
+					container.appendChild(createResponseDiv(resp.getString("result"), resp.optBoolean("formatted")));
 					if (resp.has("module"))
 						lblModule.setTextContent(resp.getString("module"));
 				} else if (resp.getString("status").equals("error")) {
@@ -104,9 +106,58 @@ public class ConsolePopup extends PopupWindow {
 		}
 	}
 
+	
+	private HTMLElement createResponseDiv(String text, boolean formatted) {
+		if (!formatted)
+			return InvMon.text(text, "result");
+
+		//
+		// formatted one supports five style classes, sty1-5
+		// you specify them with ^1, ^2, ^3, etc, or ^x to reset
+		// a literal ^ is put in by doing ^^
+		//
+		HTMLElement root = InvMon.div("result", "formatted-text");
+		CharIter iter = new CharIter(text);
+		StringBuilder sb = new StringBuilder();
+		int colour = 1;
+		while (iter.hasNext()) {
+			char ch = iter.next();
+			if (ch == '^') {
+				char next = iter.peek();
+				if (next == '^') {
+					sb.append("^");
+					iter.next();
+				} else if (next >= '1' && next <= '5') {
+					iter.next();
+					append(root, colour, sb.toString());
+					colour = next - '0';
+					sb = new StringBuilder();
+				} else if (next == 'x') {
+					iter.next();
+					append(root, colour, sb.toString());
+					colour = 1;
+					sb = new StringBuilder();
+				}
+			} else {
+				sb.append(ch);
+			}
+		}
+		append(root, colour, sb.toString());
+
+		return root;
+	}
+
+	private void append(HTMLElement root, int colour, String text) {
+		if (text.length() == 0)
+			return;
+		HTMLElement span = InvMon.element("span", "sty" + colour);
+		span.setTextContent(text);
+		root.appendChild(span);
+	}
+
 	private void addHistoryItem(String value) {
 		history.add(value);
-		historyIndex = history.size(); 	
+		historyIndex = history.size();
 		JSONArray arr = new JSONArray();
 		history.forEach(arr::put);
 		ClientUtil.setLocalStorageItem(STORAGE_KEY, arr.toString());
@@ -118,7 +169,7 @@ public class ConsolePopup extends PopupWindow {
 			historyIndex = 0;
 		if (historyIndex > history.size())
 			historyIndex = history.size();
-		String cmd =  historyIndex >= history.size() ? "" : history.get(historyIndex);
+		String cmd = historyIndex >= history.size() ? "" : history.get(historyIndex);
 		inputline.setValue(cmd);
 	}
 

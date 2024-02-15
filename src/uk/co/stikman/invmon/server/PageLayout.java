@@ -14,6 +14,7 @@ import uk.co.stikman.invmon.Env;
 import uk.co.stikman.invmon.InvMonException;
 import uk.co.stikman.invmon.Pair;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
+import uk.co.stikman.invmon.server.widgets.BMSStatusWidget;
 import uk.co.stikman.invmon.minidom.MDElement;
 import uk.co.stikman.invmon.minidom.MiniDOM;
 import uk.co.stikman.invmon.server.widgets.ChartWidget;
@@ -50,6 +51,7 @@ public class PageLayout {
 		TYPES.add(new Pair<>("text-summary", "TextSummaryWidget"));
 		TYPES.add(new Pair<>("stik-controller", "StikSystemControllerWidget"));
 		TYPES.add(new Pair<>("log", "LogWidget"));
+		TYPES.add(new Pair<>("bms-status", "BMSStatusWidget"));
 	}
 
 	public PageLayout(Env env, File file) {
