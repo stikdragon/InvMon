@@ -25,15 +25,9 @@
 
 	<target name="compile" depends="clean">
 		<mkdir dir="build/classes" />
-		<javac target="17" source="17" srcdir="src" destdir="build/classes" classpathref="cp" includeantruntime="false">
+		<javac target="17" source="17" srcdir="src" encoding="utf-8" destdir="build/classes" classpathref="cp" includeantruntime="false">
 			<exclude name="**/uk/co/stikman/invmon/junk/dischargemonitor/*.java" />
 		</javac>
-		<copy todir="build/classes">
-			<fileset dir="src">
-				<exclude name="**/*.java" />
-			</fileset>
-		</copy>
-		<echo file="build/classes/uk/co/stikman/invmon/version.txt" append="false">${version}</echo>
 	</target>
 	
 	<target name="teavm">
@@ -52,6 +46,12 @@
 	
 
 	<target name="jar" depends="compile,teavm">
+		<copy todir="build/classes">
+			<fileset dir="src">
+				<exclude name="**/*.java" />
+			</fileset>
+		</copy>
+		<echo file="build/classes/uk/co/stikman/invmon/version.txt" append="false">${version}</echo>	
 		<jar destfile="dist\invmon-${version}.jar" basedir="build/classes">
 			<manifest>
 				<attribute name="Main-Class" value="uk.co.stikman.invmon.InvMon" />
