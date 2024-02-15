@@ -26,6 +26,8 @@ import uk.co.stikman.invmon.PollData;
 import uk.co.stikman.invmon.Sample;
 import uk.co.stikman.invmon.datalog.IntRange;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
+import uk.co.stikman.invmon.inverter.util.TextPainter;
+import uk.co.stikman.invmon.inverter.util.TextPainter.BoxSet;
 import uk.co.stikman.invmon.server.Console;
 import uk.co.stikman.log.StikLog;
 import uk.co.stikman.table.DataRecord;
@@ -82,8 +84,8 @@ public class StikBMS extends InvModule {
 					for (BatteryData b : batteryData) {
 						float[] cells = b.getCellVoltages();
 						b.setPackVoltage(cells[cellsPerBatt - 1]);
-						for (int i = 0; i < cells.length - 1; ++i)
-							cells[i] = cells[i] - cells[i + 1];
+						for (int i = cells.length - 1; i > 0; --i)
+							cells[i] = cells[i] - cells[i - 1];
 					}
 
 					//
@@ -227,7 +229,7 @@ public class StikBMS extends InvModule {
 					^3CALIBRATE CELL VOLTAGES^x:
 					========================
 					    ^5calib cell reset
-					    calib cell all ^2[voltage]^x
+					    calib cell all ^2[voltage]^5
 					    calib cell ^2[ID]^5=^2[voltage]^x
 
 					Write a calibration factor back to the BMS.  You tell the BMS what the voltage
@@ -244,9 +246,9 @@ public class StikBMS extends InvModule {
 
 					    ^5calib cell all 53.45^x
 
-					You can do this cell-by-cell as well, if you want.  Cells start at index ^51^x.
+					You can do this cell-by-cell as well, if you want.  Cells start at index ^50^x.
 
-					    ^5calib cell 4=13.34, 5=16.66, 6=20.02^x
+					    ^5calib cell 0=13.34, 5=16.66, 6=20.02^x
 
 					Also
 
@@ -278,7 +280,7 @@ public class StikBMS extends InvModule {
 
 					NOTE: changing calibration factors stores them in EEPROM memory in the BMS.  this
 					has a limited number of write-cycles, so don't do this many tens of thousands of times
-					""");
+					""", true);
 
 		if (cmd.equals("calib show")) {
 			StikBMSInterface bms = createBMS();
@@ -412,20 +414,30 @@ public class StikBMS extends InvModule {
 	}
 
 	private ConsoleResponse runConsoleInfo(Console console, String cmd) {
+		TextPainter tp = new TextPainter();
 
-		DataTable dt = new DataTable();
-		dt.addField("Cell");
-		for (BatteryData bi : batteryData)
-			dt.addField("B" + bi.getId());
-		for (int i = 0; i < cellsPerBatt; ++i) {
-			DataRecord r = dt.addRecord();
-			r.setValue(0, Integer.toString(i));
-			int j = 0;
-			for (BatteryData bi : batteryData)
-				r.setValue(++j, String.format("%.2fV", bi.getCellVoltages()[i]));
+		final int W = 24;
+		tp.putColour(1, 0, "#", '3');
+		tp.putColour(5, 0, "CellV", '3');
+		tp.putColour(13, 0, "AbsV", '3');
+
+		tp.putColour(W + 1, 0, "#", '3');
+		tp.putColour(W + 5, 0, "CellV", '3');
+		tp.putColour(W + 13, 0, "AbsV", '3');
+		for (int x = 0; x < 2; ++x) {
+			BatteryData bi = batteryData.get(x);
+			for (int y = 0; y < 16; ++y) {
+				float va = bi.getCellVoltages()[y];
+				float dv = bi.getCellVoltages()[y];
+				tp.putColour(x * W, y + 1, String.format("%2d:", x * 16 + y), '1');
+				tp.putColour(x * W + 4, y + 1, String.format("%5.02f", dv), '5');
+				tp.putColour(x * W + 9, y + 1, "V", '4');
+				tp.putColour(x * W + 11, y + 1, String.format("%5.02f", va), '1');
+				tp.putColour(x * W + 16, y + 1, "V", '1');
+			}
 		}
 
-		ConsoleResponse res = new ConsoleResponse(dt.toString());
+		ConsoleResponse res = new ConsoleResponse(tp.toString(true));
 		return res;
 	}
 
