@@ -223,7 +223,7 @@ public class StikBMS extends InvModule {
 		return super.consoleCommand(console, cmd);
 	}
 
-	private ConsoleResponse runCalibStuff(Console console, String cmd) throws IOException {
+	private ConsoleResponse runCalibStuff(Console console, String cmd) throws IOException, InvMonException {
 		if (cmd.equals("calib"))
 			return new ConsoleResponse("""
 					^3CALIBRATE CELL VOLTAGES^x:
@@ -235,8 +235,8 @@ public class StikBMS extends InvModule {
 					Write a calibration factor back to the BMS.  You tell the BMS what the voltage
 					on a particular channel really is by measuring it accurately.  This allows it to
 					calibrate its ADCs.   The easiest way to do this is to connect all the channels
-					to the highest cell (eg. the ^5+ve^x terminal of the battery pack) at once, and then
-					tell use the "^5all^x" method.  this way you only have to make one measurement.
+					to the highest cell (eg. the ^5+ve^x terminal of the battery pack) at once, and
+					then use the "^5all^x" method.  this way you only have to make one measurement.
 
 					It's important the battery is in a very steady state when you do this.  It's best
 					to leave the battery disconnected from any load so that you can depend on the
@@ -244,11 +244,12 @@ public class StikBMS extends InvModule {
 
 					Eg. if you measure the total pack voltage as ^553.45v^x then issue the command:
 
-					    ^5calib cell all 53.45^x
+					    ^5calib cell all=53.45^x
 
 					You can do this cell-by-cell as well, if you want.  Cells start at index ^50^x.
 
 					    ^5calib cell 0=13.34, 5=16.66, 6=20.02^x
+					    ^5calib cell 0-15=54.2^x
 
 					Also
 
@@ -276,7 +277,7 @@ public class StikBMS extends InvModule {
 
 					    ^5calib show^x
 
-					               which lists all the current calibration constants.  This isn't very useful.
+					which lists all the current calibration constants.  This isn't very useful.
 
 					NOTE: changing calibration factors stores them in EEPROM memory in the BMS.  this
 					has a limited number of write-cycles, so don't do this many tens of thousands of times
@@ -305,58 +306,10 @@ public class StikBMS extends InvModule {
 			}
 		}
 
-		//
-		// urgh this could be more elegant
-		//
-		if (cmd.startsWith("calib cell all ")) {
-			String val = cmd.substring("calib cell all ".length()).trim();
-			if (val.endsWith("v") || val.endsWith("V"))
-				val = val.substring(0, val.length() - 1);
-			Float f = Float.parseFloat(val);
-			List<IFPair> lst = new ArrayList<>();
-			for (int i = 0; i < numBatteries * cellsPerBatt; ++i)
-				lst.add(new IFPair(i, f));
-			StringBuffer sb = new StringBuffer();
-			applyCalibrationFactors(CalibTarget.VOLTAGE, lst, s -> sb.append(s).append("\n"));
-			return new ConsoleResponse(sb.toString());
-		} else if (cmd.startsWith("calib raw all ")) {
-			String val = cmd.substring("calib raw all ".length()).trim();
-			if (val.endsWith("v") || val.endsWith("V"))
-				val = val.substring(0, val.length() - 1);
-			Float f = Float.parseFloat(val);
-			List<IFPair> lst = new ArrayList<>();
-			for (int i = 0; i < numBatteries * cellsPerBatt; ++i)
-				lst.add(new IFPair(i, f));
-			StringBuffer sb = new StringBuffer();
-			applyCalibrationFactors(CalibTarget.VOLTAGE_RAW, lst, s -> sb.append(s).append("\n"));
-			return new ConsoleResponse(sb.toString());
-		} else if (cmd.startsWith("calib cell ")) {
-			String val = cmd.substring(11).replaceAll(" *", "");
-			String bits[] = val.split(",");
-			List<IFPair> lst = new ArrayList<>();
-			for (String bit : bits) {
-				String[] ab = bit.split("=");
-				int cell = Integer.parseInt(ab[0]);
-				float volt = Float.parseFloat(ab[1]);
-				lst.add(new IFPair(cell, volt));
-			}
-			StringBuffer sb = new StringBuffer();
-			applyCalibrationFactors(CalibTarget.VOLTAGE, lst, s -> sb.append(s).append("\n"));
-			return new ConsoleResponse(sb.toString());
-		} else if (cmd.startsWith("calib raw ")) {
-			String val = cmd.substring(10).replaceAll(" *", "");
-			String bits[] = val.split(",");
-			List<IFPair> lst = new ArrayList<>();
-			for (String bit : bits) {
-				String[] ab = bit.split("=");
-				int cell = Integer.parseInt(ab[0]);
-				float volt = Float.parseFloat(ab[1]);
-				lst.add(new IFPair(cell, volt));
-			}
-			StringBuffer sb = new StringBuffer();
-			applyCalibrationFactors(CalibTarget.VOLTAGE_RAW, lst, s -> sb.append(s).append("\n"));
-			return new ConsoleResponse(sb.toString());
-		} else if (cmd.startsWith("calib offset ")) {
+		if (cmd.startsWith("calib offset ")) {
+			//
+			// add a single IFPair record, it doesn't matter which index, it's ignored
+			//
 			String val = cmd.substring("calib offset ".length()).trim();
 			if (val.endsWith("v") || val.endsWith("V"))
 				val = val.substring(0, val.length() - 1);
@@ -368,7 +321,35 @@ public class StikBMS extends InvModule {
 			return new ConsoleResponse(sb.toString());
 		}
 
-		return new ConsoleResponse("what");
+		//
+		// interpret the various set operations
+		//
+		List<String> grps = InvUtil.regex(cmd, "^calib cell (raw )?(.*)$");
+		if (grps != null) {
+			boolean raw = grps.get(0) != null;
+			cmd = grps.get(1).replaceAll("\\s+", "").toLowerCase();
+			List<IFPair> lst = new ArrayList<>();
+			for (String bit : cmd.split(",")) {
+				if (bit.indexOf('=') == -1)
+					throw new InvMonException("Expected (cell)=(value)");
+				String[] u = bit.split("=");
+				IntRange rng;
+				if (u[0].equals("all"))
+					rng = new IntRange(0, cellsPerBatt * numBatteries);
+				else if (u[0].matches("\\d+-\\d+"))
+					rng = new IntRange(Integer.parseInt(u[0].split("-")[0]), Integer.parseInt(u[0].split("-")[1]));
+				else
+					rng = new IntRange(Integer.parseInt(u[0]), Integer.parseInt(u[0]));
+
+				float f = Float.parseFloat(u[1]);
+				rng.forEach(n -> lst.add(new IFPair(n, f)));
+			}
+			StringBuffer sb = new StringBuffer();
+			applyCalibrationFactors(raw ? CalibTarget.VOLTAGE_RAW : CalibTarget.VOLTAGE, lst, s -> sb.append(s).append("\n"));
+			return new ConsoleResponse(sb.toString());
+		}
+
+		return new ConsoleResponse("Unknown calib command");
 
 	}
 

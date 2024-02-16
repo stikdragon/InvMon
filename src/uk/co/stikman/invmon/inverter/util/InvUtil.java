@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -357,5 +359,25 @@ public class InvUtil {
 		}
 
 	}
+
+	/**
+	 * returns <code>null</code> if the regex doesn't match. if it does then returns
+	 * the groups as a list of string
+	 * 
+	 * @param input
+	 * @param pattern
+	 * @return
+	 */
+	public static List<String> regex(String input, String regex) {
+		Matcher m = Pattern.compile(regex).matcher(input);
+		while (m.find()) {
+			List<String> lst = new ArrayList<>();
+			for (int i = 1; i <= m.groupCount(); i++)
+				lst.add(m.group(i));
+			return lst;
+		}
+		return null;
+	}
+
 
 }

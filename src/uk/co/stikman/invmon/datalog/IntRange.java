@@ -1,5 +1,7 @@
 package uk.co.stikman.invmon.datalog;
 
+import java.util.function.IntConsumer;
+
 public class IntRange {
 
 	private int	low;
@@ -34,6 +36,11 @@ public class IntRange {
 	@Override
 	public String toString() {
 		return "[" + low + " - " + high + "]";
+	}
+
+	public void forEach(IntConsumer h) {
+		for (int i = low; i <= high; ++i)
+			h.accept(i);
 	}
 
 }
