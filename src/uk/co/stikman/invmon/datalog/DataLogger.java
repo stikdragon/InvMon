@@ -33,11 +33,14 @@ import uk.co.stikman.log.StikLog;
 public class DataLogger extends InvModule {
 	private static final StikLog	LOGGER					= StikLog.getLogger(DataLogger.class);
 	private MiniDB					db;
+	private StatsDB					statsDb;
+	private File					statsDbFile;
 	private File					lock;
 	private File					file;
 	private int						blockSize;
 	private int						cachedBlocks;
 	private Set<String>				suppressedErrorMessages	= new HashSet<>();
+	private long					pauseStatsUntil			= -1;
 
 	public DataLogger(String id, Env env) {
 		super(id, env);
@@ -82,6 +85,9 @@ public class DataLogger extends InvModule {
 		LOGGER.info("MiniDB heap block size: " + InvUtil.formatSize(db.getModel().getRecordHeapSize() * db.getBlockSize()));
 		LOGGER.info("MiniDB max cached blocks: " + cachedBlocks);
 		db.setMaxCachedBlocks(cachedBlocks);
+
+		LOGGER.info("Opening StatsDB..");
+		statsDb = new StatsDB(this, statsDbFile);
 
 		LOGGER.info("  done.");
 	}
@@ -269,15 +275,43 @@ public class DataLogger extends InvModule {
 		}
 
 		db.commitRecord(rec);
+
+		processStats(rec);
+
 		getEnv().getBus().fire(Events.LOGGER_RECORD_COMMITED, rec);
 	}
 
+	/**
+	 * a record has been committed, also maintain the stats database
+	 * 
+	 * @param rec
+	 * @throws InvMonException
+	 */
+	private void processStats(DBRecord rec) {
+		if (pauseStatsUntil > -1 && pauseStatsUntil < System.currentTimeMillis())
+			return;
+		pauseStatsUntil = -1;
+		try {
+			statsDb.update(rec);
+		} catch (InvMonException e) {
+			pauseStatsUntil = System.currentTimeMillis();
+			LOGGER.error("Stats update failed, stopping for 1 hour: " + e.getMessage(), e);
+		}
+	}
+
 	@Override
-	public void configure(Element config) {
+	public void configure(Element config) throws InvMonException {
 		file = new File(InvUtil.getAttrib(config, "file"));
+		statsDbFile = new File(InvUtil.getAttrib(config, "stats"));
 		lock = new File(file.getAbsolutePath() + ".lock");
 		blockSize = Integer.parseInt(InvUtil.getAttrib(config, "blockSize", Integer.toString(MiniDB.DEFAULT_BLOCKSIZE)));
 		cachedBlocks = Integer.parseInt(InvUtil.getAttrib(config, "cachedBlocks", Integer.toString(MiniDB.DEFAULT_CACHED_BLOCKS)));
+
+		Element el = InvUtil.getElement(config, "StatsConfig", true);
+		if (el != null) {
+			statsDb = new StatsDB(this, statsDbFile);
+			statsDb.configure(el);
+		}
 	}
 
 	@Override

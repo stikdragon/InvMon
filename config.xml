@@ -35,7 +35,11 @@
 
 		<!-- <TempHTMLOutput id="htmlout" target="junk\inv.html" /> -->
 
-		<DataLogger id="datalogger" file="data\datalog.db" blockSize="400000" cachedBlocks="4" />
+		<DataLogger id="datalogger" file="data\datalog.db" stats="data\stats" blockSize="400000" cachedBlocks="4">
+			<StatsConfig>
+				<Group id="1" type="seasonal-max" grouping="month" samplesPerDay="48" fields="PV1A_P,PV1B_P,PV2A_P,PV2B_P" outputPrefix="pvmax" />
+			</StatsConfig>
+		</DataLogger>
 
 		<HTTPServer id="httpserver" port="8083" security="allow_all" >
 			<DevMode root="C:\Stik\java\InvMon\bin\uk\co\stikman\invmon" />

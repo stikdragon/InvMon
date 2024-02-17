@@ -25,6 +25,8 @@
 		</dependency>
 		<dependency org="org.teavm" name="teavm-tooling" rev="&teavm.version;" />
 
+		<dependency org="com.h2database" name="h2" rev="2.2.224" />
+
 	</dependencies>
 
 
