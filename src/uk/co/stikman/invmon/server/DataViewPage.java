@@ -2,9 +2,16 @@ package uk.co.stikman.invmon.server;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import uk.co.stikman.invmon.InvModule;
@@ -13,7 +20,7 @@ import uk.co.stikman.invmon.client.res.ClientRes;
 import uk.co.stikman.invmon.datalog.DataLogger;
 import uk.co.stikman.invmon.datalog.QueryResults;
 import uk.co.stikman.invmon.datamodel.DataModel;
-import uk.co.stikman.invmon.datamodel.Field;
+import uk.co.stikman.invmon.datamodel.ModelField;
 import uk.co.stikman.invmon.nanohttpd.NanoHTTPD.Response.Status;
 import uk.co.stikman.log.StikLog;
 import uk.co.stikman.table.CSVExporter;
@@ -55,9 +62,9 @@ public class DataViewPage {
 
 			s = session.optParam("start", null);
 			long start = System.currentTimeMillis();
-			if (s != null)
-				start = OffsetDateTime.parse(s).toEpochSecond() * 1000;
-			else
+			if (s != null) {
+				start = attemptParseDateTime(s).toEpochSecond() * 1000;
+			} else
 				dur *= -1;
 
 			int count = -1;
@@ -86,7 +93,7 @@ public class DataViewPage {
 
 			DataModel model = owner.getEnv().getModel();
 			if (fields == null)
-				fields = model.getFields().stream().map(Field::getId).collect(Collectors.toList());
+				fields = model.getFields().stream().map(ModelField::getId).collect(Collectors.toList());
 			fields.remove("TIMESTAMP"); // we always add this already
 
 			DataLogger data = null;
@@ -104,7 +111,7 @@ public class DataViewPage {
 				dt.addField("TIMESTAMP");
 				for (String f : fields)
 					dt.addField(f);
-				Field[] flds = new Field[fields.size() + 1];
+				ModelField[] flds = new ModelField[fields.size() + 1];
 				int i = 1;
 				flds[0] = model.get("TIMESTAMP");
 				for (String f : fields)
@@ -135,6 +142,28 @@ public class DataViewPage {
 			LOGGER.error(e);
 			return new InvMonHTTPResponse(Status.INTERNAL_ERROR, "text/plain", e.toString());
 		}
+	}
+
+	/**
+	 * try a variety of datetime formats
+	 * 
+	 * @param s
+	 * @return
+	 */
+	private static OffsetDateTime attemptParseDateTime(String s) {
+		List<Function<String, OffsetDateTime>> things = new ArrayList<>();
+		things.add(t -> OffsetDateTime.parse(t));
+		things.add(t -> LocalDateTime.parse(t).atZone(ZoneId.systemDefault()).toOffsetDateTime());
+		things.add(t -> LocalDate.parse(t).atStartOfDay().atZone(ZoneId.systemDefault()).toOffsetDateTime());
+		DateTimeParseException ee = null;
+		for (Function<String, OffsetDateTime> x : things) {
+			try {
+				return x.apply(s);
+			} catch (DateTimeParseException e) {
+				ee = e;
+			}
+		}
+		throw ee;
 	}
 
 	private InvMonHTTPResponse showHelp() throws NotFoundException {

@@ -1,13 +1,13 @@
 package uk.co.stikman.invmon.datamodel.expr;
 
 import uk.co.stikman.invmon.datalog.DBRecord;
-import uk.co.stikman.invmon.datamodel.Field;
+import uk.co.stikman.invmon.datamodel.ModelField;
 
 public class FetchValOp implements CalcOp {
 
-	private Field field;
+	private ModelField field;
 
-	public FetchValOp(Field field) {
+	public FetchValOp(ModelField field) {
 		this.field = field;
 	}
 
@@ -16,7 +16,7 @@ public class FetchValOp implements CalcOp {
 		stack.push(rec.getFloat(field));
 	}
 
-	public Field getField() {
+	public ModelField getField() {
 		return field;
 	}
 

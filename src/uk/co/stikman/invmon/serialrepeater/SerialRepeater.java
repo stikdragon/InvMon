@@ -16,7 +16,7 @@ import uk.co.stikman.invmon.Events;
 import uk.co.stikman.invmon.InvModule;
 import uk.co.stikman.invmon.InvMonException;
 import uk.co.stikman.invmon.datalog.DBRecord;
-import uk.co.stikman.invmon.datamodel.Field;
+import uk.co.stikman.invmon.datamodel.ModelField;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
 import uk.co.stikman.log.StikLog;
 
@@ -131,7 +131,7 @@ public class SerialRepeater extends InvModule {
 		for (Element el : InvUtil.getElements(config)) {
 			if (el.getTagName().equals("Field" )) {
 				
-				Field f = getEnv().getModel().get(el.getTextContent());
+				ModelField f = getEnv().getModel().get(el.getTextContent());
 				int width = Integer.parseInt(InvUtil.getAttrib(el, "width"));
 				float scale = Float.parseFloat(InvUtil.getAttrib(el, "scale"));
 				OutputField x = new OutputField(f, width, scale);

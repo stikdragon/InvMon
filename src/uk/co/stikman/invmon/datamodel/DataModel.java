@@ -42,16 +42,16 @@ import uk.co.stikman.log.StikLog;
 import uk.co.stikman.table.DataRecord;
 import uk.co.stikman.table.DataTable;
 
-public class DataModel implements Iterable<Field> {
+public class DataModel implements Iterable<ModelField> {
 	public static final int			VERSION_1			= 1;
 	public static final int			VERSION_2			= 2;
 	public static final int			VERSION_3			= 3;
 
 	private static final StikLog	LOGGER				= StikLog.getLogger(DataModel.class);
 	private static final int		CURRENT_VERSION		= VERSION_3;
-	private Map<String, Field>		fields				= new HashMap<>();
-	private List<Field>				fieldList			= new ArrayList<>();
-	private List<Field>				calculatedFields	= Collections.emptyList();
+	private Map<String, ModelField>		fields				= new HashMap<>();
+	private List<ModelField>				fieldList			= new ArrayList<>();
+	private List<ModelField>				calculatedFields	= Collections.emptyList();
 	private FieldCounts				fieldCounts			= new FieldCounts();
 	private int						dataVersion;
 
@@ -93,8 +93,8 @@ public class DataModel implements Iterable<Field> {
 		//
 		// do some checks
 		//
-		Field ftimestamp = null;
-		for (Field f : fields.values()) {
+		ModelField ftimestamp = null;
+		for (ModelField f : fields.values()) {
 			if (f.getType() == FieldType.TIMESTAMP) {
 				if (ftimestamp != null)
 					throw new IOException("a TIMESTAMP field has been declared multiple times, there can be only one");
@@ -146,7 +146,7 @@ public class DataModel implements Iterable<Field> {
 		String id = InvUtil.getAttrib(el, "id");
 		if (grp != null)
 			id = grp.subst(id, ridx);
-		Field f = new Field(id);
+		ModelField f = new ModelField(id);
 		if (find(f.getId()) != null)
 			throw new IllegalArgumentException("Field [" + f.getId() + "] already declared");
 		f.setType(FieldType.parse(InvUtil.getAttrib(el, "type").toUpperCase()));
@@ -256,18 +256,18 @@ public class DataModel implements Iterable<Field> {
 		}
 	}
 
-	public Field get(String name) {
-		Field x = find(name);
+	public ModelField get(String name) {
+		ModelField x = find(name);
 		if (x == null)
 			throw new NoSuchElementException("Field [" + name + "] does not exist");
 		return x;
 	}
 
-	public Field find(String name) {
+	public ModelField find(String name) {
 		return fields.get(name);
 	}
 
-	public void add(Field fld) {
+	public void add(ModelField fld) {
 		if (find(fld.getId()) != null)
 			throw new IllegalStateException("Field [" + fld.getId() + "] already exists");
 		fields.put(fld.getId(), fld);
@@ -330,7 +330,7 @@ public class DataModel implements Iterable<Field> {
 	}
 
 	@Override
-	public Iterator<Field> iterator() {
+	public Iterator<ModelField> iterator() {
 		return fields.values().iterator();
 	}
 
@@ -344,7 +344,7 @@ public class DataModel implements Iterable<Field> {
 	 * 
 	 * @return
 	 */
-	public List<Field> getCalculatedFields() {
+	public List<ModelField> getCalculatedFields() {
 		return calculatedFields;
 	}
 
@@ -354,8 +354,8 @@ public class DataModel implements Iterable<Field> {
 	 * @throws InvMonException
 	 */
 	private void compileExpressions() throws InvMonException {
-		List<Field> lst = new ArrayList<>();
-		for (Field f : this) {
+		List<ModelField> lst = new ArrayList<>();
+		for (ModelField f : this) {
 			if (f.getCalculated() != null) {
 				try {
 					lst.add(f);
@@ -422,7 +422,7 @@ public class DataModel implements Iterable<Field> {
 	}
 
 	private static class Node {
-		Field		field;
+		ModelField		field;
 		List<Node>	children	= new ArrayList<>();
 
 		@Override
@@ -431,21 +431,21 @@ public class DataModel implements Iterable<Field> {
 		}
 	}
 
-	private List<Field> sortByCalcOrder(List<Field> lst) throws InvMonException {
+	private List<ModelField> sortByCalcOrder(List<ModelField> lst) throws InvMonException {
 		//
 		// turn them into a tree, then walk the roots for order
 		// also a good place to check for circular refs
 		//
-		Map<Field, Node> lkp = new HashMap<>();
+		Map<ModelField, Node> lkp = new HashMap<>();
 		Set<Node> roots = new HashSet<>();
-		for (Field f : lst) {
+		for (ModelField f : lst) {
 			Node n = new Node();
 			n.field = f;
 			roots.add(n);
 			lkp.put(f, n);
 		}
 
-		for (Field f : lst) {
+		for (ModelField f : lst) {
 			for (CalcOp op : f.getCalculationMethod().getOps()) {
 				if (op instanceof FetchValOp) {
 					FetchValOp fvo = (FetchValOp) op;
@@ -470,7 +470,7 @@ public class DataModel implements Iterable<Field> {
 			});
 		}
 
-		List<Field> output = new ArrayList<>();
+		List<ModelField> output = new ArrayList<>();
 		for (Node root : roots) {
 			walk(root, n -> {
 				output.remove(n.field);
@@ -500,7 +500,7 @@ public class DataModel implements Iterable<Field> {
 		return fieldCounts;
 	}
 
-	public List<Field> getFields() {
+	public List<ModelField> getFields() {
 		return fieldList;
 	}
 
@@ -514,7 +514,7 @@ public class DataModel implements Iterable<Field> {
 
 	public int getRecordHeapSize() {
 		int n = 0;
-		for (Field f : fieldList) {
+		for (ModelField f : fieldList) {
 			if (f.getType().getBaseType() == null) // this is probably the timestamp field
 				continue;
 			switch (f.getType().getBaseType()) {

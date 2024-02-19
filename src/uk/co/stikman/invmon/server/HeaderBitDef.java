@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 
 import uk.co.stikman.invmon.Env;
 import uk.co.stikman.invmon.datalog.DBRecord;
-import uk.co.stikman.invmon.datamodel.Field;
+import uk.co.stikman.invmon.datamodel.ModelField;
 import uk.co.stikman.invmon.inverter.util.Format;
 import uk.co.stikman.invmon.minidom.MDElement;
 
@@ -31,7 +31,7 @@ public class HeaderBitDef {
 	public String execute(Env env, DBRecord lastrec) {
 		Number[] vals = new Number[fields.size()];
 		for (int i = 0; i < fields.size(); ++i) {
-			Field f = env.getModel().get(fields.get(i));
+			ModelField f = env.getModel().get(fields.get(i));
 			vals[i] = lastrec.getNumber(f);
 		}
 

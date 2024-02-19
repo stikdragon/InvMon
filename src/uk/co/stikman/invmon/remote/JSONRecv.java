@@ -18,7 +18,7 @@ import uk.co.stikman.invmon.Sample;
 import uk.co.stikman.invmon.datalog.DataLogger;
 import uk.co.stikman.invmon.datalog.MiniDbException;
 import uk.co.stikman.invmon.datamodel.DataModel;
-import uk.co.stikman.invmon.datamodel.Field;
+import uk.co.stikman.invmon.datamodel.ModelField;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
 import uk.co.stikman.log.StikLog;
 
@@ -168,7 +168,7 @@ public class JSONRecv extends InvModule {
 			JSONArray arr2 = jo.getJSONArray("data");
 			for (int j = 0; j < arr2.length(); ++j) {
 				JSONObject jo2 = arr2.getJSONObject(j);
-				Field f = model.get(jo2.getString("f"));
+				ModelField f = model.get(jo2.getString("f"));
 				switch (f.getType().getBaseType()) {
 					case FLOAT:
 						dp.put(f.getId(), jo2.getFloat("v"));

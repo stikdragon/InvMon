@@ -7,31 +7,31 @@ package uk.co.stikman.invmon.datamodel;
  *
  */
 public class FieldVIF {
-	private Field	v;
-	private Field	i;
-	private Field	f;
+	private ModelField	v;
+	private ModelField	i;
+	private ModelField	f;
 
-	public Field getV() {
+	public ModelField getV() {
 		return v;
 	}
 
-	public void setV(Field v) {
+	public void setV(ModelField v) {
 		this.v = v;
 	}
 
-	public Field getI() {
+	public ModelField getI() {
 		return i;
 	}
 
-	public void setI(Field i) {
+	public void setI(ModelField i) {
 		this.i = i;
 	}
 
-	public Field getF() {
+	public ModelField getF() {
 		return f;
 	}
 
-	public void setF(Field f) {
+	public void setF(ModelField f) {
 		this.f = f;
 	}
 

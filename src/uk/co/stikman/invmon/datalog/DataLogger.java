@@ -3,6 +3,7 @@ package uk.co.stikman.invmon.datalog;
 import java.io.File;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -17,17 +18,22 @@ import java.util.stream.Collectors;
 import org.w3c.dom.Element;
 
 import uk.co.stikman.eventbus.Subscribe;
+import uk.co.stikman.invmon.ConsoleHelpInfo;
+import uk.co.stikman.invmon.ConsoleResponse;
 import uk.co.stikman.invmon.Env;
 import uk.co.stikman.invmon.Events;
 import uk.co.stikman.invmon.InvModule;
 import uk.co.stikman.invmon.InvMonException;
 import uk.co.stikman.invmon.PollData;
 import uk.co.stikman.invmon.Sample;
+import uk.co.stikman.invmon.datalog.stats.StatsField;
+import uk.co.stikman.invmon.datalog.stats.StatsThing;
 import uk.co.stikman.invmon.datamodel.AggregationMode;
 import uk.co.stikman.invmon.datamodel.DataModel;
-import uk.co.stikman.invmon.datamodel.Field;
+import uk.co.stikman.invmon.datamodel.ModelField;
 import uk.co.stikman.invmon.datamodel.FieldType;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
+import uk.co.stikman.invmon.server.Console;
 import uk.co.stikman.log.StikLog;
 
 public class DataLogger extends InvModule {
@@ -40,7 +46,7 @@ public class DataLogger extends InvModule {
 	private int						blockSize;
 	private int						cachedBlocks;
 	private Set<String>				suppressedErrorMessages	= new HashSet<>();
-	private long					pauseStatsUntil			= -1;
+	private String					rebuildStatus			= "(n/a)";
 
 	public DataLogger(String id, Env env) {
 		super(id, env);
@@ -87,9 +93,16 @@ public class DataLogger extends InvModule {
 		db.setMaxCachedBlocks(cachedBlocks);
 
 		LOGGER.info("Opening StatsDB..");
-		statsDb = new StatsDB(this, statsDbFile);
 
 		LOGGER.info("  done.");
+
+		//		LOGGER.warn("TEMPTE MPTE MPTE MPTE TTMPTE TEM!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!P");
+		//		try {
+		//			statsDb.rebuild(false, s -> rebuildStatus = s);
+		//		} catch (Exception e) {
+		//			e.printStackTrace();
+		//		}
+
 	}
 
 	private void doConversion(DataModel model) throws MiniDbException {
@@ -129,9 +142,9 @@ public class DataLogger extends InvModule {
 				//
 				Set<String> oldFieldNames = new HashSet<>();
 				Set<String> newFieldNames = new HashSet<>();
-				for (Field f : oldDb.getModel())
+				for (ModelField f : oldDb.getModel())
 					oldFieldNames.add(f.getId());
-				for (Field f : newDb.getModel())
+				for (ModelField f : newDb.getModel())
 					newFieldNames.add(f.getId());
 
 				Set<String> xsect = new HashSet<>(oldFieldNames);
@@ -162,8 +175,8 @@ public class DataLogger extends InvModule {
 					newR.setTimestamp(oldR.getTimestamp());
 
 					for (Entry<String, String> e : copyFields.entrySet()) {
-						Field newF = newDb.getModel().get(e.getValue());
-						Field oldF = oldDb.getModel().get(e.getKey());
+						ModelField newF = newDb.getModel().get(e.getValue());
+						ModelField oldF = oldDb.getModel().get(e.getKey());
 
 						if (!newF.getType().equals(oldF.getType())) // TODO: i suppose we could convert these?
 							throw new MiniDbException("Cannot convert database as field [" + newF.getId() + "] has changed data type");
@@ -239,7 +252,7 @@ public class DataLogger extends InvModule {
 		//
 		// work through the Source fields for all fields and fetch their values
 		//
-		for (Field f : getEnv().getModel()) {
+		for (ModelField f : getEnv().getModel()) {
 			if (f.getSource() != null) {
 				String[] bits = InvUtil.splitPair(f.getSource(), '.');
 				Sample src = data.get(bits[0]);
@@ -276,27 +289,7 @@ public class DataLogger extends InvModule {
 
 		db.commitRecord(rec);
 
-		processStats(rec);
-
 		getEnv().getBus().fire(Events.LOGGER_RECORD_COMMITED, rec);
-	}
-
-	/**
-	 * a record has been committed, also maintain the stats database
-	 * 
-	 * @param rec
-	 * @throws InvMonException
-	 */
-	private void processStats(DBRecord rec) {
-		if (pauseStatsUntil > -1 && pauseStatsUntil < System.currentTimeMillis())
-			return;
-		pauseStatsUntil = -1;
-		try {
-			statsDb.update(rec);
-		} catch (InvMonException e) {
-			pauseStatsUntil = System.currentTimeMillis();
-			LOGGER.error("Stats update failed, stopping for 1 hour: " + e.getMessage(), e);
-		}
 	}
 
 	@Override
@@ -325,7 +318,8 @@ public class DataLogger extends InvModule {
 		DataModel model = getEnv().getModel();
 		if (!fieldnames.get(0).equals("TIMESTAMP"))
 			fieldnames.add(0, "TIMESTAMP");
-		List<Field> fields = fieldnames.stream().map(model::get).collect(Collectors.toList());
+		List<ModelField> modelFields = fieldnames.stream().filter(x -> !x.contains(".")).map(model::get).collect(Collectors.toList());
+		List<QueryFieldStats> statsFields = new ArrayList<>();
 		long span = tsEnd - tsStart;
 
 		//
@@ -333,8 +327,18 @@ public class DataLogger extends InvModule {
 		//
 		QueryResults res = new QueryResults();
 		res.setZone(ZoneId.systemDefault());
-		for (Field f : fields)
+		for (ModelField f : modelFields)
 			res.addField(f);
+
+		//
+		// fields for the Stats stuff (anything prepended by "id.")
+		//
+		for (String s : fieldnames.stream().filter(x -> x.contains(".")).collect(Collectors.toList())) {
+			String[] bits = s.split("\\.");
+			StatsThing thing = statsDb.getThing(bits[0]);
+			statsFields.add(res.addField(thing.getField(bits[1])));
+		}
+
 		List<QueryRecord> recs = new ArrayList<>();
 		for (int i = 0; i < points; ++i) {
 			QueryRecord r = res.addRecord();
@@ -352,8 +356,8 @@ public class DataLogger extends InvModule {
 				long ts = dbrec.getTimestamp();
 				int slot = (int) (points * (ts - tsStart) / span);
 				QueryRecord outrec = recs.get(slot);
-				for (int i = 1; i < fields.size(); ++i) { // starts at 1! (skip key field)
-					Field srcfld = fields.get(i);
+				for (int i = 1; i < modelFields.size(); ++i) { // starts at 1! (skip key field)
+					ModelField srcfld = modelFields.get(i);
 
 					if (srcfld.getType() == FieldType.TIMESTAMP) {
 						switch (srcfld.getAggregationMode()) {
@@ -444,8 +448,8 @@ public class DataLogger extends InvModule {
 		// deal with averages
 		//
 		for (QueryRecord r : res.getRecords()) {
-			for (int i = 1; i < fields.size(); ++i) {
-				Field f = fields.get(i);
+			for (int i = 1; i < modelFields.size(); ++i) {
+				ModelField f = modelFields.get(i);
 				if (f.getAggregationMode() == AggregationMode.MEAN)
 					r.setFloat(i, r.getBaseRecordCount() == 0 ? 0.0f : r.getFloat(i) / r.getBaseRecordCount());
 			}
@@ -454,7 +458,22 @@ public class DataLogger extends InvModule {
 		res.setStart(tsStart);
 		res.setEnd(tsEnd);
 
+		//
+		// fields from stats modules
+		//
+		for (QueryFieldStats fld : statsFields) {
+			StatsThing stat = fld.getField().getStatsThing();
+			for (QueryRecord rec : res.getRecords())
+				rec.setFloat(fld.getIndex(), stat.queryField(fld.getField(), rec.getLong(0)));
+		}
+
+//		System.out.println(res);
+
 		return res;
+	}
+
+	public StatsDB getStatsDb() {
+		return statsDb;
 	}
 
 	public void forEachRecordIn(long tsStart, long tsEnd, Consumer<DBRecord> callback) throws MiniDbException {
@@ -497,6 +516,47 @@ public class DataLogger extends InvModule {
 
 	public int getDbRecordCount() {
 		return db.getRecordCount();
+	}
+
+	@Override
+	public ConsoleResponse consoleCommand(Console console, String cmd) throws InvMonException {
+		if (cmd.equals("show model"))
+			return new ConsoleResponse(db.getModel().toString());
+		if (cmd.equals("info"))
+			return showInfo(cmd);
+		if (cmd.equals("rebuild")) {
+			triggerRebuild(false);
+			return new ConsoleResponse("Rebuild started.  Use 'info' command to observe");
+		}
+		return super.consoleCommand(console, cmd);
+
+	}
+
+	public void triggerRebuild(boolean gently) {
+		new Thread(() -> {
+			try {
+				long dt = System.currentTimeMillis();
+				statsDb.rebuild(gently, s -> rebuildStatus = s);
+				dt = System.currentTimeMillis() - dt;
+				dt /= 1000;
+				rebuildStatus = "Completed at [" + new Date().toString() + "], duration was: " + dt + " seconds";
+			} catch (Exception e) {
+				LOGGER.error(e);
+				rebuildStatus = e.getMessage();
+			}
+		}).start();
+	}
+
+	private ConsoleResponse showInfo(String cmd) {
+		return new ConsoleResponse("Rebuilding: " + rebuildStatus);
+	}
+
+	@Override
+	protected void populateCommandHelp(List<ConsoleHelpInfo> lst) {
+		super.populateCommandHelp(lst);
+		lst.add(new ConsoleHelpInfo("show model", "Show details about the current data model"));
+		lst.add(new ConsoleHelpInfo("info", "Show info"));
+		lst.add(new ConsoleHelpInfo("rebuild", "Force a rebuild right now, without any rate limiting"));
 	}
 
 }

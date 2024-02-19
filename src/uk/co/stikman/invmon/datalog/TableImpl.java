@@ -7,7 +7,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.h2.util.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -19,14 +18,20 @@ public class TableImpl implements Table {
 		Connection get() throws SQLException;
 	}
 
-	private interface ApplyWhereFunc {
-		void go(StringBuilder out, String name, Object val);
+	private enum Typ {
+		STRING, INT, FLOAT
 	}
 
 	private static class KeyFieldThing {
-		String			name;
-		Object			applyUpdate;
-		ApplyWhereFunc	applyWhere;
+		final String	name;
+		final Typ		type;
+
+		public KeyFieldThing(String name, Typ type) {
+			super();
+			this.name = name;
+			this.type = type;
+		}
+
 	}
 
 	private final ConnectionSupplier	connSupp;
@@ -45,8 +50,9 @@ public class TableImpl implements Table {
 		JSONArray arr = desc.getJSONArray("fields");
 		for (int i = 0; i < arr.length(); ++i) {
 			JSONObject jo = arr.getJSONObject(i);
-			if (jo.getBoolean("key")) {
-				keyFields.add(new KeyFieldThing());
+			if (jo.optBoolean("key")) {
+				Typ t = Typ.valueOf(jo.getString("type").toUpperCase());
+				keyFields.add(new KeyFieldThing(jo.getString("id"), t));
 			} else {
 				valueFields.add(jo.getString("id"));
 			}
@@ -56,7 +62,7 @@ public class TableImpl implements Table {
 	@Override
 	public float getFloat(Object[] key, String field) throws InvMonException {
 		try (Connection conn = connSupp.get()) {
-			PreparedStatement st = conn.prepareStatement("SELECT " + field + " FROM " + name + " WHERE " + generateWhereClause(key));
+			PreparedStatement st = conn.prepareStatement("SELECT \"f_" + field + "\" FROM " + name + " WHERE " + generateWhereClause(key));
 			ResultSet rs = st.executeQuery();
 			if (!rs.next())
 				return 0.0f;
@@ -67,10 +73,24 @@ public class TableImpl implements Table {
 	}
 
 	private String generateWhereClause(Object[] keyvals) {
-		StringBuilder sb = new StringBuilder();
+		SQLBuilder sb = new SQLBuilder();
 		int i = 0;
-		for (KeyFieldThing kft : keyFields)
-			kft.applyWhere.go(sb, kft.name, keyvals[i++]);
+		String sep = "";
+		for (KeyFieldThing kft : keyFields) {
+			sb.append(sep);
+			sb.append("(");
+			sb.appendName(kft.name).append(" = ");
+			switch (kft.type) {
+				case STRING:
+					sb.appendEscaped((String) keyvals[i++]).append(")");
+					break;
+				default:
+					sb.append(keyvals[i++].toString()).append(")");
+					break;
+
+			}
+			sep = " AND ";
+		}
 		return sb.toString();
 	}
 
@@ -80,21 +100,20 @@ public class TableImpl implements Table {
 		 * MERGE INTO your_table_name (column1, column2, ...) KEY (key_column1,
 		 * key_column2, ...) VALUES (value1, value2, ...);
 		 */
-
 		try (Connection conn = connSupp.get()) {
-			StringBuilder sb = new StringBuilder();
-			sb.append("MERGE INTO ").append(name).append(" (");
+			SQLBuilder sb = new SQLBuilder();
+			sb.append("MERGE INTO ").appendName(name).append(" (");
 			String sep = "";
 			for (KeyFieldThing kft : keyFields) {
-				sb.append(sep).append(kft.name);
+				sb.append(sep).appendName(kft.name);
 				sep = ", ";
 			}
-			sb.append(sep).append(field);
+			sb.append(sep).appendName("f_" + field);
 
 			sb.append(") KEY (");
 			sep = "";
 			for (KeyFieldThing kft : keyFields) {
-				sb.append(sep).append(kft.name);
+				sb.append(sep).appendName(kft.name);
 				sep = ", ";
 			}
 			sb.append(") VALUES (");
@@ -102,8 +121,11 @@ public class TableImpl implements Table {
 			sep = "";
 			for (KeyFieldThing kft : keyFields) {
 				Object k = keyvals[i++];
+				sb.append(sep);
 				if (k instanceof String)
-					sb.append(sep).append("\"").append(StringUtils.quoteStringSQL((String) k)).append("\"");
+					sb.appendEscaped((String) k);
+				else
+					sb.append(k.toString());
 				sep = ", ";
 			}
 			sb.append(sep).append(val);

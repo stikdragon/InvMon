@@ -8,7 +8,8 @@ import java.util.NoSuchElementException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import uk.co.stikman.invmon.datamodel.Field;
+import uk.co.stikman.invmon.datalog.stats.StatsField;
+import uk.co.stikman.invmon.datamodel.ModelField;
 import uk.co.stikman.invmon.datamodel.FieldType;
 import uk.co.stikman.invmon.server.DataSet;
 import uk.co.stikman.invmon.server.DataSetRecord;
@@ -21,14 +22,14 @@ public class QueryResults {
 	private static final Long		ZERO_L	= Long.valueOf(0);
 
 	private List<QueryRecord>		records	= new ArrayList<>();
-	private List<Field>				fields	= new ArrayList<>();
+	private List<QueryField>		fields	= new ArrayList<>();
 
 	private long					start;
 	private long					end;
 	private DataSet					adapter;
 	private ZoneId					zone;
 
-	public List<Field> getFields() {
+	public List<QueryField> getFields() {
 		return fields;
 	}
 
@@ -43,8 +44,12 @@ public class QueryResults {
 
 	public DataTable toDataTable() {
 		DataTable dt = new DataTable();
-		for (Field f : fields)
-			dt.addField(f.getId());
+		for (QueryField f : fields) {
+			if (f instanceof QueryFieldStats qfs)
+				dt.addField(qfs.getField().getStatsThing().getId() + "." + qfs.getId());
+			else
+				dt.addField(f.getId());
+		}
 
 		for (QueryRecord r : records) {
 			DataRecord r2 = dt.addRecord();
@@ -54,13 +59,20 @@ public class QueryResults {
 		return dt;
 	}
 
-	public void addField(Field f) {
-		fields.add(f);
+	public void addField(ModelField f) {
+		fields.add(new QueryFieldModel(f));
+	}
+
+	public QueryFieldStats addField(StatsField f) {
+		QueryFieldStats x = new QueryFieldStats(f);
+		x.setIndex(fields.size());
+		fields.add(x);
+		return x;
 	}
 
 	public QueryRecord addRecord() {
 		QueryRecord r = new QueryRecord(this);
-		for (Field f : fields) {
+		for (QueryField f : fields) {
 			if (f.getType() == FieldType.TIMESTAMP) {
 				r.add(ZERO_L);
 			} else {
@@ -86,7 +98,7 @@ public class QueryResults {
 
 	public int getFieldIndex(String name) {
 		int i = 0;
-		for (Field f : fields) {
+		for (QueryField f : fields) {
 			if (name.equals(f.getId()))
 				return i;
 			++i;
@@ -96,7 +108,7 @@ public class QueryResults {
 
 	public int findFieldIndex(String name) {
 		int i = 0;
-		for (Field f : fields) {
+		for (QueryField f : fields) {
 			if (name.equals(f.getId()))
 				return i;
 			++i;
@@ -159,7 +171,7 @@ public class QueryResults {
 				root.put("zone", zone.getId());
 				JSONArray arr = new JSONArray();
 				root.put("fields", arr);
-				for (Field f : fields) {
+				for (QueryField f : fields) {
 					JSONObject jo = new JSONObject();
 					jo.put("id", f.getId());
 					if (f.getType() == FieldType.TIMESTAMP) {

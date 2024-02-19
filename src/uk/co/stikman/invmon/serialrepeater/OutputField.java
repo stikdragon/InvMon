@@ -2,21 +2,21 @@ package uk.co.stikman.invmon.serialrepeater;
 
 import uk.co.stikman.invmon.Env;
 import uk.co.stikman.invmon.datalog.DBRecord;
-import uk.co.stikman.invmon.datamodel.Field;
+import uk.co.stikman.invmon.datamodel.ModelField;
 
 public class OutputField implements OutputElement {
-	private Field	f;
+	private ModelField	f;
 	private int		width;
 	private float	scale;
 
-	public OutputField(Field f, int width, float scale) {
+	public OutputField(ModelField f, int width, float scale) {
 		super();
 		this.f = f;
 		this.width = width;
 		this.scale = scale;
 	}
 
-	public Field getF() {
+	public ModelField getF() {
 		return f;
 	}
 

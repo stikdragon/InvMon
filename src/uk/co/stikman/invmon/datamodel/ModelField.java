@@ -6,7 +6,7 @@ import uk.co.stikman.invmon.datalog.DBRecord;
 import uk.co.stikman.invmon.datalog.QueryRecord;
 import uk.co.stikman.invmon.datamodel.expr.CalcMethod;
 
-public class Field {
+public class ModelField {
 	private final String	id;
 	private FieldType		type;
 	private AggregationMode	aggregationMode	= AggregationMode.SUM;
@@ -16,7 +16,7 @@ public class Field {
 	private String			source;
 	private boolean			readOnly;
 
-	public Field(String id) {
+	public ModelField(String id) {
 		super();
 		this.id = id;
 	}
@@ -70,7 +70,7 @@ public class Field {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Field other = (Field) obj;
+		ModelField other = (ModelField) obj;
 		return aggregationMode == other.aggregationMode && Objects.equals(calculated, other.calculated) && Objects.equals(id, other.id) && position == other.position && type == other.type;
 	}
 

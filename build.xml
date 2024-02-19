@@ -39,6 +39,7 @@
 
 			<jvmarg value="-Xmx4g" />
 			<arg line="-sourcemaps true" />
+			<arg line="-obfuscatedJS false" />
 			<arg line="-mainclass uk.co.stikman.invmon.client.InvMon" />
 			<arg line="-output src/uk/co/stikman/invmon/client/res" />
 		</java>

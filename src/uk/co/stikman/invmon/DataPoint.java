@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import uk.co.stikman.invmon.datamodel.Field;
+import uk.co.stikman.invmon.datamodel.ModelField;
 import uk.co.stikman.invmon.datamodel.FieldVIF;
 import uk.co.stikman.invmon.datamodel.VIFReading;
 import uk.co.stikman.table.DataTable;
@@ -19,7 +19,7 @@ import uk.co.stikman.table.DataTable;
 public class DataPoint {
 	private final long					timestamp;
 
-	private final Map<Field, Object>	values	= new HashMap<>();
+	private final Map<ModelField, Object>	values	= new HashMap<>();
 
 	public DataPoint(long timestamp) {
 		super();
@@ -30,17 +30,17 @@ public class DataPoint {
 		return timestamp;
 	}
 
-	public void put(Field fld, Object val) {
+	public void put(ModelField fld, Object val) {
 		nonull(fld);
 		values.put(fld, val);
 	}
 
-	public void put(Field fld, float v) {
+	public void put(ModelField fld, float v) {
 		nonull(fld);
 		values.put(fld, Float.valueOf(v));
 	}
 
-	public void put(Field fld, int v) {
+	public void put(ModelField fld, int v) {
 		nonull(fld);
 		values.put(fld, Integer.valueOf(v));
 	}
@@ -59,7 +59,7 @@ public class DataPoint {
 		put(fields, vif.getV(), vif.getI(), vif.getF());
 	}
 
-	public float getFloat(Field f) {
+	public float getFloat(ModelField f) {
 		nonull(f);
 		Number v = (Number) values.get(f);
 		if (v == null)
@@ -67,7 +67,7 @@ public class DataPoint {
 		return v.floatValue();
 	}
 
-	public String getString(Field f) {
+	public String getString(ModelField f) {
 		nonull(f);
 		Object x = values.get(f);
 		if (x == null)
@@ -88,11 +88,11 @@ public class DataPoint {
 			throw new NullPointerException();
 	}
 
-	public <T extends Enum<T>> T getEnum(Field f, Class<T> cls) {
+	public <T extends Enum<T>> T getEnum(ModelField f, Class<T> cls) {
 		return (T) Enum.valueOf(cls, getString(f));
 	}
 
-	public Map<Field, Object> getValues() {
+	public Map<ModelField, Object> getValues() {
 		return values;
 	}
 
@@ -100,7 +100,7 @@ public class DataPoint {
 	public String toString() {
 		DataTable dt = new DataTable();
 		dt.addFields("Field", "Value");
-		for (Entry<Field, Object> e : values.entrySet())
+		for (Entry<ModelField, Object> e : values.entrySet())
 			dt.addRecord(e.getKey().getId(), e.getValue().getClass().getSimpleName() + ": " + e.getValue().toString());
 		return dt.toString();
 	}

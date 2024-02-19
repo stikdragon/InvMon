@@ -5,7 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-import uk.co.stikman.invmon.datamodel.Field;
+import uk.co.stikman.invmon.datamodel.ModelField;
 import uk.co.stikman.invmon.datamodel.FieldCounts;
 import uk.co.stikman.invmon.datamodel.FieldDataType;
 import uk.co.stikman.invmon.datamodel.FieldType;
@@ -38,45 +38,45 @@ public class DBRecord {
 		this.index = index;
 	}
 
-	public void setFloat(Field field, float f) {
+	public void setFloat(ModelField field, float f) {
 		floats[field.getPosition()] = f;
 	}
 
-	public void setInt(Field field, int n) {
+	public void setInt(ModelField field, int n) {
 		ints[field.getPosition()] = n;
 	}
 
-	public void setString(Field field, String s) {
+	public void setString(ModelField field, String s) {
 		strings[field.getPosition()] = s.intern();
 	}
 
-	public float getFloat(Field field) {
+	public float getFloat(ModelField field) {
 		return floats[field.getPosition()];
 	}
 
-	public String getString(Field field) {
+	public String getString(ModelField field) {
 		return strings[field.getPosition()];
 	}
 
-	public int getInt(Field field) {
+	public int getInt(ModelField field) {
 		return ints[field.getPosition()];
 	}
 
-	public float getFloat8(Field field) {
+	public float getFloat8(ModelField field) {
 		float n = Byte.toUnsignedInt(bytes[field.getPosition()]);
 		FieldType t = field.getType();
 		float a = t.max() - t.min();
 		return t.min() + a * n / 256.0f;
 	}
 
-	public void setFloat8(Field field, float f) {
+	public void setFloat8(ModelField field, float f) {
 		FieldType t = field.getType();
 		f -= t.min();
 		f = 256.0f * f / (t.max() - t.min());
 		bytes[field.getPosition()] = (byte) f;
 	}
 
-	public Number getNumber(Field field) {
+	public Number getNumber(ModelField field) {
 		if (field.getType().getBaseType() == FieldDataType.FLOAT)
 			return Float.valueOf(getFloat(field));
 		if (field.getType().getBaseType() == FieldDataType.FLOAT8)
@@ -86,7 +86,7 @@ public class DBRecord {
 		throw new IllegalStateException("Field [" + field.getId() + "] is not numeric");
 	}
 
-	public Object getObject(Field field) {
+	public Object getObject(ModelField field) {
 		if (field.getType().getBaseType() == FieldDataType.FLOAT)
 			return Float.valueOf(getFloat(field));
 		if (field.getType().getBaseType() == FieldDataType.FLOAT8)
@@ -172,7 +172,7 @@ public class DBRecord {
 		return new VIFReading(v, i, f);
 	}
 
-	public <T extends Enum<T>> T getEnum(Field f, Class<T> cls) {
+	public <T extends Enum<T>> T getEnum(ModelField f, Class<T> cls) {
 		return (T) Enum.valueOf(cls, getString(f));
 	}
 

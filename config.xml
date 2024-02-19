@@ -37,12 +37,12 @@
 
 		<DataLogger id="datalogger" file="data\datalog.db" stats="data\stats" blockSize="400000" cachedBlocks="4">
 			<StatsConfig>
-				<Group id="1" type="seasonal-max" grouping="month" samplesPerDay="48" fields="PV1A_P,PV1B_P,PV2A_P,PV2B_P" outputPrefix="pvmax" />
+				<Group id="stats1" type="seasonal-max" grouping="month" samplesPerDay="48" fields="PVA_1_P,PVB_1_P,PVA_2_P,PVB_2_P" outputPrefix="pvmax" />
 			</StatsConfig>
 		</DataLogger>
 
 		<HTTPServer id="httpserver" port="8083" security="allow_all" >
-			<DevMode root="C:\Stik\java\InvMon\bin\uk\co\stikman\invmon" />
+			<!-- <DevMode root="C:\Stik\java\InvMon\bin\uk\co\stikman\invmon" /> -->
 			<Page id="main" default="true" source="mainpage.xml" />
 			<Page id="single" default="false" source="singlepage.xml" />
 

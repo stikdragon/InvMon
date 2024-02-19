@@ -13,7 +13,7 @@ import java.util.Set;
 
 import uk.co.stikman.invmon.InvMonException;
 import uk.co.stikman.invmon.datamodel.DataModel;
-import uk.co.stikman.invmon.datamodel.Field;
+import uk.co.stikman.invmon.datamodel.ModelField;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
 import uk.co.stikman.log.StikLog;
 import uk.co.stikman.table.DataRecord;
@@ -166,7 +166,7 @@ public class MiniDB {
 		//
 		// calculate fields
 		//
-		for (Field f : model.getCalculatedFields())
+		for (ModelField f : model.getCalculatedFields())
 			rec.setFloat(f, f.getCalculationMethod().calc(rec));
 
 		//
@@ -369,7 +369,7 @@ public class MiniDB {
 	public String recordToString(DBRecord rec) {
 		StringBuilder sb = new StringBuilder();
 		String sep = "";
-		for (Field f : model) {
+		for (ModelField f : model) {
 			sb.append(sep);
 			switch (f.getType().getBaseType()) {
 				case FLOAT:

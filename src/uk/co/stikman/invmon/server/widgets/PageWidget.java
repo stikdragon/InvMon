@@ -7,7 +7,8 @@ import uk.co.stikman.invmon.InvMonException;
 import uk.co.stikman.invmon.datalog.DataLogger;
 import uk.co.stikman.invmon.datalog.MiniDbException;
 import uk.co.stikman.invmon.datalog.QueryResults;
-import uk.co.stikman.invmon.datamodel.Field;
+import uk.co.stikman.invmon.datalog.stats.StatsThing;
+import uk.co.stikman.invmon.datamodel.ModelField;
 import uk.co.stikman.invmon.minidom.MDElement;
 import uk.co.stikman.invmon.server.InvMonClientError;
 import uk.co.stikman.invmon.server.PageLayout;
@@ -127,9 +128,17 @@ public abstract class PageWidget {
 				//
 				// add everything except timestamp, i guess
 				//
-				for (Field f : getOwner().getEnv().getModel())
+				for (ModelField f : getOwner().getEnv().getModel())
 					if (!f.getId().equals("TIMESTAMP"))
 						flds.add(f.getId());
+
+				//
+				// and any stats fields?
+				//
+				for (StatsThing thing : datalogger.getStatsDb().getThings()) {
+					for (String s : thing.getOutputFields())
+						flds.add(thing.getId() + "." + s);
+				}
 
 				try {
 					QueryResults aggr = datalogger.query(start, end, 100, flds.asList());

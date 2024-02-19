@@ -5,7 +5,7 @@ import java.util.NoSuchElementException;
 import org.json.JSONObject;
 
 import uk.co.stikman.invmon.datalog.DBRecord;
-import uk.co.stikman.invmon.datamodel.Field;
+import uk.co.stikman.invmon.datamodel.ModelField;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
 import uk.co.stikman.invmon.minidom.MDElement;
 import uk.co.stikman.invmon.server.HTMLBuilder;
@@ -53,7 +53,7 @@ public class GaugeWidget extends PageWidget {
 				if (rec == null)
 					throw new InvMonClientError("No data");
 
-				Field f = getOwner().getEnv().getModel().get(fieldname);
+				ModelField f = getOwner().getEnv().getModel().get(fieldname);
 				float src = rec.getFloat(f);
 				float value = src;
 				//

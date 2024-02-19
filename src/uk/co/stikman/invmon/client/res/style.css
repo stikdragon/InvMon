@@ -329,6 +329,16 @@ h1 {
 	fill: hsl(170 90% 50%);
 }
 
+.chart.pv .series2_fill {
+	stroke: none;
+	fill: none;
+}
+
+.chart.pv .series2_line {
+	stroke: black;
+	stroke-width: 4px;
+}
+
 /* **** */
 .chart.load .series1_line {
 	stroke: #000000a0;

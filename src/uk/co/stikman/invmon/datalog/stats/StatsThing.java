@@ -1,7 +1,11 @@
 package uk.co.stikman.invmon.datalog.stats;
 
+import java.util.List;
+
 import uk.co.stikman.invmon.InvMonException;
 import uk.co.stikman.invmon.datalog.DBRecord;
+import uk.co.stikman.invmon.datalog.QueryRecord;
+import uk.co.stikman.invmon.datamodel.ModelField;
 
 public abstract class StatsThing {
 	private final String id;
@@ -17,6 +21,22 @@ public abstract class StatsThing {
 		return id;
 	}
 
-	public abstract void update(DBRecord rec) throws InvMonException;
+	public abstract void beginBuild() throws InvMonException;
+
+	public abstract void processRec(DBRecord rec) throws InvMonException;
+
+	public abstract void finishBuild() throws InvMonException;
+
+	public abstract StatsField getField(String id);
+
+	public abstract float queryField(StatsField fld, long timestamp);
+
+	/**
+	 * get list of the output field names (often the same as the normal list of
+	 * fields)
+	 * 
+	 * @return
+	 */
+	public abstract List<String> getOutputFields();
 
 }

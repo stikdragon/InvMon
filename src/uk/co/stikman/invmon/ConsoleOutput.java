@@ -8,7 +8,7 @@ import org.w3c.dom.Element;
 import uk.co.stikman.eventbus.Subscribe;
 import uk.co.stikman.invmon.datalog.DBRecord;
 import uk.co.stikman.invmon.datamodel.DataModel;
-import uk.co.stikman.invmon.datamodel.Field;
+import uk.co.stikman.invmon.datamodel.ModelField;
 import uk.co.stikman.invmon.datamodel.FieldVIF;
 import uk.co.stikman.invmon.datamodel.InverterMode;
 import uk.co.stikman.invmon.datamodel.VIFReading;
@@ -20,19 +20,19 @@ public class ConsoleOutput extends InvModule {
 	private ConsoleTextOutput	output;
 	private boolean				firstTime	= true;
 
-	private Field				fieldMode;
-	private Field				fieldChargeState;
+	private ModelField				fieldMode;
+	private ModelField				fieldChargeState;
 	private FieldVIF			fieldLoad;
 	private List<FieldVIF>		fieldPv		= new ArrayList<>();
-	private Field				fieldBusVoltage;
-	private Field				fieldLoadPF;
-	private Field				fieldStateOfCharge;
-	private Field				fieldMisc;
+	private ModelField				fieldBusVoltage;
+	private ModelField				fieldLoadPF;
+	private ModelField				fieldStateOfCharge;
+	private ModelField				fieldMisc;
 	private boolean				enabledControlCodes;
-	private Field				fieldTemperature1;
-	private Field				fieldTemperature2;
-	private Field				fieldBatteryV;
-	private Field				fieldBatteryI;
+	private ModelField				fieldTemperature1;
+	private ModelField				fieldTemperature2;
+	private ModelField				fieldBatteryV;
+	private ModelField				fieldBatteryI;
 
 	public ConsoleOutput(String id, Env env) {
 		super(id, env);
@@ -54,7 +54,7 @@ public class ConsoleOutput extends InvModule {
 		fieldBatteryI = model.get("BATT_I");
 		fieldLoad = model.getVIF("LOAD");
 
-		for (Field f : model)
+		for (ModelField f : model)
 			if (f.getId().matches("PV[0-9]+_V"))
 				fieldPv.add(model.getVIF(f.getId().substring(0, f.getId().length() - 2)));
 		fieldTemperature1 = model.get("INV_1_TEMP");
