@@ -298,134 +298,98 @@ h1 {
 	stroke: none;
 }
 
-.chart.pv .series1_line {
+.chart .series {
+	fill: none;
+	stroke: none;		
+}
+
+.chart .series.line {
 	stroke: #000000a0;
 	fill: none;
-	stroke-width: 2px;
+	stroke-width: 2px;	
 }
 
-.chart.pv .series1_fill {
+.chart .series.fill {
 	stroke: none;
+	fill: rgba(0, 0, 0, 20%);
+}
+
+
+
+
+
+.chart.pv .series.pv-main.fill {
 	fill: none;
 }
-
-.chart.pv .series1_1 {
-	stroke: none;
+.chart.pv .series.pv-main.sub1 {
 	fill: hsl(50 90% 50%);
 }
-
-.chart.pv .series1_2 {
-	stroke: none;
+.chart.pv .series.pv-main.sub2 {
 	fill: hsl(90 90% 50%);
 }
-
-.chart.pv .series1_3 {
-	stroke: none;
+.chart.pv .series.pv-main.sub3 {
 	fill: hsl(130 90% 50%);
 }
-
-.chart.pv .series1_4 {
-	stroke: none;
-	fill: hsl(170 90% 50%);
-}
-
-.chart.pv .series2_fill {
-	stroke: none;
-	fill: none;
-}
-
-.chart.pv .series2_line {
-	stroke: black;
-	stroke-width: 4px;
-}
-
-/* **** */
-.chart.load .series1_line {
-	stroke: #000000a0;
+.chart.pv .series.pv-max {
 	fill: none;
 	stroke-width: 2px;
+	opacity: 50%;
+	stroke-dasharray: 10;
 }
 
-.chart.load .series1_fill {
-	stroke: none;
+
+
+.chart.load .series.load-main.fill {
+	fill: none;
+}
+.chart.load .series.load-main.sub1 {
 	fill: #ff9000;
 }
-
-.chart.load .series1_1 {
-	stroke: none;
-	fill: #ff9000;
-}
-
-.chart.load .series1_2 {
-	stroke: none;
+.chart.load .series.load-main.sub2 {
 	fill: #dd6000;
 }
 
-/* **** */
-.chart.battery .series1_line {
-	stroke: #000000a0;
-	stroke-width: 2px;
-	fill: none;
-}
 
-.chart.battery .series1_fill {
+.chart.battery .series.chg.fill {
 	fill: hsl(200 90% 50%);
 }
-
-.chart.battery .series2_line {
-	stroke: #000000a0;
-	stroke-width: 2px;
-	fill: none;
-}
-
-.chart.battery .series2_fill {
-	fill: hsl(200 90% 50%);
+.chart.battery .series.dis.fill {
 	fill: hsl(100 90% 50%);
 }
-
-.chart.battery .series3_line {
+.chart.battery .series.volts.line {
 	stroke: #000000;
 	stroke-width: 3px;
+}
+.chart.battery .series.volts.fill {
 	fill: none;
 }
 
-.chart.battery .series3_fill {
+
+
+.chart.temperature .series.line {
+	stroke-width: 3px;
+}
+.chart.temperature .series.t1.fill {
 	fill: none;
 }
-
-/* **** */
-.chart.temperature .series1_line {
+.chart.temperature .series.t1.line {
 	stroke: #7cff00a0;
-	fill: none;
-	stroke-width: 3px;
 }
-
-.chart.temperature .series1_fill {
-	stroke: none;
+.chart.temperature .series.t2.fill {
 	fill: none;
 }
-
-.chart.temperature .series2_line {
+.chart.temperature .series.t2.line {
 	stroke: #ff7c00a0;
-	fill: none;
-	stroke-width: 3px;
 }
-
-.chart.temperature .series2_fill {
-	stroke: none;
+.chart.temperature .series.v.fill {
 	fill: none;
 }
-
-.chart.temperature .series3_line {
+.chart.temperature .series.v.line {
 	stroke: #ff009ca0;
-	fill: none;
-	stroke-width: 3px;
 }
 
-.chart.temperature .series3_fill {
-	stroke: none;
-	fill: none;
-}
+
+
 
 .graphhover .crosshair {
 	stroke: rgba(0, 0, 0, 25%);

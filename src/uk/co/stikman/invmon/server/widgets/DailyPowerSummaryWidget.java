@@ -10,7 +10,6 @@ import org.json.JSONObject;
 import uk.co.stikman.invmon.datalog.QueryRecord;
 import uk.co.stikman.invmon.datalog.QueryResults;
 import uk.co.stikman.invmon.datamodel.DataModel;
-import uk.co.stikman.invmon.minidom.MDElement;
 import uk.co.stikman.invmon.server.HTMLBuilder;
 import uk.co.stikman.invmon.server.PageLayout;
 import uk.co.stikman.invmon.server.UserSesh;

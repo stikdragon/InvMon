@@ -49,9 +49,9 @@ public class DataModel implements Iterable<ModelField> {
 
 	private static final StikLog	LOGGER				= StikLog.getLogger(DataModel.class);
 	private static final int		CURRENT_VERSION		= VERSION_3;
-	private Map<String, ModelField>		fields				= new HashMap<>();
-	private List<ModelField>				fieldList			= new ArrayList<>();
-	private List<ModelField>				calculatedFields	= Collections.emptyList();
+	private Map<String, ModelField>	fields				= new HashMap<>();
+	private List<ModelField>		fieldList			= new ArrayList<>();
+	private List<ModelField>		calculatedFields	= Collections.emptyList();
 	private FieldCounts				fieldCounts			= new FieldCounts();
 	private int						dataVersion;
 
@@ -393,6 +393,8 @@ public class DataModel implements Iterable<ModelField> {
 					}
 
 					f.setCalculationMethod(new CalcMethod() {
+						private ThreadLocal<FloatStack> stack = ThreadLocal.withInitial(() -> new FloatStack());
+
 						@Override
 						public List<CalcOp> getOps() {
 							return ops;
@@ -400,7 +402,8 @@ public class DataModel implements Iterable<ModelField> {
 
 						@Override
 						public float calc(DBRecord r) {
-							FloatStack stk = new FloatStack(); // can we cache this?
+							FloatStack stk = stack.get(); 
+							stk.clear();
 							for (CalcOp op : ops)
 								op.calc(r, stk);
 							return stk.pop();
@@ -422,7 +425,7 @@ public class DataModel implements Iterable<ModelField> {
 	}
 
 	private static class Node {
-		ModelField		field;
+		ModelField	field;
 		List<Node>	children	= new ArrayList<>();
 
 		@Override
@@ -536,6 +539,26 @@ public class DataModel implements Iterable<ModelField> {
 		//
 		n += 4 + 8 + 16 + 16 + 16 + 16;
 		return n;
+	}
+
+	/**
+	 * test that all the stored fields are the same. same as {@link #equals(Object)}
+	 * but ignores anything that's calculated
+	 * 
+	 * @param two
+	 * @return
+	 */
+	public boolean testBaseFieldsEqualequals(DataModel obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+
+		List<ModelField> left = fieldList.stream().filter(x -> !x.isCalculated()).toList();
+		List<ModelField> right = obj.fieldList.stream().filter(x -> !x.isCalculated()).toList();
+		return left.equals(right);
 	}
 
 }

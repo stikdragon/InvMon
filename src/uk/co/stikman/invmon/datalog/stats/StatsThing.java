@@ -4,11 +4,9 @@ import java.util.List;
 
 import uk.co.stikman.invmon.InvMonException;
 import uk.co.stikman.invmon.datalog.DBRecord;
-import uk.co.stikman.invmon.datalog.QueryRecord;
-import uk.co.stikman.invmon.datamodel.ModelField;
 
 public abstract class StatsThing {
-	private final String id;
+	private final String		id;
 
 	public StatsThing(String id) {
 		super();
@@ -29,14 +27,22 @@ public abstract class StatsThing {
 
 	public abstract StatsField getField(String id);
 
+	/**
+	 * get the value of the given field at a particular timestamp
+	 * 
+	 * @param fld
+	 * @param timestamp
+	 * @return
+	 */
 	public abstract float queryField(StatsField fld, long timestamp);
 
 	/**
-	 * get list of the output field names (often the same as the normal list of
-	 * fields)
+	 * get list of the output fields that this one provides (this is probably
+	 * generated at least partially from the list of input fields)
 	 * 
 	 * @return
 	 */
-	public abstract List<String> getOutputFields();
+	public abstract List<StatsField> getOutputFields();
+
 
 }

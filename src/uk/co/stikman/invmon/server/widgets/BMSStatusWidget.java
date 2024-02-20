@@ -3,20 +3,13 @@ package uk.co.stikman.invmon.server.widgets;
 import java.util.List;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Element;
 
-import uk.co.stikman.invmon.InvMonException;
-import uk.co.stikman.invmon.controllers.StikSystemController;
-import uk.co.stikman.invmon.inverter.util.InvUtil;
 import uk.co.stikman.invmon.minidom.MDElement;
 import uk.co.stikman.invmon.server.InvMonClientError;
 import uk.co.stikman.invmon.server.PageLayout;
-import uk.co.stikman.invmon.server.UserRole;
 import uk.co.stikman.invmon.server.UserSesh;
 import uk.co.stikman.invmon.shared.OptionEnum;
-import uk.co.stikman.invmon.shared.OptionString;
 import uk.co.stikman.invmon.shared.WidgetConfigOptions;
 import uk.co.stikman.invmon.stikbms.BatteryData;
 import uk.co.stikman.invmon.stikbms.StikBMS;

@@ -5,11 +5,11 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-import uk.co.stikman.invmon.datamodel.ModelField;
 import uk.co.stikman.invmon.datamodel.FieldCounts;
 import uk.co.stikman.invmon.datamodel.FieldDataType;
 import uk.co.stikman.invmon.datamodel.FieldType;
 import uk.co.stikman.invmon.datamodel.FieldVIF;
+import uk.co.stikman.invmon.datamodel.ModelField;
 import uk.co.stikman.invmon.datamodel.VIFReading;
 
 public class DBRecord {
@@ -39,6 +39,8 @@ public class DBRecord {
 	}
 
 	public void setFloat(ModelField field, float f) {
+		if (field.isCalculated())
+			return; // can't set these
 		floats[field.getPosition()] = f;
 	}
 
@@ -51,6 +53,8 @@ public class DBRecord {
 	}
 
 	public float getFloat(ModelField field) {
+		if (field.isCalculated())
+			return field.getCalculationMethod().calc(this);
 		return floats[field.getPosition()];
 	}
 

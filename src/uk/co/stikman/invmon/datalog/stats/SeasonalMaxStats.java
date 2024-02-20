@@ -11,17 +11,13 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.w3c.dom.Element;
 
 import uk.co.stikman.invmon.InvMonException;
 import uk.co.stikman.invmon.datalog.DBRecord;
-import uk.co.stikman.invmon.datalog.QueryRecord;
 import uk.co.stikman.invmon.datalog.StatsDB;
-import uk.co.stikman.invmon.datalog.Table;
+import uk.co.stikman.invmon.datamodel.FieldType;
 import uk.co.stikman.invmon.datamodel.ModelField;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
 import uk.co.stikman.table.DataRecord;
@@ -38,38 +34,53 @@ public class SeasonalMaxStats extends StatsThing {
 
 	private GroupingMode			mode			= GroupingMode.MONTH;
 	private int						samplesPerDay	= 24;
-	private String					prefix			= "stats";
-	private List<ModelField>		fields			= new ArrayList<>();
+	private List<ModelField>		inputFields		= new ArrayList<>();
+	private String					outputName;
 	private final StatsDB			owner;
 	private DataTable				building;
 	private DataTable				data;
 	private Map<String, DataRecord>	buildingCache;
 	private Map<String, DataRecord>	dataIndex;
+	private List<StatsField>		outputFields;
 
 	public SeasonalMaxStats(String id, StatsDB owner, Element root) throws InvMonException {
 		super(id);
 		this.owner = owner;
-		prefix = InvUtil.getAttrib(root, "outputPrefix");
 		if (root.hasAttribute("grouping"))
 			mode = GroupingMode.valueOf(root.getAttribute("grouping").toUpperCase());
 		samplesPerDay = Integer.parseInt(InvUtil.getAttrib(root, "samplesPerDay", "24"));
 		for (String s : InvUtil.getAttrib(root, "fields").split(",")) {
 			s = s.trim();
-			fields.add(owner.getOwner().getEnv().getModel().get(s));
+			inputFields.add(owner.getOwner().getEnv().getModel().get(s));
 		}
+
+		outputName = InvUtil.getAttrib(root, "output");
 
 		data = owner.fetchStoredTable("sms_" + id, true);
 		if (data == null)
 			data = createTable();
 
+		outputFields = new ArrayList<>();
+		int i = 2; // start at 2, 0 and 1 are the keys 
+		for (ModelField f : inputFields) {
+			StatsField sf = new StatsField(this, i, f.getId(), f.getType());
+			outputFields.add(sf);
+			++i;
+		}
+		outputFields.add(new StatsField(this, i, outputName, FieldType.POWER));
+	}
+
+	public String getOutputName() {
+		return outputName;
 	}
 
 	private DataTable createTable() {
 		DataTable dt = new DataTable();
 		dt.addField("period", DataType.STRING);
 		dt.addField("interval", DataType.INT);
-		for (ModelField s : fields)
+		for (ModelField s : inputFields)
 			dt.addField(s.getId(), DataType.DOUBLE);
+		dt.addField(outputName, DataType.DOUBLE);
 		return dt;
 	}
 
@@ -79,10 +90,6 @@ public class SeasonalMaxStats extends StatsThing {
 
 	public int getSamplesPerDay() {
 		return samplesPerDay;
-	}
-
-	public String getPrefix() {
-		return prefix;
 	}
 
 	@Override
@@ -117,8 +124,13 @@ public class SeasonalMaxStats extends StatsThing {
 		}
 
 		int i = 2;
-		for (ModelField fld : fields)
-			r.setValue(i++, Math.max(r.getDouble(fld.getId()), rec.getFloat(fld)));
+		double sum = 0.0f;
+		for (ModelField fld : inputFields) {
+			double f = Math.max(r.getDouble(fld.getId()), rec.getFloat(fld));
+			r.setValue(i++, f);
+			sum += f;
+		}
+		r.setValue(i, sum); // set the final field
 	}
 
 	@Override
@@ -134,21 +146,12 @@ public class SeasonalMaxStats extends StatsThing {
 
 	@Override
 	public StatsField getField(String id) {
-		int i = 0;
-		for (ModelField f : fields) {
-			if (f.getId().equals(id)) {
-				StatsField sf = new StatsField(this, i, f.getId(), f.getType());
-				return sf;
-			}
-			++i;
-		}
-		throw new NoSuchElementException("StatsField [" + id + "] not found");
+		return outputFields.stream().filter(x -> x.getId().equals(id)).findAny().get();
 	}
 
 	@Override
 	public float queryField(StatsField fld, long timestamp) {
 		Map<String, DataRecord> lkp = getDataIndex();
-		DataTable dat = data;
 
 		SimpleDateFormat sdf = new SimpleDateFormat("MM"); // i hate that these aren't thread safe
 		String periodKey = sdf.format(timestamp);
@@ -156,13 +159,19 @@ public class SeasonalMaxStats extends StatsThing {
 		LocalDateTime ldt = LocalDateTime.ofInstant(Instant.ofEpochMilli(timestamp), ZoneId.systemDefault());
 		LocalDateTime midnight = LocalDateTime.of(ldt.toLocalDate(), LocalTime.MIDNIGHT);
 		long n = ChronoUnit.SECONDS.between(midnight, ldt);
-		int slot = (int) (n / (24 * 60 * 60 / samplesPerDay));
+		double fslot = (double) n / (24 * 60 * 60 / samplesPerDay);
+		int slot = (int) Math.floor(fslot);
+		double mu = fslot - slot;
 
-		String k = periodKey + "_" + slot;
-		DataRecord rec = lkp.get(k);
-		if (rec == null)
+		DataRecord rec0 = lkp.get(periodKey + "_" + (slot));
+		DataRecord rec1 = lkp.get(periodKey + "_" + (slot + 1));
+		if (rec0 == null || rec1 == null)
 			return 0.0f; // hmm what do
-		return (float) rec.getDouble(fld.getIndex());
+
+		float f0 = (float) rec0.getDouble(fld.getIndex());
+		float f1 = (float) rec1.getDouble(fld.getIndex());
+
+		return (float) ((f1 * mu) + f0 * (1.0 - mu));
 	}
 
 	private Map<String, DataRecord> getDataIndex() {
@@ -177,8 +186,8 @@ public class SeasonalMaxStats extends StatsThing {
 	}
 
 	@Override
-	public List<String> getOutputFields() {
-		return fields.stream().map(x -> x.getId()).toList();
+	public List<StatsField> getOutputFields() {
+		return outputFields;
 	}
 
 }

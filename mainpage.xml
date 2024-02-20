@@ -2,8 +2,8 @@
 <Page>
     <Widget class="timesel" id="timeselector" layout="0, 0, 25, 1"/>
     <Widget class="chart" cssClass="pv" id="pvChart" layout="0, 1, 20, 7" title="PV Power">
-        <Series axis="y1" field="PV_TOTAL_P" subfields="PVA_1_P,PVB_1_P,PVA_2_P,PVB_2_P"/>
-        <Series axis="y1" field="stats1.PVA_1_P" />
+        <Series cssClass="pv-max" axis="y1" field="stats1.PV_MAX" />
+        <Series cssClass="pv-main" axis="y1" field="PV_TOTAL_P" subfields="PVA_1_P,PVB_1_P,PVA_2_P" />
         <Axis enabled="true" id="x1"/>
         <Axis enabled="true" formatter="%d W" id="y1" min="0.0"/>
         <Axis enabled="true" id="y2"/>
@@ -11,7 +11,7 @@
     </Widget>
     <Widget class="table-pv" fields="PVA_1:Roof,PVB_1:Lawn,PVA_2:Shed" id="pvTable" layout="20, 1, 5, 5" title="PV Power"/>
     <Widget class="chart" cssClass="load" id="loadChart" layout="0, 8, 20, 7" title="Load">
-        <Series axis="y1" field="LOAD_P" subfields="LOAD_1_P,LOAD_2_P"/>
+        <Series cssClass="load-main" axis="y1" field="LOAD_P" subfields="LOAD_1_P,LOAD_2_P"/>
         <Axis enabled="true" id="x1"/>
         <Axis enabled="true" formatter="%d W" id="y1" min="0.0"/>
         <Axis enabled="true" id="y2"/>
@@ -19,18 +19,18 @@
         <HeaderBit special="powerfactor"/>
     </Widget>
     <Widget class="chart" cssClass="battery" id="batteryChart" layout="0, 15, 20, 6" title="Battery">
-        <Series axis="y1" field="BATT_I_CHG"/>
-        <Series axis="y1" field="BATT_I_DIS"/>
-        <Series axis="y2" field="BATT_V"/>
+        <Series cssClass="chg" axis="y1" field="BATT_I_CHG"/>
+        <Series cssClass="dis" axis="y1" field="BATT_I_DIS"/>
+        <Series cssClass="volts" axis="y2" field="BATT_V"/>
         <Axis enabled="true" id="x1"/>
         <Axis enabled="true" formatter="%.1f A" id="y1" min="0.0"/>
         <Axis enabled="true" formatter="%.1f V" id="y2" max="65.0" min="35.0"/>
         <HeaderBit fields="BATT_P,BATT_V,BATT_I" text="Battery: [%d]W ([%.2f]V @ [%.2f]A)"/>
     </Widget>
     <Widget class="chart" cssClass="temperature" id="busChart" layout="0, 21, 20, 4" title="Bus/Temps">
-        <Series axis="y1" field="INV_1_TEMP"/>
-        <Series axis="y1" field="INV_2_TEMP"/>
-        <Series axis="y2" field="INV_1_BUS_V"/>
+        <Series cssClass="t1" axis="y1" field="INV_1_TEMP"/>
+        <Series cssClass="t2" axis="y1" field="INV_2_TEMP"/>
+        <Series cssClass="v" axis="y2" field="INV_1_BUS_V"/>
         <Axis enabled="true" id="x1"/>
         <Axis enabled="true" formatter="%.1f C" id="y1" min="0.0"/>
         <Axis enabled="true" formatter="%d V" id="y2" min="0.0"/>

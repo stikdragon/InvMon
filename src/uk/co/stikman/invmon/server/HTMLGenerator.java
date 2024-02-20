@@ -154,12 +154,13 @@ public class HTMLGenerator {
 				Axis axy = opts.getAxis(series.getYAxisId());
 
 				List<String> pathlist = new ArrayList<>();
+				String seriesClass = series.getCssClass() != null ? series.getCssClass() + " " : "";
 
 				//
 				// main line
 				//
 				StringBuilder sb = new StringBuilder();
-				sb.append("<path class=\"series" + seriesIndex + "_line\" d=\"");
+				sb.append("<path class=\"series " + seriesClass + "line\" d=\"");
 				float f = 0.0f;
 				char ch = 'M';
 				for (DataSetRecord rec : res.getRecords()) {
@@ -175,7 +176,7 @@ public class HTMLGenerator {
 				// fill
 				//
 				sb = new StringBuilder();
-				sb.append("<path class=\"series" + seriesIndex + "_fill\" d=\"M0 ").append(height - 0).append(" ");
+				sb.append("<path class=\"series " + seriesClass + "fill\" d=\"M0 ").append(height - 0).append(" ");
 				f = 0.0f;
 				for (DataSetRecord rec : res.getRecords()) {
 					long ts = rec.getLong(fts);
@@ -195,7 +196,7 @@ public class HTMLGenerator {
 					offsets[i] = 0.0f;
 				for (int i = 0; i < fsubs.length; ++i) {
 					sb = new StringBuilder();
-					sb.append("<path class=\"series" + seriesIndex + "_" + (i + 1) + "\" d=\"M0 ").append(height - 0).append(" ");
+					sb.append("<path class=\"series " + seriesClass + "sub" + (i + 1) + "\" d=\"M0 ").append(height - 0).append(" ");
 					int j = 0;
 					for (DataSetRecord rec : res.getRecords()) {
 						long ts = rec.getLong(fts);

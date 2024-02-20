@@ -1,7 +1,7 @@
 package uk.co.stikman.invmon.datalog;
 
-import uk.co.stikman.invmon.datamodel.ModelField;
 import uk.co.stikman.invmon.datamodel.FieldType;
+import uk.co.stikman.invmon.datamodel.ModelField;
 
 public class QueryFieldModel extends QueryField {
 

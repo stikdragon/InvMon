@@ -20,4 +20,8 @@ public class FloatStack {
 		return sb.toString();
 	}
 
+	public void clear() {
+		size = 0;
+	}
+
 }

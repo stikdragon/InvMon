@@ -17,6 +17,7 @@ import org.json.JSONObject;
 import org.w3c.dom.Element;
 
 import uk.co.stikman.invmon.InvMonException;
+import uk.co.stikman.invmon.datalog.stats.RebuildFrequency;
 import uk.co.stikman.invmon.datalog.stats.SeasonalMaxStats;
 import uk.co.stikman.invmon.datalog.stats.StatsThing;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
@@ -27,12 +28,16 @@ import uk.co.stikman.table.DataTable;
 import uk.co.stikman.table.DataType;
 
 public class StatsDB {
-	private static final StikLog	LOGGER	= StikLog.getLogger(StatsDB.class);
+	private static final StikLog	LOGGER		= StikLog.getLogger(StatsDB.class);
 
 	private final File				file;
 	private final DataLogger		owner;
+	private RebuildFrequency		rebuildFreq	= RebuildFrequency.DAILY;
 
-	private List<StatsThing>		things	= new ArrayList<>();
+	// we're setting this to now, so it doesn't always start to rebuild everything when you start up
+	private long					lastRebuild	= System.currentTimeMillis();
+
+	private List<StatsThing>		things		= new ArrayList<>();
 
 	public StatsDB(DataLogger owner, File file) throws InvMonException {
 		this.owner = owner;
@@ -97,7 +102,9 @@ public class StatsDB {
 	}
 
 	public void configure(Element root) throws InvMonException {
-		for (Element el : InvUtil.getElements(root, "Group")) {
+		setRebuildFreq(RebuildFrequency.valueOf(InvUtil.getAttrib(root, "rebuild", "DAILY").toUpperCase()));
+		
+		for (Element el : InvUtil.getElements(root, "Stat")) {
 			switch (InvUtil.getAttrib(el, "type")) {
 				case "seasonal-max":
 					StatsThing x = new SeasonalMaxStats(InvUtil.getAttrib(el, "id"), this, el);
@@ -106,7 +113,6 @@ public class StatsDB {
 				default:
 					throw new InvMonException("Unknown Group type");
 			}
-
 		}
 	}
 
@@ -282,31 +288,66 @@ public class StatsDB {
 		long nextPause = System.currentTimeMillis() + PAUSE_INTERVAL;
 		for (StatsThing thing : things) {
 			thing.beginBuild();
+			try {
 
-			//
-			// loop through every record in MiniDB 
-			//
-			int cnt = owner.getDbRecordCount();
-			for (int i = 0; i < cnt; ++i) {
-				if (System.currentTimeMillis() >= nextPause) {
-					if (gently)
-						Thread.sleep(PAUSE_LENGTH);
-					nextPause = System.currentTimeMillis() + PAUSE_INTERVAL;
-					//
-					// also update message here
-					// 
-					message.accept(String.format("Processing [%s] record %d / %d    %2d%%", thing.getId(), i, cnt, (int) (i * 100 / cnt)));
+				//
+				// loop through every record in MiniDB 
+				//
+				double rate = 1.0;
+				long startedAt = System.currentTimeMillis();
+				int cnt = owner.getDbRecordCount();
+				for (int i = 0; i < cnt; ++i) {
+					if (System.currentTimeMillis() >= nextPause) {
+						if (gently)
+							Thread.sleep(PAUSE_LENGTH);
+						nextPause = System.currentTimeMillis() + PAUSE_INTERVAL;
+						//
+						// also update message here
+						//
+						double pct = (double) i / cnt;
+						double dt = (System.currentTimeMillis() - startedAt) / 1000.0;
+						if (dt == 0.0)
+							dt = 0.0001;
+						double remain = ((1.0 / pct) - 1) * dt;
+						message.accept(String.format("Processing [%s] record %d / %d - %2d%%.  Approx remaining: %d seconds", thing.getId(), i, cnt, (int) (i * 100 / cnt), (int)remain));
+					}
+					DBRecord rec = owner.getRecord(i);
+					thing.processRec(rec);
 				}
-				DBRecord rec = owner.getRecord(i);
-				thing.processRec(rec);
+			} finally {
+				thing.finishBuild();
 			}
-
-			thing.finishBuild();
 		}
 	}
 
 	public StatsThing getThing(String name) {
 		return things.stream().filter(x -> name.equals(x.getId())).findFirst().get();
+	}
+
+	public RebuildFrequency getRebuildFreq() {
+		return rebuildFreq;
+	}
+
+	public void setRebuildFreq(RebuildFrequency rebuildFreq) {
+		this.rebuildFreq = rebuildFreq;
+	}
+
+	public long getLastRebuild() {
+		return lastRebuild;
+	}
+
+	public void setLastRebuild(long lastRebuild) {
+		this.lastRebuild = lastRebuild;
+	}
+
+	public boolean shouldRebuild() {
+		return System.currentTimeMillis() - lastRebuild >= getRebuildTime();
+	}
+
+	private long getRebuildTime() {
+		if (rebuildFreq == RebuildFrequency.DAILY)
+			return 60 * 60 * 24 * 1000;
+		throw new IllegalStateException("Unknown rebuild freq: " + rebuildFreq);
 	}
 
 }

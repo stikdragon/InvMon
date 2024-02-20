@@ -10,8 +10,6 @@ import org.teavm.jso.dom.events.KeyboardEvent;
 import org.teavm.jso.dom.html.HTMLElement;
 import org.teavm.jso.dom.html.HTMLImageElement;
 import org.teavm.jso.dom.html.HTMLInputElement;
-import org.teavm.jso.dom.xml.Element;
-import org.teavm.jso.dom.xml.Node;
 
 public class ConsolePopup extends PopupWindow {
 	private static final String	STORAGE_KEY	= "console-history";

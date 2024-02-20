@@ -7,6 +7,7 @@ import uk.co.stikman.invmon.InvMonException;
 import uk.co.stikman.invmon.datalog.DataLogger;
 import uk.co.stikman.invmon.datalog.MiniDbException;
 import uk.co.stikman.invmon.datalog.QueryResults;
+import uk.co.stikman.invmon.datalog.stats.StatsField;
 import uk.co.stikman.invmon.datalog.stats.StatsThing;
 import uk.co.stikman.invmon.datamodel.ModelField;
 import uk.co.stikman.invmon.minidom.MDElement;
@@ -136,12 +137,12 @@ public abstract class PageWidget {
 				// and any stats fields?
 				//
 				for (StatsThing thing : datalogger.getStatsDb().getThings()) {
-					for (String s : thing.getOutputFields())
-						flds.add(thing.getId() + "." + s);
+					for (StatsField s : thing.getOutputFields())
+						flds.add(thing.getId() + "." + s.getId());
 				}
 
 				try {
-					QueryResults aggr = datalogger.query(start, end, 100, flds.asList());
+					QueryResults aggr = datalogger.query(start, end, 200, flds.asList());
 					sesh.putData(WebUtils.CACHED_QUERY_RESULTS, aggr);
 					sesh.putData(WebUtils.CACHED_LAST_RECORD, datalogger.getLastRecord());
 				} catch (MiniDbException e) {

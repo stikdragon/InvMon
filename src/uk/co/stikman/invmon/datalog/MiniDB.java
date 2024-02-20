@@ -84,7 +84,7 @@ public class MiniDB {
 				//
 				if (model != null) {
 					if (index.getInternalModel() != null) {
-						if (!model.equals(index.getInternalModel()))
+						if (!model.testBaseFieldsEqualequals(index.getInternalModel()))
 							throw new ModelChangeException("Model has changed, database requires conversion");
 					}
 				} else { // model is null
@@ -163,12 +163,6 @@ public class MiniDB {
 	}
 
 	public void commitRecord(DBRecord rec) throws MiniDbException {
-		//
-		// calculate fields
-		//
-		for (ModelField f : model.getCalculatedFields())
-			rec.setFloat(f, f.getCalculationMethod().calc(rec));
-
 		//
 		// see if it'll fit in the current block
 		//

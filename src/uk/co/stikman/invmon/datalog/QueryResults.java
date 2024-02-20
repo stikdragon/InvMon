@@ -9,8 +9,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import uk.co.stikman.invmon.datalog.stats.StatsField;
-import uk.co.stikman.invmon.datamodel.ModelField;
 import uk.co.stikman.invmon.datamodel.FieldType;
+import uk.co.stikman.invmon.datamodel.ModelField;
 import uk.co.stikman.invmon.server.DataSet;
 import uk.co.stikman.invmon.server.DataSetRecord;
 import uk.co.stikman.table.DataRecord;
@@ -46,7 +46,7 @@ public class QueryResults {
 		DataTable dt = new DataTable();
 		for (QueryField f : fields) {
 			if (f instanceof QueryFieldStats qfs)
-				dt.addField(qfs.getField().getStatsThing().getId() + "." + qfs.getId());
+				dt.addField(qfs.getField().getOwner().getId() + "." + qfs.getId());
 			else
 				dt.addField(f.getId());
 		}

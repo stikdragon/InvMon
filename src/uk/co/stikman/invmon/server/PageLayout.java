@@ -4,30 +4,16 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.function.Function;
 
 import uk.co.stikman.invmon.Env;
 import uk.co.stikman.invmon.InvMonException;
 import uk.co.stikman.invmon.Pair;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
-import uk.co.stikman.invmon.server.widgets.BMSStatusWidget;
 import uk.co.stikman.invmon.minidom.MDElement;
 import uk.co.stikman.invmon.minidom.MiniDOM;
-import uk.co.stikman.invmon.server.widgets.ChartWidget;
-import uk.co.stikman.invmon.server.widgets.ControlsWidget;
-import uk.co.stikman.invmon.server.widgets.DailyPowerSummaryWidget;
-import uk.co.stikman.invmon.server.widgets.GaugeWidget;
-import uk.co.stikman.invmon.server.widgets.InfoBitWidget;
-import uk.co.stikman.invmon.server.widgets.LogWidget;
-import uk.co.stikman.invmon.server.widgets.PVTableWidget;
 import uk.co.stikman.invmon.server.widgets.PageWidget;
-import uk.co.stikman.invmon.server.widgets.StikSystemControllerWidget;
-import uk.co.stikman.invmon.server.widgets.TextSummaryWidget;
-import uk.co.stikman.invmon.server.widgets.TimeSelectorWidget;
 
 public class PageLayout {
 

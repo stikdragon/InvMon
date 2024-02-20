@@ -22,7 +22,6 @@ import uk.co.stikman.invmon.remote.JSONSend;
 import uk.co.stikman.invmon.serialrepeater.SerialRepeater;
 import uk.co.stikman.invmon.server.HTTPServer;
 import uk.co.stikman.invmon.stikbms.StikBMS;
-import uk.co.stikman.log.Level;
 
 public class Config {
 

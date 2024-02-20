@@ -12,6 +12,7 @@ public class Series {
 	private String			field;
 	private List<String>	subfields	= Collections.emptyList();
 	private int				yAxis;
+	private String			cssClass;
 
 	public int getYAxisId() {
 		return yAxis;
@@ -54,6 +55,7 @@ public class Series {
 			arr.put(s);
 		jo.put("subfields", arr);
 		jo.put("yAxis", yAxis);
+		jo.put("cssClass", cssClass);
 		return jo;
 	}
 
@@ -64,6 +66,20 @@ public class Series {
 		for (int i = 0; i < arr.length(); ++i)
 			subfields.add(arr.getString(i));
 		yAxis = root.getInt("yAxis");
+		cssClass = root.optString("cssClass");
+	}
+
+	/**
+	 * can be <code>null</code>
+	 * 
+	 * @return
+	 */
+	public String getCssClass() {
+		return cssClass;
+	}
+
+	public void setCssClass(String cssClass) {
+		this.cssClass = cssClass;
 	}
 
 }

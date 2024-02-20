@@ -32,7 +32,7 @@ public class Mutable<T> {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Mutable other = (Mutable) obj;
+		Mutable<?> other = (Mutable<?>) obj;
 		if (this.obj == null) {
 			if (other.obj != null)
 				return false;

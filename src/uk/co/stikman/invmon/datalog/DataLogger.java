@@ -9,10 +9,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.w3c.dom.Element;
@@ -26,12 +24,11 @@ import uk.co.stikman.invmon.InvModule;
 import uk.co.stikman.invmon.InvMonException;
 import uk.co.stikman.invmon.PollData;
 import uk.co.stikman.invmon.Sample;
-import uk.co.stikman.invmon.datalog.stats.StatsField;
 import uk.co.stikman.invmon.datalog.stats.StatsThing;
 import uk.co.stikman.invmon.datamodel.AggregationMode;
 import uk.co.stikman.invmon.datamodel.DataModel;
-import uk.co.stikman.invmon.datamodel.ModelField;
 import uk.co.stikman.invmon.datamodel.FieldType;
+import uk.co.stikman.invmon.datamodel.ModelField;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
 import uk.co.stikman.invmon.server.Console;
 import uk.co.stikman.log.StikLog;
@@ -41,7 +38,6 @@ public class DataLogger extends InvModule {
 	private MiniDB					db;
 	private StatsDB					statsDb;
 	private File					statsDbFile;
-	private File					lock;
 	private File					file;
 	private int						blockSize;
 	private int						cachedBlocks;
@@ -232,6 +228,14 @@ public class DataLogger extends InvModule {
 
 	}
 
+	@Subscribe(Events.TIMER_UPDATE_MINUTE)
+	public void timer2() {
+		if (statsDb.shouldRebuild()) {
+			triggerRebuild(true);
+			statsDb.setLastRebuild(System.currentTimeMillis());
+		}
+	}
+
 	@Subscribe(Events.POST_DATA)
 	public void postData(PollData data) throws MiniDbException {
 		//
@@ -296,7 +300,6 @@ public class DataLogger extends InvModule {
 	public void configure(Element config) throws InvMonException {
 		file = new File(InvUtil.getAttrib(config, "file"));
 		statsDbFile = new File(InvUtil.getAttrib(config, "stats"));
-		lock = new File(file.getAbsolutePath() + ".lock");
 		blockSize = Integer.parseInt(InvUtil.getAttrib(config, "blockSize", Integer.toString(MiniDB.DEFAULT_BLOCKSIZE)));
 		cachedBlocks = Integer.parseInt(InvUtil.getAttrib(config, "cachedBlocks", Integer.toString(MiniDB.DEFAULT_CACHED_BLOCKS)));
 
@@ -462,12 +465,10 @@ public class DataLogger extends InvModule {
 		// fields from stats modules
 		//
 		for (QueryFieldStats fld : statsFields) {
-			StatsThing stat = fld.getField().getStatsThing();
+			StatsThing stat = fld.getField().getOwner();
 			for (QueryRecord rec : res.getRecords())
 				rec.setFloat(fld.getIndex(), stat.queryField(fld.getField(), rec.getLong(0)));
 		}
-
-//		System.out.println(res);
 
 		return res;
 	}
@@ -524,8 +525,8 @@ public class DataLogger extends InvModule {
 			return new ConsoleResponse(db.getModel().toString());
 		if (cmd.equals("info"))
 			return showInfo(cmd);
-		if (cmd.equals("rebuild")) {
-			triggerRebuild(false);
+		if (cmd.matches("^rebuild( slow)?$")) {
+			triggerRebuild(!cmd.equals("rebuild"));
 			return new ConsoleResponse("Rebuild started.  Use 'info' command to observe");
 		}
 		return super.consoleCommand(console, cmd);
@@ -556,7 +557,7 @@ public class DataLogger extends InvModule {
 		super.populateCommandHelp(lst);
 		lst.add(new ConsoleHelpInfo("show model", "Show details about the current data model"));
 		lst.add(new ConsoleHelpInfo("info", "Show info"));
-		lst.add(new ConsoleHelpInfo("rebuild", "Force a rebuild right now, without any rate limiting"));
+		lst.add(new ConsoleHelpInfo("rebuild [slow]", "Force a rebuild right now, with or without any rate limiting"));
 	}
 
 }

@@ -6,7 +6,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
 import org.w3c.dom.Element;
 
@@ -46,8 +45,8 @@ public class FakeInverterMonitor extends InverterMonitor {
 		dp.put("loadI", 1.45f + rand(3f));
 		dp.put("loadV", 230.0f + rand(10f));
 		dp.put("loadF", 50.0f);
-		dp.put("pv1", 304f + rand(40f), 4.0f + rand(7f), 0);
-		dp.put("pv2", 304f + rand(40f), 4.0f + rand(7f), 0);
+		dp.put("pv1", 104f + rand(40f), 1.0f + rand(3f), 0);
+		dp.put("pv2", 144f + rand(40f), 1.0f + rand(3f), 0);
 		dp.put("temp", 41f + rand(5f));
 		dp.put("busV", (int) (380 + rand(100)));
 		dp.put("loadPF", rand(1.0f));

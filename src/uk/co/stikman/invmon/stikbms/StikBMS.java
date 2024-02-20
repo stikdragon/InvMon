@@ -2,12 +2,10 @@ package uk.co.stikman.invmon.stikbms;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
 import java.util.function.Consumer;
 
 import org.w3c.dom.Element;
@@ -27,10 +25,8 @@ import uk.co.stikman.invmon.Sample;
 import uk.co.stikman.invmon.datalog.IntRange;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
 import uk.co.stikman.invmon.inverter.util.TextPainter;
-import uk.co.stikman.invmon.inverter.util.TextPainter.BoxSet;
 import uk.co.stikman.invmon.server.Console;
 import uk.co.stikman.log.StikLog;
-import uk.co.stikman.table.DataRecord;
 import uk.co.stikman.table.DataTable;
 
 public class StikBMS extends InvModule {

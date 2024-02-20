@@ -30,7 +30,7 @@ public class StatsField {
 		return type;
 	}
 
-	public StatsThing getStatsThing() {
+	public StatsThing getOwner() {
 		return owner;
 	}
 

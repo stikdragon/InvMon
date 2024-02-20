@@ -105,6 +105,10 @@ public class ModelField {
 		return calculationMethod;
 	}
 
+	public boolean isCalculated() {
+		return calculated != null;
+	}
+
 	@Override
 	public String toString() {
 		return id;

@@ -14,7 +14,7 @@ public class QueryFieldStats extends QueryField {
 
 	@Override
 	protected String getId() {
-		return field.getStatsThing().getId() + "." + field.getId();
+		return field.getOwner().getId() + "." + field.getId();
 	}
 
 	@Override

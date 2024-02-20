@@ -55,6 +55,8 @@ public class ChartWidget extends PageWidget {
 					ser.setYAxis(opts.getAxisY2());
 				else
 					throw new IllegalArgumentException("Unknown axis: " + s);
+				ser.setCssClass(el.getAttrib("cssClass", null));
+				
 			} else if ("Axis".equals(el.getName())) {
 				Axis ax = null;
 				String id = el.getAttrib("id");

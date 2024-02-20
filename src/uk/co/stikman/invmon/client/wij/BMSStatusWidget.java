@@ -8,7 +8,6 @@ import org.teavm.jso.dom.html.HTMLElement;
 import org.teavm.jso.dom.xml.Element;
 
 import uk.co.stikman.invmon.client.AbstractPageWidget;
-import uk.co.stikman.invmon.client.Button;
 import uk.co.stikman.invmon.client.ClientPage;
 import uk.co.stikman.invmon.client.InvMon;
 import uk.co.stikman.invmon.client.StandardFrame;

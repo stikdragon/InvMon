@@ -16,8 +16,8 @@ import org.teavm.jso.dom.events.MouseEvent;
 import org.teavm.jso.dom.html.HTMLElement;
 
 import uk.co.stikman.invmon.Events;
-import uk.co.stikman.invmon.client.wij.BMSStatusWidget;
 import uk.co.stikman.invmon.client.MessagePopup.Type;
+import uk.co.stikman.invmon.client.wij.BMSStatusWidget;
 import uk.co.stikman.invmon.client.wij.ChartWidget;
 import uk.co.stikman.invmon.client.wij.ControlsWidget;
 import uk.co.stikman.invmon.client.wij.InfoBitWidget;
