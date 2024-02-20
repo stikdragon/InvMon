@@ -31,6 +31,7 @@ import uk.co.stikman.invmon.datamodel.FieldType;
 import uk.co.stikman.invmon.datamodel.ModelField;
 import uk.co.stikman.invmon.inverter.util.InvUtil;
 import uk.co.stikman.invmon.server.Console;
+import uk.co.stikman.invmon.server.UserRole;
 import uk.co.stikman.log.StikLog;
 
 public class DataLogger extends InvModule {
@@ -526,6 +527,7 @@ public class DataLogger extends InvModule {
 		if (cmd.equals("info"))
 			return showInfo(cmd);
 		if (cmd.matches("^rebuild( slow)?$")) {
+			console.getSession().requireUserRole(UserRole.ADMIN);
 			triggerRebuild(!cmd.equals("rebuild"));
 			return new ConsoleResponse("Rebuild started.  Use 'info' command to observe");
 		}
